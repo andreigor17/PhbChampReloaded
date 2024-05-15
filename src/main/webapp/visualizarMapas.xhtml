@@ -1,0 +1,61 @@
+<ui:composition template="layout.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                xmlns:fox="http://java.sun.com/jsf/composite/fox">
+
+    <ui:define name="title">
+        Visualizar Mapa
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="formVisualizarMapa"
+                >
+
+            <p:growl id="messages"
+                     showDetail="false"/>
+
+            <div  class="actions">
+
+
+                <p:button value="Editar" outcome="criarMapa.xhtml"
+                          icon="ui-icon-pencil"  >
+                    <f:param value="#{ managerMapa.mapa.id }" name="id"/>
+                </p:button>
+
+                <p:button value="Pesquisar" outcome="pesquisarMapas.xhtml"
+                          icon="ui-icon-search"  />
+
+            </div>
+            <p:fieldset legend="Dados">
+
+                <div class="row">
+                    <div class="column2 bold" >
+                        <p:outputLabel value="Nome:" for="nomeMapa"/>
+                    </div>
+                    <div class="column4 text" >
+                        <p:outputLabel id="nomeMapa"
+                                       value="#{managerMapa.mapa.nome}"/>
+                    </div>
+
+                    <div class="row" >
+                        <div class="column2 bold">
+                            <p:outputLabel value="Imagem" />
+                        </div>
+                        <div class="column4">
+                            <h:graphicImage value="image/#{managerMapa.mapa.avatar}" width="300px" height="100px" />
+
+                        </div>
+                    </div>
+                </div>
+
+            </p:fieldset>           
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

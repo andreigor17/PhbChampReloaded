@@ -1,0 +1,101 @@
+<ui:composition template="layout.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                xmlns:map="http://xmlns.jcp.org/jsf/composite/map">
+
+    <ui:define name="title">
+        Pesquisar Mapas
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="formPesquisarMapas"
+                enctype="multipart/form-data"
+                class="form-horizontal">
+
+            <p:growl id="messages"
+                     showDetail="false"/> 
+
+
+            <div class="actions">
+                <p:button value="Cadastrar" outcome="criarMapa.xhtml"
+                          icon="ui-icon-plus"  />
+            </div>
+
+            <p:fieldset legend="Filtros" id="dadosFieldset">                    
+                <div class="row">
+                    <div class="column2">
+                        <p:outputLabel value="Nome do Mapa" for="nomeMapa" />
+                    </div>
+                    <div class="column9">
+                        <p:inputText id="nomeMapa" value="#{ managerMapa.mapa.nome}"/>
+                    </div>
+                </div>
+
+                <div class="command">
+                    <p:commandButton
+                        id="pesquisarcommandButton" value="Pesquisar" icon="ui-icon-search"                                 
+                        update="@form" actionListener="#{ managerMapa.pesquisarMapas() }"  
+                        onclick="desabilitarBotoes(true);" oncomplete="desabilitarBotoes(false);"/>
+                    <p:commandButton value="Limpar" icon="ui-icon-close" update="@form" actionListener="#{ managerPlayer.instanciar() }" />
+                </div>
+
+            </p:fieldset>
+
+            <div class="row" style="display: flex; flex-wrap: wrap; width: 900px; height: 80vh; justify-content: center">
+                <ui:repeat value="#{managerMapa.mapas}" var="mapa">
+                    <div style="display: flex; justify-content: center; flex-direction: column; width: 400px; margin: 10px;">
+                        <div class='row'>
+                            <p:outputLabel id="nomeMapa" style="text-align: center !important" value="#{mapa.nome}" />
+                        </div>
+                        <div class="row" style="display: flex; justify-items: center; align-items: center">                                
+                            <h:commandButton action="#{managerMapa.visualizarMapa(mapa)}" style="border-radius: 10px;
+                                             margin: 10px; width: 350px !important; height: 175px !important" 
+                                             image="image/#{mapa.avatar}" >
+                                <p:ajax process="@this" update="@form"/>
+                            </h:commandButton>
+                        </div>
+                    </div>                
+                </ui:repeat>
+            </div>
+
+            <p:dialog id="confirmarRemoverMapaDialog"
+                      widgetVar="confirmarRemoverMapaDialog"
+                      header="Deseja realmente excluir ?"
+                      modal="true"
+                      resizable="false"
+                      draggable="false"
+                      closeOnEscape="true"
+                      showEffect="fade"
+                      hideEffect="fade">
+
+                <div class="commandDialog">
+
+                    <p:commandButton value="Não"
+                                     title="Cancelar Remoção"
+                                     icon="ui-icon-close"
+                                     oncomplete="PF('confirmarRemoverMapaDialog').hide();"
+                                     styleClass="btn btn-default"/>
+
+                    <p:commandButton value="Sim"
+                                     title="Confirmar Remoção"
+                                     icon="ui-icon-check"
+                                     process="@this"
+                                     update="@form"
+                                     actionListener="#{managerMapa.excluir()}"
+                                     styleClass="btn btn-info"/>
+
+                </div>
+
+
+
+            </p:dialog>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

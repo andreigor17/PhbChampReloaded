@@ -1,0 +1,85 @@
+<ui:composition template="layout.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                xmlns:fox="http://java.sun.com/jsf/composite/fox">
+
+    <ui:define name="title">
+        Campeonatos
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="formIndexCamp"
+                >
+
+            <p:growl id="messages"
+                     showDetail="false"/>
+
+            <div class="row">
+                <div class="column4">
+                    <p:tieredMenu style="width:200px">                                               
+                        <p:menuitem value="Criar" icon="pi pi-fw pi-plus" outcome="criarCampeonato.xhtml"/>
+                        <p:divider />
+                        <p:menuitem value="Pesquisar" outcome="pesquisarCampeonato.xhtml" icon="pi pi-fw pi-search"/>
+
+                    </p:tieredMenu>
+                </div>
+
+                <div class="column8">
+                    <p:dataTable id="campDataTable"
+                                 value="#{managerCamp.camps}"
+                                 var="campeonato"
+                                 paginator="true"
+                                 paginatorPosition="bottom"
+                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                 currentPageReportTemplate="{currentPage} de {totalPages}"
+                                 rows="10"
+                                 rowsPerPageTemplate="5,10,15"
+                                 emptyMessage="Nenhum Campeonato encontrado...">
+
+                        <f:facet name="header">
+                            <p:outputLabel value="Últimos Campeonatos" />
+                        </f:facet>
+
+                        <p:column headerText="Nome" width="20%">
+                            <h:outputLink  value="visualizarCampeonato.xhtml?id=#{campeonato.id}">
+                                <h:outputText value="#{campeonato.nome}" />
+                            </h:outputLink>
+                        </p:column>                
+                        <p:column headerText="Status" width="20%">
+                            <p:panel rendered="#{campeonato.status.nome eq 'Em Andamento'}" style="border: none">
+                                <span style="display: block;
+                                      border-radius: 20px;
+                                      padding: 4px 15px;
+                                      background-color:  #dbe6fe;
+                                      color: #648fe9;
+                                      font-weight: bold;">
+                                    <h:outputText value="Em Andamento"/>
+                                </span>
+                            </p:panel>
+                            <p:panel rendered="#{campeonato.status.nome eq 'Finalizado'}" style="border: none">
+                                <span style="display: block;
+                                      text-align: center;
+                                      border-radius: 20px;
+                                      padding: 4px 15px;
+                                      background-color: #f43e61;
+                                      color: #fff;
+                                      font-weight: bold;">
+                                    <h:outputText value="Finalizado"/>
+                                </span>
+                            </p:panel>
+                        </p:column>
+                        <p:column headerText="Jogo" width="10%">
+                            <p:outputLabel value="#{campeonato.jogo.nome}"/>
+                        </p:column>
+                    </p:dataTable>
+                </div>
+            </div>
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

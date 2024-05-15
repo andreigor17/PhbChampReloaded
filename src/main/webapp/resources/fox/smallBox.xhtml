@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:cc="http://java.sun.com/jsf/composite"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:pe="http://primefaces.prime.com.tr/ui"
+                xmlns:p="http://primefaces.org/ui">
+
+    <cc:interface>
+        <cc:attribute name="styleClass"  default="col-md-4"/>
+        <cc:attribute name="panelClass" required="true"/>
+        <cc:attribute name="value" required="false"/>
+        <cc:attribute name="text" required="true"/>
+        <cc:attribute name="subtitle" required="false"/>
+        <cc:attribute name="icon" required="true"/>
+        <cc:attribute name="iconrendered" default="true" />
+        <cc:attribute name="url" default="#"/>
+        <cc:attribute name="iconsize" default="fa-5x"/>
+    </cc:interface>
+
+    <cc:implementation>
+
+        <style>
+            .huge>label:hover{
+                cursor:unset !important;
+            }
+        </style>
+        
+        <a href="#{cc.attrs.url}" >
+            <div class="#{cc.attrs.styleClass}">
+                <div class="panel #{cc.attrs.panelClass}">
+                    <div class="panel-heading">
+                        <div class="row2">
+                            <div class="#{cc.attrs.iconrendered ? 'col-xs-10':'col-xs-12'} text-left" >
+                                <div class="huge"  >
+                                    <p:outputLabel value="#{cc.attrs.value}"/>
+                                </div>
+                                <div class="hugeTipo" >#{cc.attrs.text}</div>
+                                #{cc.attrs.subtitle}
+
+                            </div>
+                            <div class="col-xs-2" style="#{cc.attrs.iconrendered ? '':'display:none;'}">
+                                <i class="fa #{cc.attrs.icon} #{cc.attrs.iconsize}"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+    </cc:implementation>
+</ui:composition>

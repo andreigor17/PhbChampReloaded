@@ -1,0 +1,43 @@
+<ui:composition template="layout.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                xmlns:map="http://xmlns.jcp.org/jsf/composite/map">
+
+    <ui:define name="title">
+        Pesquisar Players
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="formServer"
+                enctype="multipart/form-data"
+                class="form-horizontal">
+
+            <p:growl id="messages"
+                     showDetail="false"/> 
+
+
+
+
+            <p:fieldset legend="Filtros" id="dadosFieldset">                    
+                <div class="row">
+                    <div class="column2 bold">
+                        <p:commandButton value="Start SteamCmd" actionListener="#{managerServer.iniciarSteamCmd()}" process="@this"
+                                         update="@form"/>
+                    </div>
+                    <div class="column2 bold">
+                        <p:outputLabel value=#{managerServer.csgoServerReturn} />
+                    </div>
+                </div>
+
+            </p:fieldset>
+
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

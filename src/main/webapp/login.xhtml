@@ -1,0 +1,41 @@
+<ui:composition template="layout.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                xmlns:fox="http://java.sun.com/jsf/composite/fox">
+
+    <ui:define name="title">
+        Login 
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="formPlayer"
+                enctype="multipart/form-data"
+                class="form-horizontal">
+
+            <p:growl id="messages"
+                     showDetail="false"/>
+
+            <p:panelGrid class="column2">
+                <p:outputLabel for="nomeUsuario" value="Nome
+                               Usuário:" />
+                <p:inputText id="nomeUsuario"
+                             value="#{managerLogin.usuario.login}" />
+
+                <p:outputLabel for="senha" value="Senha:" />
+                <p:password id="senha" value="#{managerLogin.usuario.senha}" />
+
+                <p:commandButton value="Enviar"
+                                 icon="ui-icon-star" action="#{managerLogin.envia()}" ajax="false">
+                </p:commandButton>
+
+            </p:panelGrid>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

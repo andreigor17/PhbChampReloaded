@@ -1,0 +1,355 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package br.com.champ.Servico;
+
+import br.com.champ.Modelo.Configuracao;
+import br.com.champ.Modelo.Partida;
+import br.com.champ.Utilitario.APIPath;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Stateless;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import org.json.JSONException;
+
+/**
+ *
+ * @author andre
+ */
+@Stateless
+public class PartidaServico {
+
+    @EJB
+    private ConfiguracaoServico configuracaoServico;
+
+    public Configuracao obterConfiguracao() {
+        return configuracaoServico.buscaConfig();
+
+    }
+
+    public String pathToAPI() throws IOException {
+        return APIPath.pathToAPI();
+
+    }
+
+    public Partida salvar(Partida partida, Long id, String uri) throws Exception {
+
+        String url;
+        if (id != null) {
+            url = pathToAPI() + uri + id;
+        } else {
+            url = pathToAPI() + uri;
+        }
+
+        try {
+            // Cria um objeto HttpURLConnection:
+            HttpURLConnection request = (HttpURLConnection) new URL(url).openConnection();
+
+            try {
+                // Define que a conexão pode enviar informações e obtê-las de volta:
+                request.setDoOutput(true);
+                request.setDoInput(true);
+
+                // Define o content-type:
+                request.setRequestProperty("Content-Type", "application/json");
+
+                // Define o método da requisição:
+                if (id != null) {
+                    request.setRequestMethod("PUT");
+                } else {
+                    request.setRequestMethod("POST");
+                }
+
+                // Conecta na URL:
+                request.connect();
+                // Montando o  Json
+                Gson gson = new Gson();
+                String json = gson.toJson(partida);
+                System.out.println("Montagem da partida: " + json);
+
+                // Escreve o objeto JSON usando o OutputStream da requisição:
+                try (OutputStream outputStream = request.getOutputStream()) {
+                    outputStream.write(json.getBytes("UTF-8"));
+                }
+
+                Partida c = new Partida();
+                c = gson.fromJson(readResponse(request), Partida.class);
+
+                return c;
+            } finally {
+                request.disconnect();
+            }
+        } catch (IOException ex) {
+            System.err.println(ex);
+        }
+        return null;
+    }
+
+    private String readResponse(HttpURLConnection request) throws IOException {
+        ByteArrayOutputStream os;
+        try (InputStream is = request.getInputStream()) {
+            os = new ByteArrayOutputStream();
+            int b;
+            while ((b = is.read()) != -1) {
+                os.write(b);
+            }
+        }
+        return new String(os.toByteArray());
+    }
+
+    public void delete(Partida partida) {
+
+    }
+
+    public List<Partida> pesquisarPartidas(Partida partidaPesquisar) {
+        try {
+            String url = pathToAPI() + "/partidas";
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+//            // optional default is GET
+            con.setRequestMethod("GET");
+            //add request header
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
+            int responseCode = con.getResponseCode();
+            System.out.println("\nSending 'GET' request to URL : " + url);
+            System.out.println("Response Code : " + responseCode);
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            //print in String
+            System.out.println(response.toString());
+            //Read JSON response and print
+            Gson gson = new Gson();
+            List<Partida> c = new ArrayList<>();
+
+            //Team[] userArray = gson.fromJson(response.toString(), Team[].class);
+            Type userListType = new TypeToken<ArrayList<Partida>>() {
+            }.getType();
+
+            ArrayList<Partida> userArray = gson.fromJson(response.toString(), userListType);
+
+            for (Partida partida : userArray) {
+                c.add(partida);
+            }
+
+            return c;
+        } catch (IOException iOException) {
+            System.err.println(iOException);
+        } catch (JSONException jSONException) {
+            System.err.println(jSONException);
+        } catch (NumberFormatException numberFormatException) {
+            System.err.println(numberFormatException);
+        }
+        return null;
+
+    }
+
+    public List<Partida> pesquisarPartidasPorJogo(String nomeJogo) {
+        try {
+            String url = pathToAPI() + "/partidas/partida_jogo?nomeJogo=" + nomeJogo;
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+//            // optional default is GET
+            con.setRequestMethod("GET");
+            //add request header
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
+            int responseCode = con.getResponseCode();
+            //System.out.println("\nSending 'GET' request to URL : " + url);
+            //System.out.println("Response Code : " + responseCode);
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            //print in String
+            //System.out.println(response.toString());
+            //Read JSON response and print
+            Gson gson = new Gson();
+            List<Partida> c = new ArrayList<>();
+
+            //Team[] userArray = gson.fromJson(response.toString(), Team[].class);
+            Type userListType = new TypeToken<ArrayList<Partida>>() {
+            }.getType();
+
+            ArrayList<Partida> userArray = gson.fromJson(response.toString(), userListType);
+
+            for (Partida partida : userArray) {
+                c.add(partida);
+            }
+
+            return c;
+        } catch (IOException iOException) {
+            System.err.println(iOException);
+        } catch (JSONException jSONException) {
+            System.err.println(jSONException);
+        } catch (NumberFormatException numberFormatException) {
+            System.err.println(numberFormatException);
+        }
+        return null;
+
+    }
+
+    public List<Partida> pesquisarPartidasGeral() {
+        try {
+            String url = pathToAPI() + "/partidas/partidas";
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+//            // optional default is GET
+            con.setRequestMethod("GET");
+            //add request header
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
+            int responseCode = con.getResponseCode();
+            System.out.println("\nSending 'GET' request to URL : " + url);
+            System.out.println("Response Code : " + responseCode);
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            //print in String
+            System.out.println(response.toString());
+            //Read JSON response and print
+            Gson gson = new Gson();
+            List<Partida> c = new ArrayList<>();
+
+            //Team[] userArray = gson.fromJson(response.toString(), Team[].class);
+            Type userListType = new TypeToken<ArrayList<Partida>>() {
+            }.getType();
+
+            ArrayList<Partida> userArray = gson.fromJson(response.toString(), userListType);
+
+            for (Partida partida : userArray) {
+                c.add(partida);
+            }
+
+            return c;
+        } catch (IOException iOException) {
+            System.err.println(iOException);
+        } catch (JSONException jSONException) {
+            System.err.println(jSONException);
+        } catch (NumberFormatException numberFormatException) {
+            System.err.println(numberFormatException);
+        }
+        return null;
+
+    }
+
+    public List<Partida> partidaPorCamp(Long id) {
+        try {
+            String url = pathToAPI() + "/partidas/partidasPorCamp/" + id;
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            // optional default is GET
+            con.setRequestMethod("GET");
+            //add request header
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
+            int responseCode = con.getResponseCode();
+            System.out.println("\nSending 'GET' request to URL : " + url);
+            System.out.println("Response Code : " + responseCode);
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            //print in String
+            System.out.println(response.toString());
+            //Read JSON response and print
+            Gson gson = new Gson();
+            List<Partida> c = new ArrayList<>();
+
+            //Team[] userArray = gson.fromJson(response.toString(), Team[].class);
+            Type userListType = new TypeToken<ArrayList<Partida>>() {
+            }.getType();
+
+            ArrayList<Partida> userArray = gson.fromJson(response.toString(), userListType);
+
+            for (Partida part : userArray) {
+                c.add(part);
+            }
+
+            return c;
+        } catch (IOException iOException) {
+            System.err.println(iOException);
+        } catch (JSONException jSONException) {
+            System.err.println(jSONException);
+        } catch (NumberFormatException numberFormatException) {
+            System.err.println(numberFormatException);
+        }
+        return null;
+    }
+
+    public Partida pesquisar(Long id) {
+
+        try {
+            String url = pathToAPI() + "/partidas/" + id;
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            // optional default is GET
+            con.setRequestMethod("GET");
+            //add request header
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
+            int responseCode = con.getResponseCode();
+            System.out.println("\nSending 'GET' request to URL : " + url);
+            System.out.println("Response Code : " + responseCode);
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            //print in String
+            System.out.println(response.toString());
+            //Read JSON response and print
+            Gson gson = new Gson();
+            Partida c = new Partida();
+
+            Partida userArray = gson.fromJson(response.toString(), Partida.class);
+
+            c = userArray;
+            return c;
+        } catch (IOException iOException) {
+            System.err.println(iOException);
+        } catch (JSONException jSONException) {
+            System.err.println(jSONException);
+        } catch (NumberFormatException numberFormatException) {
+            System.err.println(numberFormatException);
+        }
+        return null;
+
+    }
+
+}

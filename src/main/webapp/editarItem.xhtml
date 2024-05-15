@@ -1,0 +1,210 @@
+<ui:composition template="layout.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <ui:define name="title">
+        Editar Partida
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="formEditarItem"
+                >
+
+            <p:growl id="messages"
+                     showDetail="false"/>
+
+            <p:dataTable id="partidaTime1"
+                         value="#{managerPesquisarEstatisticas.estsTime1Visualizar}"
+                         var="ests1"
+                         paginator="true"
+                         editable="true"
+                         editMode="cell" widgetVar="estsPartida"
+                         paginatorPosition="bottom"
+                         paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                         currentPageReportTemplate="{currentPage} de {totalPages}"
+                         rows="10"
+                         rowsPerPageTemplate="5,10,15">
+
+                <f:facet name="header">
+                    <p:outputLabel value="#{managerPesquisarEstatisticas.itemPartida.team1.nome}" />
+                </f:facet>
+
+                <p:column headerText="Opções" width="5%">
+                    <div class="options">
+                        <p:button title="Visualizar Player"
+                                  icon="ui-icon-search"
+                                  href="visualizarPlayer.xhtml?id=#{ests1.player.id}"/>
+                    </div>
+                </p:column>
+                <p:column headerText="Nome" width="30%">
+                    <p:outputLabel  value="#{ests1.player.nome}   '#{ests1.player.nick}' #{ests1.player.sobreNome} "/>
+                </p:column>                            
+                <p:column headerText="Kills">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{ests1.kills}"/>
+                        </f:facet>
+
+                        <f:facet name="input">
+                            <p:inputText  value="#{ests1.kills}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column headerText="Assists">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{ests1.assists}"/>
+                        </f:facet>
+
+                        <f:facet name="input">
+                            <p:inputText  value="#{ests1.assists}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>  
+                <p:column headerText="Deaths">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{ests1.deaths}"/>
+                        </f:facet>
+
+                        <f:facet name="input">
+                            <p:inputText  value="#{ests1.deaths}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>     
+            </p:dataTable>
+
+
+            <p:dataTable id="partidaTime2"
+                         value="#{managerPesquisarEstatisticas.estsTime2Visualizar}"
+                         var="ests2"
+                         paginator="true"
+                         paginatorPosition="bottom"
+                         editable="true"
+                         editMode="cell" widgetVar="estsPartida2"
+                         paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                         currentPageReportTemplate="{currentPage} de {totalPages}"
+                         rows="10"
+                         rowsPerPageTemplate="5,10,15">
+
+                <f:facet name="header">
+                    <p:outputLabel value="#{managerPesquisarEstatisticas.itemPartida.team2.nome}" />
+                </f:facet>
+
+                <p:column headerText="Opções" width="5%">
+                    <div class="options">
+                        <p:button title="Visualizar Player"
+                                  icon="ui-icon-search"
+                                  href="visualizarPlayer.xhtml?id=#{ests2.player.id}"/>
+                    </div>
+                </p:column>
+
+                <p:column headerText="Nome" width="30%">
+                    <p:outputLabel  value="#{ests2.player.nome}   '#{ests2.player.nick}' #{ests2.player.sobreNome} "/>
+                </p:column>                            
+                <p:column headerText="Kills">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{ests2.kills}"/>
+                        </f:facet>
+
+                        <f:facet name="input">
+                            <p:inputText  value="#{ests2.kills}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>     
+                <p:column headerText="Assists">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{ests2.assists}"/>
+                        </f:facet>
+
+                        <f:facet name="input">
+                            <p:inputText  value="#{ests2.assists}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>   
+                <p:column headerText="Deaths">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{ests2.deaths}"/>
+                        </f:facet>
+
+                        <f:facet name="input">
+                            <p:inputText  value="#{ests2.deaths}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>                   
+
+            </p:dataTable>
+
+
+            <div class="actions">   
+                <center>
+                    <p:commandButton value="Salvar" onclick="PF('confirmacaoEdicaoPartida').show();"/>
+                    <p:commandButton value="Cancelar" actionListener="#{managerPesquisarEstatisticas.cancelar()}"/>
+                </center>
+            </div>
+
+
+            <p:dialog id="confirmacaoEdicaoPartida"
+                      widgetVar="confirmacaoEdicaoPartida"
+                      header="Placar do mapa"
+                      modal="true"
+                      resizable="false"
+                      draggable="false"
+                      closeOnEscape="true"
+                      showEffect="fade"
+                      hideEffect="fade">
+
+
+
+                <center>
+                    <div class="row">
+                        <div class="column2">
+                            <p:outputLabel value="#{managerPesquisarEstatisticas.itemPartida.team1.nome}" for="nomeTime1"/>
+                        </div>
+                        <div class="column2">
+                            <p:inputText id="nomeTime1" value="#{managerPesquisarEstatisticas.itemPartida.scoreT1}"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="column2">
+                            <p:outputLabel value="#{managerPesquisarEstatisticas.itemPartida.team2.nome}" for="nomeTime2"/>
+                        </div>
+                        <div class="column2">
+                            <p:inputText id="nomeTime2" value="#{managerPesquisarEstatisticas.itemPartida.scoreT2}"/>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <p:commandButton value="Cancelar"
+                                         title="Cancelar Remoção"
+                                         icon="fa fa-ban"
+                                         oncomplete="PF('confirmacaoEdicaoPartida').hide();"
+                                         styleClass="btn btn-default"/>
+
+                        <p:commandButton value="Salvar"
+                                         title="Confirmar Remoção"
+                                         icon="fa fa-check"
+                                         process="@form"
+                                         update="@form"
+                                         actionListener="#{managerPesquisarEstatisticas.salvar()}"
+                                         styleClass="btn btn-info"
+                                         onclick="desabilitarBotoes(true);" oncomplete="desabilitarBotoes(false);"/>
+                    </div>
+
+                </center>
+
+            </p:dialog>          
+
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

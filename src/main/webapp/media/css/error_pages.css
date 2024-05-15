@@ -1,0 +1,90 @@
+.fixed .content-wrapper{
+    padding-top: 0;
+}
+
+.box.box-primary{
+    min-height: 530px
+}
+
+.text-yellow {
+    color: #f39c12 !important;
+}
+
+.error-message{
+    margin-top: 10%
+}
+
+.main-footer{
+    font-size: 12px;
+    padding: 8px;
+    position: fixed;
+    top: 95%;
+    width: 100%;
+}
+
+@media only screen and (max-width: 800px) {
+    .box.box-primary{
+        min-height: 500px
+    }
+}
+
+#content{
+    margin-top: 85px
+}
+
+#fox {
+    color: #667B8E;
+    font: 46pt Arial;
+    vertical-align: middle;
+    margin-left: 19%;
+    text-align: center;
+}
+
+#inline {
+    color: #F5D765;
+    font: 46pt Arial;
+    vertical-align: middle;
+    margin-left: -0.7%;
+    margin-top: -10.1%;
+    text-align: center;
+}
+
+#tech{
+    color: #8C8C8C;
+    font: 14pt Arial;
+    vertical-align: middle;
+    text-align: center;
+}
+
+#logoCanvas {
+    margin-top: -50px; 
+}
+
+@media all and (min-width: 1025px){
+    #logoCanvas {
+        margin-left: 0;
+    }
+
+    #tech {
+        /*        float: left;
+                margin-left: 10%;*/
+        margin-top: -2%;
+    }
+}
+
+@media all and (max-width: 800px){
+
+    #logoCanvas {
+        margin-left: -10%
+    }
+
+    #fox {
+        margin-left: 15%;
+    }
+
+    #tech {
+        float: left;
+        margin-left: 16%;
+        margin-top: -11px;
+    }
+}

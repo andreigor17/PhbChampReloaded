@@ -1,0 +1,245 @@
+<ui:composition template="layout.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                xmlns:map="http://xmlns.jcp.org/jsf/composite/map">
+
+    <ui:define name="title">
+        Partida Clássica
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="formPartidaClassica"
+                enctype="multipart/form-data"
+                class="form-horizontal">
+
+            <script type="text/javascript">
+                function handleDrop(event, ui) {
+                    var droppedProduct = ui.draggable;
+
+                    droppedProduct.fadeOut('fast');
+                }
+            </script>
+
+            <p:growl id="messages"
+                     showDetail="false"/> 
+
+
+            <div class="actions">
+                <p:button value="Cadastrar Player" outcome="criarPlayer.xhtml"
+                          icon="ui-icon-plus"  />
+            </div>
+
+            <p:fieldset legend="Todos os jogadores" id="dadosFieldset">   
+
+                <h5 class="p-mt-0">Jogadores Disponíveis</h5>
+                <p:dataTable id="jogadoresDisponives" var="player" value="#{managerPartida.pickedPlayers}" 
+                             emptyMessage="Nenhum player selecionado!">
+                    <p:column style="width:50px">
+                        <h:outputText id="dragIcon" styleClass="ui-icon pi pi-plus"/>
+                        <p:draggable for="dragIcon" revert="true" helper="clone"/>
+                    </p:column>
+                    <p:column headerText="Nome">
+                        <h:outputText value="#{player.nome}   '#{player.nick}' #{player.sobreNome} "/>
+                    </p:column>
+
+                    <p:column headerText="Função">
+                        <h:outputText value="#{player.funcao}"/>
+                    </p:column>                   
+                </p:dataTable>
+            </p:fieldset>
+
+            <div class="row">
+                <div class="column6">
+                    <p:fieldset id="jogadoresTime1" legend="Time 1" style="margin-top:20px">
+                        <p:outputPanel id="dropArea1">
+                            <h:outputText value="Arraste aqui" rendered="#{empty managerPartida.droppedPlayers1}"
+                                          style="font-size:1.5rem"/>
+                            <p:dataTable id="selectedPlayersTable1" var="player" value="#{managerPartida.droppedPlayers1}"
+                                         rendered="#{not empty managerPartida.droppedPlayers1}">
+                                <p:column headerText="Nome">
+                                    <h:outputText value="#{player.nome}   '#{player.nick}' #{player.sobreNome} "/>
+                                </p:column>
+
+                                <p:column headerText="Função">
+                                    <h:outputText value="#{player.funcao}"/>
+                                </p:column>                   
+
+
+                            </p:dataTable>
+                        </p:outputPanel>
+                    </p:fieldset>
+                </div>
+
+                <div class="column6">
+                    <p:fieldset id="jogadoresTime2" legend="Time 2" style="margin-top:20px">
+                        <p:outputPanel id="dropArea2">
+                            <h:outputText value="Arraste aqui" rendered="#{empty managerPartida.droppedPlayers2}"
+                                          style="font-size:1.5rem"/>
+                            <p:dataTable id="selectedPlayersTable2" var="player" value="#{managerPartida.droppedPlayers2}"
+                                         rendered="#{not empty managerPartida.droppedPlayers2}">
+                                <p:column headerText="Nome">
+                                    <h:outputText value="#{player.nome}   '#{player.nick}' #{player.sobreNome} "/>
+                                </p:column>
+
+                                <p:column headerText="Função">
+                                    <h:outputText value="#{player.funcao}"/>
+                                </p:column>                   
+
+
+                            </p:dataTable>
+                        </p:outputPanel>
+                    </p:fieldset>
+                </div>
+
+            </div>
+
+            <p:droppable for="jogadoresTime1" tolerance="touch" activeStyleClass="ui-state-highlight"
+                         datasource="jogadoresDisponives" onDrop="handleDrop">
+                <p:ajax listener="#{managerPartida.onPlayerDrop1}" update="dropArea1 jogadoresDisponives"/>
+            </p:droppable>
+
+            <p:droppable for="jogadoresTime2" tolerance="touch" activeStyleClass="ui-state-highlight"
+                         datasource="jogadoresDisponives" onDrop="handleDrop">
+                <p:ajax listener="#{managerPartida.onPlayerDrop2}" update="dropArea2 jogadoresDisponives"/>
+            </p:droppable>
+
+
+            <div class="actions">
+                <center>
+                    <p:commandButton value="Avançar" actionListener="#{managerPartida.dialogPartidaClassica()}" process="@form" update="@form"/>
+                    <p:button value="Cancelar" outcome="indexPartida.xhtml"/>
+                </center>
+            </div>
+
+
+
+            <p:dialog id="selecaoDeCapitaesDialog"
+                      widgetVar="selecaoDeCapitaesDialog"
+                      header="Seleção de Capitães"
+                      modal="true"
+                      resizable="false"
+                      draggable="false"
+                      closeOnEscape="true"
+                      showEffect="fade"
+                      hideEffect="fade">
+
+                <div class="row">
+                    <div class="column2">
+                        <p:outputLabel value="Forma de escolha dos capitães"/>
+                    </div>
+                    <div class="column2">
+                        <p:selectOneRadio value="#{managerPartida.tipoEscolhaCapitaes}" unselectable="true">
+                            <f:selectItem itemLabel="Sorteio" itemValue="1"/>
+                            <f:selectItem itemLabel="Picks" itemValue="2"/>
+                            <p:ajax process="@this"/>
+                        </p:selectOneRadio>
+                    </div>
+                </div>
+                <div class="row" >
+                    <div class="column12">
+                        <style>
+                            .ui-picklist .ui-picklist-list{
+                                width: 350px;
+                            }
+                        </style> 
+                        <p:pickList id="grupoPickList" value="#{ managerPartida.playerGroupList }" var="player"
+                                    filterMatchMode="contains" showSourceFilter="true" showTargetFilter="true"
+                                    itemValue="#{ player }" itemLabel="#{ player.nick }" converter="player_converter">
+                            <f:facet name="sourceCaption">Players</f:facet>
+                            <f:facet name="targetCaption">Players Selecionados</f:facet>
+                        </p:pickList>
+                    </div>                  
+                </div>
+                <div class="actions">
+                    <center>
+                        <p:button value="Cancelar"
+                                         title="Cancelar Remoção"
+                                         icon="fa fa-ban"
+                                         href="indexPartida.xhtml"
+                                         styleClass="btn btn-default"/>
+
+                        <p:commandButton value="Confirmar"
+                                         title="Confirmar"
+                                         icon="fa fa-check"
+                                         process="@form"
+                                         update="@form"                                         
+                                         styleClass="btn btn-info"
+                                         onclick="desabilitarBotoes(true);" oncomplete="desabilitarBotoes(false);"
+                                         actionListener="#{managerPartida.selecionarPartidaClassica()}"/>
+                    </center>
+                </div>
+            </p:dialog>  
+
+            <p:dialog id="confirmarCriacaoX5Dialog"
+                      widgetVar="confirmarCriacaoX5Dialog"
+                      header="Nome dos times!"
+                      modal="true"
+                      resizable="false"
+                      draggable="false"
+                      closeOnEscape="true"
+                      showEffect="fade"
+                      hideEffect="fade">
+
+
+
+                <center>
+                    <div class="row">
+                        <div class="column3">
+                            <p:outputLabel value="Nome do time 1: " for="nomeTime1"/>
+                        </div>
+                        <div class="column3">
+                            <p:inputText id="nomeTime1" value="#{managerPartida.nomeTime1}"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="column3">
+                            <p:outputLabel value="Nome do time 2: " for="nomeTime2"/>
+                        </div>
+                        <div class="column3">
+                            <p:inputText id="nomeTime2" value="#{managerPartida.nomeTime2}"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="column3">
+                            <p:outputLabel value="Selecione o número de rounds:"/>
+                        </div>
+
+                        <div class="column2">
+                            <p:selectOneRadio value="#{managerPartida.qtdItensPartidas}" unselectable="true">
+                                <f:selectItem itemLabel="MD1" itemValue="1"/>
+                                <f:selectItem itemLabel="MD3" itemValue="3"/>
+                                <f:selectItem itemLabel="MD5" itemValue="5"/>
+                            </p:selectOneRadio>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <p:commandButton value="Cancelar"
+                                         title="Cancelar Remoção"
+                                         icon="fa fa-ban"
+                                         oncomplete="PF('confirmarCriacaoX5Dialog').hide();"
+                                         styleClass="btn btn-default"/>
+
+                        <p:commandButton value="Sortear times"
+                                         title="Confirmar Remoção"
+                                         icon="fa fa-check"
+                                         process="@form"
+                                         update="@form"
+                                         actionListener="#{managerPartida.salvarPartidaClassica()}"
+                                         styleClass="btn btn-info"
+                                         onclick="desabilitarBotoes(true);" oncomplete="desabilitarBotoes(false);"/>
+                    </div>
+
+                </center>
+
+            </p:dialog>          
+
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

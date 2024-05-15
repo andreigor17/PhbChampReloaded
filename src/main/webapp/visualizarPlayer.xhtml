@@ -1,0 +1,226 @@
+<ui:composition template="layout.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                xmlns:fox="http://java.sun.com/jsf/composite/fox">
+
+    <ui:define name="title">
+        Visualizar Player
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="formVisualizarPlayer"
+                >
+
+            <p:growl id="messages"
+                     showDetail="false"/>
+
+            <div  class="actions">
+
+                <p:commandButton title="Remover Player"
+                                 value="Excluir"
+                                 icon="ui-icon-close" 
+                                 process="@this"
+                                 update="@form"
+                                 oncomplete="PF('confirmarRemoverPlayerDialog').show();">
+                    <f:setPropertyActionListener value="#{player}"
+                                                 target="#{managerPlayer.player}"/>
+                </p:commandButton>
+                <p:button value="Editar" outcome="criarPlayer.xhtml"
+                          icon="ui-icon-pencil"  >
+                    <f:param value="#{ managerPlayer.player.id }" name="id"/>
+                </p:button>
+
+                <p:button value="Pesquisar" outcome="pesquisarPlayer.xhtml"
+                          icon="ui-icon-search"  />
+
+            </div>
+            <p:fieldset legend="Dados">
+
+                <div class="row">
+                    <div class="column2 bold" >
+                        <p:outputLabel value="Nome:" for="nomePlayer"/>
+                    </div>
+                    <div class="column4 text" >
+                        <p:outputLabel id="nomePlayer"
+                                       value="#{managerPlayer.player.nome}   '#{managerPlayer.player.nick}' #{managerPlayer.player.sobreNome} "/>
+                    </div>
+                    <div class="column2 bold" >
+                        <p:outputLabel value="Função:" for="funcaoPlayer"/>
+                    </div>
+                    <div class="column4 text" >
+                        <p:outputLabel id="funcaoPlayer"
+                                       value="#{managerPlayer.player.funcao.nome}"/>
+                    </div>
+                </div>
+
+                <div class="row">                    
+                    <div class="column2 bold">
+                        <p:outputLabel value="Url Steam: "
+                                       for="urlSteam"/>
+                    </div>
+                    <div class="column4 text">
+                        <h:outputLink id="urlSteam" value="https://steamcommunity.com/id/#{managerPlayer.player.urlSteam}">
+                            <h:outputText value="#{managerPlayer.player.urlSteam}" />
+                        </h:outputLink>
+                    </div>
+                </div>
+
+                <div class="row" >
+
+                    <div class="column2 bold">
+                        <p:outputLabel value="Jogos:"/>
+                    </div>
+                    <div class="column4 text">
+                        <ui:repeat value="#{managerPlayer.player.jogos}" var="jogo" >
+                            <p:outputLabel  value="#{jogo.nome}"/>
+                        </ui:repeat>
+                    </div>
+                    <div class="column2 bold">
+                        <p:outputLabel value="Avatar:" />
+                    </div>
+                    <div class="column4">
+                        <h:graphicImage value="image/#{managerPlayer.player.anexo.nome}" width="100px" height="100px" />
+
+                    </div>
+                </div>
+            </p:fieldset>
+
+            <p:fieldset legend="Estatísticas">
+                <c:forEach items="#{managerPlayer.player.jogos}" var="jogo">
+                    <p:tabView id="tabview" styleClass="row" >
+                        <p:tab id="jogos" title="#{jogo.nome}" >
+                            <p:dataTable id="playersDataTable" value="#{ managerPlayer.somaEstsPayer() }" var="ests"
+                                         rows="10" paginator="true" paginatorPosition="bottom" emptyMessage="Nenhum time adicionado"
+                                         sortBy="#{ ests.kills}" sortMode="descending" >
+
+                                <p:column headerText="Kills" width="50%">
+                                    <h:outputText value="#{ ests.kills}" />
+                                </p:column>
+                                <p:column headerText="Deaths" width="50%">
+                                    <h:outputText value="#{ ests.deaths}" />
+                                </p:column>
+                                <p:column headerText="RG" width="50%">
+                                    <h:outputText value="#{ ests.roundsGanhos}" />
+                                </p:column>
+                                <p:column headerText="RP" width="50%">
+                                    <h:outputText value="#{ ests.roundsPerdidos}" />
+                                </p:column>
+                            </p:dataTable>
+                        </p:tab>
+                    </p:tabView>
+                </c:forEach> 
+            </p:fieldset>
+
+            <p:fieldset legend="Campeonatos">
+
+
+                <p:dataTable id="campDataTable"
+                             value="#{managerPlayer.camps}"
+                             var="campeonato"
+                             paginator="true"
+                             paginatorPosition="bottom"
+                             paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                             currentPageReportTemplate="{currentPage} de {totalPages}"
+                             rows="10"
+                             rowsPerPageTemplate="5,10,15"
+                             emptyMessage="Nenhum Campeonato encontrado...">
+
+                    <f:facet name="header">
+                        <p:outputLabel value="Campeonatos" />
+                    </f:facet>
+
+                    <p:column headerText="Opções" width="10%">
+                        <div class="options2">
+                            <p:button title="Visualizar Camp"
+                                      icon="ui-icon-search"
+                                      href="visualizarCampeonato.xhtml?id=#{campeonato.id}"/>
+
+                        </div>
+                    </p:column>
+                    <p:column headerText="Nome" width="60%">
+                        <p:outputLabel value="#{campeonato.nome}" />
+                    </p:column>
+                    <p:column headerText="Status" width="20%">
+                        <p:panel rendered="#{campeonato.status.nome eq 'Em Andamento'}" style="border: none">
+                            <span style="display: block;
+                                  border-radius: 20px;
+                                  padding: 4px 15px;
+                                  background-color:  #dbe6fe;
+                                  color: #648fe9;
+                                  font-weight: bold;">
+                                <h:outputText value="Em Andamento"/>
+                            </span>
+                        </p:panel>
+                        <p:panel rendered="#{campeonato.status.nome eq 'Finalizado'}" style="border: none">
+                            <span style="display: block;
+                                  text-align: center;
+                                  border-radius: 20px;
+                                  padding: 4px 15px;
+                                  background-color: #f43e61;
+                                  color: #fff;
+                                  font-weight: bold;">
+                                <h:outputText value="Finalizado"/>
+                            </span>
+                        </p:panel>
+                    </p:column>
+                </p:dataTable>
+            </p:fieldset>
+
+
+
+
+            <p:dialog id="confirmarRemoverPlayerDialog"
+                      widgetVar="confirmarRemoverPlayerDialog"
+                      header="Atenção!"
+                      modal="true"
+                      resizable="false"
+                      draggable="false"
+                      closeOnEscape="true"
+                      showEffect="fade"
+                      hideEffect="fade">
+
+
+
+                <center>
+
+                    <p:commandButton value="Não"
+                                     title="Cancelar Remoção"
+                                     icon="fa fa-ban"
+                                     oncomplete="PF('confirmarRemoverPlayerDialog').hide();"
+                                     styleClass="btn btn-default"/>
+
+                    <p:commandButton value="Sim"
+                                     title="Confirmar Remoção"
+                                     icon="fa fa-check"
+                                     process="@this"
+                                     update="@form"
+                                     actionListener="#{managerPlayer.removerPlayer()}"
+                                     styleClass="btn btn-info"/>
+
+                </center>
+
+            </p:dialog>
+
+            <p:dialog widgetVar="exibirAvatar" id="exibirAvatarDialog" closable="false" header="#{managerPlayer.player.nick}" >
+
+                <p:graphicImage value="#{managerPlayer.fotoDoPlayer}"/>
+
+                <h:outputText rendered="#{managerPlayer.fotoDoPlayer}" value="Nenhuma imagem cadastrada."/>
+
+                <br />
+
+                <p:commandButton process="@this" style="margin-top:20px;" onclick="PF('exibirAvatar').hide();" value="OK"/>
+
+            </p:dialog>
+
+
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

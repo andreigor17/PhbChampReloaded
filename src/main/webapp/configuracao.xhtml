@@ -1,0 +1,53 @@
+<ui:composition template="layout.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <ui:define name="title">
+        Configurações
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="formConfiguracoes"
+                enctype="multipart/form-data"
+                class="form-horizontal">
+
+            <p:growl id="messages"
+                     showDetail="false"/> 
+
+
+            <div class="card">
+                <p:tieredMenu>
+                    <p:submenu label="Servidor">
+                        <p:menuitem value="API Path" outcome="configuracaoAPI.xhtml" update="@form"
+                                    icon="ui-icon-gear" />
+                        <p:menuitem value="CSGO Status(API Real Time)" outcome="csgostatus.xhtml"  icon="ui-icon-refresh"/>
+                        <p:menuitem value="Server cmd" outcome="csgoserver.xhtml" icon="ui-icon-disk" />
+                        <p:menuitem value="Info" outcome="server.xhtml"  icon="ui-icon-disk"/>
+                    </p:submenu>
+                    <p:submenu label="Jogos">
+                        <p:submenu label="Tipo Jogo">
+                            <p:menuitem value="Criar" outcome="criarJogo.xhtml" icon="ui-icon-plus"/>
+                            <p:menuitem value="Pesquisar" outcome="pesquisarJogos.xhtml" icon="ui-icon-search"/>
+                        </p:submenu>
+                        <p:submenu label="Versão Jogo">
+                            <p:menuitem value="Criar" outcome="criarVersaoJogo.xhtml" icon="ui-icon-plus"/>
+                            <p:menuitem value="Pesquisar" outcome="pesquisarVersaoJogo.xhtml" icon="ui-icon-search"/>
+                        </p:submenu>                        
+                    </p:submenu>
+                    <p:submenu label="Mapas CSGO">
+                        <p:menuitem value="Criar" outcome="criarMapa.xhtml"/>
+                        <p:menuitem value="Pesquisar" outcome="pesquisarMapas.xhtml"/>
+                    </p:submenu>
+
+                </p:tieredMenu>
+            </div>            
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

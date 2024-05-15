@@ -1,0 +1,122 @@
+<ui:composition template="layout.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                xmlns:map="http://xmlns.jcp.org/jsf/composite/map">
+
+    <ui:define name="title">
+        Sorteio x5
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="formPesquisarPlayers"
+                enctype="multipart/form-data"
+                class="form-horizontal">
+
+            <p:growl id="messages"
+                     showDetail="false"/> 
+
+
+            <div class="actions">
+                <p:button value="Cadastrar Player" outcome="criarPlayer.xhtml"
+                          icon="ui-icon-plus"  />
+            </div>
+
+            <p:fieldset legend="Sorteio" id="dadosFieldset">                    
+                <div class="row" >
+                    <div class="column12">
+                        <style>
+                            .ui-picklist .ui-picklist-list{
+                                width: 350px;
+                            }
+                        </style> 
+                        <p:pickList id="grupoPickList" value="#{ managerPartida.playerGroupList }" var="player"
+                                    filterMatchMode="contains" showSourceFilter="true" showTargetFilter="true"
+                                    itemValue="#{ player }" itemLabel="#{ player.nick }" converter="player_converter">
+                            <f:facet name="sourceCaption">Players</f:facet>
+                            <f:facet name="targetCaption">Players Selecionados</f:facet>
+                        </p:pickList>
+                    </div>                  
+                </div>
+
+                <center>
+                    <p:commandButton value="Avançar"  icon="ui-icon-plus" 
+                                     actionListener="#{managerPartida.verificarPlayers()}"                              
+                                     process="@form" update="@form" />
+
+                </center>
+
+            </p:fieldset>
+
+            <p:dialog id="confirmarCriacaoX5Dialog"
+                      widgetVar="confirmarCriacaoX5Dialog"
+                      header="Nome dos times!"
+                      modal="true"
+                      resizable="false"
+                      draggable="false"
+                      closeOnEscape="true"
+                      showEffect="fade"
+                      hideEffect="fade">
+
+
+
+                <center>
+                    <div class="row">
+                        <div class="column3">
+                            <p:outputLabel value="Nome do time 1: " for="nomeTime1"/>
+                        </div>
+                        <div class="column3">
+                            <p:inputText id="nomeTime1" value="#{managerPartida.nomeTime1}"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="column3">
+                            <p:outputLabel value="Nome do time 2: " for="nomeTime2"/>
+                        </div>
+                        <div class="column3">
+                            <p:inputText id="nomeTime2" value="#{managerPartida.nomeTime2}"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="column3">
+                            <p:outputLabel value="Selecione o número de rounds:"/>
+                        </div>
+
+                        <div class="column2">
+                            <p:selectOneRadio value="#{managerPartida.qtdItensPartidas}" unselectable="true">
+                                <f:selectItem itemLabel="MD1" itemValue="1"/>
+                                <f:selectItem itemLabel="MD3" itemValue="3"/>
+                                <f:selectItem itemLabel="MD5" itemValue="5"/>
+                            </p:selectOneRadio>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <p:commandButton value="Cancelar"
+                                         title="Cancelar Remoção"
+                                         icon="fa fa-ban"
+                                         oncomplete="PF('confirmarCriacaoX5Dialog').hide();"
+                                         styleClass="btn btn-default"/>
+
+                        <p:commandButton value="Sortear times"
+                                         title="Confirmar Remoção"
+                                         icon="fa fa-check"
+                                         process="@form"
+                                         update="@form"
+                                         actionListener="#{managerPartida.sorteioX5()}"
+                                         styleClass="btn btn-info"
+                                         onclick="desabilitarBotoes(true);" oncomplete="desabilitarBotoes(false);"/>
+                    </div>
+
+                </center>
+
+            </p:dialog>          
+
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

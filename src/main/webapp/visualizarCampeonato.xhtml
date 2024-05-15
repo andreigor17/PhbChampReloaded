@@ -1,0 +1,225 @@
+<ui:composition template="layout.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <ui:define name="title">
+        Visualizar Campeonato
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="formVisualizarCamp"
+                >
+
+            <p:growl id="messages"
+                     showDetail="false"/>
+
+            <div  class="actions">
+
+                <p:commandButton title="Cancelar Campeonato"
+                                 value="Cancelar"
+                                 icon="ui-icon-close"                                  
+                                 process="@this"
+                                 update="@form"
+                                 oncomplete="PF('confirmarRemoverCampDialog').show();">
+                    <f:setPropertyActionListener value="#{campeonato}"
+                                                 target="#{managerCamp.camp}"/>
+                </p:commandButton>
+                <p:button value="Editar" outcome="criarCampeonato.xhtml"
+                          icon="ui-icon-pencil"  >
+                    <f:param value="#{ managerCamp.camp.id }" name="id"/>
+                </p:button>
+
+                <p:button value="Pesquisar" outcome="pesquisarCampeonato.xhtml"
+                          icon="ui-icon-search"  />
+
+            </div>
+            <p:fieldset legend="Dados">
+
+                <div class="row">
+                    <div class="column2 bold" >
+                        <p:outputLabel value="Nome:" for="nomeCampeonato"/>
+                    </div>
+                    <div class="column4 text" >
+                        <p:outputLabel id="nomeCampeonato"
+                                       value="#{managerCamp.camp.nome}"/>
+                    </div>
+                    <div class="column2 bold" >
+                        <p:outputLabel value="Data Criação:" for="dataCamepeonato"/>
+                    </div>
+                    <div class="column4 text" >
+                        <p:outputLabel id="dataCamepeonato"
+                                       value="#{managerCamp.camp.dataCamp}">
+                            <f:convertDateTime pattern="dd/MM/yyyy"/>
+                        </p:outputLabel>
+                    </div>
+                </div>
+
+            </p:fieldset>
+
+            <p:tabView id="tabview" styleClass="row" >
+                <p:tab id="tabela" title="Tabela" >
+
+                    <p:dataTable id="timesDataTable" value="#{ managerCamp.somaEstsTime() }" var="ests"
+                                 rows="10" paginator="true" paginatorPosition="bottom" emptyMessage="Nenhum time adicionado"
+                                 sortBy="#{ ests.pontos}" sortMode="descending" style="#{not empty managerCamp.camp.teams ? '' : 'display:none;'}">
+
+                        <p:column headerText="Nome" width="50%">
+                            <h:outputText value="#{ ests.team.nome }" />
+                        </p:column>
+                        <p:column headerText="Pontos" width="50%">
+                            <h:outputText value="#{ ests.pontos}" />
+                        </p:column>
+                        <p:column headerText="Kills" width="50%">
+                            <h:outputText value="#{ ests.kills}" />
+                        </p:column>
+                        <p:column headerText="Deaths" width="50%">
+                            <h:outputText value="#{ ests.deaths}" />
+                        </p:column>
+                        <p:column headerText="Rounds Ganhos" width="50%">
+                            <h:outputText value="#{ ests.roundsGanhos}" />
+                        </p:column>
+                        <p:column headerText="Rounds Perdidos" width="50%">
+                            <h:outputText value="#{ ests.roundsPerdidos}" />
+                        </p:column>
+                    </p:dataTable>
+
+                    <p:dataTable id="playersDataTable" value="#{ managerCamp.somaEstsPlayers() }" var="ests"
+                                 rows="10" paginator="true" paginatorPosition="bottom" emptyMessage="Nenhum time adicionado"
+                                 sortBy="#{ ests.pontos}" sortMode="descending" style="#{not empty managerCamp.camp.players ? '' : 'display:none;'}">
+
+                        <p:column headerText="Nome" width="50%">
+                            <h:outputText value="#{ ests.player.nick }" />
+                        </p:column>
+                        <p:column headerText="Pontos" width="50%">
+                            <h:outputText value="#{ ests.pontos}" />
+                        </p:column>
+                        <p:column headerText="PA" width="50%">
+                            <h:outputText value="#{ ests.kills}" />
+                        </p:column>
+                        <p:column headerText="PC" width="50%">
+                            <h:outputText value="#{ ests.deaths}" />
+                        </p:column>
+                        <p:column headerText="Sets Ganhos" width="50%">
+                            <h:outputText value="#{ ests.roundsGanhos}" />
+                        </p:column>
+                        <p:column headerText="Sets Perdidos" width="50%">
+                            <h:outputText value="#{ ests.roundsPerdidos}" />
+                        </p:column>
+                    </p:dataTable>
+
+                </p:tab>
+                <p:tab id="jogos" title="Jogos">
+                    <p:dataTable id="partidasDataTableTeam"
+                                 rendered="#{not empty managerCamp.camp.teams ? true : false}"
+                                 value="#{managerCamp.partidas}"
+                                 rowKey="#{partida.id}"
+                                 var="partida"
+                                 paginator="true"
+                                 paginatorPosition="bottom"
+                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                 currentPageReportTemplate="{currentPage} de {totalPages}"
+                                 rows="10"
+                                 rowsPerPageTemplate="5,10,15" >
+
+                        <f:facet name="header">
+                            <p:outputLabel value="Partidas" />
+                        </f:facet>
+                        <p:column width="1%">
+                            <p:rowToggler/>
+                        </p:column>
+                        <p:column headerText="Opções" width="3%">
+                            <div class="options">                        
+                                <p:button title="Visualizar Partida"
+                                          icon="ui-icon-search"
+                                          href="visualizarPartida.xhtml?id=#{partida.id}"/>
+                            </div>
+                        </p:column>
+                        <p:column headerText="Time 1" width="15%">
+                            <p:outputLabel value="#{partida.itemPartida.get(0).team1.nome}"/>
+                        </p:column>                       
+                        <p:column headerText="Time2" width="15%">
+                            <p:outputLabel value="#{partida.itemPartida.get(0).team2.nome}"/>
+                        </p:column>
+                        <p:rowExpansion>
+                            <p:dataTable id="detalheItensPartidas" var="item" value="#{ partida.itemPartida }"
+                                         styleClass="grid_24" emptyMessage="Nenhum item encontrado">
+                                <f:facet name="header">Detalhe da partida</f:facet>
+                                <p:column headerText="Mapa" width="20%">
+                                    <p:outputLabel value="#{item.mapas.nome ne null ? item.mapas.nome : 'N/A'}"/>
+                                </p:column>
+                                <p:column headerText="Placar">
+                                    <p:outputLabel  value="#{item.team1.nome}  #{item.scoreT1} x #{item.scoreT2}  #{item.team2.nome} "/>
+                                </p:column>                               
+                            </p:dataTable>       
+                        </p:rowExpansion>
+                    </p:dataTable>
+
+                    <p:dataTable id="partidasDataTablePlayer"
+                                 rendered="#{not empty managerCamp.camp.players ? true : false}"
+                                 value="#{managerCamp.partidas}"                                 
+                                 var="partida"
+                                 paginator="true"
+                                 paginatorPosition="bottom"
+                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                 currentPageReportTemplate="{currentPage} de {totalPages}"
+                                 rows="10"
+                                 rowsPerPageTemplate="5,10,15" >
+
+                        <f:facet name="header">
+                            <p:outputLabel value="Partidas" />
+                        </f:facet>                        
+                        <p:column headerText="Opções" width="3%">
+                            <div class="options">                        
+                                <p:button title="Visualizar Partida"
+                                          icon="ui-icon-search"
+                                          href="visualizarPartida.xhtml?id=#{partida.id}"/>
+                            </div>
+                        </p:column>
+                        <p:column headerText="Player 1" width="15%">
+                            <p:outputLabel value="#{partida.itemPartida.get(0).player1.nome}"/>
+                        </p:column>                       
+                        <p:column headerText="Player 2" width="15%">
+                            <p:outputLabel value="#{partida.itemPartida.get(0).player2.nome}"/>
+                        </p:column>                       
+                    </p:dataTable>
+
+                </p:tab>
+            </p:tabView>
+
+            <p:dialog id="confirmarRemoverCampDialog"
+                      widgetVar="confirmarRemoverCampDialog"
+                      header="Deseja cancelar esse campeonato?"
+                      modal="true"
+                      resizable="false"
+                      draggable="false"
+                      closeOnEscape="true"
+                      showEffect="fade"
+                      hideEffect="fade">
+                <center>
+                    <p:commandButton value="Não"
+                                     title="Cancelar Remoção"
+                                     icon="fa fa-ban"
+                                     oncomplete="PF('confirmarRemoverCampDialog').hide();"
+                                     styleClass="btn btn-default"/>
+
+                    <p:commandButton value="Sim"
+                                     title="Confirmar Remoção"
+                                     icon="fa fa-check"
+                                     process="@this"
+                                     update="@form"
+                                     actionListener="#{managerCamp.removeCamp()}"
+                                     styleClass="btn btn-info"/>
+
+                </center>
+
+            </p:dialog>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

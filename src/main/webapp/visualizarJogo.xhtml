@@ -1,0 +1,71 @@
+<ui:composition template="layout.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                xmlns:fox="http://java.sun.com/jsf/composite/fox">
+
+    <ui:define name="title">
+        Visualizar Jogo
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="formVisualizarjogo"
+                >
+
+            <p:growl id="messages"
+                     showDetail="false"/>
+
+            <div  class="actions">
+
+                <p:commandButton id="menuButton" value="Opções" type="button" icon="pi pi-bars"/>
+                <p:menu overlay="true" trigger="menuButton" my="left top" at="left bottom">
+                    <p:submenu label="Geral">
+                        <p:menuitem value="Pesquisar" outcome="pesquisarJogos.xhtml" icon="ui-icon-search"/>
+                        <p:menuitem value="Editar" 
+                                    icon="pi pi-pencil" outcome="criarJogo.xhtml" >
+                            <f:param value="#{ managerJogo.jogo.id }" name="id"/>
+                        </p:menuitem>
+                        <p:menuitem value="Excluir"  update="messages" icon="pi pi-refresh" actionListener="#{managerJogo.excluir()}"/>                        
+                    </p:submenu>                    
+                </p:menu>                                             
+
+            </div>
+            <p:fieldset legend="Dados">
+
+                <div class="row">
+                    <div class="column2 bold" >
+                        <p:outputLabel value="Nome:" for="nomeJogo"/>
+                    </div>
+                    <div class="column4 text" >
+                        <p:outputLabel id="nomeJogo"
+                                       value="#{managerJogo.jogo.nome}"/>
+                    </div>                    
+                </div>
+
+                <div class="row">
+
+                    <p:dataTable id="playersDataTable" value="#{ managerJogo.versoes }" var="versao"
+                                 rows="10" paginator="true" paginatorPosition="bottom" emptyMessage="Nenhuma versão adicionado">
+
+                        <f:facet name="header">
+                            <p:outputLabel value="Versões Cadastrados" />
+                        </f:facet>
+
+                        <p:column headerText="Nome" width="50%">
+                            <h:outputText value="#{ versao.nome }" />
+                        </p:column>
+
+
+                    </p:dataTable>
+                </div>
+
+            </p:fieldset>           
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

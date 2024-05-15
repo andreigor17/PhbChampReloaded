@@ -1,0 +1,77 @@
+<ui:composition template="layout.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <ui:define name="title">
+        Criar Jogo 
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="formJogo"
+                enctype="multipart/form-data"
+                class="form-horizontal">
+
+            <p:growl id="messages"
+                     showDetail="false"/>
+
+            <p:fieldset legend="Dados" id="dadosFieldset">
+
+                <div class="row">
+                    <div class="column2 bold">
+                        <p:outputLabel value="Nome"
+                                       for="nomeJogo"/>
+                    </div>
+                    <div class="column3 text">
+                        <p:inputText id="nomeJogo"
+                                     value="#{managerJogo.jogo.nome}"
+                                     required="true"
+                                     requiredMessage="Informe o nome do jogo!"/>
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <p:dataTable id="playersDataTable" value="#{ managerJogo.versoes }" var="versao"
+                                 rows="10" paginator="true" paginatorPosition="bottom" emptyMessage="Nenhuma versão adicionado">
+
+                        <p:column headerText="Nome" width="50%">
+                            <h:outputText value="#{ versao.nome }" />
+                        </p:column>
+                       
+
+                    </p:dataTable>
+                </div>
+
+            </p:fieldset>
+
+            <div class="actions">
+
+                <center>
+
+                    <p:button value="Cancelar"
+                              title="Cancelar"
+                              icon="ui-icon-close"
+                              href="pesquisarJogos.xhtml"/>
+
+                    <p:commandButton value="Salvar"
+                                     title="Salvar Jogo"
+                                     icon="ui-icon-check"
+                                     process="@form"
+                                     update="@form"                                     
+                                     actionListener="#{managerJogo.salvar()}"
+                                     />
+
+                </center>
+
+            </div>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

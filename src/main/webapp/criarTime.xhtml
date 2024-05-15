@@ -1,0 +1,98 @@
+<ui:composition template="layout.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                xmlns:map="http://xmlns.jcp.org/jsf/composite/map">
+
+    <ui:define name="title">
+        Criar Time 
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="formTime"
+                enctype="multipart/form-data"
+                class="form-horizontal">
+
+            <p:growl id="messages"
+                     showDetail="false"/>
+
+            <p:fieldset legend="Dados" id="dadosFieldset">
+
+                <div class="row">
+                    <div class="column2 bold">
+                        <p:outputLabel value="Nome do time:"
+                                       for="nomeTime"/>
+                    </div>
+                    <div class="column3 text">
+                        <p:inputText id="nomeTime"
+                                     value="#{managerTeam.team.nome}"
+                                     required="true"
+                                     requiredMessage="Informe o nome do time!"/>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="column2 bold">
+                        <p:outputLabel value="Selecionar jogador:"
+                                       for="jogadorAutoComplete"/>
+                    </div>
+                    <div class="column3">
+                        <p:autoComplete id="jogadorAutoComplete" value="#{managerTeam.membro}"
+                                        forceSelection="true" dropdown="true" var="player" itemValue="#{player}" scrollHeight="200"
+                                        itemLabel="#{player.nome}" completeMethod="#{managerTeam.autoCompletarPlayer()}"
+                                        converter="player_converter"  requiredMessage="Jogador é obrigatório"/>
+                    </div>
+                </div>
+                <div class="command">
+                    <p:commandButton value="Adicionar" actionListener="#{managerTeam.adicionarMembro()}"
+                                     update="formTime:dadosFieldset" process="formTime:dadosFieldset"/>
+
+                </div>
+                <p:dataTable id="playersDataTable" value="#{ managerTeam.membros }" var="player"
+                             rows="10" paginator="true" paginatorPosition="bottom" emptyMessage="Nenhum player adicionado">
+
+                    <p:column headerText="Nome" width="50%">
+                        <h:outputText value="#{ player.nome }" />
+                    </p:column>
+                    <p:column headerText="Nick" width="50%">
+                        <h:outputText value="#{ player.nick }" />
+                    </p:column>
+
+                </p:dataTable>
+
+            </p:fieldset>
+
+
+
+            <div class="actions">
+
+                <center>
+
+                    <p:commandButton value="Cancelar"
+                                     title="Cancelar"
+                                     icon="ui-icon-close"
+                                     process="@this"
+                                     update="@form"
+                                     />
+
+                    <p:commandButton value="Salvar"
+                                     title="Salvar Time"
+                                     icon="ui-icon-check"
+                                     process="@form"
+                                     update="@form"
+                                     actionListener="#{managerTeam.salvarTeam()}"
+                                     />
+
+                </center>
+
+            </div>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

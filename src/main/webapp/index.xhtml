@@ -1,0 +1,111 @@
+<ui:composition template="layout.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                >
+
+    <ui:define name="title">
+        PhbChamp
+    </ui:define>
+    <ui:define name="content">
+
+        <h:form id="formIndex"
+                enctype="multipart/form-data"
+                class="form-horizontal">
+
+            <p:growl id="messages"
+                     showDetail="false"/> 
+
+
+            <p:tabView id="tabview" styleClass="row" >
+                <p:tab id="jogos" title="Últimas Partidas">
+                    <p:dataTable id="partidaDataTable" value="#{managerIndex.partidas}" var="partida"
+                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                 currentPageReportTemplate="{currentPage} de {totalPages}"
+                                 rowsPerPageTemplate="5,10,15"
+                                 rows="5" paginator="true" paginatorPosition="bottom" emptyMessage="Nenhuma partida encontrada">
+
+                        <p:column headerText="Times" width="50%">                            
+                            <p:outputLabel value="#{partida.itemPartida.get(0).team1.nome}   X   #{partida.itemPartida.get(0).team2.nome} "/>                                                  
+                        </p:column>                
+                        <p:column width="35%" exportable="false">
+                            <f:facet name="header">
+                                <h:outputText value="Mapas(s)" />
+                            </f:facet>                    
+
+                            <ui:repeat value="#{partida.itemPartida}" var="item">
+                                <p:outputLabel value="#{item.mapas.nome ne null ? item.mapas.nome : 'N/A'}"/>
+                            </ui:repeat>
+
+                        </p:column>   
+                        <p:column width="15%" headerText="Campeonato">
+                            <p:outputLabel value="#{partida.itemPartida.get(0).camp ne null ? managerIndex.nomeCamp(partida.itemPartida.get(0).camp) : 'Partida Clássica'}"/>
+                        </p:column>
+
+                    </p:dataTable>
+                </p:tab>
+
+                <p:tab id="camps" title="Últimos Campeonatos" >
+
+                    <p:dataTable id="campDataTable"
+                                 value="#{managerIndex.camps}"
+                                 var="campeonato"
+                                 paginator="true"
+                                 paginatorPosition="bottom"
+                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                 currentPageReportTemplate="{currentPage} de {totalPages}"
+                                 rows="10"
+                                 rowsPerPageTemplate="5,10,15"
+                                 emptyMessage="Nenhum Campeonato encontrado...">
+
+
+                        <f:facet name="header">
+                            <p:outputLabel value="Últimos Campeonatos" />
+                        </f:facet>
+
+                        <p:column headerText="Nome" width="20%">
+                            <h:outputLink  value="visualizarCampeonato.xhtml?id=#{campeonato.id}">
+                                <h:outputText value="#{campeonato.nome}" />
+                            </h:outputLink>
+                        </p:column>        
+                        <p:column headerText="Nome" width="20%">
+                            <p:outputLabel value="#{campeonato.nome}" />
+                        </p:column>                
+                        <p:column headerText="Status" width="20%">
+                            <p:panel rendered="#{campeonato.status.nome eq 'Em Andamento'}" style="border: none">
+                                <span style="display: block;
+                                      border-radius: 20px;
+                                      padding: 4px 15px;
+                                      background-color:  #dbe6fe;
+                                      color: #648fe9;
+                                      font-weight: bold;">
+                                    <h:outputText value="Em Andamento"/>
+                                </span>
+                            </p:panel>
+                            <p:panel rendered="#{campeonato.status.nome eq 'Finalizado'}" style="border: none">
+                                <span style="display: block;
+                                      text-align: center;
+                                      border-radius: 20px;
+                                      padding: 4px 15px;
+                                      background-color: #f43e61;
+                                      color: #fff;
+                                      font-weight: bold;">
+                                    <h:outputText value="Finalizado"/>
+                                </span>
+                            </p:panel>
+                        </p:column>
+                        <p:column headerText="Jogo" width="10%">
+                            <p:outputLabel value="#{campeonato.jogo.nome}"/>
+                        </p:column>
+                    </p:dataTable>
+
+                </p:tab>   
+            </p:tabView>
+        </h:form>
+
+
+    </ui:define>
+
+</ui:composition>
