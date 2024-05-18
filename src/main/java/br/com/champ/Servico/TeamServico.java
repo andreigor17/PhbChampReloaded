@@ -44,7 +44,7 @@ public class TeamServico {
     public List<Team> pesquisar(String nomeTeam) throws Exception {
 
         try {
-            String url = pathToAPI() + "/teams/team-nome";            
+            String url = pathToAPI() + "/api/team/team-nome";            
             url += "?nomeTime=" + nomeTeam;
             URL obj = new URL(url);            
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();

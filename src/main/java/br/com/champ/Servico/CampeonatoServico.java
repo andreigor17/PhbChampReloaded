@@ -45,7 +45,7 @@ public class CampeonatoServico {
 
     public List<Campeonato> pesquisar() throws Exception {
         try {
-            String url = pathToAPI() + "/campeonatos/camps";
+            String url = pathToAPI() + "/api/campeonatos";
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             // optional default is GET
@@ -54,8 +54,8 @@ public class CampeonatoServico {
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Accept", "application/json");
             int responseCode = con.getResponseCode();
-            System.out.println("\nSending 'GET' request to URL : " + url);
-            System.out.println("Response Code : " + responseCode);
+            //System.out.println("\nSending 'GET' request to URL : " + url);
+            //System.out.println("Response Code : " + responseCode);
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(con.getInputStream()));
             String inputLine;

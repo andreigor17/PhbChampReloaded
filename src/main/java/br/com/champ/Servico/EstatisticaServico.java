@@ -112,7 +112,7 @@ public class EstatisticaServico {
     public List<Estatisticas> estatisticaPorTime(Long id, Long id2) {
 
         try {
-            String url = pathToAPI() + "/estatisticas/estatisticasPorTimeCamp/" + id + "/" + id2;
+            String url = pathToAPI() + "/api/estatistica/estatisticasPorTimeCamp/" + id + "/" + id2;
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             // optional default is GET
@@ -162,7 +162,7 @@ public class EstatisticaServico {
     public List<Estatisticas> estatisticaPorPlayer(Long id, Long id2) {
 
         try {
-            String url = pathToAPI() + "/estatisticas/estatisticasPorPlayerCamp/" + id + "/" + id2;
+            String url = pathToAPI() + "/api/estatistica/estatisticasPorPlayerCamp/" + id + "/" + id2;
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             // optional default is GET
@@ -212,7 +212,7 @@ public class EstatisticaServico {
     public List<Estatisticas> estatisticaPorItemPartidaTeam(Long id, Long id2) {
 
         try {
-            String url = pathToAPI() + "/estatisticas/estatisticasPorItemPartidaTeam/" + id + "/" + id2;
+            String url = pathToAPI() + "/api/estatistica/estatisticasPorItemPartidaTeam/" + id + "/" + id2;
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             // optional default is GET
@@ -262,7 +262,7 @@ public class EstatisticaServico {
     public List<Estatisticas> estatisticaPorItemPartidaPlayer(Long id, Long id2) {
 
         try {
-            String url = pathToAPI() + "/estatisticas/estatisticasPorItemPartidaPlayer/" + id + "/" + id2;
+            String url = pathToAPI() + "/api/estatistica/estatisticasPorItemPartidaPlayer/" + id + "/" + id2;
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             // optional default is GET
@@ -312,7 +312,7 @@ public class EstatisticaServico {
     public List<Estatisticas> estatisticaPorPartidaTeam(Long id, Long id2) {
 
         try {
-            String url = pathToAPI() + "/estatisticas/estatisticasPorPartidaTeam/" + id + "/" + id2;
+            String url = pathToAPI() + "/api/estatistica/estatisticasPorPartidaTeam/" + id + "/" + id2;
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             // optional default is GET

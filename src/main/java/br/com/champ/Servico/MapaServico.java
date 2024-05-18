@@ -38,7 +38,7 @@ public class MapaServico {
     public List<Mapas> pesquisar() throws Exception {
 
         try {
-            String url = pathToAPI() + "/mapa/mapas";
+            String url = pathToAPI() + "/api/mapa/mapas";
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             // optional default is GET
@@ -87,7 +87,7 @@ public class MapaServico {
 
     public Mapas pesquisarMapa(Long id) {
         try {
-            String url = pathToAPI() + "/mapas/" + id;
+            String url = pathToAPI() + "/api/mapa/" + id;
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             // optional default is GET

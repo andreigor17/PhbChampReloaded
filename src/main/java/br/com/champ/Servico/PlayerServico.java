@@ -48,7 +48,7 @@ public class PlayerServico implements Serializable {
             String url = pathToAPI() + Url.BUSCAR_PLAYER_NOME.getNome() + "?nomePlayer=" ;
             Gson gson = new Gson();            
             url += nomePlayer;
-            System.err.println("url " + url);
+            //System.err.println("url " + url);
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             // optional default is GET
@@ -57,8 +57,8 @@ public class PlayerServico implements Serializable {
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Accept", "application/json");
             int responseCode = con.getResponseCode();
-            System.out.println("\nSending 'GET' request to URL : " + url);
-            System.out.println("Response Code : " + responseCode);
+            //System.out.println("\nSending 'GET' request to URL : " + url);
+            //System.out.println("Response Code : " + responseCode);
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(con.getInputStream()));
             String inputLine;
@@ -68,7 +68,7 @@ public class PlayerServico implements Serializable {
             }
             in.close();
             //print in String
-            System.out.println(response.toString());
+            //System.out.println(response.toString());
             //Read JSON response and print           
             List<Player> p = new ArrayList<>();
 
@@ -105,7 +105,7 @@ public class PlayerServico implements Serializable {
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Accept", "application/json");
             int responseCode = con.getResponseCode();
-            System.out.println("Response Code : " + responseCode);
+            //System.out.println("Response Code : " + responseCode);
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(con.getInputStream()));
             String inputLine;
@@ -115,7 +115,7 @@ public class PlayerServico implements Serializable {
             }
             in.close();
             //print in String
-            System.out.println(response.toString());
+            //System.out.println(response.toString());
             //Read JSON response and print
             Gson gson = new Gson();
             Player p1 = new Player();
@@ -150,8 +150,8 @@ public class PlayerServico implements Serializable {
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Accept", "application/json");
             int responseCode = con.getResponseCode();
-            System.out.println("\nSending 'GET' request to URL : " + url);
-            System.out.println("Response Code : " + responseCode);
+            //System.out.println("\nSending 'GET' request to URL : " + url);
+            //System.out.println("Response Code : " + responseCode);
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(con.getInputStream()));
             String inputLine;
@@ -161,7 +161,7 @@ public class PlayerServico implements Serializable {
             }
             in.close();
             //print in String
-            System.out.println(response.toString());
+            //System.out.println(response.toString());
             //Read JSON response and print
             Gson gson = new Gson();
             List<Player> p = new ArrayList<>();
@@ -218,7 +218,7 @@ public class PlayerServico implements Serializable {
                 request.connect();
                 Gson gson = new Gson();
                 String json = gson.toJson(player);
-                System.out.println("Json Player " + json);
+                //System.out.println("Json Player " + json);
 
                 // Escreve o objeto JSON usando o OutputStream da requisição:
                 try ( OutputStream outputStream = request.getOutputStream()) {

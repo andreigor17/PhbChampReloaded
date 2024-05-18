@@ -16,7 +16,7 @@
         <repository>
             <id>prime-repo</id>
             <name>PrimeFaces Maven Repository</name>
-            <url>https://mvnrepository.com/artifact/org.primefaces/primefaces/</url>
+            <url>https://repository.primefaces.org</url>
             <layout>default</layout>
         </repository>
     </repositories>
@@ -89,6 +89,12 @@
             <groupId>org.primefaces.themes</groupId>
             <artifactId>all-themes</artifactId>
             <version>1.0.10</version>
+        </dependency>
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>4.4.0</version>
+            <!-- https://mvnrepository.com/artifact/org.webjars/bootstrap -->
         </dependency>
     </dependencies>
     

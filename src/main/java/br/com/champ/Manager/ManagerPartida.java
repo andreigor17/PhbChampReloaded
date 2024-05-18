@@ -661,10 +661,20 @@ public class ManagerPartida implements Serializable {
         if (this.tipoEscolhaCapitaes == 1) {
             Collections.shuffle(this.pickedPlayers);
             droppedPlayers1.add(this.pickedPlayers.get(0));
-            this.nomeTime1 = "Time " + this.pickedPlayers.get(0).getNick();
-            this.pickedPlayers.remove(0);
+            if (!this.pickedPlayers.isEmpty() && this.pickedPlayers.get(0).getNick() != null) {
+                this.nomeTime1 = "Time " + this.pickedPlayers.get(0).getNick();
+            } else {
+                this.nomeTime1 = "Time " + this.pickedPlayers.get(0).getNome();
+            }
+            
+            this.pickedPlayers.remove(0);            
             droppedPlayers2.add(this.pickedPlayers.get(0));
-            this.nomeTime2 = "Time " + this.pickedPlayers.get(0).getNick();
+            
+            if (!this.pickedPlayers.isEmpty() && this.pickedPlayers.get(0).getNick() != null) {
+                this.nomeTime2 = "Time " + this.pickedPlayers.get(0).getNick();
+            } else {
+                this.nomeTime2 = "Time " + this.pickedPlayers.get(0).getNome();
+            }
             this.pickedPlayers.remove(0);
         }
         PrimeFaces.current().executeScript("PF('selecaoDeCapitaesDialog').hide();");

@@ -70,7 +70,7 @@ public class ManagerCriarPlayer implements Serializable {
                 }
             }
             
-            if (!uri.getRequestURI().contains("pesquisarPlayer.xhtml")) {
+            if (uri.getRequestURI().contains("criarPlayer.xhtml") && this.p.getId() == null) {
                 this.jogos = jogoServico.pesquisar();
             }
         } catch (Exception ex) {

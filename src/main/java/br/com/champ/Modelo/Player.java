@@ -20,13 +20,17 @@ public class Player extends ModeloGenerico implements Serializable {
     private String sobreNome;
     private String nick;
     private boolean possuiTime = false;
-    private boolean capitao;    
+    private boolean capitao;
     private Funcoes funcao;
     private List<Estatisticas> estatisticas;
     private String urlSteam;
-    private String steamID;   
+    private String steamID;
     private List<Jogo> jogos;
     private Anexo anexo;
+    private String login;
+    private String senha;
+    private boolean adminastror;
+    private String email;
 
     public String getNome() {
         return nome;
@@ -98,7 +102,7 @@ public class Player extends ModeloGenerico implements Serializable {
 
     public void setEstatisticas(List<Estatisticas> estatisticas) {
         this.estatisticas = estatisticas;
-    }        
+    }
 
     public String getUrlSteam() {
         return urlSteam;
@@ -132,12 +136,37 @@ public class Player extends ModeloGenerico implements Serializable {
         this.anexo = anexo;
     }
 
-    @Override
-    public String toString() {
-        return "nome " + id;
+    public String getLogin() {
+        return login;
     }
-    
-    
-    
-    
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
+
+    public boolean isAdminastror() {
+        return adminastror;
+    }
+
+    public void setAdminastror(boolean adminastror) {
+        this.adminastror = adminastror;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+
 }

@@ -116,7 +116,7 @@ public class PartidaServico {
 
     public List<Partida> pesquisarPartidas(Partida partidaPesquisar) {
         try {
-            String url = pathToAPI() + "/partidas";
+            String url = pathToAPI() + "/api/partida/partidas";
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 //            // optional default is GET
@@ -214,7 +214,7 @@ public class PartidaServico {
 
     public List<Partida> pesquisarPartidasGeral() {
         try {
-            String url = pathToAPI() + "/partidas/partidas";
+            String url = pathToAPI() + "/api/partida/partidas";
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 //            // optional default is GET
@@ -223,8 +223,8 @@ public class PartidaServico {
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Accept", "application/json");
             int responseCode = con.getResponseCode();
-            System.out.println("\nSending 'GET' request to URL : " + url);
-            System.out.println("Response Code : " + responseCode);
+            //System.out.println("\nSending 'GET' request to URL : " + url);
+            //System.out.println("Response Code : " + responseCode);
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(con.getInputStream()));
             String inputLine;
@@ -312,7 +312,7 @@ public class PartidaServico {
     public Partida pesquisar(Long id) {
 
         try {
-            String url = pathToAPI() + "/partidas/" + id;
+            String url = pathToAPI() + "/api/partida/" + id;
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             // optional default is GET
@@ -332,7 +332,7 @@ public class PartidaServico {
             }
             in.close();
             //print in String
-            System.out.println(response.toString());
+            //System.out.println(response.toString());
             //Read JSON response and print
             Gson gson = new Gson();
             Partida c = new Partida();
