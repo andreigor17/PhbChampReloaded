@@ -129,8 +129,9 @@ public class ManagerCriarPlayer implements Serializable {
     }
 
     public void doUpload(FileUploadEvent event) {
-        this.p.setAnexo(anexoServico.fileUpload(event, ".png"));
+        this.p.setAnexo(anexoServico.fileUploadTemp(event, ".png"));
         this.fileTemp = this.p.getAnexo().getNome();
+        System.err.println(fileTemp);
     }
 
     public List<Jogo> getJogos() {
@@ -164,8 +165,10 @@ public class ManagerCriarPlayer implements Serializable {
     public void salvarPlayer() throws Exception {
 
         this.p.setJogos(this.jogosSelecionados);
+        if (this.p.getAnexo() != null) {
+            this.p.setAnexo(anexoServico.salvarAnexo(this.p.getAnexo()));
+        }
         if (this.p.getId() == null) {
-
             this.p = playerServico.save(this.p, null, Url.SALVAR_PLAYER.getNome());
             Mensagem.successAndRedirect("Player salvo com sucesso", "visualizarPlayer.xhtml?id=" + this.p.getId());
         } else {

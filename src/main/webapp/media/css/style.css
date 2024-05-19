@@ -24,7 +24,7 @@
     padding: 0
 }
 
-/*Web Fonts*/ 
+/*Web Fonts*/
 @font-face {
     font-family: 'Cinzel';
     font-style: normal;
@@ -47,21 +47,21 @@
 }
 
 
-@media all and (min-width:1025px){ 
+@media all and (min-width:1025px){
     #content {
         min-height: 420px;
         width: 90%
     }
 }
 
-@media all and (max-width:1024px){ 
+@media all and (max-width:1024px){
     #content {
         min-height: 420px;
         width: 95%
     }
 }
 
-/*Typography*/ 
+/*Typography*/
 h1, h2, h3, h4, h5, h6 {
     color: #403D3A;
     font-family: 'Righteous', Sarala;
@@ -101,7 +101,7 @@ a {
 
 /* Navigation */
 
-/*Navigation*/ 
+/*Navigation*/
 
 @media all and (min-width:1025px){
     .main_menu {
@@ -143,7 +143,7 @@ a {
     #main_menu a:hover, nav a.selected {
         /*        border-bottom: 5px solid #52658C;*/
         text-decoration: none;
-    }      
+    }
 }
 
 #user_menu {
@@ -217,7 +217,7 @@ a {
     margin-top: 11px
 }
 
-/*General Styling*/ 
+/*General Styling*/
 section {
     clear: both;
 }
@@ -268,7 +268,7 @@ form {
 }
 
 
-/*Input*/ 
+/*Input*/
 textarea {
     vertical-align: text-top;
     -webkit-border-radius: 5px;
@@ -307,7 +307,7 @@ hr {
     opacity: 0.2;
 }
 
-/*Footer*/ 
+/*Footer*/
 footer {
     clear: both;
     text-align: center;
@@ -410,13 +410,13 @@ fieldset {
 }
 
 #incomeCreate\:multiSelect_head{
-    height: 10px !important; 
+    height: 10px !important;
 }
 
 
-/*ESTRUTURA*/ 
+/*ESTRUTURA*/
 
-.column1, .column2, .column3, 
+.column1, .column2, .column3,
 .column4, .column5, .column6,
 .column7, .column8, .column9,
 .column10, .column11, .column12 {
@@ -426,18 +426,42 @@ fieldset {
     margin-right: 1%
 }
 
-.column1 { width: 6.333% }
-.column2 { width: 14.666% }
-.column4 { width: 31.333% }
-.column5 { width: 39.666% }
-.column7 { width: 56.333% }
-.column8 { width: 64.666% }
-.column10 { width: 81.333% }
-.column11 { width: 89.666% }
-.column3 { width: 23% }
-.column6 { width: 48% }
-.column9 { width: 73% }
-.column12 { width: 98% }
+.column1 {
+    width: 6.333%
+}
+.column2 {
+    width: 14.666%
+}
+.column4 {
+    width: 31.333%
+}
+.column5 {
+    width: 39.666%
+}
+.column7 {
+    width: 56.333%
+}
+.column8 {
+    width: 64.666%
+}
+.column10 {
+    width: 81.333%
+}
+.column11 {
+    width: 89.666%
+}
+.column3 {
+    width: 23%
+}
+.column6 {
+    width: 48%
+}
+.column9 {
+    width: 73%
+}
+.column12 {
+    width: 98%
+}
 
 .column6 .column4 {
     margin-right: 20px
@@ -456,7 +480,7 @@ fieldset {
 
 .ui-priority-primary{
     background: #F9F9F9 !important;
-    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);    
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
 }
 
@@ -500,7 +524,7 @@ body .ui-button.rounded-button.ui-button-icon-only {
 .commandDialog {
     display: inline-block;
     margin: 10px 0;
-    text-align: center;    
+    text-align: center;
     width: 100%
 }
 
@@ -683,7 +707,7 @@ span.ui-icon-bullet {
     opacity: .95 !important
 }
 
-.ui-fileupload-buttonbar {    
+.ui-fileupload-buttonbar {
     background: none;
     border: none;
     text-align: center
@@ -796,7 +820,9 @@ span.large_text, .large_text label, .large_text {
 }
 
 .button-remove{
-    float: right; margin-right: -19px; margin-top: -21px;
+    float: right;
+    margin-right: -19px;
+    margin-top: -21px;
 }
 
 .color {
@@ -810,7 +836,7 @@ span.large_text, .large_text label, .large_text {
 }
 
 .legenda .ui-outputlabel {
-    text-align: left !important    
+    text-align: left !important
 }
 
 .ui-picklist {
@@ -999,7 +1025,7 @@ span.large_text, .large_text label, .large_text {
     transition: opacity 1.3s;
 }
 
-.panel-distribuicao .ui-selectonemenu-items-wrapper { 
+.panel-distribuicao .ui-selectonemenu-items-wrapper {
     width: 520px;
 }
 
@@ -1028,7 +1054,7 @@ span.large_text, .large_text label, .large_text {
     width: 100%;
 }
 
-/*MENSAGENS*/ 
+/*MENSAGENS*/
 
 .menu-icon {
     float: left;
@@ -1146,7 +1172,7 @@ div.message-content{
 
 div.message-content > ul {
     list-style: outside none none;
-    /*overflow: hidden;*/ 
+    /*overflow: hidden;*/
     min-height: 35px;
 }
 
@@ -1246,17 +1272,17 @@ span > .hasDatepicker {
 
 /*Botoes personalizados do editor - FIM*/
 div.situacao_protocolo{
-    width: 20px; 
-    height:20px; 
-    border-radius: 90%; 
-    margin: 0 auto; 
+    width: 20px;
+    height:20px;
+    border-radius: 90%;
+    margin: 0 auto;
 }
 
 div.ocorrencia_boleto{
-    width: 20px; 
-    height:20px; 
-    border-radius: 90%; 
-    margin: 0 auto; 
+    width: 20px;
+    height:20px;
+    border-radius: 90%;
+    margin: 0 auto;
 }
 
 button.fa {
@@ -1353,7 +1379,8 @@ li.message-textbar:hover {
 }
 
 formAlertas\\:painelAlertas .ui-overlaypanel-content{
-    padding-left: 0.3em; padding-right: 0.3em;
+    padding-left: 0.3em;
+    padding-right: 0.3em;
 }
 
 .formAlertas{
@@ -1374,7 +1401,7 @@ formAlertas\\:painelAlertas .ui-overlaypanel-content{
 
 .notificao_sistema > div > h1{
     font-size: 18px;
-    font-weight: bold;  
+    font-weight: bold;
 }
 
 .notificao_sistema > div > div.mensagem_item{
@@ -1565,7 +1592,7 @@ span.CANCELADO{
 }
 
 .tamanhofont-foxeditor > label {
-    width: 800px; 
+    width: 800px;
     height: 25px;
     padding: 6px 0 0 5px
 }
@@ -1604,7 +1631,7 @@ span.CANCELADO{
 }
 
 .espacamento-foxeditor > label {
-    width: 800px; 
+    width: 800px;
     height: 25px;
     padding: 6px 0 0 5px
 }
@@ -1962,4 +1989,11 @@ footer > p {
         border: 1px solid black;
         padding: 10px;
     }
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
 }

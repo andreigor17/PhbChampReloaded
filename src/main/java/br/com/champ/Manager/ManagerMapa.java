@@ -113,13 +113,18 @@ public class ManagerMapa implements Serializable {
     }
 
     public void doUpload(FileUploadEvent event) {
-        this.mapa.setAnexo(anexoServico.fileUpload(event, ".png"));
+        this.mapa.setAnexo(anexoServico.fileUploadTemp(event, ".png"));
         this.fileTemp = this.mapa.getAnexo().getNome();
 
     }
 
-    public void salvar() {
+    public void salvar() throws Exception {
+        if (this.mapa.getAnexo() != null) {
+            this.mapa.setAnexo(anexoServico.salvarAnexo(this.mapa.getAnexo()));
+        }
+        
         if (this.mapa.getId() != null) {
+
             try {
                 this.mapa = mapaServico.save(this.mapa, this.mapa.getId(), Url.ATUALIZAR_MAPA.getNome());
             } catch (Exception ex) {

@@ -7,7 +7,7 @@
                 xmlns:fox="http://java.sun.com/jsf/composite/fox">
 
     <ui:define name="title">
-        Visualizar Player
+        Player #{managerPlayer.player.nick ne null ? managerPlayer.player.nick : managerPlayer.player.nome}
     </ui:define>
 
     <ui:define name="content">
@@ -39,6 +39,19 @@
 
             </div>
             <p:fieldset legend="Dados">
+                <div class="row" style="display: flex; align-items: flex-start; justify-content: flex-start">
+                    <div class="column1" style="margin-left: 10%; margin-bottom: 10px">
+                        <h:panelGroup id="usuarioPanel">
+                            <div class="molduraUser" style=" position: relative; height: 150px!important; background-color: rgba(87, 107, 112, 0.69)!important; width: 150px!important; display: flex; justify-content: center; align-items: center; border-radius: 10px; border: 1px solid #2F3D40">
+                                <h:panelGroup id="imagemPlayer" style="z-index: 100">
+                                    <p:graphicImage class="img-frame"  style="width: 150px;height: 155px!important; border-radius: 10px; z-index: 100" 
+                                                    value="image/#{managerPlayer.player.anexo.nome}">
+                                    </p:graphicImage><br/>
+                                </h:panelGroup>
+                            </div>                               
+                        </h:panelGroup>
+                    </div>
+                </div>
 
                 <div class="row">
                     <div class="column2 bold" >
@@ -48,13 +61,7 @@
                         <p:outputLabel id="nomePlayer"
                                        value="#{managerPlayer.player.nome}   '#{managerPlayer.player.nick}' #{managerPlayer.player.sobreNome} "/>
                     </div>
-                    <div class="column2 bold" >
-                        <p:outputLabel value="Função:" for="funcaoPlayer"/>
-                    </div>
-                    <div class="column4 text" >
-                        <p:outputLabel id="funcaoPlayer"
-                                       value="#{managerPlayer.player.funcao.nome}"/>
-                    </div>
+                                      
                 </div>
 
                 <div class="row">                    
@@ -63,7 +70,7 @@
                                        for="urlSteam"/>
                     </div>
                     <div class="column4 text">
-                        <h:outputLink id="urlSteam" value="https://steamcommunity.com/id/#{managerPlayer.player.urlSteam}">
+                        <h:outputLink id="urlSteam" value="#{managerPlayer.player.urlSteam}" target="_blank">
                             <h:outputText value="#{managerPlayer.player.urlSteam}" />
                         </h:outputLink>
                     </div>
@@ -78,14 +85,7 @@
                         <ui:repeat value="#{managerPlayer.player.jogos}" var="jogo" >
                             <p:outputLabel  value="#{jogo.nome}"/>
                         </ui:repeat>
-                    </div>
-                    <div class="column2 bold">
-                        <p:outputLabel value="Avatar:" />
-                    </div>
-                    <div class="column4">
-                        <h:graphicImage value="image/#{managerPlayer.player.anexo.nome}" width="100px" height="100px" />
-
-                    </div>
+                    </div>                   
                 </div>
             </p:fieldset>
 

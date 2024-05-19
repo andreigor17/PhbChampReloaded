@@ -22,25 +22,21 @@
 
             <p:fieldset legend="Dados" id="dadosFieldset">
                 <div class="row" style="display: flex; align-items: flex-start; justify-content: flex-start">
-                    <div class="column6" style="margin-left: 10%; margin-bottom: 20px">
+                    <div class="column1" style="margin-left: 10%; margin-bottom: 10px">
                         <h:panelGroup id="usuarioPanel">
-                            <div class="molduraUser" style=" position: relative; height: 120px !important; background-color: rgba(87, 107, 112, 0.69) !important; width: 120px !important; display: flex; justify-content: center; align-items: center; border-radius: 10px; border: 1px solid #2F3D40">
-                                <img src="media/images/user.svg" style="position: absolute; z-index: 99" ></img>
-                                <div style="#{(managerCriarPlayer.file ne null) ? 'display: none':'teste'}">
-                                    <p:fileUpload id="upload" 
-                                                  listener="#{managerCriarPlayer.doUpload}"
-                                                  value="#{managerCriarPlayer.file}"
-                                                  update="usuarioPanel"
-                                                  auto="true"
-                                                  />
-
-                                </div>
+                            <div class="molduraUser" style=" position: relative; height: 150px!important; background-color: rgba(87, 107, 112, 0.69)!important; width: 150px!important; display: flex; justify-content: center; align-items: center; border-radius: 10px; border: 1px solid #2F3D40">
                                 <h:panelGroup id="imagemPlayer" style="z-index: 100">
-                                    <p:graphicImage class="img-frame"  style="max-width: 100px;max-height: 100px;border-radius: 10px; z-index: 100" 
+                                    <p:graphicImage class="img-frame"  style="width: 150px;height: 155px!important; border-radius: 10px; z-index: 100" 
                                                     value="image/#{managerCriarPlayer.fileTemp}">
                                     </p:graphicImage><br/>
                                 </h:panelGroup>
                             </div>
+                                <p:fileUpload id="upload" style=" position: relative; height: 40px!important;  width: 160px!important; display: flex; justify-content: center; align-items: center; "
+                                              listener="#{managerCriarPlayer.doUpload}"
+                                              value="#{managerCriarPlayer.file}"
+                                              update="usuarioPanel"
+                                              auto="true"
+                                              label="Anexar Avatar"/>
                         </h:panelGroup>
                     </div>
                 </div>
@@ -76,16 +72,7 @@
                                      value="#{managerCriarPlayer.p.sobreNome}"
                                      />
                     </div>
-                    <div class="column2 bold" >
-                        <p:outputLabel value="Função: "
-                                       for="funcaoPlayer"/>
-                    </div>
-                    <div class="column3">
-                        <p:selectOneMenu id="funcaoPlayer" value="#{ managerCriarPlayer.p.funcao }"
-                                         required="true">
-                            <f:selectItems value="#{ enums.funcoes() }" />
-                        </p:selectOneMenu>
-                    </div>
+                   
                 </div>
 
                 <div class="row">

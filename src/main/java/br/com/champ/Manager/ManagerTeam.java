@@ -6,6 +6,7 @@ import br.com.champ.Servico.TeamServico;
 import java.io.Serializable;
 import java.util.List;
 import br.com.champ.Modelo.Team;
+import br.com.champ.Servico.AnexoServico;
 import br.com.champ.Servico.PlayerServico;
 import br.com.champ.Utilitario.FacesUtil;
 import br.com.champ.Utilitario.Mensagem;
@@ -14,6 +15,9 @@ import jakarta.ejb.EJB;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.util.ArrayList;
+import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.StreamedContent;
+import org.primefaces.model.file.UploadedFile;
 
 /**
  *
@@ -27,11 +31,16 @@ public class ManagerTeam implements Serializable {
     TeamServico teamServico;
     @EJB
     PlayerServico playerServico;
+    @EJB
+    AnexoServico anexoServico;
 
     private Team team;
     private List<Team> times;
     private List<Player> membros;
     private Player membro;
+    private UploadedFile file;
+    private StreamedContent imagem;
+    private String fileTemp;
 
     @PostConstruct
     public void init() {
@@ -42,6 +51,9 @@ public class ManagerTeam implements Serializable {
 
         if (visualizarTeamId != null && !visualizarTeamId.isEmpty()) {
             this.team = this.teamServico.buscaTeam(Long.parseLong(visualizarTeamId));
+            if (this.team.getId() != null && this.team.getAnexo() != null) {
+                this.fileTemp = this.team.getAnexo().getNome();
+            }
             if (this.team.getId() != null) {
                 this.membros = this.team.getPlayers();
             }
@@ -71,6 +83,30 @@ public class ManagerTeam implements Serializable {
         this.times = times;
     }
 
+    public UploadedFile getFile() {
+        return file;
+    }
+
+    public void setFile(UploadedFile file) {
+        this.file = file;
+    }
+
+    public StreamedContent getImagem() {
+        return imagem;
+    }
+
+    public void setImagem(StreamedContent imagem) {
+        this.imagem = imagem;
+    }
+
+    public String getFileTemp() {
+        return fileTemp;
+    }
+
+    public void setFileTemp(String fileTemp) {
+        this.fileTemp = fileTemp;
+    }
+
     public void adicionarMembro() {
         if (this.membros.contains(this.membro)) {
             Mensagem.error("Time ja possui esse jogador!");
@@ -81,7 +117,17 @@ public class ManagerTeam implements Serializable {
 
     }
 
+    public void doUpload(FileUploadEvent event) {
+        this.team.setAnexo(anexoServico.fileUploadTemp(event, ".png"));
+        this.fileTemp = this.team.getAnexo().getNome();
+
+    }
+
     public void salvarTeam() throws Exception {
+
+        if (this.team.getAnexo() != null) {
+            this.team.setAnexo(anexoServico.salvarAnexo(this.team.getAnexo()));
+        }
 
         if (this.team.getId() == null) {
             this.team.setPlayers(this.membros);

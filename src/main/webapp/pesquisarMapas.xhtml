@@ -54,7 +54,7 @@
                         <div class="row" style="display: flex; justify-items: center; align-items: center">                                
                             <h:commandButton action="#{managerMapa.visualizarMapa(mapa)}" style="border-radius: 10px;
                                              margin: 10px; width: 350px !important; height: 175px !important" 
-                                             image="image/#{mapa.avatar}" >
+                                             image="image/#{mapa.anexo.nome}" >
                                 <p:ajax process="@this" update="@form"/>
                             </h:commandButton>
                         </div>

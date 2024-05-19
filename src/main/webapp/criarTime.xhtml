@@ -32,6 +32,7 @@
                                      required="true"
                                      requiredMessage="Informe o nome do time!"/>
                     </div>
+
                 </div>
 
 
@@ -62,7 +63,24 @@
                         <h:outputText value="#{ player.nick }" />
                     </p:column>
 
-                </p:dataTable>
+                </p:dataTable>     
+
+                <div class="center">
+                    <div class="row">
+                        <p:fileUpload id="upload"  
+                                      listener="#{managerTeam.doUpload}"
+                                      value="#{managerTeam.file}"
+                                      update="imagemMapa"
+                                      auto="true"
+                                      label="Anexar Logo"
+                                      />
+                    </div>
+                    <div class="row">
+                            <div class="container">
+                                <p:graphicImage id="imagemMapa" style="max-width: 200px; max-height: 150px;" cache="false" value="image/#{managerTeam.fileTemp}"></p:graphicImage><br/>
+                            </div>
+                    </div>
+                </div>
 
             </p:fieldset>
 

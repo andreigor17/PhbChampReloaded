@@ -12,13 +12,13 @@ package br.com.champ.Enums;
 public enum Url {
 
     SALVAR_PLAYER("/api/player"),
-    ATUALIZAR_PLAYER("/api/player"),
+    ATUALIZAR_PLAYER("/api/player/"),
     BUSCAR_PLAYERS("/api/player/players"),
     BUSCAR_PLAYER_NOME("/api/player"),
     BUSCAR_PLAYER_ID("/api/player/"),
     APAGAR_PLAYER("/api/player/"),
     SALVAR_TIME("/api/team"),
-    ATUALIZAR_TIME("/teams/"),
+    ATUALIZAR_TIME("/api/team/"),
     SALVAR_CAMPEONATO("/api/campeonato"),
     ATUALIZAR_CAMPEONATO("/api/campeonato/"),
     EXCLUIR_CAMPEONATO("/api/campeonato/excluir/"),

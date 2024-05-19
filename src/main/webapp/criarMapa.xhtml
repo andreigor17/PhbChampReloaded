@@ -46,15 +46,17 @@
                                       value="#{managerMapa.file}"
                                       update="imagemMapa"
                                       auto="true"
+                                      label="Anexar Mapa"
                                       />
                     </div>
                 </div>
-                <h:panelGroup id="imagemMapa">
-                    <p:graphicImage  style="max-width: 100px;max-height: 100px;" cache="false" value="#{managerMapa.imagem}">
-                    </p:graphicImage><br/>
-                </h:panelGroup>
+                <div class="center">
+                    <h:panelGroup id="imagemMapa" style=" text-align: center; ">
+                        <p:graphicImage  style="max-width: 600px;max-height: 350px;" cache="false" value="image/#{managerMapa.fileTemp}">
+                        </p:graphicImage><br/>
+                    </h:panelGroup>
 
-
+                </div>
 
             </p:fieldset>
 

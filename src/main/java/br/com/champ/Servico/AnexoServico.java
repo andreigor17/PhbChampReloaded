@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,10 +18,15 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.lang.SystemUtils;
 import org.json.JSONException;
 import org.primefaces.event.FileUploadEvent;
-
 
 /**
  *
@@ -36,6 +42,8 @@ public class AnexoServico {
     private String caminho;
     private byte[] arquivo;
     private String nome;
+    public static final String REAL_PATH_TMP = "/opt/uploads/tmp/";
+    public static final String REAL_PATH_TMP_WINDOWS = "D:\\Temp\\images\\";
     public static final String REAL_PATH_OPT = "/opt/uploads/images/";
     public static final String REAL_PATH_OPT_WINDOWS = "D:\\uploads\\images\\";
 
@@ -50,11 +58,17 @@ public class AnexoServico {
 
     public static String getRealPath() {
         if (SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_MAC || SystemUtils.IS_OS_MAC_OSX) {
-            System.out.println("1");
             return REAL_PATH_OPT;
         } else {
-            System.out.println("2");
             return REAL_PATH_OPT_WINDOWS;
+        }
+    }
+
+    public static String getRealPathTmp() {
+        if (SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_MAC || SystemUtils.IS_OS_MAC_OSX) {
+            return REAL_PATH_TMP;
+        } else {
+            return REAL_PATH_TMP_WINDOWS;
         }
     }
 
@@ -76,8 +90,8 @@ public class AnexoServico {
             this.arquivo = event.getFile().getContent();
             this.nome = event.getFile().getFileName();
 
-            a.setNome("/opt/uploads/images/" + event.getFile().getFileName());
-            a.setNomeExibicao(event.getFile().getFileName());
+            a.setNome(REAL_PATH_OPT + event.getFile().getFileName());
+            a.setNomeExibicao(this.nome);
             a = save(a, null, Url.SALVAR_ANEXO.getNome());
             gravar();
 
@@ -85,6 +99,85 @@ public class AnexoServico {
             System.out.println("Erro no upload do arquivo" + ex);
         }
         return a;
+    }
+
+    public Anexo fileUploadTemp(FileUploadEvent event, String type) {
+
+        Anexo a = new Anexo();
+        try {
+            String osPath = null;
+            this.nome = event.getFile().getFileName() + type;
+
+            osPath = getRealPathTmp();
+
+            File path = new File(osPath);
+            if (!path.exists()) {
+                path.mkdir();
+            }
+
+            this.caminho = path.getAbsolutePath() + "/";
+            this.arquivo = event.getFile().getContent();
+            this.nome = event.getFile().getFileName() + generateFileNameWithTimestamp();
+
+            a.setNome(REAL_PATH_TMP + event.getFile().getFileName() + generateFileNameWithTimestamp());
+            a.setNomeExibicao(this.nome);
+            gravar();
+
+        } catch (Exception ex) {
+            System.out.println("Erro no upload do arquivo" + ex);
+        }
+        return a;
+    }
+
+    public static String generateFileNameWithTimestamp() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.getDefault());
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT")); // Usa timezone GMT para evitar problemas de fusos horários
+        String formattedNow = sdf.format(new GregorianCalendar().getTime());
+
+        return formattedNow;
+    }
+
+    public Anexo salvarAnexo(Anexo anexo) throws Exception {
+        try {
+            Anexo a = new Anexo();
+            a.setNome(REAL_PATH_OPT + anexo.getNomeExibicao() + generateFileNameWithTimestamp());
+            a.setNomeExibicao(anexo.getNomeExibicao());
+            try {
+                a = save(a, null, Url.SALVAR_ANEXO.getNome());
+            } catch (Exception ex) {
+                Logger.getLogger(AnexoServico.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            gravar(anexo.getNome(), a.getNome());
+            if (a.getId() == null) {
+                a = save(a, null, Url.SALVAR_ANEXO.getNome());
+            }
+            return a;
+
+        } catch (IOException ex) {
+            Logger.getLogger(AnexoServico.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+
+    }
+
+    public void gravar(String oldPath, String newPath) throws IOException {
+
+        // Abertura dos streams de leitura e escrita
+        FileInputStream fis = new FileInputStream(oldPath);
+        FileOutputStream fos = new FileOutputStream(newPath);
+
+        // Leitura e gravação dos dados
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = fis.read(buffer)) != -1) {
+            fos.write(buffer, 0, bytesRead);
+        }
+
+        // Fechamento dos streams
+        fis.close();
+        fos.close();
+
     }
 
     public void gravar() {
