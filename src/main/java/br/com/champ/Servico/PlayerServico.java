@@ -218,7 +218,7 @@ public class PlayerServico implements Serializable {
                 request.connect();
                 Gson gson = new Gson();
                 String json = gson.toJson(player);
-                //System.out.println("Json Player " + json);
+                System.out.println("Json Player " + json);
 
                 // Escreve o objeto JSON usando o OutputStream da requisição:
                 try ( OutputStream outputStream = request.getOutputStream()) {
