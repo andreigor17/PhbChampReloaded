@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONException;
 
-
 /**
  *
  * @author andre
@@ -45,8 +44,8 @@ public class PlayerServico implements Serializable {
     public List<Player> pesquisar(String nomePlayer) throws Exception {
 
         try {
-            String url = pathToAPI() + Url.BUSCAR_PLAYER_NOME.getNome() + "?nomePlayer=" ;
-            Gson gson = new Gson();            
+            String url = pathToAPI() + Url.BUSCAR_PLAYER_NOME.getNome() + "?nomePlayer=";
+            Gson gson = new Gson();
             url += nomePlayer;
             //System.err.println("url " + url);
             URL obj = new URL(url);
@@ -221,7 +220,52 @@ public class PlayerServico implements Serializable {
                 System.out.println("Json Player " + json);
 
                 // Escreve o objeto JSON usando o OutputStream da requisição:
-                try ( OutputStream outputStream = request.getOutputStream()) {
+                try (OutputStream outputStream = request.getOutputStream()) {
+                    outputStream.write(json.getBytes("UTF-8"));
+                }
+
+                Player p = new Player();
+                Player userArray = gson.fromJson(readResponse(request), Player.class);
+                p = userArray;
+                return p;
+
+                // Caso você queira usar o código HTTP para fazer alguma coisa, descomente esta linha.
+                //int response = request.getResponseCode();
+            } finally {
+                request.disconnect();
+            }
+        } catch (IOException ex) {
+            System.err.println(ex);
+        }
+        return null;
+    }
+
+    public Player delete(Player player, String uri) throws Exception {
+
+        String url = pathToAPI() + uri + player.getId();
+
+        try {
+            // Cria um objeto HttpURLConnection:
+            HttpURLConnection request = (HttpURLConnection) new URL(url).openConnection();
+
+            try {
+                // Define que a conexão pode enviar informações e obtê-las de volta:
+                request.setDoOutput(true);
+                request.setDoInput(true);
+
+                // Define o content-type:
+                request.setRequestProperty("Content-Type", "application/json");
+
+                request.setRequestMethod("DELETE");
+
+                // Conecta na URL:
+                request.connect();
+                Gson gson = new Gson();
+                String json = gson.toJson(player);
+                //System.out.println("Json Player " + json);
+
+                // Escreve o objeto JSON usando o OutputStream da requisição:
+                try (OutputStream outputStream = request.getOutputStream()) {
                     outputStream.write(json.getBytes("UTF-8"));
                 }
 
@@ -243,7 +287,7 @@ public class PlayerServico implements Serializable {
 
     private String readResponse(HttpURLConnection request) throws IOException {
         ByteArrayOutputStream os;
-        try ( InputStream is = request.getInputStream()) {
+        try (InputStream is = request.getInputStream()) {
             os = new ByteArrayOutputStream();
             int b;
             while ((b = is.read()) != -1) {

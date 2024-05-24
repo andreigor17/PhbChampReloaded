@@ -165,7 +165,7 @@ public class ManagerCriarPlayer implements Serializable {
     public void salvarPlayer() throws Exception {
 
         this.p.setJogos(this.jogosSelecionados);
-        if (this.p.getAnexo() != null) {
+        if (this.p.getAnexo() != null && this.p.getAnexo().getId() == null) {
             this.p.setAnexo(anexoServico.salvarAnexo(this.p.getAnexo()));
         }
         if (this.p.getId() == null) {
@@ -189,8 +189,8 @@ public class ManagerCriarPlayer implements Serializable {
         instanciar();
     }
 
-    public void removerPlayer() {
-        //this.playerServico.delete(this.player);
+    public void removerPlayer() throws Exception {
+        this.playerServico.delete(this.p, Url.APAGAR_PLAYER.getNome());
         Mensagem.successAndRedirect("pesquisarPlayer.xhtml");
         init();
     }

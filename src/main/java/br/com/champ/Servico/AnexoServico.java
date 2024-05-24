@@ -119,7 +119,7 @@ public class AnexoServico {
             this.arquivo = event.getFile().getContent();
             this.nome = event.getFile().getFileName() + generateFileNameWithTimestamp();
 
-            a.setNome(REAL_PATH_TMP + event.getFile().getFileName() + generateFileNameWithTimestamp());
+            a.setNome(REAL_PATH_TMP + generateFileNameWithTimestamp() + event.getFile().getFileName());
             a.setNomeExibicao(this.nome);
             gravar();
 
@@ -140,7 +140,7 @@ public class AnexoServico {
     public Anexo salvarAnexo(Anexo anexo) throws Exception {
         try {
             Anexo a = new Anexo();
-            a.setNome(REAL_PATH_OPT + anexo.getNomeExibicao() + generateFileNameWithTimestamp());
+            a.setNome(REAL_PATH_OPT + generateFileNameWithTimestamp() + anexo.getNomeExibicao());
             a.setNomeExibicao(anexo.getNomeExibicao());
             try {
                 a = save(a, null, Url.SALVAR_ANEXO.getNome());
