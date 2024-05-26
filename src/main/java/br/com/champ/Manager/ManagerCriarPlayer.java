@@ -44,7 +44,9 @@ public class ManagerCriarPlayer implements Serializable {
     ConfiguracaoServico configuracaoServico;
     @EJB
     private JogoServico jogoServico;
-    private Player p;
+    private Player player;
+    private Player playerApagar;
+    private Player playerPesquisar;
     private List<Player> players;
     private UploadedFile file;
     private String fileTemp;
@@ -64,13 +66,13 @@ public class ManagerCriarPlayer implements Serializable {
                     .getRequestParameter("id");
 
             if (visualizarPlayerId != null && !visualizarPlayerId.isEmpty()) {
-                this.p = this.playerServico.buscaPlayer(Long.parseLong(visualizarPlayerId));
-                if (this.p.getId() != null && this.p.getAnexo() != null) {
-                    this.fileTemp = this.p.getAnexo().getNome();
+                this.player = this.playerServico.buscaPlayer(Long.parseLong(visualizarPlayerId));
+                if (this.player.getId() != null && this.player.getAnexo() != null) {
+                    this.fileTemp = this.player.getAnexo().getNome();
                 }
             }
 
-            if (uri.getRequestURI().contains("criarPlayer.xhtml") && this.p.getId() == null) {
+            if (uri.getRequestURI().contains("criarPlayer.xhtml") && this.player.getId() == null) {
                 this.jogos = jogoServico.pesquisar();
             }
         } catch (Exception ex) {
@@ -80,7 +82,9 @@ public class ManagerCriarPlayer implements Serializable {
     }
 
     public void instanciar() {
-        this.p = new Player();
+        this.player = new Player();
+        this.playerPesquisar = new Player();
+        this.playerApagar = new Player();
         this.players = null;
         this.configuracao = new Configuracao();
         this.jogo = new Jogo();
@@ -88,12 +92,28 @@ public class ManagerCriarPlayer implements Serializable {
         this.jogosSelecionados = new ArrayList<>();
     }
 
-    public Player getP() {
-        return p;
+    public Player getPlayerPesquisar() {
+        return playerPesquisar;
     }
 
-    public void setP(Player p) {
-        this.p = p;
+    public void setPlayerPesquisar(Player playerPesquisar) {
+        this.playerPesquisar = playerPesquisar;
+    }
+
+    public Player getP() {
+        return player;
+    }
+
+    public Player getPlayerApagar() {
+        return playerApagar;
+    }
+
+    public void setPlayerApagar(Player playerApagar) {
+        this.playerApagar = playerApagar;
+    }
+
+    public void setP(Player player) {
+        this.player = player;
     }
 
     public List<Player> getPlayers() {
@@ -129,9 +149,8 @@ public class ManagerCriarPlayer implements Serializable {
     }
 
     public void doUpload(FileUploadEvent event) {
-        this.p.setAnexo(anexoServico.fileUploadTemp(event, ".png"));
-        this.fileTemp = this.p.getAnexo().getNome();
-        System.err.println(fileTemp);
+        this.player.setAnexo(anexoServico.fileUploadTemp(event));
+        this.fileTemp = this.player.getAnexo().getNome();
     }
 
     public List<Jogo> getJogos() {
@@ -158,31 +177,27 @@ public class ManagerCriarPlayer implements Serializable {
         this.jogosSelecionados = jogosSelecionados;
     }
 
-    public void teste() {
-        System.out.println("teste " + this.jogosSelecionados.size());
-    }
-
     public void salvarPlayer() throws Exception {
 
-        this.p.setJogos(this.jogosSelecionados);
-        if (this.p.getAnexo() != null && this.p.getAnexo().getId() == null) {
-            this.p.setAnexo(anexoServico.salvarAnexo(this.p.getAnexo()));
+        this.player.setJogos(this.jogosSelecionados);
+        if (this.player.getAnexo() != null && this.player.getAnexo().getId() == null) {
+            this.player.setAnexo(anexoServico.salvarAnexo(this.player.getAnexo()));
         }
-        if (this.p.getId() == null) {
-            this.p = playerServico.save(this.p, null, Url.SALVAR_PLAYER.getNome());
-            Mensagem.successAndRedirect("Player salvo com sucesso", "visualizarPlayer.xhtml?id=" + this.p.getId());
+        if (this.player.getId() == null) {
+            this.player = playerServico.save(this.player, null, Url.SALVAR_PLAYER.getNome());
+            Mensagem.successAndRedirect("Player salvo com sucesso", "visualizarPlayer.xhtml?id=" + this.player.getId());
         } else {
-            this.p = playerServico.save(this.p, this.p.getId(), Url.ATUALIZAR_PLAYER.getNome());
-            Mensagem.successAndRedirect("Player atualizado com sucesso", "visualizarPlayer.xhtml?id=" + this.p.getId());
+            this.player = playerServico.save(this.player, this.player.getId(), Url.ATUALIZAR_PLAYER.getNome());
+            Mensagem.successAndRedirect("Player atualizado com sucesso", "visualizarPlayer.xhtml?id=" + this.player.getId());
         }
 
     }
 
     public void pesquisarPlayer() throws Exception {
-        if (this.p.getNome() == null) {
-            this.p.setNome("");
+        if (this.playerPesquisar.getNome() == null) {
+            this.playerPesquisar.setNome("");
         }
-        this.players = playerServico.pesquisar(this.p.getNome());
+        this.players = playerServico.pesquisar(this.playerPesquisar.getNome());
     }
 
     public void limpar() {
@@ -190,7 +205,7 @@ public class ManagerCriarPlayer implements Serializable {
     }
 
     public void removerPlayer() throws Exception {
-        this.playerServico.delete(this.p, Url.APAGAR_PLAYER.getNome());
+        this.playerServico.delete(this.playerApagar, Url.APAGAR_PLAYER.getNome());
         Mensagem.successAndRedirect("pesquisarPlayer.xhtml");
         init();
     }

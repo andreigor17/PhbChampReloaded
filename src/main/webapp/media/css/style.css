@@ -1997,3 +1997,96 @@ footer > p {
     align-items: center;
 
 }
+
+
+    .speeddial-linear-demo .ui-speeddial-direction-up {
+        left: calc(50% - 2rem);
+        bottom: 0;
+    }
+
+    .speeddial-linear-demo .ui-speeddial-direction-down {
+        left: calc(50% - 2rem);
+        top: 0;
+    }
+
+    .speeddial-linear-demo .ui-speeddial-direction-left {
+        right: 0;
+        top: calc(50% - 2rem);
+    }
+
+    .speeddial-linear-demo .ui-speeddial-direction-right {
+        left: 0;
+        top: calc(50% - 2rem);
+    }
+
+    .speeddial-circle-demo .ui-speeddial-circle {
+        top: calc(50% - 2rem);
+        left: calc(50% - 2rem);
+    }
+
+    .speeddial-circle-demo .ui-speeddial-semi-circle.ui-speeddial-direction-up {
+         left: calc(50% - 2rem);
+         bottom: 0;
+    }
+
+    .speeddial-circle-demo .ui-speeddial-semi-circle.ui-speeddial-direction-down {
+         left: calc(50% - 2rem);
+         top: 0;
+    }
+
+    .speeddial-circle-demo .ui-speeddial-semi-circle.ui-speeddial-direction-left {
+         right: 0;
+         top: calc(50% - 2rem);
+    }
+
+    .speeddial-circle-demo .ui-speeddial-semi-circle.ui-speeddial-direction-right {
+         left: 0;
+         top: calc(50% - 2rem);
+    }
+
+    .speeddial-circle-demo .ui-speeddial-quarter-circle.ui-speeddial-direction-up-left {
+         right: 0;
+         bottom: 0;
+    }
+
+    .speeddial-circle-demo .ui-speeddial-quarter-circle.ui-speeddial-direction-up-right {
+         left: 0;
+         bottom: 0;
+    }
+
+    .speeddial-circle-demo .ui-speeddial-quarter-circle.ui-speeddial-direction-down-left {
+         right: 0;
+         top: 0;
+    }
+
+    .speeddial-circle-demo .ui-speeddial-quarter-circle.ui-speeddial-direction-down-right {
+         left: 0;
+         top: 0;
+    }
+
+    .speeddial-tooltip-demo .ui-speeddial-direction-up.speeddial-left {
+         left: 0;
+         bottom: 0;
+    }
+
+    .speeddial-tooltip-demo .ui-speeddial-direction-up.speeddial-right {
+         right: 0;
+         bottom: 0;
+    }
+
+    .speeddial-delay-demo .ui-speeddial-direction-up {
+        left: calc(50% - 2rem);
+        bottom: 0;
+    }
+
+    .speeddial-mask-demo .ui-speeddial-direction-up {
+        right: 0;
+        bottom: 0;
+    }
+
+    .speeddial-dynamicitem-demo .ui-speeddial-direction-down {
+        left: calc(50% - 2rem);
+        top: 0;
+    }
+
+

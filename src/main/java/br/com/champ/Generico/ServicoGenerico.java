@@ -15,7 +15,7 @@ import jakarta.persistence.PersistenceContext;
 public class ServicoGenerico<T> {
 
     private Class<T> entity;
-    @PersistenceContext(unitName = "PhbChampPU")
+    @PersistenceContext
     EntityManager entityManager;
 
     public ServicoGenerico(Class<T> entity) {

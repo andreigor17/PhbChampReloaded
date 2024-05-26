@@ -31,7 +31,7 @@
                         <p:outputLabel value="Nome do Player" for="nomePlayer" />
                     </div>
                     <div class="column9">
-                        <p:inputText id="nomePlayer" value="#{ managerCriarPlayer.p.nome}"/>
+                        <p:inputText id="nomePlayer" value="#{ managerCriarPlayer.playerPesquisar.nome}"/>
                     </div>
                 </div>
 
@@ -73,7 +73,7 @@
                                          update="@form"
                                          oncomplete="PF('confirmarRemoverPlayerDialog').show();">
                             <f:setPropertyActionListener value="#{player}"
-                                                         target="#{managerCriarPlayer.p}"/>
+                                                         target="#{managerCriarPlayer.playerApagar}"/>
                         </p:commandButton>
                     </div>
 

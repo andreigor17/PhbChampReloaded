@@ -72,12 +72,11 @@ public class AnexoServico {
         }
     }
 
-    public Anexo fileUpload(FileUploadEvent event, String type) {
+    public Anexo fileUpload(FileUploadEvent event) {
 
         Anexo a = new Anexo();
         try {
             String osPath = null;
-            this.nome = event.getFile().getFileName() + type;
 
             osPath = getRealPath();
 
@@ -101,12 +100,11 @@ public class AnexoServico {
         return a;
     }
 
-    public Anexo fileUploadTemp(FileUploadEvent event, String type) {
+    public Anexo fileUploadTemp(FileUploadEvent event) {
 
         Anexo a = new Anexo();
         try {
-            String osPath = null;
-            this.nome = event.getFile().getFileName() + type;
+            String osPath = null;          
 
             osPath = getRealPathTmp();
 
@@ -117,9 +115,9 @@ public class AnexoServico {
 
             this.caminho = path.getAbsolutePath() + "/";
             this.arquivo = event.getFile().getContent();
-            this.nome = event.getFile().getFileName() + generateFileNameWithTimestamp();
+            this.nome = generateFileNameWithTimestamp() + event.getFile().getFileName() ;
 
-            a.setNome(REAL_PATH_TMP + generateFileNameWithTimestamp() + event.getFile().getFileName());
+            a.setNome(REAL_PATH_TMP + this.nome);
             a.setNomeExibicao(this.nome);
             gravar();
 
@@ -149,9 +147,9 @@ public class AnexoServico {
             }
 
             gravar(anexo.getNome(), a.getNome());
-            if (a.getId() == null) {
-                a = save(a, null, Url.SALVAR_ANEXO.getNome());
-            }
+//            if (a.getId() == null) {
+//                a = save(a, null, Url.SALVAR_ANEXO.getNome());
+//            }
             return a;
 
         } catch (IOException ex) {
@@ -187,7 +185,7 @@ public class AnexoServico {
             FileOutputStream fos;
             fos = new FileOutputStream(this.caminho + this.nome);
             fos.write(this.arquivo);
-            System.out.println("caminho do arquivo " + this.caminho);
+            //System.out.println("caminho do arquivo " + this.caminho);
             fos.close();
 
         } catch (Exception ex) {

@@ -118,7 +118,7 @@ public class ManagerTeam implements Serializable {
     }
 
     public void doUpload(FileUploadEvent event) {
-        this.team.setAnexo(anexoServico.fileUploadTemp(event, ".png"));
+        this.team.setAnexo(anexoServico.fileUploadTemp(event));
         this.fileTemp = this.team.getAnexo().getNome();
 
     }

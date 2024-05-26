@@ -87,7 +87,7 @@ public class ManagerVersaoJogo implements Serializable {
     }
 
     public void doUpload(FileUploadEvent event) {
-        this.versao.setAnexo(anexoServico.fileUpload(event, ".png"));
+        this.versao.setAnexo(anexoServico.fileUpload(event));
 
     }
 
