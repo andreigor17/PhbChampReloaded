@@ -1,0 +1,91 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:head>
+        <title>Service Store</title>
+        <link rel="stylesheet" href="new/assets/css/style.css"/>
+        <link rel="stylesheet" href="new/assets/css/styles.min.css"/>       
+    </h:head>
+
+
+    <h:body>
+        <!--  Body Wrapper -->
+        <h:panelGroup id="content" layout="block">
+
+            <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+                 data-sidebar-position="fixed" data-header-position="fixed">
+                <!-- Sidebar Start -->
+                <aside class="left-sidebar">
+                    <!-- Sidebar scroll-->
+                    <div>
+                        <div class="brand-logo d-flex align-items-center justify-content-between">
+                            <a href="../index.xhtml" class="text-nowrap logo-img">
+                                <img src="images/Service-Store-Deitado.png" width="180" alt="" />
+                            </a>
+                            <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
+                                <i class="ti ti-x fs-8"></i>
+                            </div>
+                        </div>
+                        <!-- Sidebar navigation-->
+                        <nav class="sidebar-nav scroll-sidebar">
+                            <ul id="sidebarnav">
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link" href="./homePage.xhtml" aria-expanded="false">
+                                        <span>
+                                            <i class="ti ti-home"></i>
+                                        </span>
+                                        <span class="hide-menu">Início</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link" href="./index.html" aria-expanded="false">
+                                        <span>
+                                            <i class="ti ti-air-balloon"></i>
+                                        </span>
+                                        <span class="hide-menu">Ordens de Serviço</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link" href="./index.html" aria-expanded="false">
+                                        <span>
+                                            <i class="ti ti-hammer"></i>
+                                        </span>
+                                        <span class="hide-menu">Equipes</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link" href="./ui-buttons.html" aria-expanded="false">
+                                        <span>
+                                            <i class="ti ti-frame"></i>
+                                        </span>
+                                        <span class="hide-menu">Funcionários</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link" href="./clientes.xhtml" aria-expanded="false">
+                                        <span>
+                                            <i class="ti ti-users"></i>
+                                        </span>
+                                        <span class="hide-menu">Clientes</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                        <!-- End Sidebar navigation -->
+                    </div>
+                    <!-- End Sidebar scroll-->
+                </aside>
+                <!--  Sidebar End -->
+                
+            </div>
+            <ui:insert name="content">
+            </ui:insert>
+            
+            
+        </h:panelGroup>
+    </h:body>
+
+</html>
