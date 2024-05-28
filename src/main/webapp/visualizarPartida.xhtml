@@ -23,15 +23,15 @@
                 <p:button value="Voltar" outcome="visualizarCampeonato.xhtml?id=#{managerPartida.partida.itemPartida.get(0).camp}"
                           icon="ui-icon-arrowthick-1-w" rendered="#{managerPartida.partida.itemPartida.get(0).camp ne null}" style="text-align: left" />   
 
-                <p:commandButton id="menuButton" value="Opções" type="button" icon="pi pi-bars"/>
-                <p:menu overlay="true" trigger="menuButton" my="left top" at="left bottom">
+             
+                <p:menu >
                     <p:submenu label="Geral">
                         <p:menuitem value="Editar" 
                                     icon="pi pi-pencil"/>
                         <p:menuitem value="Excluir"  update="messages" icon="pi pi-refresh"/>                        
                     </p:submenu>
                     <p:submenu label="Picks and Bans">
-                        <p:menuitem value="Gerar mapas" outcome="gerarMapas.xhtml?partidaId=#{managerPartida.partida.id}"   process="@this" icon="pi pi-external-link"/>                        
+                        <p:menuitem value="Gerar mapas" outcome="gerarMapas.xhtml?partidaId=#{managerPartida.partida.id}"   icon="pi pi-external-link"/>                        
                     </p:submenu>
                 </p:menu>                                
 

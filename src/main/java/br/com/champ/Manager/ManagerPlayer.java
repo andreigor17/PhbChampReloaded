@@ -301,8 +301,8 @@ public class ManagerPlayer implements Serializable {
         instanciar();
     }
 
-    public void removerPlayer() throws Exception {
-        //this.playerServico.delete(this.player);
+     public void removerPlayer() throws Exception {
+        this.playerServico.delete(this.player, Url.APAGAR_PLAYER.getNome());
         Mensagem.successAndRedirect("pesquisarPlayer.xhtml");
         init();
     }

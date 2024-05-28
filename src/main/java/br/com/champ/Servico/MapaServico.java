@@ -58,7 +58,7 @@ public class MapaServico {
             }
             in.close();
             //print in String
-            System.out.println(response.toString());
+            //System.out.println(response.toString());
             //Read JSON response and print
             Gson gson = new Gson();
             List<Mapas> p = new ArrayList<>();
@@ -190,6 +190,52 @@ public class MapaServico {
             }
         }
         return new String(os.toByteArray());
+    }
+    
+    
+     public Mapas delete(Mapas mapa, String uri) throws Exception {
+
+        String url = pathToAPI() + uri + mapa.getId();
+
+        try {
+            // Cria um objeto HttpURLConnection:
+            HttpURLConnection request = (HttpURLConnection) new URL(url).openConnection();
+
+            try {
+                // Define que a conexão pode enviar informações e obtê-las de volta:
+                request.setDoOutput(true);
+                request.setDoInput(true);
+
+                // Define o content-type:
+                request.setRequestProperty("Content-Type", "application/json");
+
+                request.setRequestMethod("DELETE");
+
+                // Conecta na URL:
+                request.connect();
+                Gson gson = new Gson();
+                String json = gson.toJson(mapa);
+                //System.out.println("Json Player " + json);
+
+                // Escreve o objeto JSON usando o OutputStream da requisição:
+                try (OutputStream outputStream = request.getOutputStream()) {
+                    outputStream.write(json.getBytes("UTF-8"));
+                }
+
+                Mapas p = new Mapas();
+                Mapas userArray = gson.fromJson(readResponse(request), Mapas.class);
+                p = userArray;
+                return p;
+
+                // Caso você queira usar o código HTTP para fazer alguma coisa, descomente esta linha.
+                //int response = request.getResponseCode();
+            } finally {
+                request.disconnect();
+            }
+        } catch (IOException ex) {
+            System.err.println(ex);
+        }
+        return null;
     }
 
 }

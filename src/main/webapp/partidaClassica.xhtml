@@ -157,10 +157,10 @@
                 <div class="actions">
                     <center>
                         <p:button value="Cancelar"
-                                         title="Cancelar Remoção"
-                                         icon="fa fa-ban"
-                                         href="indexPartida.xhtml"
-                                         styleClass="btn btn-default"/>
+                                  title="Cancelar Remoção"
+                                  icon="fa fa-ban"
+                                  href="indexPartida.xhtml"
+                                  styleClass="btn btn-default"/>
 
                         <p:commandButton value="Confirmar"
                                          title="Confirmar"
@@ -235,7 +235,77 @@
 
                 </center>
 
-            </p:dialog>          
+            </p:dialog> 
+
+
+            <p:dialog id="confirmarCriacaoX5TimesDialog"
+                      widgetVar="confirmarCriacaoX5TimesDialog"
+                      header="Nome dos times!"
+                      modal="true"
+                      resizable="false"
+                      draggable="false"
+                      closeOnEscape="true"
+                      showEffect="fade"
+                      hideEffect="fade">
+
+
+
+                <center>
+                    <div class="row">
+                        <div class="column3">
+                            <p:outputLabel value="Nome do time 1: " for="nomeTime1"/>
+                        </div>
+                        <div class="column3">
+                            <p:autoComplete id="nomeTime1" value="#{managerPartida.time1}"
+                                            forceSelection="true" dropdown="true" var="team" itemValue="#{team}" scrollHeight="200"
+                                            itemLabel="#{team.nome}" completeMethod="#{managerAutoCompletes.autoCompletarTime()}"
+                                            converter="time_converter"  requiredMessage="Time é obrigatório"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="column3">
+                            <p:outputLabel value="Nome do time 2: " for="nomeTime2"/>
+                        </div>
+                        <div class="column3">
+                            <p:autoComplete id="nomeTime2" value="#{managerPartida.time2}"
+                                            forceSelection="true" dropdown="true" var="team" itemValue="#{team}" scrollHeight="200"
+                                            itemLabel="#{team.nome}" completeMethod="#{managerAutoCompletes.autoCompletarTime()}"
+                                            converter="time_converter"  requiredMessage="Time é obrigatório"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="column3">
+                            <p:outputLabel value="Selecione o número de rounds:"/>
+                        </div>
+
+                        <div class="column2">
+                            <p:selectOneRadio value="#{managerPartida.qtdItensPartidas}" unselectable="true">
+                                <f:selectItem itemLabel="MD1" itemValue="1"/>
+                                <f:selectItem itemLabel="MD3" itemValue="3"/>
+                                <f:selectItem itemLabel="MD5" itemValue="5"/>
+                            </p:selectOneRadio>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <p:commandButton value="Cancelar"
+                                         title="Cancelar Remoção"
+                                         icon="fa fa-ban"
+                                         oncomplete="PF('confirmarCriacaoX5Dialog').hide();"
+                                         styleClass="btn btn-default"/>
+
+                        <p:commandButton value="Sortear times"
+                                         title="Confirmar Remoção"
+                                         icon="fa fa-check"
+                                         process="@form"
+                                         update="@form"
+                                         actionListener="#{managerPartida.sorteioX5()}"
+                                         styleClass="btn btn-info"
+                                         onclick="desabilitarBotoes(true);" oncomplete="desabilitarBotoes(false);"/>
+                    </div>
+
+                </center>
+
+            </p:dialog>   
 
 
         </h:form>

@@ -120,7 +120,7 @@ public class ItemPartidaServico {
             }
             in.close();
             //print in String
-            System.out.println(response.toString());
+            //System.out.println(response.toString());
             //Read JSON response and print
             Gson gson = new Gson();
             List<ItemPartida> c = new ArrayList<>();
@@ -149,7 +149,7 @@ public class ItemPartidaServico {
 
     public ItemPartida buscaItem(Long id) {
         try {
-            String url = pathToAPI() + "/itemPartidas/" + id;
+            String url = pathToAPI() + "/api/item-partida/" + id;
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             // optional default is GET
@@ -168,7 +168,7 @@ public class ItemPartidaServico {
             }
             in.close();
             //print in String
-            System.out.println(response.toString());
+            //System.out.println(response.toString());
             //Read JSON response and print
             Gson gson = new Gson();
             ItemPartida p1 = new ItemPartida();

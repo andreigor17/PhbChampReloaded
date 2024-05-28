@@ -20,7 +20,12 @@
 
             <div  class="actions">
 
-
+                <p:commandButton title="Remover Mapa"
+                                 value="Excluir"
+                                 icon="ui-icon-close" 
+                                 process="@this"                                
+                                 oncomplete="PF('confirmarRemoverMapaDialog').show();">                    
+                </p:commandButton>
                 <p:button value="Editar" outcome="criarMapa.xhtml"
                           icon="ui-icon-pencil"  >
                     <f:param value="#{ managerMapa.mapa.id }" name="id"/>
@@ -52,7 +57,40 @@
                     </div>
                 </div>
 
-            </p:fieldset>           
+            </p:fieldset>   
+
+
+            <p:dialog id="confirmarRemoverMapaDialog"
+                      widgetVar="confirmarRemoverMapaDialog"
+                      header="Deseja remover o mapa?"
+                      modal="true"
+                      resizable="false"
+                      draggable="false"
+                      closeOnEscape="true"
+                      showEffect="fade"
+                      hideEffect="fade">
+
+
+
+                <center>
+
+                    <p:commandButton value="Não"
+                                     title="Cancelar Remoção"
+                                     icon="fa fa-ban"
+                                     oncomplete="PF('confirmarRemoverMapaDialog').hide();"
+                                     styleClass="btn btn-default"/>
+
+                    <p:commandButton value="Sim"
+                                     title="Confirmar Remoção"
+                                     icon="fa fa-check"
+                                     process="@this"
+                                     update="@form"
+                                     actionListener="#{managerMapa.removerMapa()}"
+                                     styleClass="btn btn-info"/>
+
+                </center>
+
+            </p:dialog>
 
         </h:form>
 

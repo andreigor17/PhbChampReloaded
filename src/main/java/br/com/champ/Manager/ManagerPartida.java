@@ -90,6 +90,8 @@ public class ManagerPartida implements Serializable {
     private List<Player> pickedPlayers;
     private int scoreT1;
     private int scoreT2;
+    private Team time1;
+    private Team time2;
 
     @PostConstruct
     public void init() {
@@ -153,6 +155,8 @@ public class ManagerPartida implements Serializable {
         this.droppedPlayers2 = new ArrayList<>();
         this.selectedPlayer = new Player();
         this.selectedPlayers = new ArrayList<>();
+        this.time1 = new Team();
+        this.time2 = new Team();
     }
 
     public void gerarScore() {
@@ -173,6 +177,22 @@ public class ManagerPartida implements Serializable {
 
     public List<Estatisticas> estsGeraisPlayer(Player player, ItemPartida item) {
         return estatisticasServico.estatisticaPorItemPartidaTeam(player.getId(), item.getId());
+    }
+
+    public Team getTime1() {
+        return time1;
+    }
+
+    public void setTime1(Team time1) {
+        this.time1 = time1;
+    }
+
+    public Team getTime2() {
+        return time2;
+    }
+
+    public void setTime2(Team time2) {
+        this.time2 = time2;
     }
 
     public int getScoreT1() {

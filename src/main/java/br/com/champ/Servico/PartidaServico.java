@@ -234,7 +234,7 @@ public class PartidaServico {
             }
             in.close();
             //print in String
-            System.out.println(response.toString());
+            //System.out.println(response.toString());
             //Read JSON response and print
             Gson gson = new Gson();
             List<Partida> c = new ArrayList<>();

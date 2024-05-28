@@ -47,6 +47,7 @@ public enum Url {
     BUSCAR_MAPA_ID("/api/mapa/"),
     BUSCAR_MAPA_NOME("/api/mapa/"),
     BUSCAR_MAPAS("/api/mapa/mapas"),
+    APAGAR_MAPA("/api/mapa/"),
     SALVAR_JOGO("/api/jogo"),
     ATUALIZAR_JOGO("/api/jogo/"),
     EXCLUIR_JOGO("/api/jogo/excluir/"),
@@ -60,17 +61,15 @@ public enum Url {
     EXCLUIR_VERSAO("/versao/excluir/"),
     LOGIN("/api/login/auth"),
     REGISTRAR_USUARIO("/api/login/usuario");
-    
 
-    private String nome;    
+    private String nome;
 
     public String getNome() {
         return nome;
     }
 
-
     private Url(String nome) {
-        this.nome = nome;        
+        this.nome = nome;
     }
 
 }

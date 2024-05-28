@@ -40,6 +40,8 @@ public class ManagerMapa implements Serializable {
     private UploadedFile file;
     private StreamedContent imagem;
     private String fotoMapa;
+    private Mapas mapaDeletar;
+    private Mapas mapaPesquisar;
 
     @PostConstruct
     public void init() {
@@ -62,6 +64,8 @@ public class ManagerMapa implements Serializable {
     public void instanciar() {
         this.mapa = new Mapas();
         this.mapas = new ArrayList<>();
+        this.mapaDeletar = new Mapas();
+        this.mapaPesquisar = new Mapas();
     }
 
     public void pesquisarMapas() {
@@ -145,8 +149,10 @@ public class ManagerMapa implements Serializable {
         Mensagem.successAndRedirect("Operação realizada com sucesso!", "visualizarMapas.xhtml?id=" + mapa.getId());
     }
 
-    public void excluir() {
-
+   public void removerMapa() throws Exception {
+        this.mapaServico.delete(this.mapa, Url.APAGAR_MAPA.getNome());
+        Mensagem.successAndRedirect("pesquisarPlayer.xhtml");
+        init();
     }
 
     public String getFileTemp() {
@@ -155,6 +161,22 @@ public class ManagerMapa implements Serializable {
 
     public void setFileTemp(String fileTemp) {
         this.fileTemp = fileTemp;
+    }
+
+    public Mapas getMapaDeletar() {
+        return mapaDeletar;
+    }
+
+    public void setMapaDeletar(Mapas mapaDeletar) {
+        this.mapaDeletar = mapaDeletar;
+    }
+
+    public Mapas getMapaPesquisar() {
+        return mapaPesquisar;
+    }
+
+    public void setMapaPesquisar(Mapas mapaPesquisar) {
+        this.mapaPesquisar = mapaPesquisar;
     }
 
 }
