@@ -365,7 +365,7 @@
 
             <p:dialog id="confirmarFinalizarPartidaDialog"
                       widgetVar="confirmarFinalizarPartidaDialog"
-                      header="Qual o time vencedor?"
+                      header="Deseja finalizar com o time #{managerPartida.retornaTimeVencedor()} como vencedor?"
                       modal="true"
                       resizable="false"
                       draggable="false"
@@ -376,12 +376,6 @@
 
 
                 <center>
-                    
-                     <div class="row">
-                        <div class="column3">
-                            <p:outputLabel value="Nome do time 1: " for="nomeTime1"/>
-                        </div>
-                     </div>
 
                     <p:commandButton value="Não"
                                      title="Cancelar Remoção"
@@ -390,11 +384,11 @@
                                      styleClass="btn btn-default"/>
 
                     <p:commandButton value="Sim"
-                                     title="Confirmar Remoção"
+                                     title="Confirmar"
                                      icon="fa fa-check"
                                      process="@this"
                                      update="@form"
-                                     actionListener="#{managerPlayer.removerPlayer()}"
+                                     actionListener="#{managerPartida.finalizarPartida()}"
                                      styleClass="btn btn-info"/>
 
                 </center>

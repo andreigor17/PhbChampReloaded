@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  *
  * @author andre
@@ -52,7 +51,7 @@ public class ManagerCamp implements Serializable {
     private Team time;
     private List<Estatisticas> estatisticasTime;
     private Estatisticas estatistica;
-    private List<Partida> partidas;    
+    private List<Partida> partidas;
     private List<Estatisticas> ests;
     private List<Team> timesVisualizar;
     private Partida partida;
@@ -286,6 +285,7 @@ public class ManagerCamp implements Serializable {
                     kills += estats.getKills();
                     deaths += estats.getDeaths();
                     assists += estats.getAssists();
+                    pontos += estats.getPontos();
                 }
 
             }
@@ -294,10 +294,12 @@ public class ManagerCamp implements Serializable {
             est.setAssists(assists);
             est.setDeaths(deaths);
             est.setTeam(timeCamp);
+            est.setPontos(pontos);
             soma.add(est);
             kills = 0;
             deaths = 0;
             assists = 0;
+            pontos = 0;
             est = new Estatisticas();
         }
         return soma;
@@ -336,5 +338,5 @@ public class ManagerCamp implements Serializable {
         return soma;
 
     }
-    
+
 }

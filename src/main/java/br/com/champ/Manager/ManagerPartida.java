@@ -94,6 +94,8 @@ public class ManagerPartida implements Serializable {
     private int scoreT2;
     private Team time1;
     private Team time2;
+    private List<Team> timesPartida;
+    private Team teamVencedor;
 
     @PostConstruct
     public void init() {
@@ -159,6 +161,8 @@ public class ManagerPartida implements Serializable {
         this.selectedPlayers = new ArrayList<>();
         this.time1 = new Team();
         this.time2 = new Team();
+        this.timesPartida = new ArrayList<>();
+        this.teamVencedor = new Team();
     }
 
     public void gerarScore() {
@@ -197,8 +201,24 @@ public class ManagerPartida implements Serializable {
         this.time2 = time2;
     }
 
+    public List<Team> getTimesPartida() {
+        return timesPartida;
+    }
+
+    public void setTimesPartida(List<Team> timesPartida) {
+        this.timesPartida = timesPartida;
+    }
+
     public int getScoreT1() {
         return scoreT1;
+    }
+
+    public Team getTeamVencedor() {
+        return teamVencedor;
+    }
+
+    public void setTeamVencedor(Team teamVencedor) {
+        this.teamVencedor = teamVencedor;
     }
 
     public void setScoreT1(int scoreT1) {
@@ -220,6 +240,7 @@ public class ManagerPartida implements Serializable {
         Integer deaths = 0;
         Integer assists = 0;
         List<Estatisticas> ests = estatisticasServico.estatisticaPorPartidaTeam(team.getId(), this.partida.getId());
+        //System.err.println("size " + ests.size());
         for (Player p : team.getPlayers()) {
             for (Estatisticas e : ests) {
                 if (e.getPlayer().getId().equals(p.getId())) {
@@ -789,9 +810,43 @@ public class ManagerPartida implements Serializable {
 
     public void finalizarPartida() {
         try {
+            List<Estatisticas> estsAux = new ArrayList<>();
+            if (scoreT1 > scoreT2) {
+                this.partida.setTimeVencedor(this.partida.getItemPartida().get(0).getTeam1());
+                List<Estatisticas> ests = estatisticasServico.estatisticaPorPartidaTeam(this.partida.getItemPartida().get(0).getTeam1().getId(), this.partida.getId());
+                System.err.println("size1 " + ests.size());
+                for (Estatisticas e : ests) {
+                    int pontos = e.getPontos();
+                    e.setPontos(pontos + 3);
+                    estsAux.add(e);
+                    break;
+                }
+            } else {
+                this.partida.setTimeVencedor(this.partida.getItemPartida().get(0).getTeam2());
+                List<Estatisticas> ests = estatisticasServico.estatisticaPorPartidaTeam(this.partida.getItemPartida().get(0).getTeam2().getId(), this.partida.getId());
+                System.err.println("size2 " + ests.size());
+                for (Estatisticas e : ests) {
+                    e.setPontos(e.getPontos() + 3);
+                    estsAux.add(e);
+                    break;
+                }
+            }
+            for (Estatisticas e1 : estsAux) {
+                estatisticasServico.salvar(e1, e1.getId(), Url.ATUALIZAR_ESTATISTICA.getNome());
+            }
+            this.partida.setFinalizada(true);
             this.partida = partidaServico.salvar(this.partida, this.partida.getId(), Url.ATUALIZAR_PARTIDA.getNome());
+            Mensagem.successAndRedirect("Partida atualizada com sucesso", "visualizarPartida.xhtml?id=" + partida.getId());
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+    }
+
+    public String retornaTimeVencedor() {
+        if (scoreT1 > scoreT2) {
+            return this.partida.getItemPartida().get(0).getTeam1().getNome();
+        } else {
+            return this.partida.getItemPartida().get(0).getTeam2().getNome();
         }
     }
 }

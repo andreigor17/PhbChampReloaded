@@ -32,9 +32,7 @@
                           icon="ui-icon-pencil"  >
                     <f:param value="#{ managerCamp.camp.id }" name="id"/>
                 </p:button>
-
-                <p:button value="Gerar Próx. Fase" outcome="pesquisarCampeonato.xhtml"
-                          icon="ui-icon-search"  />
+               
 
             </div>
             <p:fieldset legend="Dados">
@@ -183,8 +181,8 @@
                         </p:dataTable>                    
 
                     </p:tab>
-                </c:forEach>Ï
-                <p:tab id="jogos" title="#{fase.nome}" rendered="#{not empty managerCamp.camp.fasesCamp ? false : true}">
+                </c:forEach>
+                <p:tab id="jogos" title="Tabela" rendered="#{not empty managerCamp.camp.fasesCamp ? false : true}">
                     <p:dataTable id="partidasDataTableTeam"
                                  rendered="#{not empty managerCamp.camp.teams ? true : false}"
                                  value="#{managerCamp.partidas}"
