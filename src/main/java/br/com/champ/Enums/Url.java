@@ -21,7 +21,7 @@ public enum Url {
     ATUALIZAR_TIME("/api/team/"),
     SALVAR_CAMPEONATO("/api/campeonato"),
     ATUALIZAR_CAMPEONATO("/api/campeonato/"),
-    EXCLUIR_CAMPEONATO("/api/campeonato/excluir/"),
+    EXCLUIR_CAMPEONATO("/api/campeonato/"),
     BUSCAR_CAMPEONATO_ID("/api/campeonato/"),
     BUSCAR_CAMPEONATO_PLAYERS("/api/campeonato/"),
     BUSCAR_CAMPEONATOS("/api/campeonatos"),
@@ -60,7 +60,8 @@ public enum Url {
     ATUALIZAR_VERSAO("/versao"),
     EXCLUIR_VERSAO("/versao/excluir/"),
     LOGIN("/api/login/auth"),
-    REGISTRAR_USUARIO("/api/login/usuario");
+    REGISTRAR_USUARIO("/api/login/usuario"),
+    SALVAR_FASE("/api/fase");
 
     private String nome;
 

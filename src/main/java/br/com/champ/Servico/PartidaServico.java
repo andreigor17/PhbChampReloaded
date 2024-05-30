@@ -78,7 +78,7 @@ public class PartidaServico {
                 // Montando o  Json
                 Gson gson = new Gson();
                 String json = gson.toJson(partida);
-                System.out.println("Montagem da partida: " + json);
+                //System.out.println("Montagem da partida: " + json);
 
                 // Escreve o objeto JSON usando o OutputStream da requisição:
                 try (OutputStream outputStream = request.getOutputStream()) {
@@ -136,7 +136,7 @@ public class PartidaServico {
             }
             in.close();
             //print in String
-            System.out.println(response.toString());
+            //System.out.println(response.toString());
             //Read JSON response and print
             Gson gson = new Gson();
             List<Partida> c = new ArrayList<>();
@@ -165,7 +165,7 @@ public class PartidaServico {
 
     public List<Partida> pesquisarPartidasPorJogo(String nomeJogo) {
         try {
-            String url = pathToAPI() + "/partidas/partida_jogo?nomeJogo=" + nomeJogo;
+            String url = pathToAPI() + "/api/partida/partida-jogo?nomeJogo=" + nomeJogo;
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 //            // optional default is GET
@@ -263,7 +263,7 @@ public class PartidaServico {
 
     public List<Partida> partidaPorCamp(Long id) {
         try {
-            String url = pathToAPI() + "/partidas/partidasPorCamp/" + id;
+            String url = pathToAPI() + "/api/partida/partidas-camp/" + id;
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             // optional default is GET
@@ -283,7 +283,7 @@ public class PartidaServico {
             }
             in.close();
             //print in String
-            System.out.println(response.toString());
+            //System.out.println(response.toString());
             //Read JSON response and print
             Gson gson = new Gson();
             List<Partida> c = new ArrayList<>();

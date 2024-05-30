@@ -65,7 +65,7 @@ public class CampeonatoServico {
             }
             in.close();
             //print in String
-            System.out.println(response.toString());
+            //System.out.println(response.toString());
             //Read JSON response and print
             Gson gson = new Gson();
             List<Campeonato> c = new ArrayList<>();
@@ -311,7 +311,7 @@ public class CampeonatoServico {
 
     public Campeonato buscaCamp(Long id) {
         try {
-            String url = pathToAPI() + "/campeonatos/" + id;
+            String url = pathToAPI() + "/api/campeonato/" + id;
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             // optional default is GET
@@ -331,7 +331,7 @@ public class CampeonatoServico {
             }
             in.close();
             //print in String
-            System.out.println(response.toString());
+            //System.out.println(response.toString());
             //Read JSON response and print
             Gson gson = new Gson();
             Campeonato c = new Campeonato();

@@ -23,12 +23,11 @@
                 <p:button value="Voltar" outcome="visualizarCampeonato.xhtml?id=#{managerPartida.partida.itemPartida.get(0).camp}"
                           icon="ui-icon-arrowthick-1-w" rendered="#{managerPartida.partida.itemPartida.get(0).camp ne null}" style="text-align: left" />   
 
-             
+
                 <p:menu >
-                    <p:submenu label="Geral">
-                        <p:menuitem value="Editar" 
-                                    icon="pi pi-pencil"/>
-                        <p:menuitem value="Excluir"  update="messages" icon="pi pi-refresh"/>                        
+                    <p:submenu label="Geral">                     
+                        <p:menuitem value="Finalizar Partida"  icon="pi pi-refresh" update="@form"
+                                    oncomplete="PF('confirmarFinalizarPartidaDialog').show();"/> 
                     </p:submenu>
                     <p:submenu label="Picks and Bans">
                         <p:menuitem value="Gerar mapas" outcome="gerarMapas.xhtml?partidaId=#{managerPartida.partida.id}"   icon="pi pi-external-link"/>                        
@@ -364,9 +363,9 @@
                 </c:forEach>Ï
             </p:tabView>
 
-            <p:dialog id="confirmarRemoverPartidaDialog"
-                      widgetVar="confirmarRemoverPartidaDialog"
-                      header="Atenção!"
+            <p:dialog id="confirmarFinalizarPartidaDialog"
+                      widgetVar="confirmarFinalizarPartidaDialog"
+                      header="Qual o time vencedor?"
                       modal="true"
                       resizable="false"
                       draggable="false"
@@ -377,11 +376,17 @@
 
 
                 <center>
+                    
+                     <div class="row">
+                        <div class="column3">
+                            <p:outputLabel value="Nome do time 1: " for="nomeTime1"/>
+                        </div>
+                     </div>
 
                     <p:commandButton value="Não"
                                      title="Cancelar Remoção"
                                      icon="fa fa-ban"
-                                     oncomplete="PF('confirmarRemoverPartidaDialog').hide();"
+                                     oncomplete="PF('confirmarFinalizarPartidaDialog').hide();"
                                      styleClass="btn btn-default"/>
 
                     <p:commandButton value="Sim"
@@ -389,12 +394,12 @@
                                      icon="fa fa-check"
                                      process="@this"
                                      update="@form"
-                                     actionListener="#{managerPartida.excluir()}"
+                                     actionListener="#{managerPlayer.removerPlayer()}"
                                      styleClass="btn btn-info"/>
 
                 </center>
 
-            </p:dialog>               
+            </p:dialog>
         </h:form>
 
     </ui:define>

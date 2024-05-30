@@ -4,7 +4,7 @@
  */
 package br.com.champ.Servico;
 
-import br.com.champ.Modelo.Jogo;
+import br.com.champ.Modelo.Fase;
 import br.com.champ.Utilitario.APIPath;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -27,17 +27,17 @@ import org.json.JSONException;
  * @author andre
  */
 @Stateless
-public class JogoServico {
+public class FaseServico {
 
     public String pathToAPI() throws IOException {
         return APIPath.pathToAPI();
 
     }
 
-    public List<Jogo> pesquisar() throws Exception {
+    public List<Fase> pesquisar(Long campId) throws Exception {
 
         try {
-            String url = pathToAPI() + "/api/jogo/jogos";
+            String url = pathToAPI() + "/fase/fase-camp/" + campId;
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             // optional default is GET
@@ -46,8 +46,8 @@ public class JogoServico {
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Accept", "application/json");
             int responseCode = con.getResponseCode();
-            //System.out.println("\nSending 'GET' request to URL : " + url);
-            //System.out.println("Response Code : " + responseCode);
+            System.out.println("\nSending 'GET' request to URL : " + url);
+            System.out.println("Response Code : " + responseCode);
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(con.getInputStream()));
             String inputLine;
@@ -60,15 +60,15 @@ public class JogoServico {
             //System.out.println(response.toString());
             //Read JSON response and print
             Gson gson = new Gson();
-            List<Jogo> p = new ArrayList<>();
+            List<Fase> p = new ArrayList<>();
 
             //Player[] userArray = gson.fromJson(response.toString(), Player[].class);
-            Type userListType = new TypeToken<ArrayList<Jogo>>() {
+            Type userListType = new TypeToken<ArrayList<Fase>>() {
             }.getType();
 
-            ArrayList<Jogo> userArray = gson.fromJson(response.toString(), userListType);
+            ArrayList<Fase> userArray = gson.fromJson(response.toString(), userListType);
 
-            for (Jogo user : userArray) {
+            for (Fase user : userArray) {
                 p.add(user);
             }
 
@@ -84,48 +84,7 @@ public class JogoServico {
 
     }
 
-    public Jogo pesquisarJogo(Long id) {
-        try {
-            String url = pathToAPI() + "/api/jogo/" + id;
-            URL obj = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-            // optional default is GET
-            con.setRequestMethod("GET");
-            //add request header
-            con.setRequestProperty("Content-Type", "application/json");
-            con.setRequestProperty("Accept", "application/json");
-            int responseCode = con.getResponseCode();
-            //System.out.println("Response Code : " + responseCode);
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-            //print in String
-            System.out.println(response.toString());
-            //Read JSON response and print
-            Gson gson = new Gson();
-            Jogo p1 = new Jogo();
-
-            Jogo userArray = gson.fromJson(response.toString(), Jogo.class);
-
-            p1 = userArray;
-            return p1;
-        } catch (IOException iOException) {
-            System.err.println(iOException);
-        } catch (JSONException jSONException) {
-            System.err.println(jSONException);
-        } catch (NumberFormatException numberFormatException) {
-            System.err.println(numberFormatException);
-        }
-        return null;
-
-    }
-
-    public Jogo save(Jogo jogo, Long id, String uri) throws Exception {
+    public Fase save(Fase mapa, Long id, String uri) throws Exception {
 
         String url;
         if (id != null) {
@@ -155,16 +114,16 @@ public class JogoServico {
                 // Conecta na URL:
                 request.connect();
                 Gson gson = new Gson();
-                String json = gson.toJson(jogo);
-                System.out.println("Json jogo " + json);
+                String json = gson.toJson(mapa);
+                System.out.println("Json mapa " + json);
 
                 // Escreve o objeto JSON usando o OutputStream da requisição:
                 try (OutputStream outputStream = request.getOutputStream()) {
                     outputStream.write(json.getBytes("UTF-8"));
                 }
 
-                Jogo p = new Jogo();
-                Jogo userArray = gson.fromJson(readResponse(request), Jogo.class);
+                Fase p = new Fase();
+                Fase userArray = gson.fromJson(readResponse(request), Fase.class);
                 p = userArray;
                 return p;
 

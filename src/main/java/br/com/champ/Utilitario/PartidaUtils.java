@@ -17,8 +17,8 @@ import java.util.List;
  * @author andre
  */
 public class PartidaUtils {
-    
-     public static List<ItemPartida> gerarPartidasTimes(Partida p, Long id, Team time1, Team time2, int qtdItensPartidas ) {
+
+    public static List<ItemPartida> gerarPartidasTimes(Partida p, Long id, Team time1, Team time2, int qtdItensPartidas) {
 
         int i = 0;
         List<ItemPartida> partidasGeradas = new ArrayList<>();
@@ -38,8 +38,8 @@ public class PartidaUtils {
         }
         return partidasGeradas;
     }
-     
-     public static List<ItemPartida> gerarPartidasPlayers(Partida p, Long id, Player player1, Player player2, int qtdItensPartidas ) {
+
+    public static List<ItemPartida> gerarPartidasPlayers(Partida p, Long id, Player player1, Player player2, int qtdItensPartidas) {
 
         int i = 0;
         List<ItemPartida> partidasGeradas = new ArrayList<>();
@@ -59,5 +59,21 @@ public class PartidaUtils {
         }
         return partidasGeradas;
     }
-    
+
+    public static String obterFaseAtual(int numTimesRestantes) {
+        if (numTimesRestantes <= 2) {
+            return "Final";
+        } else if (numTimesRestantes <= 4) {
+            return "Semifinais";
+        } else if (numTimesRestantes <= 8) {
+            return "Quartas de final";
+        } else if (numTimesRestantes <= 16) {
+            return "Oitavas de final";
+        } else if (numTimesRestantes <= 32) {
+            return "Fase inicial";
+        } else {
+            return "Fase desconhecida";
+        }
+    }
+
 }

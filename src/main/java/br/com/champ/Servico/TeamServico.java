@@ -65,7 +65,7 @@ public class TeamServico {
             }
             in.close();
             //print in String
-            System.out.println(response.toString());
+            //System.out.println(response.toString());
             //Read JSON response and print
             Gson gson = new Gson();
             List<Team> t = new ArrayList<>();
@@ -99,7 +99,7 @@ public class TeamServico {
     private List<Team> buscaTimes() throws Exception {
 
         try {
-            String url = pathToAPI() + "/api/teams/teams-nao-amistosos";
+            String url = pathToAPI() + "/api/team/teams-nao-amistosos";
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             // optional default is GET

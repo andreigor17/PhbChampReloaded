@@ -52,7 +52,7 @@ public class ManagerCamp implements Serializable {
     private Team time;
     private List<Estatisticas> estatisticasTime;
     private Estatisticas estatistica;
-    private List<Partida> partidas;
+    private List<Partida> partidas;    
     private List<Estatisticas> ests;
     private List<Team> timesVisualizar;
     private Partida partida;
@@ -336,5 +336,5 @@ public class ManagerCamp implements Serializable {
         return soma;
 
     }
-
+    
 }

@@ -598,12 +598,14 @@ public class ManagerPartida implements Serializable {
             t1.setActive(true);
             t1.setNome(nomeTime1);
             t1.setPlayers(time1);
+            t1.setTimeAmistoso(true);
             team1 = teamServico.save(t1, null, Url.SALVAR_TIME.getNome());
 
             Team team2 = new Team();
             t2.setActive(true);
             t2.setNome(nomeTime2);
             t2.setPlayers(time2);
+            t2.setTimeAmistoso(true);
             team2 = teamServico.save(t2, null, Url.SALVAR_TIME.getNome());
 
             this.itemPartidas = PartidaUtils.gerarPartidasTimes(partidaX5, null, team1, team2, this.qtdItensPartidas);
