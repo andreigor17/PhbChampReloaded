@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.primefaces.PrimeFaces;
 import org.primefaces.event.DragDropEvent;
 import org.primefaces.model.DualListModel;
@@ -688,10 +690,10 @@ public class ManagerPartida implements Serializable {
             } else {
                 this.nomeTime1 = "Time " + this.pickedPlayers.get(0).getNome();
             }
-            
-            this.pickedPlayers.remove(0);            
+
+            this.pickedPlayers.remove(0);
             droppedPlayers2.add(this.pickedPlayers.get(0));
-            
+
             if (!this.pickedPlayers.isEmpty() && this.pickedPlayers.get(0).getNick() != null) {
                 this.nomeTime2 = "Time " + this.pickedPlayers.get(0).getNick();
             } else {
@@ -782,6 +784,14 @@ public class ManagerPartida implements Serializable {
             Mensagem.successAndRedirect("Partida criada com sucesso", "visualizarPartida.xhtml?id=" + partida.getId());
         } catch (Exception ex) {
             System.err.println(ex);
+        }
+    }
+
+    public void finalizarPartida() {
+        try {
+            this.partida = partidaServico.salvar(this.partida, this.partida.getId(), Url.ATUALIZAR_PARTIDA.getNome());
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 }
