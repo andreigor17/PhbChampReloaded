@@ -53,7 +53,18 @@
                             <p:inputText  value="#{ests1.kills}" />
                         </f:facet>
                     </p:cellEditor>
-                </p:column>
+                </p:column>               
+                <p:column headerText="Deaths">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{ests1.deaths}"/>
+                        </f:facet>
+
+                        <f:facet name="input">
+                            <p:inputText  value="#{ests1.deaths}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>   
                 <p:column headerText="Assists">
                     <p:cellEditor>
                         <f:facet name="output">
@@ -65,17 +76,6 @@
                         </f:facet>
                     </p:cellEditor>
                 </p:column>  
-                <p:column headerText="Deaths">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{ests1.deaths}"/>
-                        </f:facet>
-
-                        <f:facet name="input">
-                            <p:inputText  value="#{ests1.deaths}" />
-                        </f:facet>
-                    </p:cellEditor>
-                </p:column>     
             </p:dataTable>
 
 
@@ -116,18 +116,7 @@
                             <p:inputText  value="#{ests2.kills}" />
                         </f:facet>
                     </p:cellEditor>
-                </p:column>     
-                <p:column headerText="Assists">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{ests2.assists}"/>
-                        </f:facet>
-
-                        <f:facet name="input">
-                            <p:inputText  value="#{ests2.assists}" />
-                        </f:facet>
-                    </p:cellEditor>
-                </p:column>   
+                </p:column>                        
                 <p:column headerText="Deaths">
                     <p:cellEditor>
                         <f:facet name="output">
@@ -138,7 +127,18 @@
                             <p:inputText  value="#{ests2.deaths}" />
                         </f:facet>
                     </p:cellEditor>
-                </p:column>                   
+                </p:column>
+                <p:column headerText="Assists">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{ests2.assists}"/>
+                        </f:facet>
+
+                        <f:facet name="input">
+                            <p:inputText  value="#{ests2.assists}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>                
 
             </p:dataTable>
 

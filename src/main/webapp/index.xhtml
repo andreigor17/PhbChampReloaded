@@ -69,10 +69,7 @@
                             <h:outputLink  value="visualizarCampeonato.xhtml?id=#{campeonato.id}">
                                 <h:outputText value="#{campeonato.nome}" />
                             </h:outputLink>
-                        </p:column>        
-                        <p:column headerText="Nome" width="20%">
-                            <p:outputLabel value="#{campeonato.nome}" />
-                        </p:column>                
+                        </p:column>                                              
                         <p:column headerText="Status" width="20%">
                             <p:panel rendered="#{campeonato.status.nome eq 'Em Andamento'}" style="border: none">
                                 <span style="display: block;

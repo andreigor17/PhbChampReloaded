@@ -2,6 +2,7 @@ package br.com.champ.Modelo;
 
 import br.com.champ.Generico.ModeloGenerico;
 import java.io.Serializable;
+import java.util.Comparator;
 
 /**
  *
@@ -154,6 +155,5 @@ public class Estatisticas extends ModeloGenerico implements Serializable {
         this.partidasPerdidas = partidasPerdidas;
     }
 
-    
-
+   
 }

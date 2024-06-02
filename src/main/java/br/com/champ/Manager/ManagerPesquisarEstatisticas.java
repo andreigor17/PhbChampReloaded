@@ -111,6 +111,19 @@ public class ManagerPesquisarEstatisticas implements Serializable {
 
         if (this.itemPartida.getScoreT1() != null && this.itemPartida.getScoreT2() != null) {
             this.itemPartida.setJogado(true);
+
+            for (Estatisticas e : estsTime2Visualizar) {
+                e.setRoundsGanhos(this.itemPartida.getScoreT2());
+                e.setRoundsPerdidos(this.itemPartida.getScoreT1());
+                break;
+            }
+
+            for (Estatisticas e : estsTime1Visualizar) {
+                e.setRoundsGanhos(this.itemPartida.getScoreT1());
+                e.setRoundsPerdidos(this.itemPartida.getScoreT2());
+                break;
+            }
+
             if (this.itemPartida.getScoreT1() > this.itemPartida.getScoreT2()) {
                 this.itemPartida.setTimeVencedor(this.itemPartida.getTeam1());
             } else {

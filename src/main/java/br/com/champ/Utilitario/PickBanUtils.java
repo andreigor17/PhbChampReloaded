@@ -27,9 +27,9 @@ public class PickBanUtils {
             pickBanVo.add(pb1);
             PickBanVo pb2 = new PickBanVo(team2, TipoPickBan.BAN);
             pickBanVo.add(pb2);
-            PickBanVo pb3 = new PickBanVo(team1, TipoPickBan.BAN);
+            PickBanVo pb3 = new PickBanVo(team2, TipoPickBan.BAN);
             pickBanVo.add(pb3);
-            PickBanVo pb4 = new PickBanVo(team2, TipoPickBan.BAN);
+            PickBanVo pb4 = new PickBanVo(team1, TipoPickBan.BAN);
             pickBanVo.add(pb4);
             PickBanVo pb5 = new PickBanVo(team1, TipoPickBan.BAN);
             pickBanVo.add(pb5);

@@ -5,8 +5,6 @@
  */
 package br.com.champ.Modelo;
 
-import br.com.champ.Enums.Game;
-import br.com.champ.Enums.Maps;
 import br.com.champ.Generico.ModeloGenerico;
 import java.io.Serializable;
 import java.util.List;
@@ -23,6 +21,7 @@ public class Partida extends ModeloGenerico implements Serializable {
     private int contador;
     private int contadorEsperado;
     private boolean finalizada;
+    private Long faseid;
 
     public Partida() {
     }
@@ -73,6 +72,14 @@ public class Partida extends ModeloGenerico implements Serializable {
 
     public void setFinalizada(boolean finalizada) {
         this.finalizada = finalizada;
+    }
+
+    public Long getFaseid() {
+        return faseid;
+    }
+
+    public void setFaseid(Long faseid) {
+        this.faseid = faseid;
     }
 
 }

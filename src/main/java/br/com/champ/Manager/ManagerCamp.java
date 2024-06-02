@@ -21,6 +21,7 @@ import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,6 +58,7 @@ public class ManagerCamp implements Serializable {
     private Partida partida;
     private int s1;
     private int s2;
+    private Estatisticas mvp;
 
     @PostConstruct
     public void init() {
@@ -86,6 +88,10 @@ public class ManagerCamp implements Serializable {
             }
         }
 
+        if (this.camp.getTeams() != null) {
+            this.mvp = somaEstsPlayersTop().get(0);
+        }
+
         HttpServletRequest uri = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 
         if (uri.getRequestURI().contains("indexCampeonato.xhtml")) {
@@ -109,7 +115,16 @@ public class ManagerCamp implements Serializable {
         this.partidas = new ArrayList<>();
         this.ests = new ArrayList<>();
         this.partida = new Partida();
+        this.mvp = new Estatisticas();
 
+    }
+
+    public Estatisticas getMvp() {
+        return mvp;
+    }
+
+    public void setMvp(Estatisticas mvp) {
+        this.mvp = mvp;
     }
 
     public Campeonato getPreCamp() {
@@ -270,6 +285,28 @@ public class ManagerCamp implements Serializable {
 
     }
 
+    public static Comparator<Estatisticas> comparadorTime = new Comparator<Estatisticas>() {
+        @Override
+        public int compare(Estatisticas o1, Estatisticas o2) {
+            if (o1.getPontos() != o2.getPontos()) {
+                return Integer.compare(o2.getPontos(), o1.getPontos());
+            } else {
+                return Integer.compare(o2.getRoundsGanhos(), o1.getRoundsGanhos());
+            }
+        }
+    };
+
+    public static Comparator<Estatisticas> comparadorPlayer = new Comparator<Estatisticas>() {
+        @Override
+        public int compare(Estatisticas o1, Estatisticas o2) {
+            if (o1.getKills() != o2.getKills()) {
+                return Integer.compare(o2.getKills(), o1.getKills());
+            } else {
+                return Integer.compare(o1.getDeaths(), o2.getDeaths());
+            }
+        }
+    };
+
     public List<Estatisticas> somaEstsTime() {
         List<Estatisticas> soma = new ArrayList<>();
         Estatisticas est = new Estatisticas();
@@ -277,6 +314,8 @@ public class ManagerCamp implements Serializable {
         Integer deaths = 0;
         Integer assists = 0;
         Integer pontos = 0;
+        Integer roundsGanhos = 0;
+        Integer roundsPerdidos = 0;
 
         for (Team timeCamp : this.camp.getTeams()) {
             this.estatisticasTime = estatisticaServico.estatisticaPorTime(timeCamp.getId(), this.camp.getId());
@@ -286,6 +325,8 @@ public class ManagerCamp implements Serializable {
                     deaths += estats.getDeaths();
                     assists += estats.getAssists();
                     pontos += estats.getPontos();
+                    roundsGanhos += estats.getRoundsGanhos();
+                    roundsPerdidos += estats.getRoundsPerdidos();
                 }
 
             }
@@ -295,13 +336,18 @@ public class ManagerCamp implements Serializable {
             est.setDeaths(deaths);
             est.setTeam(timeCamp);
             est.setPontos(pontos);
+            est.setRoundsGanhos(roundsGanhos);
+            est.setRoundsPerdidos(roundsPerdidos);
             soma.add(est);
             kills = 0;
             deaths = 0;
             assists = 0;
             pontos = 0;
+            roundsGanhos = 0;
+            roundsPerdidos = 0;
             est = new Estatisticas();
         }
+        soma.sort(comparadorTime);
         return soma;
 
     }
@@ -337,6 +383,62 @@ public class ManagerCamp implements Serializable {
         }
         return soma;
 
+    }
+
+    public List<Estatisticas> somaEstsPlayersTop() {
+        List<Estatisticas> soma = new ArrayList<>();
+        Estatisticas est = new Estatisticas();
+        Integer kills = 0;
+        Integer deaths = 0;
+        Integer assists = 0;
+        Integer pontos = 0;
+
+        for (Team t : this.camp.getTeams()) {
+            for (Player player : t.getPlayers()) {
+                this.estatisticasTime = estatisticaServico.estatisticaPorPlayer(player.getId(), this.camp.getId());
+                for (Estatisticas estats : this.estatisticasTime) {
+                    if (estats.getPlayer().getId().equals(player.getId())) {
+                        kills += estats.getKills();
+                        deaths += estats.getDeaths();
+                        assists += estats.getAssists();
+                    }
+
+                }
+
+                est.setKills(kills);
+                est.setAssists(assists);
+                est.setDeaths(deaths);
+                est.setPlayer(player);
+                soma.add(est);
+                kills = 0;
+                deaths = 0;
+                assists = 0;
+                est = new Estatisticas();
+            }
+        }
+        soma.sort(comparadorPlayer);
+        for (Estatisticas e : soma) {
+            System.err.println("player " + e.getPlayer().getNome() + " - " + "kills " + e.getKills() + " - " + "assists " + e.getAssists() + " - " + "deaths " + e.getDeaths());
+        }
+        soma.sort(comparadorPlayer);
+        return soma;
+
+    }
+
+    public String nomeAnexo(Team team) {
+        if (team.getAnexo() != null && team.getAnexo().getNome() != null) {
+            return "image/" + team.getAnexo().getNome();
+        } else {
+            return "media/images/cs2.png";
+        }
+    }
+
+    public String nomeAnexoMvp(Player player) {
+        if (player.getAnexo() != null && player.getAnexo().getNome() != null) {
+            return "image/" + player.getAnexo().getNome();
+        } else {
+            return "media/images/cs2.png";
+        }
     }
 
 }
