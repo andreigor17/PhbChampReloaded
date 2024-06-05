@@ -22,6 +22,7 @@ public class Estatisticas extends ModeloGenerico implements Serializable {
     private Integer saldoDeGols = 0;
     private Integer partidasGanhas = 0;
     private Integer partidasPerdidas = 0;
+    private Integer adr = 0;
     private Team team;
     private Campeonato campeonato;
     private ItemPartida itemPartida;
@@ -155,5 +156,12 @@ public class Estatisticas extends ModeloGenerico implements Serializable {
         this.partidasPerdidas = partidasPerdidas;
     }
 
-   
+    public Integer getAdr() {
+        return adr;
+    }
+
+    public void setAdr(Integer adr) {
+        this.adr = adr;
+    }
+
 }
