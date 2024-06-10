@@ -15,6 +15,16 @@
         <h:form id="formVisualizarPartida"
                 >
 
+            <script>
+                function skinRadarChart() {
+                    Chart.defaults.startAngle = 36;
+                    Chart.defaults.plugins.tooltip.cornerRadius = 3;
+                    Chart.defaults.plugins.tooltip.enabled = true;
+                    Chart.defaults.plugins.tooltip.mode = 'point';
+                    Chart.defaults.plugins.tooltip.position = 'nearest';
+                }
+            </script>
+
             <p:growl id="messages"
                      showDetail="false"/>
 
@@ -24,12 +34,12 @@
                           icon="ui-icon-arrowthick-1-w" rendered="#{managerPartida.partida.itemPartida.get(0).camp ne null}" style="text-align: left" />   
 
 
-                <p:menu >
-                    <p:submenu label="Geral">                     
-                        <p:menuitem value="Finalizar Partida"  icon="pi pi-refresh" update="@form"
+                <p:menu rendered="#{managerPartida.partida.finalizada eq false}">
+                    <p:submenu label="Geral" rendered="#{managerPartida.partida.finalizada eq false}">                     
+                        <p:menuitem value="Finalizar Partida"  icon="pi pi-refresh" update="@form" rendered="#{managerPartida.partida.finalizada eq false}"
                                     oncomplete="PF('confirmarFinalizarPartidaDialog').show();"/> 
                     </p:submenu>
-                    <p:submenu label="Picks and Bans">
+                    <p:submenu label="Picks and Bans" rendered="#{managerPartida.partida.finalizada eq false}">
                         <p:menuitem value="Gerar mapas" outcome="gerarMapas.xhtml?partidaId=#{managerPartida.partida.id}"   icon="pi pi-external-link"/>                        
                     </p:submenu>
                 </p:menu>                                
@@ -71,6 +81,9 @@
                         </p:column>
                         <p:column headerText="D" width="5%">
                             <p:outputLabel value="#{ests1.deaths}"/>
+                        </p:column>
+                        <p:column headerText="ADR" width="5%">
+                            <p:outputLabel value="#{ests1.adr}"/>
                         </p:column>
 
                     </p:dataTable>
@@ -151,6 +164,9 @@
                         <p:column headerText="D" width="5%">
                             <p:outputLabel value="#{ests2.deaths}"/>
                         </p:column>
+                        <p:column headerText="ADR" width="5%">
+                            <p:outputLabel value="#{ests2.adr}"/>
+                        </p:column>
                     </p:dataTable>
 
                     <p:dataTable id="geralPlayer2"
@@ -193,6 +209,12 @@
                         </p:column>
 
                     </p:dataTable>
+
+                    <div class="col-12 lg:col-6 xl:col-4">
+                        <div class="card">
+                            <p:radarChart model="#{managerPartida.radarModel}"/>
+                        </div>
+                    </div>
                 </p:tab>
                 <c:forEach items="#{managerPartida.itensPartidas}" var="item">
                     <p:tab id="tab" title="#{item.mapas.nome ne null ? item.mapas.nome .concat(' - ').concat(item.scoreT1).concat(' x ').concat(item.scoreT2) : 'N/A' }">
@@ -236,6 +258,9 @@
                             </p:column>
                             <p:column headerText="D" width="5%">
                                 <p:outputLabel value="#{ests1.deaths}"/>
+                            </p:column>
+                            <p:column headerText="ADR" width="5%">
+                                <p:outputLabel value="#{ests1.adr}"/>
                             </p:column>
                         </p:dataTable>
 
@@ -313,6 +338,9 @@
                             </p:column>
                             <p:column headerText="D" width="5%">
                                 <p:outputLabel value="#{ests2.deaths}"/>
+                            </p:column>
+                            <p:column headerText="ADR" width="5%">
+                                <p:outputLabel value="#{ests2.adr}"/>
                             </p:column>
                         </p:dataTable>
 

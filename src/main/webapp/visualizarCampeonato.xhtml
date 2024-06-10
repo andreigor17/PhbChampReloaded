@@ -72,20 +72,6 @@
                         </ui:repeat>
                     </p:fieldset>
 
-                    <p:fieldset legend="MVP" id="topJogadores">
-
-                        <p:panel style="display: inline-block; margin: 30px; text-align: center; ">
-                            <p:outputLabel value="#{managerCamp.mvp.player.nick}" style="display: block; text-align: center"/>
-                            <h:graphicImage value="#{managerCamp.nomeAnexoMvp(managerCamp.mvp.player)}" width="200px" height="200px" style="border-radius: 10px"
-                                            onclick="window.location.href = 'visualizarPlayer.xhtml?id=#{managerCamp.mvp.player.id}';"/>
-                        </p:panel>
-
-                    </p:fieldset>
-
-
-
-
-
                 </p:tab>
                 <p:tab id="jogosGeral" title="Jogos" >
                     <p:dataTable id="timesDataTable" value="#{ managerCamp.somaEstsTime() }" var="ests"
@@ -294,6 +280,19 @@
 
                         </p:tab>
                     </p:tabView>
+                </p:tab>
+                <p:tab title="Estatísticas">
+
+                    <p:fieldset legend="MVP" id="topJogadores">
+
+                        <p:panel style="display: inline-block; margin: 30px; text-align: center; ">
+                            <p:outputLabel value="#{managerCamp.mvp.player.nick}" style="display: block; text-align: center"/>
+                            <h:graphicImage value="#{managerCamp.nomeAnexoMvp(managerCamp.mvp.player)}" width="200px" height="200px" style="border-radius: 10px"
+                                            onclick="window.location.href = 'visualizarPlayer.xhtml?id=#{managerCamp.mvp.player.id}';"/>
+                        </p:panel>
+
+                    </p:fieldset>
+
                 </p:tab>
             </p:tabView>
 

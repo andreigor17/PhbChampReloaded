@@ -22,6 +22,7 @@ import br.com.champ.Utilitario.FacesUtil;
 import br.com.champ.Utilitario.Mensagem;
 import br.com.champ.Utilitario.PartidaUtils;
 import br.com.champ.Utilitario.PickBanUtils;
+import br.com.champ.Utilitario.Utils;
 import br.com.champ.vo.PickBanVo;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -31,13 +32,18 @@ import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.primefaces.PrimeFaces;
 import org.primefaces.event.DragDropEvent;
 import org.primefaces.model.DualListModel;
+import org.primefaces.model.charts.ChartData;
+import org.primefaces.model.charts.optionconfig.elements.Elements;
+import org.primefaces.model.charts.optionconfig.elements.ElementsLine;
+import org.primefaces.model.charts.radar.RadarChartDataSet;
+import org.primefaces.model.charts.radar.RadarChartModel;
+import org.primefaces.model.charts.radar.RadarChartOptions;
 
 /**
  *
@@ -96,6 +102,7 @@ public class ManagerPartida implements Serializable {
     private Team time2;
     private List<Team> timesPartida;
     private Team teamVencedor;
+    private RadarChartModel radarModel;
 
     @PostConstruct
     public void init() {
@@ -131,6 +138,7 @@ public class ManagerPartida implements Serializable {
                     this.mapas = mapaServico.pesquisar();
                     this.pickBanVo = PickBanUtils.gerarListaPB(this.partida.getItemPartida().get(0).getTeam1(), this.partida.getItemPartida().get(0).getTeam2(), this.partida.getItemPartida().size());
                     gerarScore();
+                    createRadarModel();
                 } catch (Exception ex) {
                     System.err.println(ex);
                 }
@@ -163,6 +171,86 @@ public class ManagerPartida implements Serializable {
         this.time2 = new Team();
         this.timesPartida = new ArrayList<>();
         this.teamVencedor = new Team();
+        this.radarModel = new RadarChartModel();
+    }
+
+    public void createRadarModel() {
+        radarModel = new RadarChartModel();
+        ChartData data = new ChartData();
+
+        RadarChartDataSet radarDataSet = new RadarChartDataSet();
+        radarDataSet.setLabel(this.partida.getItemPartida().get(0).getTeam1().getNome());
+        radarDataSet.setFill(true);
+        radarDataSet.setBackgroundColor("rgba(255, 99, 132, 0.2)");
+        radarDataSet.setBorderColor("rgb(255, 99, 132)");
+        radarDataSet.setPointBackgroundColor("rgb(255, 99, 132)");
+        radarDataSet.setPointBorderColor("#fff");
+        radarDataSet.setPointHoverBackgroundColor("#fff");
+        radarDataSet.setPointHoverBorderColor("rgb(255, 99, 132)");
+
+        Map<Mapas, Integer> mapaCount = new HashMap<>();
+        Map<Mapas, Integer> mapaCount2 = new HashMap<>();
+
+        List<ItemPartida> partidas = itemPartidaServico.pesquisarItensTimeVencedor(this.partida.getItemPartida().get(0).getTeam1().getId());
+        if (Utils.isNotEmpty(partidas)) {
+            for (ItemPartida item : partidas) {
+                mapaCount.put(item.getMapas(), mapaCount.getOrDefault(item.getMapas(), 0) + 1);
+
+            }
+        }
+
+        List<Number> values = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        for (Map.Entry<Mapas, Integer> entry : mapaCount.entrySet()) {
+            Integer valor = entry.getValue();
+            values.add(valor);
+            labels.add(entry.getKey().getNome());
+        }
+        radarDataSet.setData(values);
+        data.setLabels(labels);
+
+        RadarChartDataSet radarDataSet2 = new RadarChartDataSet();
+        radarDataSet2.setLabel(this.partida.getItemPartida().get(0).getTeam2().getNome());
+        radarDataSet2.setFill(true);
+        radarDataSet2.setBackgroundColor("rgba(54, 162, 235, 0.2)");
+        radarDataSet2.setBorderColor("rgb(54, 162, 235)");
+        radarDataSet2.setPointBackgroundColor("rgb(54, 162, 235)");
+        radarDataSet2.setPointBorderColor("#fff");
+        radarDataSet2.setPointHoverBackgroundColor("#fff");
+        radarDataSet2.setPointHoverBorderColor("rgb(54, 162, 235)");
+        List<Number> dataVal2 = new ArrayList<>();
+        List<ItemPartida> partidas2 = itemPartidaServico.pesquisarItensTimeVencedor(this.partida.getItemPartida().get(0).getTeam2().getId());
+        if (Utils.isNotEmpty(partidas2)) {
+            for (ItemPartida item : partidas2) {
+                mapaCount2.put(item.getMapas(), mapaCount2.getOrDefault(item.getMapas(), 0) + 1);
+
+            }
+        }
+
+        List<Number> values2 = new ArrayList<>();
+        for (Map.Entry<Mapas, Integer> entry : mapaCount2.entrySet()) {
+            Integer valor = entry.getValue();
+            values2.add(valor);
+            labels.add(entry.getKey().getNome());
+        }
+        radarDataSet2.setData(values2);
+
+        data.addChartDataSet(radarDataSet);
+        data.addChartDataSet(radarDataSet2);
+
+        data.setLabels(labels);
+
+        /* Options */
+        RadarChartOptions options = new RadarChartOptions();
+        Elements elements = new Elements();
+        ElementsLine elementsLine = new ElementsLine();
+        elementsLine.setTension(0);
+        elementsLine.setBorderWidth(3);
+        elements.setLine(elementsLine);
+        options.setElements(elements);
+
+        radarModel.setOptions(options);
+        radarModel.setData(data);
     }
 
     public void gerarScore() {
@@ -231,6 +319,14 @@ public class ManagerPartida implements Serializable {
 
     public void setScoreT2(int scoreT2) {
         this.scoreT2 = scoreT2;
+    }
+
+    public RadarChartModel getRadarModel() {
+        return radarModel;
+    }
+
+    public void setRadarModel(RadarChartModel radarModel) {
+        this.radarModel = radarModel;
     }
 
     public List<Estatisticas> somaEstsTeam(Team team) {

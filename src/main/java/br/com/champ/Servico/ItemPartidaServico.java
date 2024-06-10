@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONException;
 
-
 /**
  *
  * @author andre
@@ -94,13 +93,58 @@ public class ItemPartidaServico {
         return null;
     }
 
-    public void delete(ItemPartida partida) {
-
-    }
-
     public List<ItemPartida> pesquisarPartidas(ItemPartida partidaPesquisar) {
         try {
             String url = pathToAPI() + "/partidas";
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+//            // optional default is GET
+            con.setRequestMethod("GET");
+            //add request header
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
+            int responseCode = con.getResponseCode();
+            System.out.println("\nSending 'GET' request to URL : " + url);
+            System.out.println("Response Code : " + responseCode);
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            //print in String
+            //System.out.println(response.toString());
+            //Read JSON response and print
+            Gson gson = new Gson();
+            List<ItemPartida> c = new ArrayList<>();
+
+            //Team[] userArray = gson.fromJson(response.toString(), Team[].class);
+            Type userListType = new TypeToken<ArrayList<ItemPartida>>() {
+            }.getType();
+
+            ArrayList<ItemPartida> userArray = gson.fromJson(response.toString(), userListType);
+
+            for (ItemPartida partida : userArray) {
+                c.add(partida);
+            }
+
+            return c;
+        } catch (IOException iOException) {
+            System.err.println(iOException);
+        } catch (JSONException jSONException) {
+            System.err.println(jSONException);
+        } catch (NumberFormatException numberFormatException) {
+            System.err.println(numberFormatException);
+        }
+        return null;
+
+    }
+
+    public List<ItemPartida> pesquisarItensTimeVencedor(Long teamId) {
+        try {
+            String url = pathToAPI() + "/api/item-partida/item-time-vencedor/" + teamId;
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 //            // optional default is GET
