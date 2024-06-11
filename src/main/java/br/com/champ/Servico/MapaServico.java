@@ -85,6 +85,56 @@ public class MapaServico {
 
     }
 
+    public List<Mapas> pesquisarOrdenado() throws Exception {
+
+        try {
+            String url = pathToAPI() + "/api/mapa/mapas-ordenado";
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            // optional default is GET
+            con.setRequestMethod("GET");
+            //add request header
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
+            int responseCode = con.getResponseCode();
+            System.out.println("\nSending 'GET' request to URL : " + url);
+            System.out.println("Response Code : " + responseCode);
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            //print in String
+            //System.out.println(response.toString());
+            //Read JSON response and print
+            Gson gson = new Gson();
+            List<Mapas> p = new ArrayList<>();
+
+            //Player[] userArray = gson.fromJson(response.toString(), Player[].class);
+            Type userListType = new TypeToken<ArrayList<Mapas>>() {
+            }.getType();
+
+            ArrayList<Mapas> userArray = gson.fromJson(response.toString(), userListType);
+
+            for (Mapas user : userArray) {
+                p.add(user);
+            }
+
+            return p;
+        } catch (IOException iOException) {
+            System.err.println(iOException);
+        } catch (JSONException jSONException) {
+            System.err.println(jSONException);
+        } catch (NumberFormatException numberFormatException) {
+            System.err.println(numberFormatException);
+        }
+        return null;
+
+    }
+
     public Mapas pesquisarMapa(Long id) {
         try {
             String url = pathToAPI() + "/api/mapa/" + id;
@@ -191,9 +241,8 @@ public class MapaServico {
         }
         return new String(os.toByteArray());
     }
-    
-    
-     public Mapas delete(Mapas mapa, String uri) throws Exception {
+
+    public Mapas delete(Mapas mapa, String uri) throws Exception {
 
         String url = pathToAPI() + uri + mapa.getId();
 

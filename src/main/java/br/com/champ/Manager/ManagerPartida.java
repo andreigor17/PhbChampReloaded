@@ -174,9 +174,10 @@ public class ManagerPartida implements Serializable {
         this.radarModel = new RadarChartModel();
     }
 
-    public void createRadarModel() {
+    public void createRadarModel() throws Exception {
         radarModel = new RadarChartModel();
         ChartData data = new ChartData();
+        List<String> labels = new ArrayList<>();
 
         RadarChartDataSet radarDataSet = new RadarChartDataSet();
         radarDataSet.setLabel(this.partida.getItemPartida().get(0).getTeam1().getNome());
@@ -187,6 +188,12 @@ public class ManagerPartida implements Serializable {
         radarDataSet.setPointBorderColor("#fff");
         radarDataSet.setPointHoverBackgroundColor("#fff");
         radarDataSet.setPointHoverBorderColor("rgb(255, 99, 132)");
+
+        List<Mapas> mapas = mapaServico.pesquisarOrdenado();
+
+        for (Mapas m : mapas) {
+            labels.add(m.getNome());
+        }
 
         Map<Mapas, Integer> mapaCount = new HashMap<>();
         Map<Mapas, Integer> mapaCount2 = new HashMap<>();
@@ -200,14 +207,19 @@ public class ManagerPartida implements Serializable {
         }
 
         List<Number> values = new ArrayList<>();
-        List<String> labels = new ArrayList<>();
+
+        System.err.println("TIME 1");
         for (Map.Entry<Mapas, Integer> entry : mapaCount.entrySet()) {
             Integer valor = entry.getValue();
-            values.add(valor);
-            labels.add(entry.getKey().getNome());
+            for (String s : labels) {
+                if (entry.getKey().getNome().equalsIgnoreCase(s)) {
+                    values.add(valor);
+                } else {
+                    values.add(0);
+                }
+            }
         }
         radarDataSet.setData(values);
-        data.setLabels(labels);
 
         RadarChartDataSet radarDataSet2 = new RadarChartDataSet();
         radarDataSet2.setLabel(this.partida.getItemPartida().get(0).getTeam2().getNome());
@@ -218,7 +230,6 @@ public class ManagerPartida implements Serializable {
         radarDataSet2.setPointBorderColor("#fff");
         radarDataSet2.setPointHoverBackgroundColor("#fff");
         radarDataSet2.setPointHoverBorderColor("rgb(54, 162, 235)");
-        List<Number> dataVal2 = new ArrayList<>();
         List<ItemPartida> partidas2 = itemPartidaServico.pesquisarItensTimeVencedor(this.partida.getItemPartida().get(0).getTeam2().getId());
         if (Utils.isNotEmpty(partidas2)) {
             for (ItemPartida item : partidas2) {
@@ -227,18 +238,24 @@ public class ManagerPartida implements Serializable {
             }
         }
 
+        System.err.println("TIME 2");
         List<Number> values2 = new ArrayList<>();
         for (Map.Entry<Mapas, Integer> entry : mapaCount2.entrySet()) {
             Integer valor = entry.getValue();
-            values2.add(valor);
-            labels.add(entry.getKey().getNome());
+            for (String s : labels) {
+                if (entry.getKey().getNome().equalsIgnoreCase(s)) {
+                    values2.add(valor);
+                } else {
+                    values2.add(0);
+                }
+            }
         }
+
+        data.setLabels(labels);
         radarDataSet2.setData(values2);
 
         data.addChartDataSet(radarDataSet);
         data.addChartDataSet(radarDataSet2);
-
-        data.setLabels(labels);
 
         /* Options */
         RadarChartOptions options = new RadarChartOptions();
