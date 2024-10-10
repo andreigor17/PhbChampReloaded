@@ -314,7 +314,7 @@ public class ManagerCriarPlayer implements Serializable {
             baseUrl += ":" + serverPort;
         }
 
-        String fixedPath = "/PhbChampReloaded/criarPlayer.xhtml?redirectSteamLogin=true";
+        String fixedPath = "/PhbChamp/criarPlayer.xhtml?redirectSteamLogin=true";
 
         return baseUrl + fixedPath;
     }
