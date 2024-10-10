@@ -31,14 +31,20 @@
                                     </p:graphicImage><br/>
                                 </h:panelGroup>
                             </div>
-                                <p:fileUpload id="upload" style=" position: relative; height: 40px!important;  width: 160px!important; display: flex; justify-content: center; align-items: center; "
-                                              listener="#{managerCriarPlayer.doUpload}"
-                                              value="#{managerCriarPlayer.file}"
-                                              update="usuarioPanel"
-                                              auto="true"
-                                              label="Anexar Avatar"/>
+                            <p:fileUpload id="upload" style=" position: relative; height: 40px!important;  width: 160px!important; display: flex; justify-content: center; align-items: center; "
+                                          listener="#{managerCriarPlayer.doUpload}"
+                                          value="#{managerCriarPlayer.file}"
+                                          update="usuarioPanel"
+                                          auto="true"
+                                          label="Anexar Avatar"/>
                         </h:panelGroup>
                     </div>
+                </div>
+                <div class="row">                    
+                    <h:outputLink value="#{managerCriarPlayer.buildSteamLoginUrl()}" styleClass="steam-login-button">
+                        <img src="resources/images/steam.png" alt="Steam Icon" />
+                        Entrar com a Steam
+                    </h:outputLink>
                 </div>
                 <div class="row">
                     <div class="column2 bold">
@@ -72,7 +78,7 @@
                                      value="#{managerCriarPlayer.p.sobreNome}"
                                      />
                     </div>
-                   
+
                 </div>
 
                 <div class="row">

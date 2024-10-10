@@ -1998,6 +1998,29 @@ footer > p {
 
 }
 
+.steam-login-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #000; /* Fundo preto */
+    border: 1px solid #fff;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    width: 300px;
+}
+
+.steam-login-button img {
+    margin-right: 10px;
+}
+
+.steam-login-button:hover {
+    background-color: #333;
+    cursor: pointer;
+}
+
 
 
 

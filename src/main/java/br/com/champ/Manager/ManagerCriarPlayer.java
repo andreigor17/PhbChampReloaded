@@ -15,6 +15,7 @@ import br.com.champ.Servico.JogoServico;
 import br.com.champ.Servico.PlayerServico;
 import br.com.champ.Utilitario.FacesUtil;
 import br.com.champ.Utilitario.Mensagem;
+import br.com.champ.vo.PlayerSteamVo;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.faces.context.FacesContext;
@@ -22,8 +23,12 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.Serializable;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.StreamedContent;
 import org.primefaces.model.file.UploadedFile;
@@ -35,6 +40,9 @@ import org.primefaces.model.file.UploadedFile;
 @ViewScoped
 @Named
 public class ManagerCriarPlayer implements Serializable {
+
+    private final String STEAM_LOGIN_URL = "https://steamcommunity.com/openid/login";
+    private final String RETURN_URL = "http://localhost:8080/PhbChampReloaded/criarPlayer.xhtml?redirectSteamLogin=true";
 
     @EJB
     PlayerServico playerServico;
@@ -64,6 +72,13 @@ public class ManagerCriarPlayer implements Serializable {
 
             String visualizarPlayerId = FacesUtil
                     .getRequestParameter("id");
+
+            String redirectSteam = FacesUtil
+                    .getRequestParameter("redirectSteamLogin");
+
+            if (redirectSteam != null && !redirectSteam.isEmpty()) {
+                processSteamReturn();
+            }
 
             if (visualizarPlayerId != null && !visualizarPlayerId.isEmpty()) {
                 this.player = this.playerServico.buscaPlayer(Long.parseLong(visualizarPlayerId));
@@ -228,4 +243,79 @@ public class ManagerCriarPlayer implements Serializable {
         return jogos;
     }
 
+    public String buildSteamLoginUrl() {
+        return buildSteamLoginUrlWithParams();
+    }
+
+    
+    private String buildSteamLoginUrlWithParams() {
+        String returnUrl = URLEncoder.encode(buildUrl(), StandardCharsets.UTF_8);
+        return STEAM_LOGIN_URL + "?openid.mode=checkid_setup&openid.return_to=" + returnUrl
+                + "&openid.ns=http://specs.openid.net/auth/2.0&openid.identity=http://specs.openid.net/auth/2.0/identifier_select"
+                + "&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select";
+    }
+
+    private void processSteamReturn() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        HttpServletRequest request = (HttpServletRequest) facesContext.getExternalContext().getRequest();
+
+        Map<String, String[]> parameters = request.getParameterMap();
+        String steamId = parameters.get("openid.claimed_id")[0];
+
+        if (steamId != null && !steamId.isEmpty()) {
+            try {
+                // Decodificar a URL
+                String decodedSteamId = URLDecoder.decode(steamId, StandardCharsets.UTF_8.name());
+
+                // Extrair o SteamID64
+                String steamId64 = decodedSteamId.substring(decodedSteamId.lastIndexOf("/") + 1);
+
+                // Chamar o serviço de API da Steam
+                PlayerSteamVo playerVo = new PlayerSteamVo();
+                playerVo = playerServico.getPlayerInfo(steamId64, "F10A919CE16995E066B463C9005AF4D3");
+
+                if (playerVo.getPersonaname() != null) {
+                    this.player.setNick(playerVo.getPersonaname());
+                }
+
+                if (playerVo.getRealname() != null) {
+                    this.player.setNome(playerVo.getRealname());
+                }
+
+                if (playerVo.getSteamid() != null) {
+                    this.player.setSteamID(playerVo.getSteamid());
+                }
+
+                if (playerVo.getProfileurl() != null) {
+                    this.player.setUrlSteam(playerVo.getProfileurl());
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Mensagem.error("Erro ao processar o retorno da Steam.");
+            }
+        } else {
+            Mensagem.error("Erro ao processar o retorno da Steam.");
+        }
+    }
+
+    public String buildUrl() {
+
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        String scheme = request.getScheme();
+
+        String serverName = request.getServerName();
+
+        int serverPort = request.getServerPort();
+
+        String baseUrl = scheme + "://" + serverName;
+
+        if ((serverPort != 80 && "http".equals(scheme)) || (serverPort != 443 && "https".equals(scheme))) {
+            baseUrl += ":" + serverPort;
+        }
+
+        String fixedPath = "/PhbChampReloaded/criarPlayer.xhtml?redirectSteamLogin=true";
+
+        return baseUrl + fixedPath;
+    }
 }

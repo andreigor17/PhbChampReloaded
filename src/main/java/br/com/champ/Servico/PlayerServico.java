@@ -8,6 +8,7 @@ package br.com.champ.Servico;
 import br.com.champ.Enums.Url;
 import br.com.champ.Modelo.Player;
 import br.com.champ.Utilitario.APIPath;
+import br.com.champ.vo.PlayerSteamVo;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import jakarta.ejb.EJB;
@@ -24,7 +25,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
@@ -295,6 +298,51 @@ public class PlayerServico implements Serializable {
             }
         }
         return new String(os.toByteArray());
+    }
+
+    public PlayerSteamVo getPlayerInfo(String steamId64, String apiKey) {
+        PlayerSteamVo playerSteamVo = new PlayerSteamVo();
+        StringBuilder result = new StringBuilder();
+
+        try {
+            String urlString = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + apiKey + "&steamids=" + steamId64;
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String line;
+            while ((line = rd.readLine()) != null) {
+                result.append(line);
+            }
+            rd.close();
+
+            // Parse JSON response
+            JSONObject jsonResponse = new JSONObject(result.toString());
+            JSONArray playersArray = jsonResponse.getJSONObject("response").getJSONArray("players");
+
+            if (playersArray.length() > 0) {
+                JSONObject player = playersArray.getJSONObject(0);
+
+                playerSteamVo.setSteamid(player.getString("steamid"));
+                playerSteamVo.setPersonaname(player.getString("personaname"));
+                playerSteamVo.setProfileurl(player.getString("profileurl"));
+                playerSteamVo.setAvatar(player.getString("avatar"));
+                playerSteamVo.setAvatarmedium(player.getString("avatarmedium"));
+                playerSteamVo.setAvatarfull(player.getString("avatarfull"));
+                if (player.has("realname")) {
+                    playerSteamVo.setRealname(player.getString("realname"));
+                }
+                if (player.has("loccountrycode")) {
+                    playerSteamVo.setLoccountrycode(player.getString("loccountrycode"));
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return playerSteamVo;
     }
 
 }
