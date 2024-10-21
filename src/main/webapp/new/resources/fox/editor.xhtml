@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:cc="http://java.sun.com/jsf/composite"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:pe="http://primefaces.prime.com.tr/ui"
+                xmlns:p="http://primefaces.org/ui">
+
+    <cc:interface>
+        <cc:attribute name="documento" required="true"/>
+        <cc:attribute name="prefix" required="true"/>
+        <cc:attribute name="idEditor" required="true"/>
+    </cc:interface>
+
+    <cc:implementation>
+        <p:fieldset id="modelDocumentoFieldset" styleClass="column8 noborder">
+            <div class="actions" style="margin-top:-15px; display:none;">
+                <p:outputLabel id="fontText" value="#{cc.attrs.documento.fonte.nome}"/>
+                <p:outputLabel id="tamanhoFontText" value="#{cc.attrs.documento.tamanhoFonte.valor}"/>
+                <p:outputLabel id="espacamentoText" value="#{cc.attrs.documento.espacamentoEntreLinhas.valor}"/>
+                <p:splitButton value="Margens" icon="ui-icon-gear">
+                    <p:menuitem value="Topo" style="font-weight: bold;" rendered="false"/>
+                    <p:menuitem>
+
+                        <p:inputText id="margemCimaInputText"  value="#{cc.attrs.documento.margemDeCima}"/>
+                        <p:slider id="slideTopo" for="margemCimaInputText" onSlide="adjustMargins();" maxValue="250" >
+                            <p:ajax event="slideEnd" oncomplete="corrigeBugPrimefaces();"  />
+                        </p:slider>
+                    </p:menuitem>
+                    <p:menuitem value="Baixo" style="font-weight: bold;"/>
+                    <p:menuitem>
+                        <p:inputText id="margemBaixoInputText" styleClass="marginInput" 
+                                     value="#{cc.attrs.documento.margemDeBaixo}"/>
+                        <p:slider id="slideBaixo" for="margemBaixoInputText" onSlide="adjustMargins();" maxValue="250">
+                            <p:ajax event="slideEnd" oncomplete="corrigeBugPrimefaces();" />
+                        </p:slider>
+                    </p:menuitem>
+                    <p:menuitem value="Esquerda" style="font-weight: bold;"/>
+                    <p:menuitem>
+                        <p:inputText id="margemEsquerdaInputText" styleClass="marginInput" 
+                                     value="#{cc.attrs.documento.margemDaEsquerda}"/>
+                        <p:slider id="slideEsquerda" for="margemEsquerdaInputText" onSlide="adjustMargins();" maxValue="250">
+                            <p:ajax event="slideEnd" oncomplete="corrigeBugPrimefaces();" />
+                        </p:slider>
+                    </p:menuitem>
+                    <p:menuitem value="Direita" style="font-weight: bold;"/>
+                    <p:menuitem>
+                        <p:inputText id="margemDireitaInputText" styleClass="marginInput" 
+                                     value="#{cc.attrs.documento.margemDaDireita}"/>
+                        <p:slider id="slideDireita" for="margemDireitaInputText" onSlide="adjustMargins();" maxValue="250">
+                            <p:ajax event="slideEnd" oncomplete="corrigeBugPrimefaces();" />
+                        </p:slider>
+                    </p:menuitem>
+                    <p:menuitem/>
+                </p:splitButton>
+            </div>
+
+            <div class="row">
+
+                <div class="text-editor">
+                    <p:selectOneMenu id="fonteSelectOneMenu" value="#{ cc.attrs.documento.fonte }"
+                                     required="true" requiredMessage="Fonte é obrigatório" 
+                                     styleClass="font-foxeditor"
+                                     panelStyleClass="font-editor_panel">
+                        <p:ajax event="change" oncomplete="adjustMargins()"/>
+                        <f:selectItems value="#{ enums.fontes() }" />
+                    </p:selectOneMenu>
+
+                    <p:selectOneMenu id="tamanhoFonteSelectOneMenu" value="#{ cc.attrs.documento.tamanhoFonte }"
+                                     required="true" requiredMessage="Tamanho Fonte é obrigatório" 
+                                     styleClass="tamanhofont-foxeditor"
+                                     panelStyleClass="tamanhofont-editor_panel">
+                        <p:ajax event="change" oncomplete="adjustMargins()"/>
+                        <f:selectItems value="#{ enums.tamanhoFontes() }" />
+                    </p:selectOneMenu>
+
+                    <p:selectOneMenu id="espacamentoSelectOneMenu" value="#{ cc.attrs.documento.espacamentoEntreLinhas }"
+                                     required="true" requiredMessage="Espaçamento é obrigatório" 
+                                     styleClass="espacamento-foxeditor"
+                                     panelStyleClass="espacamento-editor_panel">
+                        <p:ajax event="change" oncomplete="adjustMargins()"/>
+                        <f:selectItems value="#{ enums.espacamentoEntreLinhas() }" />
+                    </p:selectOneMenu>
+                    <span class="lineSpacing">&nbsp;</span>
+
+                    <textarea id="#{cc.attrs.idEditor}"/>
+                    <p:inputTextarea id="#{cc.attrs.idEditor}" 
+                                     required="true" requiredMessage="Objeto é obrigatório"
+                                     value="#{cc.attrs.documento.texto}" style="display:none"/>
+                </div>
+            </div>
+
+            <script>
+                function macrosDefinidas(){
+                    return #{ managerHelper.obterMacros("undefined") };
+                }
+            </script>
+            <script src="media/js/ckeditor/ckeditor.js"></script>
+            <script src="media/js/ckeditor/lang/pt-br.js"/>
+            <div id='testdiv' style='height: 1in; left: -100%; position: absolute; top: -100%; width: 1in;'></div>
+            <script>
+                var idPrefix = '#{cc.attrs.prefix}#{cc.attrs.id}:';
+                var editorName = '#{cc.attrs.idEditor}';
+            
+            </script>
+            <script src="media/js/ckeditor/ckeditorfox_teste.js"/>
+        </p:fieldset>
+
+    </cc:implementation>
+</ui:composition>

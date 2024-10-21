@@ -1,13 +1,59 @@
-<ui:composition template="layout_antigo.xhtml"
-                xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"                
-                xmlns:fox="http://java.sun.com/jsf/composite/fox">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition template="layout_antigo.xhtml">
+
+        <ui:define name="title">
+            Setor
+        </ui:define>
+
+        <ui:define name="actions">
+            <p:link styleClass="btn btn-sm btn-neutral" href="/Setor" value="Pesquisar"/>
+        </ui:define>
 
 
+        <ui:define name="content">
+            <h:form id="criarSetorForm" enctype="multipart/form-data">           
 
+                <p:growl id="criarSetorGrowl" />
 
+                <div class="row justify-content-center">
+                    <div class=" col ">
+                        <div class="card">
+                            <div class="card-header bg-transparent">
+                                <h3 class="mb-0">Novo</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row icon-examples">
+                                    <div class="col-12">
 
-</ui:composition>
+                                        <h6 class="heading-small text-muted mb-4">Dados</h6>
+
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-group">
+                                                    <p:outputLabel value="Nome" for="nomeSetorInputText" styleClass="form-control-label"/>
+                                                    <p:inputText id="nomeSetorInputText" value="#{ managerCriarSetor.setor.titulo }"
+                                                                 required="true" requiredMessage="Nome é obrigatório"/>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="command">
+                                            <p:commandButton actionListener="#{ managerCriarSetor.salvar() }"
+                                                             styleClass="ui-priority-primary"
+                                                             value="Salvar" update="@form" icon="ui-icon-disk" />
+
+                                            <p:button value="Cancelar" icon="ui-icon-cancel" 
+                                                      href="#{ managerCriarSetor.setor.id eq null ? '/setor' : '/setor/visualizar/'.concat( managerCriarSetor.setor.id ) }"/>
+                                        </div>                 
+                                    </div>                 
+                                </div>                 
+                            </div>                 
+                        </div>                 
+                    </div>                 
+                </div>                 
+            </h:form>
+        </ui:define>
+    </ui:composition>
+</html>

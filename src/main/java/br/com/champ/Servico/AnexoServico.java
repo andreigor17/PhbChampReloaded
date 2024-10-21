@@ -129,7 +129,7 @@ public class AnexoServico {
 
     public static String generateFileNameWithTimestamp() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.getDefault());
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT")); // Usa timezone GMT para evitar problemas de fusos horários
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         String formattedNow = sdf.format(new GregorianCalendar().getTime());
 
         return formattedNow;

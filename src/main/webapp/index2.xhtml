@@ -1,0 +1,472 @@
+<html xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:fox="http://java.sun.com/jsf/composite/fox"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition template="novolayout.xhtml">
+
+        <ui:define name="title">
+            Início
+        </ui:define>
+
+        <ui:define name="actions">
+        </ui:define>
+
+        <ui:define name="content">
+            <h:form id="formindex">
+
+                <script>
+                    $(document).ready(function() {
+                        setSelectedMenu('#inicio');
+                    });
+                </script>
+                <c:if test="#{managerPrincipal.administrador}">
+                    <div class="row">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card card-stats">
+                                <!-- Card body -->
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col">
+                                            <h5 class="card-title text-uppercase text-muted mb-0">Pedidos</h5>
+                                            <span class="h2 font-weight-bold mb-0">#{managerIndex.quantidadePedidos}</span>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                                                <i class="ni ni-shop"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="mt-3 mb-0 text-sm">
+                                        <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> 0%</span>
+                                        <span class="text-nowrap">Desde o último mês</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card card-stats">
+                                <!-- Card body -->
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col">
+                                            <h5 class="card-title text-uppercase text-muted mb-0">Atendimentos</h5>
+                                            <span class="h2 font-weight-bold mb-0">#{managerIndex.quantidadeAgendamentos}</span>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="icon icon-shape bg-gradient-green text-white rounded-circle shadow">
+                                                <i class="ni ni-calendar-grid-58"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="mt-3 mb-0 text-sm">
+                                        <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> 0%</span>
+                                        <span class="text-nowrap">Desde o último mês</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card card-stats">
+                                <!-- Card body -->
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col">
+                                            <h5 class="card-title text-uppercase text-muted mb-0">Clientes</h5>
+                                            <span class="h2 font-weight-bold mb-0">#{managerIndex.quantidadeUsuarios}</span>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="icon icon-shape bg-gradient-orange text-white rounded-circle shadow">
+                                                <i class="ni ni-single-02"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="mt-3 mb-0 text-sm">
+                                        <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> 0%</span>
+                                        <span class="text-nowrap">Desde o último mês</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card card-stats">
+                                <!-- Card body -->
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col">
+                                            <h5 class="card-title text-uppercase text-muted mb-0">Cartórios</h5>
+                                            <span class="h2 font-weight-bold mb-0">#{managerIndex.quantidadeCartorios}</span>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="icon icon-shape bg-gradient-info text-white rounded-circle shadow">
+                                                <i class="ni ni-building"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="mt-3 mb-0 text-sm">
+                                        <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> 0%</span>
+                                        <span class="text-nowrap">Desde o último mês</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </c:if>
+                <c:if test="#{managerPrincipal.cliente or managerPrincipal.cartorio}">
+                    <div class="row">
+                        <div class="col-xl-6 col-md-6">
+                            <div class="card card-stats">
+                                <!-- Card body -->
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col">
+                                            <h5 class="card-title text-uppercase text-muted mb-0">Meus Pedidos</h5>
+                                            <span class="h2 font-weight-bold mb-0">#{managerIndex.quantidadePedidos}</span>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                                                <i class="ni ni-shop"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="mt-3 mb-0 text-sm">
+                                        <span class="text-success mr-2"></span>
+                                        <span class="text-nowrap"></span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-md-6">
+                            <div class="card card-stats">
+                                <!-- Card body -->
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col">
+                                            <h5 class="card-title text-uppercase text-muted mb-0">Atendimentos</h5>
+                                            <span class="h2 font-weight-bold mb-0">#{managerIndex.quantidadeAgendamentos}</span>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="icon icon-shape bg-gradient-green text-white rounded-circle shadow">
+                                                <i class="ni ni-calendar-grid-58"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="mt-3 mb-0 text-sm">
+                                        <span class="text-success mr-2"></span>
+                                        <span class="text-nowrap"></span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </c:if>
+
+                <c:if test="#{managerPrincipal.cliente}">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-3 col-md-8">
+                            <div class="card bg-secondary border-0" style="min-height: 350px;">
+                                <div class="card-header text-center border-bottom-0">
+                                    <h4 class="card-title">SOLICITE CERTIDÕES</h4>
+                                    <p class="card-category">Solicite suas certidões online e  receba em casa.</p>
+                                </div>
+                                <div class="card-body ">
+                                    <div class="text-justify">
+                                        Solicite certidões digitalmente assinadas de qualquer serventia extrajudicial vinculada, bem como a solicitação do envio das certidões físicas via Sedex ou balcão.
+                                    </div>
+                                </div>
+
+                                <div class="text-center">
+                                    <a href="#{request.contextPath}/certidao/criar" class="btn btn-primary my-4">Clique e saiba mais</a>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-8" >
+                            <div class="card bg-secondary border-0" style="min-height: 350px;">
+                                <div class="card-header text-center border-bottom-0">
+                                    <h4 class="card-title">PROTOCOLO ELETRÔNICO</h4>
+                                    <p class="card-category">Registro de Imóveis, Título e Documentos e RCPJ</p>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-justify">
+                                        Envie toda a documentação online, receba orçamento e notas de devolução de qualquer serventia extrajudicial vinculada.
+                                    </div>
+                                </div>
+
+                                <div class="text-center">
+                                    <a href="#{request.contextPath}/protocoloeletronico/criar" class="btn btn-primary my-4">Clique e saiba mais</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-8">
+                            <div class="card bg-secondary border-0"  style="min-height: 350px;">
+                                <div class="card-header text-center border-bottom-0">
+                                    <h4 class="card-title">SOLICITE PROCURACÃO</h4>
+                                    <p class="card-category">Envie toda a documentação e agende horário</p>
+                                </div>
+                                <div class="card-body ">
+                                    <div class="text-justify">
+                                        Solicite procurações online e vá ao cartório somente para levar a documentação original e receber os documentos em horário marcado.
+                                    </div>
+                                </div>
+
+                                <div class="text-center">
+                                    <a href="#{request.contextPath}/procuracao/criar" class="btn btn-primary my-4">Clique e saiba mais</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-8">
+                            <div class="card bg-secondary border-0"  style="min-height: 350px;">
+                                <div class="card-header text-center border-bottom-0">
+                                    <h4 class="card-title">AGENDAR ATENDIMENTO</h4>
+                                    <p class="card-category">Atendimento com horário marcado </p>
+                                </div>
+                                <div class="card-body ">
+                                    <div class="text-justify">
+                                        Solicite uma atendimento online em qualquer serventia vinculada.
+                                    </div>
+                                </div>
+
+
+                                <div class="text-center">
+                                    <a href="#{request.contextPath}/agenda/criar" class="btn btn-primary my-4">Clique e saiba mais</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </c:if>
+
+                <c:if test="#{managerPrincipal.administrador or managerPrincipal.cartorio}">
+
+                    <p:poll interval="10" update="@this, :formindex:novosPedidosTable" process="@this" 
+                            listener="#{managerPesquisarVenda.telaPrincipalVendas()}"/>
+
+                    <p:poll interval="60" update="@this, :formindex:atividades" process="@this" 
+                            listener="#{managerPrincipal.verificarNotificacaoAtividadePendente()}"/>
+
+                    <div class="row justify-content">
+                        <div class="col-6 col-lg-6 col-md-12">
+                            <div class="card">
+                                <div class="card-header border-0">
+                                    <div class="row align-items-center">
+                                        <div class="col-8">
+                                            <h3 class="mb-0">Novos Pedidos</h3>
+                                        </div>
+
+                                        <div class="col-4 text-right">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <p:outputPanel id="novosPedidosTable">
+                                        <table class="table align-items-center table-flush">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th scope="col"  style="width: 5%;">Ação</th>
+                                                    <th scope="col">Código</th>
+                                                    <th scope="col">Cliente</th>
+                                                    <th scope="col">Data</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <c:if test="#{empty managerPesquisarVenda.vendas}">
+                                                    <tr>
+                                                        <td>
+                                                            Nenhum Pedido
+                                                        </td>
+                                                    </tr>
+                                                </c:if>
+                                                <ui:repeat value="#{managerPesquisarVenda.vendas}" var="venda" varStatus="index">
+                                                    <tr>
+                                                        <th scope="row" style="width: 5%;">
+                                                            <p:button style="padding: 0px; margin-top: 0px;"
+                                                                      title="Visualizar" href="/venda/visualizar/#{ venda.id }"
+                                                                      icon="ui-icon-search"/>
+                                                        </th>
+                                                        <td >
+                                                            <h:outputText value="#{venda.codigo} " />
+                                                        </td>
+                                                        <td >
+                                                            <h:outputText value="#{venda.cliente.nome} " />
+                                                        </td>
+                                                        <td>
+                                                            <h:outputText value="#{ venda.dataVenda }" >
+                                                                <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                                            </h:outputText>
+                                                        </td>
+                                                    </tr>
+                                                </ui:repeat>
+                                            </tbody>
+                                        </table>
+                                    </p:outputPanel>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-6 col-lg-6 col-md-12">
+                            <p:outputPanel id="atividades">
+                                <c:if test="#{managerPrincipal.usuario.tipoUsuario eq 'ADMINISTRADOR'}">
+                                    <div class="row">
+                                        <div class="col-xl-6 col-md-6">
+                                            <div class="card">
+                                                <!-- Card body -->
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <h5 class="card-title text-uppercase text-muted mb-0">Por Serviço solicitado</h5>
+                                                        </div>
+                                                        <div class="table-responsive" >
+                                                            <div class="col-12">
+                                                                <fox:doughnutChart id="graficoServico" value="#{managerPesquisarVenda.graficoAtos}" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-6 col-md-6">
+                                            <div class="card">
+                                                <!-- Card body -->
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <h5 class="card-title text-uppercase text-muted mb-0">Usuário x Pedido</h5>
+                                                        </div>
+                                                        <div class="table-responsive" >
+                                                            <div class="col-12">
+                                                                <fox:doughnutChart id="graficoAtendente" value="#{managerPesquisarVenda.graficoAtendente}" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </c:if>
+
+                                <div class="card" style="max-height: 500px;">
+                                    <div class="card-header border-0">
+                                        <div class="row align-items-center">
+                                            <div class="col-8">
+                                                <h3 class="mb-0">Atividades</h3>
+                                            </div>
+
+                                            <div class="col-4 text-right">
+
+                                                <p:commandButton value="Ler Todas" 
+                                                                 styleClass="ui-priority-primary left btn btn-sm btn-neutral" 
+                                                                 update="@this, :formindex:atividades" process="@this"
+                                                                 rendered="#{not managerPrincipal.alertas.isEmpty()}"
+                                                                 actionListener="#{managerPrincipal.marcarTodosComoLida()}">
+                                                </p:commandButton>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive">
+
+                                        <div class="px-3 py-3">
+                                            <c:if test="#{empty managerPrincipal.alertas}">
+                                                <h6 class="text-sm text-muted m-0">Você não tem notificações.</h6>
+                                            </c:if>
+                                            <c:if test="#{not empty managerPrincipal.alertas}">
+                                                <h6 class="text-sm text-muted m-0">Você tem <strong class="text-primary">#{managerPrincipal.alertas.size()}</strong> notificaç#{managerPrincipal.alertas.size() ne 1 ? "ões":"ão"}.</h6>
+                                            </c:if>
+                                        </div>
+                                        <!-- List group -->
+                                        <div class="list-group list-group-flush" style="width: 99%;">
+                                            <ui:repeat value="#{managerPrincipal.alertas}" var="mensagem" varStatus="cont">
+
+                                                <a href="#{request.contextPath}#{mensagem.url}" class="list-group-item list-group-item-action">
+                                                    <div class="row align-items-center">
+                                                        <div class="col-auto">
+                                                            <!-- Avatar -->
+                                                            <img alt="Image placeholder" src="#{request.contextPath}/media/images/avatar.jpg" class="avatar rounded-circle"/>
+                                                        </div>
+                                                        <div class="col ml--2">
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <div>
+                                                                    <h4 class="mb-0 text-sm">
+                                                                        #{mensagem.titulo}
+                                                                    </h4>
+                                                                </div>
+                                                                <div class="text-right text-muted">
+                                                                    <small><span data-livestamp="#{ mensagem.dataExibicao}"></span></small>
+
+                                                                </div>
+                                                            </div>
+                                                            <p class="text-sm mb-0">#{mensagem.mensagem}</p>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </ui:repeat>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </p:outputPanel>
+                        </div>
+                    </div>
+                </c:if>
+
+            </h:form>
+
+            <script>
+                //<![CDATA[
+                
+                function customExtender() {
+                    $.jqplot.sprintf.thousandsSeparator = '.',
+                    $.jqplot.sprintf.decimalMark = ',',
+                        
+                    this.cfg.highlighter = {
+                        show: true,
+                        tooltipAxes: 'y',
+                        useAxesFormatters: false,
+                        tooltipFormatString: "R$ %'.2f"};
+
+
+                    this.cfg.seriesDefaults = {
+                        renderer: $.jqplot.LineRenderer,
+                        pointLabels: {
+                            show: false, location: 'ne', ymargin: 0, xmargin: 0,
+                            formatString: "R$ %'.2f"
+                        },
+                        rendererOptions: {fillToZero: true}
+                    }
+                }
+                    
+                function customExtenderBar() {
+                    $.jqplot.sprintf.thousandsSeparator = '.',
+                    $.jqplot.sprintf.decimalMark = ',',
+                        
+                    this.cfg.highlighter = {
+                        show: false,
+                        tooltipAxes: 'y',
+                        useAxesFormatters: true,
+                        tooltipFormatString: '%.2f'
+                            
+                        
+                    };
+                    this.cfg.seriesDefaults = {
+                        pointLabels: {
+                            show: true,
+                            formatString: "R$ %'.2f"
+                        }
+                    }
+
+                }
+                    
+                    
+                //]]>
+            </script>
+        </ui:define>
+
+    </ui:composition>
+</html>

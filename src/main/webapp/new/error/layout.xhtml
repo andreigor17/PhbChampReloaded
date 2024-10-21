@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html 
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core">
+
+    <h:head>
+        <meta charset="UTF-8">
+            <title>Notário</title>
+            <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>
+            <link rel="stylesheet" href="media/css/style.css"/>
+            <link rel="stylesheet" href="media/css/font-awesome/css/font-awesome.min.css"/>
+            <link rel="stylesheet" href="media/css/leaflet.css"/>
+            <link rel="stylesheet" href="media/css/error_pages.css"/>
+            <link rel="stylesheet" href="custom.css"/>
+            <script src='media/js/fox-canvas.js'></script>
+
+            <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+            <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+            <!--[if lt IE 9]>
+                <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+                <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+            <![endif]-->
+        </meta>
+    </h:head>
+    <h:body styleClass="skin-blue fixed sidebar-mini">
+        <f:view locale="#{facesContext.externalContext.requestLocale}">
+
+            <header>
+                <div id="header_wrapper">
+                </div>
+            </header>
+
+            <section id="content">
+
+                <h:form prependId="false">
+                </h:form>
+
+                <h1>
+                    <ui:insert name="title"></ui:insert>
+                    <small><ui:insert name="subtitle"></ui:insert></small>
+                </h1>
+
+                <div class="row">
+                    <div class="column6">
+                        <canvas id="logoCanvas" width="340" height="320"/>
+                        <br/>
+                        <p>
+                            <span id="fox">Fox</span>
+                            <span id="inline">Inline</span>
+                            <span id="tech">Technologies</span>
+                        </p>
+                    </div>
+
+                    <div class="column6 error-message" >
+                        <h3>
+                            <i class="fa fa-warning text-yellow"></i>
+                            <ui:insert name="error-content"></ui:insert>
+                        </h3>
+                        <p>
+                            <ui:insert name="error-detail"></ui:insert>
+                        </p>
+                        <p>
+                            Clique <a href="/CartorioTech-war/index.xhtml">aqui</a> para voltar a página inicial.
+                        </p>
+                    </div>
+                </div>
+
+            </section>
+
+            <footer>
+                <hr/>
+                <p id="copyright">Copyright © #{ managerPrincipal.obterAno() } - Todos os Direitos  Reservados</p>
+                <p><a href="http://www.foxinline.com" target="_blank">FoxInline Technologies</a></p>
+            </footer>
+
+        </f:view>
+    </h:body>
+</html>
