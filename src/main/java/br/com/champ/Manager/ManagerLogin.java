@@ -6,8 +6,10 @@
 package br.com.champ.Manager;
 
 import br.com.champ.Servico.LoginServico;
+import br.com.champ.vo.UsuarioVo;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
@@ -19,14 +21,15 @@ import java.io.Serializable;
  *
  * @author andre
  */
-@ViewScoped
 @Named
+@ViewScoped
 public class ManagerLogin implements Serializable {
 
     @Inject
     private HttpServletRequest request;
     @Inject
     private ExternalContext externalContext;
+    private UsuarioVo usuario;
 
     @EJB
     LoginServico loginServico;

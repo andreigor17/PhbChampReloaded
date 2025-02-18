@@ -17,23 +17,43 @@
                 class="form-horizontal">
 
             <p:growl id="messages"
-                     showDetail="false"/>
+                     showDetail="false"/>          
 
-            <p:panelGrid class="column2">
-                <p:outputLabel for="nomeUsuario" value="Nome
-                               Usuário:" />
-                <p:inputText id="nomeUsuario"
-                             value="#{managerLogin.usuario.login}" />
+            <div class="row">
+                <div class="column2 bold">
+                    <p:outputLabel value="Login"
+                                   for="login"/>
+                </div>
+                <div class="column2 text">
+                    <p:inputText id="login"
+                                 value="#{managerPrincipal.usuario.login}" />
+                </div>
 
-                <p:outputLabel for="senha" value="Senha:" />
-                <p:password id="senha" value="#{managerLogin.usuario.senha}" />
+            </div>
 
-                <p:commandButton value="Enviar"
-                                 icon="ui-icon-star" action="#{managerLogin.envia()}" ajax="false">
-                </p:commandButton>
+            <div class="row">
+                <div class="column2 bold">
+                    <p:outputLabel value="Senha"
+                                   for="senha"/>
+                </div>
+                <div class="column2 text">
+                    <p:inputText id="senha"
+                                 value="#{managerPrincipal.usuario.senha}" />
+                </div>
 
-            </p:panelGrid>
+            </div>
 
+
+
+            <center>
+                <p:commandButton id="loginButton"
+                                 value="Logar"
+                                 ajax="false"
+                                 actionListener="#{managerPrincipal.login()}"/>
+
+                <p:button value="Cadastrar" href="criarPlayer.xhtml?cadastrar=true"  styleClass="ui-button-outlined ui-button-secondary btn-block mt-3 col-12" />                
+                <p:commandButton value="Continuar com a Steam" ajax="false" action="#{managerPrincipal.redirecionarSteam()}"  styleClass="ui-button-outlined ui-button-secondary btn-block mt-3 col-12" />               
+            </center>
         </h:form>
 
     </ui:define>

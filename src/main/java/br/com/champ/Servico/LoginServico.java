@@ -4,9 +4,12 @@
  */
 package br.com.champ.Servico;
 
-import br.com.champ.Modelo.Player;
+import br.com.champ.Modelo.Token;
 import br.com.champ.Utilitario.APIPath;
 import br.com.champ.Utilitario.RequisicaoUtils;
+import br.com.champ.vo.LoginVo;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -14,6 +17,7 @@ import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
@@ -38,16 +42,16 @@ public class LoginServico {
 
     }
 
-    public String autenticar(Player pessoa) {
+    public String autenticar(LoginVo pessoa) {
         try {
 
-            if (pessoa.getEmail() != null && !pessoa.getEmail().isBlank() && pessoa.getSenha() != null && !pessoa.getSenha().isBlank()) {
+            if (pessoa.getLogin() != null && !pessoa.getLogin().isBlank() && pessoa.getSenha() != null && !pessoa.getSenha().isBlank()) {
                 Gson gson = new Gson();
                 String json = gson.toJson(pessoa);
 
                 try {
 
-                    String token = RequisicaoUtils.requisicaoPost(pathToAPI() + "/api/login", json);
+                    String token = RequisicaoUtils.requisicaoPost(pathToAPI() + "/api/login/auth", json);
                     if (token != null) {
                         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("token", token);
                         return token;
@@ -108,5 +112,35 @@ public class LoginServico {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public Long obterPlayerId() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        HttpSession sessao = (HttpSession) facesContext.getExternalContext().getSession(false);
+
+        if (sessao != null) {
+
+            String tokenJsonStr = (String) sessao.getAttribute("token");
+            if (tokenJsonStr != null) {
+                try {
+
+                    Gson gson = new Gson();
+                    Token tokenObj = gson.fromJson(tokenJsonStr, Token.class);
+
+                    if (tokenObj != null && tokenObj.getToken() != null) {
+
+                        DecodedJWT decodedJWT = JWT.decode(tokenObj.getToken());
+
+                        Long playerId = decodedJWT.getClaim("player_id").asLong();
+
+                        return playerId;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+
+                }
+            }
+        }
+        return null;
     }
 }

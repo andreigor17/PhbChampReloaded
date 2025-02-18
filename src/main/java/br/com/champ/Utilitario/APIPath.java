@@ -28,7 +28,7 @@ public class APIPath {
         String path = null;
 
         String pathUbuntu = "/opt/apipath.json";
-        String pathWindows = "D:\\apipath.json";
+        String pathWindows = "C:\\apipath.json";
 
         File ubuntuFile = new File(pathUbuntu);
         File windowsFile = new File(pathWindows);

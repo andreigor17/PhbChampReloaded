@@ -12,9 +12,11 @@ import br.com.champ.Modelo.Player;
 import br.com.champ.Servico.AnexoServico;
 import br.com.champ.Servico.ConfiguracaoServico;
 import br.com.champ.Servico.JogoServico;
+import br.com.champ.Servico.LoginServico;
 import br.com.champ.Servico.PlayerServico;
 import br.com.champ.Utilitario.FacesUtil;
 import br.com.champ.Utilitario.Mensagem;
+import br.com.champ.vo.LoginVo;
 import br.com.champ.vo.PlayerSteamVo;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -24,7 +26,6 @@ import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +42,6 @@ import org.primefaces.model.file.UploadedFile;
 @Named
 public class ManagerCriarPlayer implements Serializable {
 
-    private final String STEAM_LOGIN_URL = "https://steamcommunity.com/openid/login";
-    private final String RETURN_URL = "http://localhost:8080/PhbChampReloaded/criarPlayer.xhtml?redirectSteamLogin=true";
-
     @EJB
     PlayerServico playerServico;
     @EJB
@@ -52,6 +50,8 @@ public class ManagerCriarPlayer implements Serializable {
     ConfiguracaoServico configuracaoServico;
     @EJB
     private JogoServico jogoServico;
+    @EJB
+    LoginServico loginServico;
     private Player player;
     private Player playerApagar;
     private Player playerPesquisar;
@@ -63,6 +63,7 @@ public class ManagerCriarPlayer implements Serializable {
     private List<Jogo> jogos;
     private List<Jogo> jogosSelecionados;
     private Jogo jogo;
+    private boolean cadastrar;
 
     @PostConstruct
     public void init() {
@@ -73,11 +74,25 @@ public class ManagerCriarPlayer implements Serializable {
             String visualizarPlayerId = FacesUtil
                     .getRequestParameter("id");
 
+            String cadastrarParam = FacesUtil
+                    .getRequestParameter("cadastrar");
+            
+            if (cadastrarParam != null) {
+                cadastrar = true;
+            }
+
             String redirectSteam = FacesUtil
                     .getRequestParameter("redirectSteamLogin");
 
             if (redirectSteam != null && !redirectSteam.isEmpty()) {
+                cadastrar = true;
                 processSteamReturn();
+            }
+
+            
+
+            if (visualizarPlayerId == null && cadastrarParam == null && redirectSteam == null) {
+                Mensagem.errorAndRedirect("Você não tem permissão para acessar essa página!", "index.xhtml");
             }
 
             if (visualizarPlayerId != null && !visualizarPlayerId.isEmpty()) {
@@ -200,6 +215,13 @@ public class ManagerCriarPlayer implements Serializable {
         }
         if (this.player.getId() == null) {
             this.player = playerServico.save(this.player, null, Url.SALVAR_PLAYER.getNome());
+            if (cadastrar) {
+                LoginVo loginVo = new LoginVo();
+                loginVo.setLogin(this.player.getLogin());
+                loginVo.setSenha(this.player.getSenha());
+                loginServico.autenticar(loginVo);
+
+            }
             Mensagem.successAndRedirect("Player salvo com sucesso", "visualizarPlayer.xhtml?id=" + this.player.getId());
         } else {
             this.player = playerServico.save(this.player, this.player.getId(), Url.ATUALIZAR_PLAYER.getNome());
@@ -241,18 +263,6 @@ public class ManagerCriarPlayer implements Serializable {
 
     public List<Jogo> jogos() {
         return jogos;
-    }
-
-    public String buildSteamLoginUrl() {
-        return buildSteamLoginUrlWithParams();
-    }
-
-    
-    private String buildSteamLoginUrlWithParams() {
-        String returnUrl = URLEncoder.encode(buildUrl(), StandardCharsets.UTF_8);
-        return STEAM_LOGIN_URL + "?openid.mode=checkid_setup&openid.return_to=" + returnUrl
-                + "&openid.ns=http://specs.openid.net/auth/2.0&openid.identity=http://specs.openid.net/auth/2.0/identifier_select"
-                + "&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select";
     }
 
     private void processSteamReturn() {
@@ -297,25 +307,6 @@ public class ManagerCriarPlayer implements Serializable {
         } else {
             Mensagem.error("Erro ao processar o retorno da Steam.");
         }
-    }
 
-    public String buildUrl() {
-
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-        String scheme = request.getScheme();
-
-        String serverName = request.getServerName();
-
-        int serverPort = request.getServerPort();
-
-        String baseUrl = scheme + "://" + serverName;
-
-        if ((serverPort != 80 && "http".equals(scheme)) || (serverPort != 443 && "https".equals(scheme))) {
-            baseUrl += ":" + serverPort;
-        }
-
-        String fixedPath = "/PhbChamp/criarPlayer.xhtml?redirectSteamLogin=true";
-
-        return baseUrl + fixedPath;
     }
 }

@@ -41,23 +41,26 @@ and open the template in the editor.
         </script>
     </h:head>
 
-    <header>
-        <nav class="cabecalho-inicial">
-            <a href="#">Conta</a>
-            <a href="configuracao.xhtml">Configurações</a>
-            <a href="#">Entrar</a>
-        </nav>
-        <hr></hr>
-        <h1 class="titulo-principal">PHB CHAMP</h1>        
-    </header>
+   <header>
+    <nav class="cabecalho-inicial">                
+        <h:panelGroup rendered="#{ managerPrincipal.playerLogado eq null}">
+            <a href="login.xhtml">Entrar</a>
+        </h:panelGroup>
+        <h:panelGroup rendered="#{ managerPrincipal.playerLogado ne null}">
+            <span>Bem vindo, #{managerPrincipal.playerLogado.nick}</span>
+            <a href="login.xhtml?lougout=true">Sair</a>
+        </h:panelGroup>
+    </nav>
+    <hr/>
+    <h1 class="titulo-principal">PHB CHAMP</h1>        
+</header>
     <h:body>
         <f:view locale="pt_BR">  
             <nav class="cabecalho-secundario">
                 <ul>
                     <li><a href="index.xhtml">Principal</a></li>
                     <li><a href="#">Players</a>
-                        <ul>
-                            <li><a href="criarPlayer.xhtml">Cadastrar Player</a></li>
+                        <ul>                            
                             <li><a href="pesquisarPlayer.xhtml">Pesquisar Player</a></li>
 
                         </ul>
