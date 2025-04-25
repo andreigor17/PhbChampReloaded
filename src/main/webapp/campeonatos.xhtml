@@ -1,0 +1,156 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/template.xhtml">
+
+    <ui:define name="content">
+        <div class="section-header">
+            <h1 class="section-title">Campeonatos</h1>
+            <p:commandButton value="Novo Campeonato" icon="pi pi-plus" styleClass="p-button-primary" />
+        </div>
+
+        <!-- Filtros -->
+        <p:panel styleClass="filters" header="Filtros">
+            <h:form id="filterForm">
+                <div class="filters-form">
+                    <div class="form-group">
+                        <p:inputText placeholder="Buscar campeonato..." styleClass="w-100" />
+                    </div>
+                    <div class="form-group">
+                        <p:selectOneMenu styleClass="w-100">
+                            <f:selectItem itemLabel="Filtrar por esporte" itemValue="" />
+                            <f:selectItem itemLabel="Futebol" itemValue="futebol" />
+                            <f:selectItem itemLabel="Basquete" itemValue="basquete" />
+                            <f:selectItem itemLabel="Vôlei" itemValue="volei" />
+                            <f:selectItem itemLabel="League of Legends" itemValue="lol" />
+                        </p:selectOneMenu>
+                    </div>
+                    <div class="form-group">
+                        <p:selectOneMenu styleClass="w-100">
+                            <f:selectItem itemLabel="Status" itemValue="" />
+                            <f:selectItem itemLabel="Em andamento" itemValue="em_andamento" />
+                            <f:selectItem itemLabel="Inscrições abertas" itemValue="inscricoes_abertas" />
+                            <f:selectItem itemLabel="Concluído" itemValue="concluido" />
+                        </p:selectOneMenu>
+                    </div>
+                </div>
+            </h:form>
+        </p:panel>
+
+        <!-- Lista de campeonatos -->
+        <div class="tournaments-grid">
+            <p:card styleClass="tournament-card">
+                <f:facet name="header">
+                    <div class="tournament-header">
+                        <div>
+                            <h3 class="tournament-title">Copa de Futebol 2023</h3>
+                        </div>
+                        <span class="tournament-status in-progress">Em andamento</span>
+                    </div>
+                </f:facet>
+                <div class="tournament-info">
+                    <div class="info-item">
+                        <span>Esporte:</span>
+                        <span>Futebol</span>
+                    </div>
+                    <div class="info-item">
+                        <span>Formato:</span>
+                        <span>Eliminatórias</span>
+                    </div>
+                </div>
+                <div class="tournament-info">
+                    <div class="info-item">
+                        <i class="pi pi-users mr-2"></i>
+                        <span>16 times</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="pi pi-calendar mr-2"></i>
+                        <span>10/03/2023</span>
+                    </div>
+                </div>
+                <f:facet name="footer">
+                    <div class="tournament-actions">
+                        <p:button value="Ver detalhes" styleClass="p-button-outlined" />
+                        <p:button value="Gerenciar" styleClass="p-button-outlined" />
+                    </div>
+                </f:facet>
+            </p:card>
+            
+            <p:card styleClass="tournament-card">
+                <f:facet name="header">
+                    <div class="tournament-header">
+                        <div>
+                            <h3 class="tournament-title">Torneio de Basquete</h3>
+                        </div>
+                        <span class="tournament-status open">Inscrições abertas</span>
+                    </div>
+                </f:facet>
+                <div class="tournament-info">
+                    <div class="info-item">
+                        <span>Esporte:</span>
+                        <span>Basquete</span>
+                    </div>
+                    <div class="info-item">
+                        <span>Formato:</span>
+                        <span>Grupos + Eliminatórias</span>
+                    </div>
+                </div>
+                <div class="tournament-info">
+                    <div class="info-item">
+                        <i class="pi pi-users mr-2"></i>
+                        <span>8 times</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="pi pi-calendar mr-2"></i>
+                        <span>05/05/2023</span>
+                    </div>
+                </div>
+                <f:facet name="footer">
+                    <div class="tournament-actions">
+                        <p:button value="Ver detalhes" styleClass="p-button-outlined" />
+                        <p:button value="Gerenciar" styleClass="p-button-outlined" />
+                    </div>
+                </f:facet>
+            </p:card>
+            
+            <p:card styleClass="tournament-card">
+                <f:facet name="header">
+                    <div class="tournament-header">
+                        <div>
+                            <h3 class="tournament-title">Liga de eSports</h3>
+                        </div>
+                        <span class="tournament-status in-progress">Em andamento</span>
+                    </div>
+                </f:facet>
+                <div class="tournament-info">
+                    <div class="info-item">
+                        <span>Esporte:</span>
+                        <span>League of Legends</span>
+                    </div>
+                    <div class="info-item">
+                        <span>Formato:</span>
+                        <span>Liga (pontos corridos)</span>
+                    </div>
+                </div>
+                <div class="tournament-info">
+                    <div class="info-item">
+                        <i class="pi pi-users mr-2"></i>
+                        <span>12 times</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="pi pi-calendar mr-2"></i>
+                        <span>01/02/2023</span>
+                    </div>
+                </div>
+                <f:facet name="footer">
+                    <div class="tournament-actions">
+                        <p:button value="Ver detalhes" styleClass="p-button-outlined" />
+                        <p:button value="Gerenciar" styleClass="p-button-outlined" />
+                    </div>
+                </f:facet>
+            </p:card>
+        </div>
+    </ui:define>
+</ui:composition>

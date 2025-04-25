@@ -1,0 +1,81 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/template.xhtml">
+
+    <ui:define name="content">
+        <div class="section-header">
+            <h1 class="section-title">Partidas</h1>
+            <p:commandButton value="Nova Partida" icon="pi pi-plus" styleClass="p-button-primary" />
+        </div>
+
+        <!-- Filtros -->
+        <p:panel styleClass="filters" header="Filtros">
+            <h:form id="filterForm">
+                <div class="filters-form">
+                    <div class="form-group">
+                        <p:inputText placeholder="Buscar partida..." styleClass="w-100" />
+                    </div>
+                    <div class="form-group">
+                        <p:selectOneMenu styleClass="w-100">
+                            <f:selectItem itemLabel="Filtrar por campeonato" itemValue="" />
+                            <f:selectItem itemLabel="Copa de Futebol 2023" itemValue="copa_futebol" />
+                            <f:selectItem itemLabel="Torneio de Basquete" itemValue="torneio_basquete" />
+                            <f:selectItem itemLabel="Liga de eSports" itemValue="liga_esports" />
+                        </p:selectOneMenu>
+                    </div>
+                    <div class="form-group">
+                        <p:selectOneMenu styleClass="w-100">
+                            <f:selectItem itemLabel="Status" itemValue="" />
+                            <f:selectItem itemLabel="Concluída" itemValue="concluida" />
+                            <f:selectItem itemLabel="Em andamento" itemValue="em_andamento" />
+                            <f:selectItem itemLabel="Agendada" itemValue="agendada" />
+                        </p:selectOneMenu>
+                    </div>
+                </div>
+            </h:form>
+        </p:panel>
+
+        <!-- Tabela de partidas -->
+        <h:form id="matchesForm">
+            <p:dataTable var="match" value="#{null}" styleClass="table-container"
+                         emptyMessage="Nenhuma partida encontrada">
+                <f:facet name="header">
+                    <div class="ui-d-flex ui-jc-between">
+                        <div>Partidas</div>
+                    </div>
+                </f:facet>
+                
+                <p:column headerText="Data">
+                    <h:outputText value="12/04/2023" />
+                </p:column>
+                
+                <p:column headerText="Campeonato">
+                    <h:outputText value="Copa de Futebol 2023" />
+                </p:column>
+                
+                <p:column headerText="Time A">
+                    <p:link value="Time A" styleClass="team-link" />
+                </p:column>
+                
+                <p:column headerText="Resultado">
+                    <h:outputText value="2 - 1" styleClass="match-result" />
+                </p:column>
+                
+                <p:column headerText="Time B">
+                    <p:link value="Time B" styleClass="team-link" />
+                </p:column>
+                
+                <p:column headerText="Status">
+                    <span class="match-status concluded">Concluída</span>
+                </p:column>
+                
+                <p:column headerText="Ações">
+                    <p:button value="Detalhes" styleClass="p-button-outlined" />
+                </p:column>
+            </p:dataTable>
+        </h:form>
+    </ui:define>
+</ui:composition>
