@@ -3,10 +3,13 @@ package br.com.champ.Manager;
 import br.com.champ.Modelo.Campeonato;
 import br.com.champ.Modelo.Estatisticas;
 import br.com.champ.Modelo.Partida;
+import br.com.champ.Modelo.Player;
 import br.com.champ.Modelo.Team;
 import br.com.champ.Servico.CampeonatoServico;
 import br.com.champ.Servico.EstatisticaServico;
 import br.com.champ.Servico.PartidaServico;
+import br.com.champ.Servico.PlayerServico;
+import br.com.champ.Servico.TeamServico;
 import br.com.champ.Utilitario.Utils;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -34,6 +37,10 @@ public class ManagerIndex implements Serializable {
     PartidaServico partidaServico;
     @EJB
     CampeonatoServico campeonatoServico;
+    @EJB
+    PlayerServico playerServico;
+    @EJB
+    TeamServico teamServico;
 
     private Campeonato camp;
     private List<Campeonato> campsAtuais;
@@ -42,6 +49,7 @@ public class ManagerIndex implements Serializable {
     private List<Estatisticas> ests;
     private List<Partida> partidas;
     private List<Campeonato> camps;
+    private List<Player> playersAtivos;
 
     @PostConstruct
     public void init() {
@@ -49,6 +57,8 @@ public class ManagerIndex implements Serializable {
             instanciar();
             this.partidas = partidaServico.pesquisarPartidasGeral();
             this.camps = campeonatoServico.pesquisar();
+            this.playersAtivos = playerServico.buscaPlayers();
+            this.times = teamServico.buscaTimes();
         } catch (Exception ex) {
             Logger.getLogger(ManagerIndex.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -62,6 +72,7 @@ public class ManagerIndex implements Serializable {
         this.estatisticasTime = new ArrayList<>();
         this.ests = new ArrayList<>();
         this.partidas = new ArrayList<>();
+        this.playersAtivos = new ArrayList<>();
 
     }
 
@@ -138,6 +149,14 @@ public class ManagerIndex implements Serializable {
             }
         }
         return null;
+    }
+
+    public List<Player> getPlayersAtivos() {
+        return playersAtivos;
+    }
+
+    public void setPlayersAtivos(List<Player> playersAtivos) {
+        this.playersAtivos = playersAtivos;
     }
 
 }

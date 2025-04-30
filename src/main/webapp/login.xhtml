@@ -1,61 +1,263 @@
-<ui:composition template="layout.xhtml"
-                xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:h="http://java.sun.com/jsf/html"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-                xmlns:fox="http://java.sun.com/jsf/composite/fox">
-
-    <ui:define name="title">
-        Login 
-    </ui:define>
+                template="vercel_login.xhtml">
 
     <ui:define name="content">
+        <div class="login-container">
+            <div class="login-card-wrapper">
+                <p:card styleClass="login-card">
+                    <div class="login-header">
+                        <div class="login-logo">
+                            <img src="#{request.contextPath}/img/phbchamp-logo.png" alt="PHBCHAMP ESPORTS" class="phbchamp-logo" />
+                        </div>
+                        <p class="login-subtitle">Faça login para acessar o sistema</p>
+                    </div>
 
-        <h:form id="formPlayer"
-                enctype="multipart/form-data"
-                class="form-horizontal">
+                    <h:form id="loginForm">
+                        <div class="p-fluid text-center">
+                            <div class="field login-field">
+                                <p:outputLabel for="username" value="Usuário" />
+                                <div class="p-input-icon-left">
+                                    <i class="pi pi-user" />
+                                    <p:inputText id="username" placeholder="Digite seu usuário" required="true" value="#{managerPrincipal.usuario.login}"/>
+                                </div>
+                                <p:message for="username" />
+                            </div>
 
-            <p:growl id="messages"
-                     showDetail="false"/>          
+                            <div class="field login-field">
+                                <p:outputLabel for="password" value="Senha" />
+                                <div class="p-input-icon-left">
+                                    <i class="pi pi-lock" />
+                                    <p:password id="password" placeholder="Digite sua senha" required="true" toggleMask="true" value="#{managerPrincipal.usuario.senha}" />
+                                </div>
+                                <p:message for="password" />
+                                <div class="text-right mt-1">
+                                    <p:link value="Esqueceu a senha?" styleClass="forgot-password" />
+                                </div>
+                            </div>
 
-            <div class="row">
-                <div class="column2 bold">
-                    <p:outputLabel value="Login"
-                                   for="login"/>
-                </div>
-                <div class="column2 text">
-                    <p:inputText id="login"
-                                 value="#{managerPrincipal.usuario.login}" />
-                </div>
+                            <div class="field-checkbox login-field">
+                                <p:selectBooleanCheckbox id="remember" itemLabel="Lembrar-me" />
+                            </div>
 
+                            <div class="field login-field">
+                                <p:commandButton value="Entrar" icon="pi pi-sign-in" styleClass="login-button"  actionListener="#{managerPrincipal.login()}" />
+                            </div>
+
+                            <div class="login-divider">
+                                <p:divider align="center">
+                                    <span class="login-divider-text">ou continue com</span>
+                                </p:divider>
+                            </div>
+
+                            <div class="login-social-buttons">
+                                <p:commandButton value="Google" icon="pi pi-google" styleClass="google-button w-full mb-2" type="button" />
+                                <p:commandButton value="Steam" icon="custom-steam-icon" styleClass="steam-button w-full"   ajax="false" action="#{managerPrincipal.redirecionarSteam()}"/>
+                            </div>
+
+                            <div class="login-footer">
+                                <p:link value="Não tem uma conta? Cadastre-se" styleClass="register-link" />
+                            </div>
+                        </div>
+                    </h:form>
+                </p:card>
             </div>
+        </div>
 
-            <div class="row">
-                <div class="column2 bold">
-                    <p:outputLabel value="Senha"
-                                   for="senha"/>
-                </div>
-                <div class="column2 text">
-                    <p:inputText id="senha"
-                                 value="#{managerPrincipal.usuario.senha}" />
-                </div>
+        <!-- Estilos específicos para a tela de login -->
+        <style type="text/css">
+            .login-container {
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;  /* Alterado de center para flex-start */
+                min-height: calc(100vh - 180px);
 
-            </div>
+                background-color: #f8f9fa;
+            }
 
+            .custom-steam-icon::before {
+                content: "";
+                display: inline-block;
+                background: url('#{request.contextPath}/img/steam-icon.png') no-repeat center center;
+                background-size: contain;
+                width: 1.1em;
+                height: 1.1em;
+            }
 
+            .btn-com-imagem {
+                background: url('#{request.contextPath}/img/steam-logo.png') no-repeat center center;
+                background-size: 24px 24px;
+                width: 40px;
+                height: 40px;
+                border: none;
+                text-indent: -9999px; /* Esconde o texto */
+            }
 
-            <center>
-                <p:commandButton id="loginButton"
-                                 value="Logar"
-                                 ajax="false"
-                                 actionListener="#{managerPrincipal.login()}"/>
+            .login-card-wrapper {
+                width: 100%;
+                max-width: 400px;
+            }
 
-                <p:button value="Cadastrar" href="criarPlayer.xhtml?cadastrar=true"  styleClass="ui-button-outlined ui-button-secondary btn-block mt-3 col-12" />                
-                <p:commandButton value="Continuar com a Steam" ajax="false" action="#{managerPrincipal.redirecionarSteam()}"  styleClass="ui-button-outlined ui-button-secondary btn-block mt-3 col-12" />               
-            </center>
-        </h:form>
+            .login-card {
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1) !important;
+                border-radius: 12px !important;
+                padding: 1rem;
+            }
 
+            .login-header {
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+
+            .login-logo {
+                margin: 0 auto 1.5rem;
+                max-width: 180px;
+            }
+
+            .phbchamp-logo {
+                width: 100%;
+                height: auto;
+            }
+
+            .login-subtitle {
+                color: #6c757d;
+                margin-bottom: 1rem;
+                font-size: 1rem;
+            }
+
+            .login-field {
+                max-width: 320px;
+                margin-left: auto;
+                margin-right: auto;
+                margin-bottom: 1.25rem;
+            }
+
+            .login-field label {
+                text-align: left;
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+
+            .forgot-password {
+                font-size: 0.875rem;
+                text-decoration: none;
+            }
+
+            .text-right {
+                text-align: right;
+            }
+
+            .mt-1 {
+                margin-top: 0.25rem;
+            }
+
+            .login-button {
+                width: 320px;
+                background-color: #171a21 !important;
+                border-color: #171a21 !important;
+            }
+
+            .login-button:hover {
+                background-color: #2a475e !important;
+                border-color: #2a475e !important;
+            }
+
+            .login-divider {
+                margin: 1.5rem auto;
+                max-width: 320px;
+            }
+
+            .login-divider-text {
+                background-color: white;
+                padding: 0 0.5rem;
+                color: #6c757d;
+                font-size: 0.875rem;
+            }
+
+            .login-social-buttons {
+                margin-bottom: 1.5rem;
+            }
+
+            .login-social-buttons .p-button {
+                width: 320px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.5rem 1rem;
+                cursor: pointer;
+            }
+
+            .social-icon {
+                display: inline-block;
+                width: 24px;
+                height: 24px;
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                margin-right: 8px;
+            }
+
+            .google-icon {
+                background-image: url("#{request.contextPath}/img/google-icon.png");
+            }
+
+            .steam-icon {
+                background-image: url("#{request.contextPath}/img/steam-icon.png");
+            }
+
+            .google-button {
+                background-color: #4285F4 !important;
+                border-color: #4285F4 !important;
+                color: white !important;
+            }
+
+            .google-button:hover {
+                background-color: #3367D6 !important;
+                border-color: #3367D6 !important;
+            }
+
+            .steam-button {
+                background-color: #171a21 !important;
+                border-color: #171a21 !important;
+                color: white !important;
+            }
+
+            .steam-button:hover {
+                background-color: #2a475e !important;
+                border-color: #2a475e !important;
+            }
+
+            .login-footer {
+                text-align: center;
+                margin-top: 1rem;
+            }
+
+            .register-link {
+                font-size: 0.875rem;
+                text-decoration: none;
+            }
+
+            /* Responsividade */
+            @media (max-width: 576px) {
+                .login-container {
+                    padding: 3rem 1rem 1rem;  /* Ajustado para manter o card mais acima em mobile */
+                }
+
+                .login-card {
+                    box-shadow: none !important;
+                }
+
+                .login-field,
+                .login-button,
+                .login-social-buttons .p-button,
+                .login-divider {
+                    width: 100%;
+                    max-width: 100%;
+                }
+            }
+        </style>
     </ui:define>
-
 </ui:composition>

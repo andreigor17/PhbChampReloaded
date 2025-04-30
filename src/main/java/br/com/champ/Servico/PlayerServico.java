@@ -323,6 +323,7 @@ public class PlayerServico implements Serializable {
 
             if (playersArray.length() > 0) {
                 JSONObject player = playersArray.getJSONObject(0);
+                System.err.println(player.toString());
 
                 playerSteamVo.setSteamid(player.getString("steamid"));
                 playerSteamVo.setPersonaname(player.getString("personaname"));

@@ -1,0 +1,61 @@
+<ui:composition template="layout.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                xmlns:fox="http://java.sun.com/jsf/composite/fox">
+
+    <ui:define name="title">
+        Login 
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="formPlayer"
+                enctype="multipart/form-data"
+                class="form-horizontal">
+
+            <p:growl id="messages"
+                     showDetail="false"/>          
+
+            <div class="row">
+                <div class="column2 bold">
+                    <p:outputLabel value="Login"
+                                   for="login"/>
+                </div>
+                <div class="column2 text">
+                    <p:inputText id="login"
+                                 value="#{managerPrincipal.usuario.login}" />
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="column2 bold">
+                    <p:outputLabel value="Senha"
+                                   for="senha"/>
+                </div>
+                <div class="column2 text">
+                    <p:inputText id="senha"
+                                 value="#{managerPrincipal.usuario.senha}" />
+                </div>
+
+            </div>
+
+
+
+            <center>
+                <p:commandButton id="loginButton"
+                                 value="Logar"
+                                 ajax="false"
+                                 actionListener="#{managerPrincipal.login()}"/>
+
+                <p:button value="Cadastrar" href="criarPlayer.xhtml?cadastrar=true"  styleClass="ui-button-outlined ui-button-secondary btn-block mt-3 col-12" />                
+                <p:commandButton value="Continuar com a Steam" ajax="false" action="#{managerPrincipal.redirecionarSteam()}"  styleClass="ui-button-outlined ui-button-secondary btn-block mt-3 col-12" />               
+            </center>
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

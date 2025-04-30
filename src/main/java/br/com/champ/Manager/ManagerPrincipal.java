@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 public class ManagerPrincipal implements Serializable {
 
     private final String STEAM_LOGIN_URL = "https://steamcommunity.com/openid/login";
-    private final String RETURN_URL = "http://localhost:8080/PhbChampReloaded/criarPlayer.xhtml?redirectSteamLogin=true";
+    private final String RETURN_URL = "http://localhost:8080/PhbChampReloaded/criarJogador.xhtml?redirectSteamLogin=true";
 
     @Inject
     private HttpServletRequest request;
@@ -207,7 +207,7 @@ public class ManagerPrincipal implements Serializable {
             baseUrl += ":" + serverPort;
         }
 
-        String fixedPath = "/PhbChampReloaded/criarPlayer.xhtml?redirectSteamLogin=true";
+        String fixedPath = "/PhbChampReloaded/criarJogador.xhtml?redirectSteamLogin=true";
 
         return baseUrl + fixedPath;
     }

@@ -6,6 +6,7 @@
 package br.com.champ.Manager;
 
 import br.com.champ.Enums.Url;
+import br.com.champ.Modelo.Anexo;
 import br.com.champ.Modelo.Configuracao;
 import br.com.champ.Modelo.Jogo;
 import br.com.champ.Modelo.Player;
@@ -24,12 +25,26 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.StreamedContent;
 import org.primefaces.model.file.UploadedFile;
@@ -76,7 +91,7 @@ public class ManagerCriarPlayer implements Serializable {
 
             String cadastrarParam = FacesUtil
                     .getRequestParameter("cadastrar");
-            
+
             if (cadastrarParam != null) {
                 cadastrar = true;
             }
@@ -89,12 +104,9 @@ public class ManagerCriarPlayer implements Serializable {
                 processSteamReturn();
             }
 
-            
-
-            if (visualizarPlayerId == null && cadastrarParam == null && redirectSteam == null) {
-                Mensagem.errorAndRedirect("Você não tem permissão para acessar essa página!", "index.xhtml");
-            }
-
+//            if (visualizarPlayerId == null && cadastrarParam == null && redirectSteam == null) {
+//                Mensagem.errorAndRedirect("Você não tem permissão para acessar essa página!", "index.xhtml");
+//            }
             if (visualizarPlayerId != null && !visualizarPlayerId.isEmpty()) {
                 this.player = this.playerServico.buscaPlayer(Long.parseLong(visualizarPlayerId));
                 if (this.player.getId() != null && this.player.getAnexo() != null) {
@@ -120,6 +132,7 @@ public class ManagerCriarPlayer implements Serializable {
         this.jogo = new Jogo();
         this.jogos = new ArrayList<>();
         this.jogosSelecionados = new ArrayList<>();
+        this.fileTemp = null;
     }
 
     public Player getPlayerPesquisar() {
@@ -300,6 +313,53 @@ public class ManagerCriarPlayer implements Serializable {
                     this.player.setUrlSteam(playerVo.getProfileurl());
                 }
 
+                if (playerVo.getAvatarfull() != null) {
+                    try {
+                        String imagemUrl = playerVo.getAvatarfull();
+                        String destino = "/tmp"; // Altere conforme seu servidor
+                        String nomeArquivo = "steam_avatar_" + System.currentTimeMillis() + ".jpg";
+
+                        // Cria diretório se não existir
+                        Files.createDirectories(Paths.get(destino));
+
+                        // Caminho final do arquivo
+                        File arquivoDestino = new File(destino, nomeArquivo);
+                        desabilitaVerificacaoSSL();
+
+                        try (InputStream in = new URL(imagemUrl).openStream(); OutputStream out = new FileOutputStream(arquivoDestino)) {
+
+                            byte[] buffer = new byte[8192];
+                            int bytesLidos;
+                            while ((bytesLidos = in.read(buffer)) != -1) {
+                                out.write(buffer, 0, bytesLidos);
+                            }
+
+                            // Caminho completo salvo
+                            String caminhoFinal = arquivoDestino.getAbsolutePath();
+
+                            // Aqui você pode salvar o caminho no banco ou setar no VO
+                            System.err.println("caminho final imagem steam " + caminhoFinal);
+                            this.fileTemp = caminhoFinal;
+                            if (this.fileTemp != null) {
+                                PrimeFaces.current().executeScript("atualizarImagem();");
+
+                            }
+                            Anexo anexo = new Anexo();
+                            anexo.setNomeExibicao(nomeArquivo);
+                            anexo.setNome(caminhoFinal);
+
+                            this.player.setAnexo(anexo);
+
+                        } catch (IOException e) {
+                            System.err.println("Erro ao baixar imagem: " + e.getMessage());
+                        }
+
+                    } catch (Exception ex) {
+                        System.err.println("Erro geral ao processar avatar: " + ex.getMessage());
+                    }
+
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
                 Mensagem.error("Erro ao processar o retorno da Steam.");
@@ -308,5 +368,29 @@ public class ManagerCriarPlayer implements Serializable {
             Mensagem.error("Erro ao processar o retorno da Steam.");
         }
 
+    }
+
+    public static void desabilitaVerificacaoSSL() throws Exception {
+        TrustManager[] trustAllCerts = new TrustManager[]{
+            new X509TrustManager() {
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                }
+
+                public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                }
+            }
+        };
+
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+        // Ignora hostname
+        HostnameVerifier allHostsValid = (hostname, session) -> true;
+        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
     }
 }

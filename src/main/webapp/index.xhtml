@@ -1,108 +1,116 @@
-<ui:composition template="layout.xhtml"
-                xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:h="http://java.sun.com/jsf/html"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-                >
+                template="vercel.xhtml">
 
-    <ui:define name="title">
-        PhbChamp
-    </ui:define>
     <ui:define name="content">
+        <!-- Cards de estatísticas -->
+        <div class="stats-grid">
+            <p:card styleClass="stat-card">
+                <f:facet name="header">
+                    <div class="stat-title">
+                        <span>Total de Jogadores</span>
+                        <i class="pi pi-users stat-icon"></i>
+                    </div>
+                </f:facet>
+                <div class="stat-value">#{managerIndex.playersAtivos.size()}</div>
+                <div class="stat-change positive">+0 no último mês</div>
+            </p:card>
+            
+            <p:card styleClass="stat-card">
+                <f:facet name="header">
+                    <div class="stat-title">
+                        <span>Total de Times</span>
+                        <i class="pi pi-users stat-icon"></i>
+                    </div>
+                </f:facet>
+                <div class="stat-value">#{managerIndex.times.size()}</div>
+                <div class="stat-change positive">+0 no último mês</div>
+            </p:card>
+            
+            <p:card styleClass="stat-card">
+                <f:facet name="header">
+                    <div class="stat-title">
+                        <span>Campeonatos Ativos</span>
+                        <i class="pi pi-trophy stat-icon"></i>
+                    </div>
+                </f:facet>
+                <div class="stat-value">#{managerIndex.campsAtuais.size()}</div>
+                <div class="stat-change positive">+0 no último mês</div>
+            </p:card>
+            
+            <p:card styleClass="stat-card">
+                <f:facet name="header">
+                    <div class="stat-title">
+                        <span>Partidas</span>
+                        <i class="pi pi-calendar stat-icon"></i>
+                    </div>
+                </f:facet>
+                <div class="stat-value">#{managerIndex.partidas.size()}</div>
+                <div class="stat-change positive">+0 na última semana</div>
+            </p:card>
+        </div>
 
-        <h:form id="formIndex"
-                enctype="multipart/form-data"
-                class="form-horizontal">
-
-            <p:growl id="messages"
-                     showDetail="false"/> 
-
-
-            <p:tabView id="tabview" styleClass="row" >
-                <p:tab id="jogos" title="Últimas Partidas">
-                    <p:dataTable id="partidaDataTable" value="#{managerIndex.partidas}" var="partida"
-                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                                 currentPageReportTemplate="{currentPage} de {totalPages}"
-                                 rowsPerPageTemplate="5,10,15"
-                                 rows="5" paginator="true" paginatorPosition="bottom" emptyMessage="Nenhuma partida encontrada">
-
-                        <p:column headerText="Times" width="50%">                            
-                            <p:outputLabel value="#{partida.itemPartida.get(0).team1.nome}   X   #{partida.itemPartida.get(0).team2.nome} "/>                                                  
-                        </p:column>                
-                        <p:column width="35%" exportable="false">
-                            <f:facet name="header">
-                                <h:outputText value="Mapas(s)" />
-                            </f:facet>                    
-
-                            <ui:repeat value="#{partida.itemPartida}" var="item">
-                                <p:outputLabel value="#{item.mapas.nome ne null ? item.mapas.nome : 'N/A'}"/>
-                            </ui:repeat>
-
-                        </p:column>   
-                        <p:column width="15%" headerText="Campeonato">
-                            <p:outputLabel value="#{partida.itemPartida.get(0).camp ne null ? managerIndex.nomeCamp(partida.itemPartida.get(0).camp) : 'Partida Clássica'}"/>
-                        </p:column>
-
-                    </p:dataTable>
-                </p:tab>
-
-                <p:tab id="camps" title="Últimos Campeonatos" >
-
-                    <p:dataTable id="campDataTable"
-                                 value="#{managerIndex.camps}"
-                                 var="campeonato"
-                                 paginator="true"
-                                 paginatorPosition="bottom"
-                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                                 currentPageReportTemplate="{currentPage} de {totalPages}"
-                                 rows="10"
-                                 rowsPerPageTemplate="5,10,15"
-                                 emptyMessage="Nenhum Campeonato encontrado...">
-
-
-                        <f:facet name="header">
-                            <p:outputLabel value="Últimos Campeonatos" />
-                        </f:facet>
-
-                        <p:column headerText="Nome" width="20%">
-                            <h:outputLink  value="visualizarCampeonato.xhtml?id=#{campeonato.id}">
-                                <h:outputText value="#{campeonato.nome}" />
-                            </h:outputLink>
-                        </p:column>                                              
-                        <p:column headerText="Status" width="20%">
-                            <p:panel rendered="#{campeonato.status.nome eq 'Em Andamento'}" style="border: none">
-                                <span style="display: block;
-                                      border-radius: 20px;
-                                      padding: 4px 15px;
-                                      background-color:  #dbe6fe;
-                                      color: #648fe9;
-                                      font-weight: bold;">
-                                    <h:outputText value="Em Andamento"/>
-                                </span>
-                            </p:panel>
-                            <p:panel rendered="#{campeonato.status.nome eq 'Finalizado'}" style="border: none">
-                                <span style="display: block;
-                                      text-align: center;
-                                      border-radius: 20px;
-                                      padding: 4px 15px;
-                                      background-color: #f43e61;
-                                      color: #fff;
-                                      font-weight: bold;">
-                                    <h:outputText value="Finalizado"/>
-                                </span>
-                            </p:panel>
-                        </p:column>
-                        <p:column headerText="Jogo" width="10%">
-                            <p:outputLabel value="#{campeonato.jogo.nome}"/>
-                        </p:column>
-                    </p:dataTable>
-
-                </p:tab>   
-            </p:tabView>
-        </h:form>
-
-
+        <!-- Campeonatos em destaque -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Campeonatos em Destaque</h2>
+            </div>
+            
+            <div class="tournaments-grid">
+                <p:card styleClass="tournament-card">
+                    <f:facet name="header">
+                        <div class="tournament-header">
+                            <div>
+                                <h3 class="tournament-title">Copa de Futebol 2023</h3>
+                                <div class="tournament-sport">Futebol • 16 times</div>
+                            </div>
+                            <span class="tournament-status in-progress">Em andamento</span>
+                        </div>
+                    </f:facet>
+                    <f:facet name="footer">
+                        <div class="tournament-actions">
+                            <p:button value="Ver detalhes" styleClass="p-button-outlined" />
+                        </div>
+                    </f:facet>
+                </p:card>
+                
+                <p:card styleClass="tournament-card">
+                    <f:facet name="header">
+                        <div class="tournament-header">
+                            <div>
+                                <h3 class="tournament-title">Torneio de Basquete</h3>
+                                <div class="tournament-sport">Basquete • 8 times</div>
+                            </div>
+                            <span class="tournament-status open">Inscrições abertas</span>
+                        </div>
+                    </f:facet>
+                    <f:facet name="footer">
+                        <div class="tournament-actions">
+                            <p:button value="Ver detalhes" styleClass="p-button-outlined" />
+                        </div>
+                    </f:facet>
+                </p:card>
+                
+                <p:card styleClass="tournament-card">
+                    <f:facet name="header">
+                        <div class="tournament-header">
+                            <div>
+                                <h3 class="tournament-title">Liga de eSports</h3>
+                                <div class="tournament-sport">League of Legends • 12 times</div>
+                            </div>
+                            <span class="tournament-status in-progress">Em andamento</span>
+                        </div>
+                    </f:facet>
+                    <f:facet name="footer">
+                        <div class="tournament-actions">
+                            <p:button value="Ver detalhes" styleClass="p-button-outlined" />
+                        </div>
+                    </f:facet>
+                </p:card>
+            </div>
+        </section>
     </ui:define>
-
 </ui:composition>

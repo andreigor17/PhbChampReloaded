@@ -115,7 +115,7 @@ public class AnexoServico {
 
             this.caminho = path.getAbsolutePath() + "/";
             this.arquivo = event.getFile().getContent();
-            this.nome = generateFileNameWithTimestamp() + event.getFile().getFileName() ;
+            this.nome = generateFileNameWithTimestamp() + event.getFile().getFileName();
 
             a.setNome(REAL_PATH_TMP + this.nome);
             a.setNomeExibicao(this.nome);

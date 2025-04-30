@@ -1,0 +1,218 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="vercel.xhtml">
+
+    <ui:define name="content">
+        <div class="section-header">
+            <div>
+                <p:link outcome="/jogadores" styleClass="mb-3 d-block">
+                    <i class="pi pi-arrow-left mr-2"></i>Voltar para Jogadores
+                </p:link>
+                <h1 class="section-title">Cadastrar Jogador</h1>
+            </div>
+        </div>
+
+        <p:card>
+            <h:form id="playerForm" enctype="multipart/form-data">
+                <p:remoteCommand name="atualizarImagem" update="playerPhotoPanel, photoUpload" />
+                <div class="grid">
+                    <!-- Foto do Jogador -->
+                    <div class="col-12 md:col-4 flex align-items-center justify-content-center flex-column">
+                        <div class="mb-3">
+                            <h:panelGroup id="playerPhotoPanel" >
+                                <div class="player-photo-container">
+                                    <p:graphicImage id="playerPhoto" value="image/#{managerCriarPlayer.fileTemp}" styleClass="player-photo" rendered="#{managerCriarPlayer.fileTemp ne null}" />
+                                    <div class="player-photo-placeholder" rendered="#{managerCriarPlayer.fileTemp eq null}">
+                                        <i class="pi pi-user" style="font-size: 5rem; color: #ccc;"></i>
+                                    </div>
+                                </div>
+                            </h:panelGroup>
+                        </div>
+                        <div class="mb-3">
+                            <p:fileUpload id="photoUpload" mode="simple" skinSimple="true" label="Escolher Foto" listener="#{managerCriarPlayer.doUpload}"
+                                          value="#{managerCriarPlayer.file}" rendered="#{managerCriarPlayer.fileTemp eq null}"/>
+                        </div>
+                        <div class="text-center">
+                            <p:commandButton value="Remover Foto" icon="pi pi-trash" styleClass="p-button-outlined p-button-danger" type="button" rendered="#{managerCriarPlayer.fileTemp ne null}"/>
+                        </div>
+                    </div>
+
+                    <!-- Informações Básicas -->
+                    <div class="col-12 md:col-8">
+                        <p:fieldset legend="Informações Básicas" toggleable="true" toggleSpeed="500" styleClass="mb-3">
+                            <div class="p-fluid">
+                                <div class="grid">
+                                    <div class="col-12 md:col-6 field">
+                                        <p:outputLabel for="nome" value="Nome" />
+                                        <p:inputText id="nome" required="true"  value="#{managerCriarPlayer.p.nome}" />
+                                        <p:message for="nome" />
+                                    </div>
+
+                                    <div class="col-12 md:col-6 field">
+                                        <p:outputLabel for="sobrenome" value="Sobrenome" />
+                                        <p:inputText id="sobrenome" required="true" value="#{managerCriarPlayer.p.sobreNome}"/>
+                                        <p:message for="sobrenome" />
+                                    </div>
+                                </div>
+
+                                <div class="field">
+                                    <p:outputLabel for="nick" value="Nickname" />
+                                    <p:inputText id="nick" required="true" value="#{managerCriarPlayer.p.nick}"/>
+                                    <p:message for="nick" />
+                                </div>
+
+
+                                <div class="field">
+                                    <p:outputLabel for="funcao" value="Função" />
+                                    <p:selectOneMenu id="funcao" required="true">
+                                        <f:selectItem itemLabel="Selecione uma função" itemValue="" />
+                                        <f:selectItem itemLabel="Capitão" itemValue="CAPITAO" />
+                                        <f:selectItem itemLabel="Jogador" itemValue="JOGADOR" />
+                                        <f:selectItem itemLabel="Técnico" itemValue="TECNICO" />
+                                        <f:selectItem itemLabel="Reserva" itemValue="RESERVA" />
+                                    </p:selectOneMenu>
+                                    <p:message for="funcao" />
+                                </div>
+
+                                <div class="grid">
+
+                                    <div class="col-12 md:col-6 field">
+                                        <p:outputLabel for="capitao" value="É Capitão" />
+                                        <div class="mt-2">
+                                            <p:selectBooleanCheckbox id="capitao" itemLabel="Sim" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </p:fieldset>
+                    </div>
+
+                    <!-- Informações de Conta -->
+                    <div class="col-12">
+                        <p:fieldset legend="Informações de Conta" toggleable="true" toggleSpeed="500" styleClass="mb-3">
+                            <div class="p-fluid">
+                                <div class="grid">
+                                    <div class="col-12 md:col-6 field">
+                                        <p:outputLabel for="login" value="Login" />
+                                        <p:inputText id="login" required="true" />
+                                        <p:message for="login" />
+                                    </div>
+
+                                    <div class="col-12 md:col-6 field">
+                                        <p:outputLabel for="senha" value="Senha" />
+                                        <p:password id="senha" required="true" feedback="true" toggleMask="true" />
+                                        <p:message for="senha" />
+                                    </div>
+                                </div>
+
+                                <div class="field">
+                                    <p:outputLabel for="administrador" value="Permissões" />
+                                    <div class="mt-2">
+                                        <p:selectBooleanCheckbox id="administrador" itemLabel="Administrador" />
+                                    </div>
+                                </div>
+                            </div>
+                        </p:fieldset>
+                    </div>
+
+                    <!-- Informações da Steam -->
+                    <div class="col-12">
+                        <p:fieldset legend="Informações da Steam" toggleable="true" toggleSpeed="500" styleClass="mb-3">
+                            <div class="p-fluid">
+                                <div class="grid">
+                                    <div class="col-12 md:col-6 field">
+                                        <p:outputLabel for="steamID" value="Steam ID" />
+                                        <p:inputText id="steamID" value="#{managerCriarPlayer.p.steamID}"/>
+                                        <p:message for="steamID" />
+                                    </div>
+
+                                    <div class="col-12 md:col-6 field">
+                                        <p:outputLabel for="urlSteam" value="URL do Perfil Steam" />
+                                        <p:inputText id="urlSteam" value="#{managerCriarPlayer.p.urlSteam}"/>
+                                        <p:message for="urlSteam" />
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </p:fieldset>
+                    </div>
+
+                    <!-- Opções de Importação -->
+                    <div class="col-12">
+                        <p:fieldset legend="Importar Dados" toggleable="true" toggleSpeed="500" collapsed="true" styleClass="mb-3" rendered="#{managerCriarPlayer.p.urlSteam eq null}">
+                            <div class="p-fluid">
+                                <div class="grid">
+                                    <div class="col-12 md:col-6">
+                                        <p:commandButton value="Importar da Steam" icon="pi pi-steam" styleClass="p-button-outlined w-full" type="button" />
+                                    </div>
+
+                                    <div class="col-12 md:col-6">
+                                        <p:commandButton value="Importar do Google" icon="pi pi-google" styleClass="p-button-outlined w-full" type="button" />
+                                    </div>
+                                </div>
+                            </div>
+                        </p:fieldset>
+                    </div>
+                </div>
+
+                <div class="flex justify-content-end mt-4">
+                    <p:button value="Cancelar" outcome="/jogadores" styleClass="p-button-outlined mr-2" />
+                    <p:commandButton value="Salvar" icon="pi pi-check" process="@form"
+                                     update="@form"  actionListener="#{managerCriarPlayer.salvarPlayer()}"/>
+                </div>
+            </h:form>
+        </p:card>
+
+        <!-- Estilos específicos para a foto do jogador -->
+        <style type="text/css">
+            .player-photo-container {
+                width: 200px;
+                height: 200px;
+                border-radius: 50%;
+                overflow: hidden;
+                background-color: #f8f9fa;                
+                align-items: center;
+                justify-content: center;
+                border: 1px solid #dee2e6;
+            }
+
+            .player-photo {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover;
+            }
+
+            .player-photo-placeholder {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100%;
+                background-color: #f8f9fa;
+            }
+
+            /* Ajustes para alinhamento consistente */
+            .p-fluid .field {
+                margin-bottom: 1rem;
+            }
+
+            .p-fluid .field label {
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+
+            .p-fluid .field .p-checkbox {
+                vertical-align: middle;
+            }
+
+            .p-fluid .field .p-checkbox-label {
+                vertical-align: middle;
+                margin-left: 0.5rem;
+            }
+        </style>
+    </ui:define>
+</ui:composition>

@@ -96,7 +96,7 @@ public class TeamServico {
         return buscaTimes();
     }
 
-    private List<Team> buscaTimes() throws Exception {
+    public List<Team> buscaTimes() throws Exception {
 
         try {
             String url = pathToAPI() + "/api/team/teams-nao-amistosos";

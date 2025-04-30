@@ -1,0 +1,161 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="vercel.xhtml">
+
+    <ui:define name="content">
+        <div class="section-header">
+            <div>
+                <p:link outcome="/jogadores" styleClass="mb-3 d-block">
+                    <i class="pi pi-arrow-left mr-2"></i>Voltar para Jogadores
+                </p:link>
+                <h1 class="section-title">Detalhes do Jogador</h1>
+            </div>
+            <div>
+                <p:button value="Editar" icon="pi pi-pencil" styleClass="p-button-outlined mr-2" outcome="criarJogador.xhtml">
+                    <f:param name="id" value="1" />
+                </p:button>
+                <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="p-button-danger p-button-outlined" />
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Informações do Jogador -->
+            <div class="col-12 md:col-4">
+                <p:card styleClass="mb-4">
+                    <f:facet name="header">
+                        <div class="text-center">
+                            <div class="mb-3">
+                                <p:avatar styleClass="player-avatar" size="xlarge">
+                                    <i class="pi pi-user"></i>
+                                </p:avatar>
+                            </div>
+                            <h2 class="text-xl font-bold">João Silva</h2>
+                            <p class="text-gray-600">Atacante</p>
+                        </div>
+                    </f:facet>
+                    
+                    <div class="player-info mt-4">
+                        <div class="info-row">
+                            <span class="info-label">Time:</span>
+                            <span class="info-value">
+                                <p:link value="Time A" outcome="visualizarTime.xhtml">
+                                    <f:param name="id" value="1" />
+                                </p:link>
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Esporte:</span>
+                            <span class="info-value">Futebol</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Idade:</span>
+                            <span class="info-value">24 anos</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Data de Nascimento:</span>
+                            <span class="info-value">15/05/1999</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Número:</span>
+                            <span class="info-value">10</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Altura:</span>
+                            <span class="info-value">1,82m</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Peso:</span>
+                            <span class="info-value">76kg</span>
+                        </div>
+                    </div>
+                </p:card>
+                
+                <p:card styleClass="mb-4">
+                    <f:facet name="title">Contato</f:facet>
+                    
+                    <div class="player-info">
+                        <div class="info-row">
+                            <span class="info-label">Email:</span>
+                            <span class="info-value">joao.silva@email.com</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Telefone:</span>
+                            <span class="info-value">(11) 98765-4321</span>
+                        </div>
+                    </div>
+                </p:card>
+            </div>
+            
+            <!-- Estatísticas e Histórico -->
+            <div class="col-12 md:col-8">
+                <p:card styleClass="mb-4">
+                    <f:facet name="title">Estatísticas</f:facet>
+                    
+                    <div class="grid">
+                        <div class="col-6 md:col-3">
+                            <div class="stat-box">
+                                <div class="stat-value">15</div>
+                                <div class="stat-label">Partidas</div>
+                            </div>
+                        </div>
+                        <div class="col-6 md:col-3">
+                            <div class="stat-box">
+                                <div class="stat-value">8</div>
+                                <div class="stat-label">Gols</div>
+                            </div>
+                        </div>
+                        <div class="col-6 md:col-3">
+                            <div class="stat-box">
+                                <div class="stat-value">5</div>
+                                <div class="stat-label">Assistências</div>
+                            </div>
+                        </div>
+                        <div class="col-6 md:col-3">
+                            <div class="stat-box">
+                                <div class="stat-value">2</div>
+                                <div class="stat-label">Cartões</div>
+                            </div>
+                        </div>
+                    </div>
+                </p:card>
+                
+                <p:card styleClass="mb-4">
+                    <f:facet name="title">Últimas Partidas</f:facet>
+                    
+                    <p:dataTable var="match" value="#{null}" styleClass="border-none"
+                                 emptyMessage="Nenhuma partida encontrada">
+                        <p:column headerText="Data">
+                            <h:outputText value="12/04/2023" />
+                        </p:column>
+                        
+                        <p:column headerText="Campeonato">
+                            <h:outputText value="Copa de Futebol 2023" />
+                        </p:column>
+                        
+                        <p:column headerText="Partida">
+                            <h:outputText value="Time A 2 - 1 Time B" />
+                        </p:column>
+                        
+                        <p:column headerText="Desempenho">
+                            <h:outputText value="1 gol, 1 assistência" />
+                        </p:column>
+                    </p:dataTable>
+                </p:card>
+                
+                <p:card>
+                    <f:facet name="title">Histórico de Times</f:facet>
+                    
+                    <p:timeline value="#{null}" var="event" style="height: 250px">
+                        <f:facet name="content">
+                            <h:outputText value="Time A" />
+                            <p>2021 - Presente</p>
+                        </f:facet>
+                    </p:timeline>
+                </p:card>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>
