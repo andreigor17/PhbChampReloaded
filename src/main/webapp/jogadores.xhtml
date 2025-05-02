@@ -29,7 +29,7 @@
                     </div>
                     <div class="form-group">
                         <p:selectOneMenu styleClass="w-100">
-                            <f:selectItem itemLabel="Filtrar por esporte" itemValue="" />
+                            <f:selectItem itemLabel="Filtrar por jogo" itemValue="" />
                             <f:selectItem itemLabel="Futebol" itemValue="futebol" />
                             <f:selectItem itemLabel="Basquete" itemValue="basquete" />
                             <f:selectItem itemLabel="Vôlei" itemValue="volei" />
@@ -42,38 +42,23 @@
 
         <!-- Tabela de jogadores -->
         <h:form id="playersForm">
-            <p:dataTable var="player" value="#{null}" styleClass="table-container"
+            <p:dataTable var="player" value="#{managerPlayer.players}" styleClass="table-container"
                          emptyMessage="Nenhum jogador encontrado">
                 <f:facet name="header">
                     <div class="ui-d-flex ui-jc-between">
                         <div>Jogadores</div>
                     </div>
                 </f:facet>
-                
+
                 <p:column headerText="Nome">
-                    <h:outputText value="João Silva" />
+                    <h:outputText value="#{player.descPlayer()}" />
                 </p:column>
-                
-                <p:column headerText="Time">
-                    <p:link value="Time A" styleClass="team-link" />
-                </p:column>
-                
-                <p:column headerText="Posição">
-                    <h:outputText value="Atacante" />
-                </p:column>
-                
-                <p:column headerText="Idade">
-                    <h:outputText value="24" />
-                </p:column>
-                
-                <p:column headerText="Esporte">
-                    <h:outputText value="Futebol" />
-                </p:column>
-                
+
+
                 <p:column headerText="Ações">
                     <div class="action-buttons">
-                        <p:button value="Detalhes" styleClass="p-button-outlined" />
-                        <p:button value="Editar" styleClass="p-button-outlined" />
+                        <p:button value="Detalhes" styleClass="p-button-outlined"
+                                  href="jogador.xhtml?id=#{player.id}"/>
                     </div>
                 </p:column>
             </p:dataTable>

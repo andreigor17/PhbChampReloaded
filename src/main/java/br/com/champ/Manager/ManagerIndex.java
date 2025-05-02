@@ -49,6 +49,7 @@ public class ManagerIndex implements Serializable {
     private List<Estatisticas> ests;
     private List<Partida> partidas;
     private List<Campeonato> camps;
+    private List<Campeonato> campsCards;
     private List<Player> playersAtivos;
 
     @PostConstruct
@@ -56,7 +57,8 @@ public class ManagerIndex implements Serializable {
         try {
             instanciar();
             this.partidas = partidaServico.pesquisarPartidasGeral();
-            this.camps = campeonatoServico.pesquisar();
+            this.camps = campeonatoServico.pesquisarIndex(null);
+            this.campsAtuais = campeonatoServico.pesquisarIndex(3);
             this.playersAtivos = playerServico.buscaPlayers();
             this.times = teamServico.buscaTimes();
         } catch (Exception ex) {
@@ -68,6 +70,7 @@ public class ManagerIndex implements Serializable {
     public void instanciar() {
         this.camp = new Campeonato();
         this.campsAtuais = new ArrayList<>();
+        this.campsCards = new ArrayList<>();
         this.times = new ArrayList<>();
         this.estatisticasTime = new ArrayList<>();
         this.ests = new ArrayList<>();
@@ -78,6 +81,14 @@ public class ManagerIndex implements Serializable {
 
     public void limpar() {
         instanciar();
+    }
+
+    public List<Campeonato> getCampsCards() {
+        return campsCards;
+    }
+
+    public void setCampsCards(List<Campeonato> campsCards) {
+        this.campsCards = campsCards;
     }
 
     public Campeonato getCamp() {

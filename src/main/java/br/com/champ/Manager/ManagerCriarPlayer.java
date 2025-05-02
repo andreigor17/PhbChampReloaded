@@ -195,6 +195,8 @@ public class ManagerCriarPlayer implements Serializable {
     public void doUpload(FileUploadEvent event) {
         this.player.setAnexo(anexoServico.fileUploadTemp(event));
         this.fileTemp = this.player.getAnexo().getNome();
+        System.err.println("file temp " + this.fileTemp);
+        PrimeFaces.current().executeScript("atualizarImagem();");
     }
 
     public List<Jogo> getJogos() {

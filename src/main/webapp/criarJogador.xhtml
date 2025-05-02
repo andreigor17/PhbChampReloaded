@@ -32,7 +32,7 @@
                             </h:panelGroup>
                         </div>
                         <div class="mb-3">
-                            <p:fileUpload id="photoUpload" mode="simple" skinSimple="true" label="Escolher Foto" listener="#{managerCriarPlayer.doUpload}"
+                            <p:fileUpload id="photoUpload"  mode="simple" skinSimple="true" label="Escolher Foto"  auto="true" listener="#{managerCriarPlayer.doUpload}"
                                           value="#{managerCriarPlayer.file}" rendered="#{managerCriarPlayer.fileTemp eq null}"/>
                         </div>
                         <div class="text-center">

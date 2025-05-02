@@ -37,7 +37,7 @@
                         <i class="pi pi-trophy stat-icon"></i>
                     </div>
                 </f:facet>
-                <div class="stat-value">#{managerIndex.campsAtuais.size()}</div>
+                <div class="stat-value">#{managerIndex.camps.size()}</div>
                 <div class="stat-change positive">+0 no último mês</div>
             </p:card>
             
@@ -60,12 +60,13 @@
             </div>
             
             <div class="tournaments-grid">
+                <ui:repeat value="#{managerIndex.campsAtuais}" var="camp">
                 <p:card styleClass="tournament-card">
                     <f:facet name="header">
                         <div class="tournament-header">
                             <div>
-                                <h3 class="tournament-title">Copa de Futebol 2023</h3>
-                                <div class="tournament-sport">Futebol • 16 times</div>
+                                <h3 class="tournament-title">#{camp.nome}</h3>
+                                <div class="tournament-sport">#{camp.teams.size()} Participantes</div>
                             </div>
                             <span class="tournament-status in-progress">Em andamento</span>
                         </div>
@@ -75,41 +76,8 @@
                             <p:button value="Ver detalhes" styleClass="p-button-outlined" />
                         </div>
                     </f:facet>
-                </p:card>
-                
-                <p:card styleClass="tournament-card">
-                    <f:facet name="header">
-                        <div class="tournament-header">
-                            <div>
-                                <h3 class="tournament-title">Torneio de Basquete</h3>
-                                <div class="tournament-sport">Basquete • 8 times</div>
-                            </div>
-                            <span class="tournament-status open">Inscrições abertas</span>
-                        </div>
-                    </f:facet>
-                    <f:facet name="footer">
-                        <div class="tournament-actions">
-                            <p:button value="Ver detalhes" styleClass="p-button-outlined" />
-                        </div>
-                    </f:facet>
-                </p:card>
-                
-                <p:card styleClass="tournament-card">
-                    <f:facet name="header">
-                        <div class="tournament-header">
-                            <div>
-                                <h3 class="tournament-title">Liga de eSports</h3>
-                                <div class="tournament-sport">League of Legends • 12 times</div>
-                            </div>
-                            <span class="tournament-status in-progress">Em andamento</span>
-                        </div>
-                    </f:facet>
-                    <f:facet name="footer">
-                        <div class="tournament-actions">
-                            <p:button value="Ver detalhes" styleClass="p-button-outlined" />
-                        </div>
-                    </f:facet>
-                </p:card>
+                </p:card>               
+                </ui:repeat>
             </div>
         </section>
     </ui:define>

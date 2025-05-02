@@ -95,6 +95,9 @@ public class ManagerPlayer implements Serializable {
 
             if (uri.getRequestURI().contains("sorteiox5.xhtml")) {
                 instanciarPlayerGroup();
+            } else if(uri.getRequestURI().contains("jogadores.xhtml")) {
+                this.players = playerServico.buscaPlayers();
+                System.err.println("size " + this.players.size());
             }
 
         } catch (Exception ex) {

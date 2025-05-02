@@ -168,5 +168,8 @@ public class Player extends ModeloGenerico implements Serializable {
         this.email = email;
     }
 
+    public String descPlayer() {
+        return nome + " '" + nick + "' " + sobreNome;
+    }
 
 }
