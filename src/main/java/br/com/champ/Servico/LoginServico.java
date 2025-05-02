@@ -42,7 +42,7 @@ public class LoginServico {
 
     }
 
-    public String autenticar(LoginVo pessoa) {
+     public String autenticar(LoginVo pessoa) {
         try {
 
             if (pessoa.getLogin() != null && !pessoa.getLogin().isBlank() && pessoa.getSenha() != null && !pessoa.getSenha().isBlank()) {
@@ -52,6 +52,35 @@ public class LoginServico {
                 try {
 
                     String token = RequisicaoUtils.requisicaoPost(pathToAPI() + "/api/login/auth", json);
+                    if (token != null) {
+                        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("token", token);
+                        return token;
+                    }
+
+                } catch (Exception e) {
+                    return null;
+                }
+
+            }
+
+            return null;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+     public String autenticarSteam(LoginVo pessoa) {
+        try {
+
+            if (pessoa.getSteamId() != null && !pessoa.getSteamId().isBlank()) {
+                Gson gson = new Gson();
+                String json = gson.toJson(pessoa);
+
+                try {
+
+                    String token = RequisicaoUtils.requisicaoPost(pathToAPI() + "/api/login/steam", json);
                     if (token != null) {
                         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("token", token);
                         return token;

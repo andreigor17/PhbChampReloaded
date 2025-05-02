@@ -1,9 +1,9 @@
-<ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="http://xmlns.jcp.org/jsf/html"
-                xmlns:f="http://xmlns.jcp.org/jsf/core"
-                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+<ui:composition template="vercel_login.xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:p="http://primefaces.org/ui"
-                template="vercel_login.xhtml">
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
 
     <ui:define name="content">
         <div class="login-container">
@@ -55,11 +55,11 @@
 
                             <div class="login-social-buttons">
                                 <p:commandButton value="Google" icon="pi pi-google" styleClass="google-button w-full mb-2" type="button" />
-                                <p:commandButton value="Steam" icon="custom-steam-icon" styleClass="steam-button w-full"   ajax="false" action="#{managerPrincipal.redirecionarSteam()}"/>
+                                <p:commandButton value="Steam" icon="custom-steam-icon" styleClass="steam-button w-full"   ajax="false" type="submit" action="#{managerPrincipal.redirecionarSteam()}"/>
                             </div>
 
                             <div class="login-footer">
-                                <p:link value="Não tem uma conta? Cadastre-se" styleClass="register-link" />
+                                <p:link value="Não tem uma conta? Cadastre-se" styleClass="register-link" href="criarJogador.xhtml" />
                             </div>
                         </div>
                     </h:form>
@@ -204,9 +204,7 @@
                 background-image: url("#{request.contextPath}/img/google-icon.png");
             }
 
-            .steam-icon {
-                background-image: url("#{request.contextPath}/img/steam-icon.png");
-            }
+            
 
             .google-button {
                 background-color: #4285F4 !important;

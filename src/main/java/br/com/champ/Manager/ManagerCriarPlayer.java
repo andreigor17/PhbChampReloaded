@@ -19,6 +19,7 @@ import br.com.champ.Utilitario.FacesUtil;
 import br.com.champ.Utilitario.Mensagem;
 import br.com.champ.vo.LoginVo;
 import br.com.champ.vo.PlayerSteamVo;
+import br.com.champ.vo.UsuarioVo;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.faces.context.FacesContext;
@@ -227,7 +228,7 @@ public class ManagerCriarPlayer implements Serializable {
             this.player.setAnexo(anexoServico.salvarAnexo(this.player.getAnexo()));
         }
         if (this.player.getId() == null) {
-            this.player = playerServico.save(this.player, null, Url.SALVAR_PLAYER.getNome());
+            this.player = playerServico.registrarPlayer(this.player, null, Url.REGISTRAR_PLAYER.getNome());
             if (cadastrar) {
                 LoginVo loginVo = new LoginVo();
                 loginVo.setLogin(this.player.getLogin());
@@ -235,10 +236,10 @@ public class ManagerCriarPlayer implements Serializable {
                 loginServico.autenticar(loginVo);
 
             }
-            Mensagem.successAndRedirect("Player salvo com sucesso", "visualizarPlayer.xhtml?id=" + this.player.getId());
+            Mensagem.successAndRedirect("Player salvo com sucesso", "jogador.xhtml?id=" + this.player.getId());
         } else {
             this.player = playerServico.save(this.player, this.player.getId(), Url.ATUALIZAR_PLAYER.getNome());
-            Mensagem.successAndRedirect("Player atualizado com sucesso", "visualizarPlayer.xhtml?id=" + this.player.getId());
+            Mensagem.successAndRedirect("Player atualizado com sucesso", "jogador.xhtml?id=" + this.player.getId());
         }
 
     }
@@ -287,15 +288,24 @@ public class ManagerCriarPlayer implements Serializable {
 
         if (steamId != null && !steamId.isEmpty()) {
             try {
-                // Decodificar a URL
+                
                 String decodedSteamId = URLDecoder.decode(steamId, StandardCharsets.UTF_8.name());
 
-                // Extrair o SteamID64
+                
                 String steamId64 = decodedSteamId.substring(decodedSteamId.lastIndexOf("/") + 1);
 
-                // Chamar o serviço de API da Steam
+                
                 PlayerSteamVo playerVo = new PlayerSteamVo();
                 playerVo = playerServico.getPlayerInfo(steamId64, "F10A919CE16995E066B463C9005AF4D3");
+
+                if (playerVo.getSteamid() != null) {
+                    LoginVo login = new LoginVo();
+                    login.setSteamId(playerVo.getSteamid());
+                    if (loginServico.autenticarSteam(login) != null) {                        
+                        Mensagem.successAndRedirect("Login realizado com sucesso!", "index.xhtml");
+                    }
+
+                }
 
                 if (playerVo.getPersonaname() != null) {
                     this.player.setNick(playerVo.getPersonaname());
@@ -316,13 +326,13 @@ public class ManagerCriarPlayer implements Serializable {
                 if (playerVo.getAvatarfull() != null) {
                     try {
                         String imagemUrl = playerVo.getAvatarfull();
-                        String destino = "/tmp"; // Altere conforme seu servidor
+                        String destino = "/tmp"; 
                         String nomeArquivo = "steam_avatar_" + System.currentTimeMillis() + ".jpg";
 
-                        // Cria diretório se não existir
+                        
                         Files.createDirectories(Paths.get(destino));
 
-                        // Caminho final do arquivo
+                        
                         File arquivoDestino = new File(destino, nomeArquivo);
                         desabilitaVerificacaoSSL();
 
@@ -334,10 +344,10 @@ public class ManagerCriarPlayer implements Serializable {
                                 out.write(buffer, 0, bytesLidos);
                             }
 
-                            // Caminho completo salvo
+                            
                             String caminhoFinal = arquivoDestino.getAbsolutePath();
 
-                            // Aqui você pode salvar o caminho no banco ou setar no VO
+                            
                             System.err.println("caminho final imagem steam " + caminhoFinal);
                             this.fileTemp = caminhoFinal;
                             if (this.fileTemp != null) {

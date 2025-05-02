@@ -12,10 +12,12 @@ package br.com.champ.Enums;
 public enum Url {
 
     SALVAR_PLAYER("/api/player"),
+    REGISTRAR_PLAYER("/api/login/usuario"),
     ATUALIZAR_PLAYER("/api/player/"),
     BUSCAR_PLAYERS("/api/player/players"),
     BUSCAR_PLAYER_NOME("/api/player"),
     BUSCAR_PLAYER_ID("/api/player/"),
+    BUSCAR_PLAYER_STEAM_ID("/api/player/steamId/"),
     APAGAR_PLAYER("/api/player/"),
     SALVAR_TIME("/api/team"),
     ATUALIZAR_TIME("/api/team/"),

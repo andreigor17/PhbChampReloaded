@@ -27,6 +27,7 @@ public class RequisicaoUtils {
 
             MediaType mediaType = MediaType.parse("application/json");
             RequestBody body = RequestBody.create(mediaType, json);
+            System.err.println("body " + json);
             Request request = new Request.Builder()
                     .url(url)
                     .post(body)
@@ -36,9 +37,9 @@ public class RequisicaoUtils {
             try (Response response = client.newCall(request).execute()) {
                 if (!response.isSuccessful()) {
                     System.out.println("Resposta: " + response.body().string());
-                    System.out.println("Erro inesperado: " + response);
+                    //System.out.println("Erro inesperado: " + response);
                     return null;
-                }
+                } 
 
                 return response.body().string();
             }

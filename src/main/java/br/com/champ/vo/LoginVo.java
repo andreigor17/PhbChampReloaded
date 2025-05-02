@@ -13,6 +13,15 @@ public class LoginVo {
     private String login;
     private String senha;
     private String url;
+    private String steamId;
+
+    public LoginVo() {
+    }
+
+    public LoginVo(String login, String senha) {
+        this.login = login;
+        this.senha = senha;
+    }
 
     public String getLogin() {
         return login;
@@ -36,6 +45,14 @@ public class LoginVo {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getSteamId() {
+        return steamId;
+    }
+
+    public void setSteamId(String steamId) {
+        this.steamId = steamId;
     }
 
 }

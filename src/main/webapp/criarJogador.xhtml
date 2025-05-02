@@ -47,27 +47,27 @@
                                 <div class="grid">
                                     <div class="col-12 md:col-6 field">
                                         <p:outputLabel for="nome" value="Nome" />
-                                        <p:inputText id="nome" required="true"  value="#{managerCriarPlayer.p.nome}" />
+                                        <p:inputText id="nome"   value="#{managerCriarPlayer.p.nome}" />
                                         <p:message for="nome" />
                                     </div>
 
                                     <div class="col-12 md:col-6 field">
                                         <p:outputLabel for="sobrenome" value="Sobrenome" />
-                                        <p:inputText id="sobrenome" required="true" value="#{managerCriarPlayer.p.sobreNome}"/>
+                                        <p:inputText id="sobrenome"  value="#{managerCriarPlayer.p.sobreNome}"/>
                                         <p:message for="sobrenome" />
                                     </div>
                                 </div>
 
                                 <div class="field">
                                     <p:outputLabel for="nick" value="Nickname" />
-                                    <p:inputText id="nick" required="true" value="#{managerCriarPlayer.p.nick}"/>
+                                    <p:inputText id="nick"  value="#{managerCriarPlayer.p.nick}"/>
                                     <p:message for="nick" />
                                 </div>
 
 
                                 <div class="field">
                                     <p:outputLabel for="funcao" value="Função" />
-                                    <p:selectOneMenu id="funcao" required="true">
+                                    <p:selectOneMenu id="funcao" >
                                         <f:selectItem itemLabel="Selecione uma função" itemValue="" />
                                         <f:selectItem itemLabel="Capitão" itemValue="CAPITAO" />
                                         <f:selectItem itemLabel="Jogador" itemValue="JOGADOR" />
@@ -97,13 +97,13 @@
                                 <div class="grid">
                                     <div class="col-12 md:col-6 field">
                                         <p:outputLabel for="login" value="Login" />
-                                        <p:inputText id="login" required="true" />
+                                        <p:inputText id="login"  value="#{managerCriarPlayer.p.login}"/>
                                         <p:message for="login" />
                                     </div>
 
                                     <div class="col-12 md:col-6 field">
                                         <p:outputLabel for="senha" value="Senha" />
-                                        <p:password id="senha" required="true" feedback="true" toggleMask="true" />
+                                        <p:password id="senha"  feedback="true" toggleMask="true" value="#{managerCriarPlayer.p.senha}"/>
                                         <p:message for="senha" />
                                     </div>
                                 </div>

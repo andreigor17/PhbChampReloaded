@@ -178,8 +178,10 @@ public class ManagerPrincipal implements Serializable {
     public void redirecionarSteam() {
 
         try {
+            System.out.println("Chamou o método redirecionarSteam()");
             String url = buildSteamLoginUrlWithParams();
             FacesContext.getCurrentInstance().getExternalContext().redirect(url);
+            FacesContext.getCurrentInstance().responseComplete();
         } catch (IOException ex) {
             Logger.getLogger(ManagerPrincipal.class.getName()).log(Level.SEVERE, null, ex);
         }

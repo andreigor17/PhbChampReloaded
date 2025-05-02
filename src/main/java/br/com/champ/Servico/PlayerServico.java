@@ -137,6 +137,50 @@ public class PlayerServico implements Serializable {
 
     }
 
+    public Player buscaPlayerSteamId(String stemId) {
+        try {
+            String url = pathToAPI() + Url.BUSCAR_PLAYER_STEAM_ID.getNome() + stemId;
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            // optional default is GET
+            con.setRequestMethod("GET");
+            //add request header
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
+            int responseCode = con.getResponseCode();
+            if (responseCode == 404) {
+                return null;
+            }
+            System.out.println("Response Code : " + responseCode);
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            //print in String
+            //System.out.println(response.toString());
+            //Read JSON response and print
+            Gson gson = new Gson();
+            Player p1 = new Player();
+
+            Player userArray = gson.fromJson(response.toString(), Player.class);
+
+            p1 = userArray;
+            return p1;
+        } catch (IOException iOException) {
+            System.err.println(iOException);
+        } catch (JSONException jSONException) {
+            System.err.println(jSONException);
+        } catch (NumberFormatException numberFormatException) {
+            System.err.println(numberFormatException);
+        }
+        return null;
+
+    }
+
     public List<Player> autoCompletePessoa() {
         return buscaPlayers();
     }
@@ -190,6 +234,60 @@ public class PlayerServico implements Serializable {
     }
 
     public Player save(Player player, Long id, String uri) throws Exception {
+
+        String url;
+        if (id != null) {
+            url = pathToAPI() + uri + id;
+        } else {
+            url = pathToAPI() + uri;
+        }
+        try {
+            // Cria um objeto HttpURLConnection:
+            HttpURLConnection request = (HttpURLConnection) new URL(url).openConnection();
+
+            try {
+                // Define que a conexão pode enviar informações e obtê-las de volta:
+                request.setDoOutput(true);
+                request.setDoInput(true);
+
+                // Define o content-type:
+                request.setRequestProperty("Content-Type", "application/json");
+
+                // Define o método da requisição:
+                if (id != null) {
+                    request.setRequestMethod("PUT");
+                } else {
+                    request.setRequestMethod("POST");
+                }
+
+                // Conecta na URL:
+                request.connect();
+                Gson gson = new Gson();
+                String json = gson.toJson(player);
+                System.out.println("Json Player " + json);
+
+                // Escreve o objeto JSON usando o OutputStream da requisição:
+                try (OutputStream outputStream = request.getOutputStream()) {
+                    outputStream.write(json.getBytes("UTF-8"));
+                }
+
+                Player p = new Player();
+                Player userArray = gson.fromJson(readResponse(request), Player.class);
+                p = userArray;
+                return p;
+
+                // Caso você queira usar o código HTTP para fazer alguma coisa, descomente esta linha.
+                //int response = request.getResponseCode();
+            } finally {
+                request.disconnect();
+            }
+        } catch (IOException ex) {
+            System.err.println(ex);
+        }
+        return null;
+    }
+
+    public Player registrarPlayer(Player player, Long id, String uri) throws Exception {
 
         String url;
         if (id != null) {
