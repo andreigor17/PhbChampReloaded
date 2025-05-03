@@ -31,6 +31,8 @@ public class Player extends ModeloGenerico implements Serializable {
     private String senha;
     private boolean adminastror;
     private String email;
+    private String steamId64;
+    private String dataNascimento;
 
     public String getNome() {
         return nome;
@@ -166,6 +168,22 @@ public class Player extends ModeloGenerico implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getSteamId64() {
+        return steamId64;
+    }
+
+    public void setSteamId64(String steamId64) {
+        this.steamId64 = steamId64;
+    }
+
+    public String getDataNascimento() {
+        return dataNascimento;
+    }
+
+    public void setDataNascimento(String dataNascimento) {
+        this.dataNascimento = dataNascimento;
     }
 
     public String descPlayer() {

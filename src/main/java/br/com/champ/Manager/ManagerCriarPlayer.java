@@ -115,7 +115,7 @@ public class ManagerCriarPlayer implements Serializable {
                 }
             }
 
-            if (uri.getRequestURI().contains("criarPlayer.xhtml") && this.player.getId() == null) {
+            if (uri.getRequestURI().contains("criarJogador.xhtml") && this.player.getId() == null) {
                 this.jogos = jogoServico.pesquisar();
             }
         } catch (Exception ex) {
@@ -292,18 +292,20 @@ public class ManagerCriarPlayer implements Serializable {
             try {
                 
                 String decodedSteamId = URLDecoder.decode(steamId, StandardCharsets.UTF_8.name());
-
                 
                 String steamId64 = decodedSteamId.substring(decodedSteamId.lastIndexOf("/") + 1);
-
+                System.err.println("steamId64 " + steamId64);
+                this.player.setSteamId64(steamId64);
                 
+
                 PlayerSteamVo playerVo = new PlayerSteamVo();
                 playerVo = playerServico.getPlayerInfo(steamId64, "F10A919CE16995E066B463C9005AF4D3");
 
                 if (playerVo.getSteamid() != null) {
                     LoginVo login = new LoginVo();
                     login.setSteamId(playerVo.getSteamid());
-                    if (loginServico.autenticarSteam(login) != null) {                        
+                    if (loginServico.autenticarSteam(login) != null) {
+                        
                         Mensagem.successAndRedirect("Login realizado com sucesso!", "index.xhtml");
                     }
 

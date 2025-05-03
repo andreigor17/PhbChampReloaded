@@ -4,6 +4,7 @@
  */
 package br.com.champ.Servico;
 
+import br.com.champ.Modelo.Player;
 import br.com.champ.Modelo.Token;
 import br.com.champ.Utilitario.APIPath;
 import br.com.champ.Utilitario.RequisicaoUtils;
@@ -36,13 +37,15 @@ public class LoginServico {
     private ConfiguracaoServico configuracaoServico;
     @EJB
     private TokenServico tokenServico;
+    @EJB
+    PlayerServico playerServico;
 
     public String pathToAPI() throws IOException {
         return APIPath.pathToAPI();
 
     }
 
-     public String autenticar(LoginVo pessoa) {
+    public String autenticar(LoginVo pessoa) {
         try {
 
             if (pessoa.getLogin() != null && !pessoa.getLogin().isBlank() && pessoa.getSenha() != null && !pessoa.getSenha().isBlank()) {
@@ -71,7 +74,7 @@ public class LoginServico {
         }
     }
 
-     public String autenticarSteam(LoginVo pessoa) {
+    public String autenticarSteam(LoginVo pessoa) {
         try {
 
             if (pessoa.getSteamId() != null && !pessoa.getSteamId().isBlank()) {
@@ -143,7 +146,7 @@ public class LoginServico {
         }
     }
 
-    public Long obterPlayerId() {
+    public Player obterPlayerId() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         HttpSession sessao = (HttpSession) facesContext.getExternalContext().getSession(false);
 
@@ -161,8 +164,15 @@ public class LoginServico {
                         DecodedJWT decodedJWT = JWT.decode(tokenObj.getToken());
 
                         Long playerId = decodedJWT.getClaim("player_id").asLong();
+                        if (playerId != null) {
 
-                        return playerId;
+                            Player playerLogado = playerServico.buscaPlayer(playerId);
+                            if (playerLogado != null) {
+                                return playerLogado;
+                            }
+                        } else {
+                            return null;
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

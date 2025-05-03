@@ -59,8 +59,6 @@ public class ManagerPrincipal implements Serializable {
             String redirectSteam = FacesUtil
                     .getRequestParameter("redirectSteamLogin");
 
-            
-
             String deslogar = FacesUtil
                     .getRequestParameter("lougout");
 
@@ -69,11 +67,7 @@ public class ManagerPrincipal implements Serializable {
                 Mensagem.successAndRedirect("Logout realizado com sucesso!", "index.xhtml");
 
             }
-            this.playerLogado = null;
-            Long playerId = loginServico.obterPlayerId();
-            if (playerId != null) {
-                this.playerLogado = playerServico.buscaPlayer(playerId);
-            }
+            this.playerLogado = loginServico.obterPlayerId();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -103,7 +97,7 @@ public class ManagerPrincipal implements Serializable {
             return false;
         }
     }
-
+        
     public void login() {
         try {
 
@@ -214,5 +208,4 @@ public class ManagerPrincipal implements Serializable {
         return baseUrl + fixedPath;
     }
 
-    
 }

@@ -14,12 +14,18 @@
                 <h1 class="section-title">Perfil do Jogador</h1>
             </div>
             <div>
-                <p:button value="Editar" icon="pi pi-pencil" outcome="jogador.xhtml" styleClass="p-button-outlined mr-2" />
-                <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="p-button-danger p-button-outlined" />
+                <p:button value="Editar" icon="pi pi-pencil" href="criarJogador.xhtml?id=#{managerPlayer.player.id}" rendered="#{managerPlayer.verificarPermissao()}" styleClass="p-button-outlined mr-2" />
+                <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="p-button-danger p-button-outlined" rendered="#{managerPlayer.verificarPermissao()}"/>
             </div>
         </div>
 
         <h:form id="playerForm" enctype="multipart/form-data">
+
+            <p:remoteCommand name="atualizarCardSteam" update="steamInfoPanel" />
+            <p:remoteCommand name="carregarDadosSteam" actionListener="#{managerPlayer.carregarDadosRemote()}"
+                             process="@this" />
+
+
             <div class="grid">
                 <!-- Informações Básicas com Avatar -->
                 <div class="col-12 md:col-4 flex align-items-center justify-content-center flex-column">
@@ -50,26 +56,38 @@
                             </div>
                         </f:facet>
 
-                        <div class="player-info">
-                            <div class="info-row">
-                                <div class="info-label">Nome Completo</div>
-                                <div class="info-value">#{managerPlayer.player.nome}</div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">Nickname</div>
-                                <div class="info-value">#{managerPlayer.player.nome}</div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">E-mail</div>
-                                <div class="info-value">joao.silva@email.com</div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">Função</div>
-                                <div class="info-value">Capitão</div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">Time</div>
-                                <div class="info-value">Team Alpha</div>
+                        <div class="p-fluid">
+                            <div class="formgrid grid">
+                                <div class="field col-12 md:col-6">
+                                    <p:outputLabel value="Nome Completo" styleClass="block font-medium text-900" />
+                                    <div class="text-field-display">#{managerPlayer.player.nome}</div>
+                                </div>
+
+                                <div class="field col-12 md:col-6">
+                                    <p:outputLabel value="Nickname" styleClass="block font-medium text-900" />
+                                    <div class="text-field-display">#{managerPlayer.player.nick}</div>
+                                </div>
+
+                                <div class="field col-12 md:col-6">
+                                    <p:outputLabel value="E-mail" styleClass="block font-medium text-900" />
+                                    <div class="text-field-display">#{managerPlayer.player.email}</div>
+                                </div>
+
+                                <div class="field col-12 md:col-6">
+                                    <p:outputLabel value="Função" styleClass="block font-medium text-900" />
+                                    <div class="text-field-display">
+                                        <p:chip label="Capitão" styleClass="mr-2" />
+                                    </div>
+                                </div>
+
+
+
+                                <div class="field col-12 md:col-6">
+                                    <p:outputLabel value="Data de Nascimento" styleClass="block font-medium text-900" />
+                                    <p:outputLabel class="text-field-display" value="#{managerPlayer.player.dataNascimento}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                    </p:outputLabel>
+                                </div>
                             </div>
                         </div>
                     </p:card>
@@ -82,560 +100,162 @@
                             </div>
                         </f:facet>
 
-                        <div class="player-info">
-                            <div class="info-row">
-                                <div class="info-label">Steam ID</div>
-                                <div class="info-value">#{managerPlayer.player.steamID}</div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">URL do Perfil</div>
-                                <div class="info-value">
-                                    <p:link value="#{managerPlayer.player.urlSteam}" href="#{managerPlayer.player.urlSteam}" target="_blank" />
-                                </div>
-                            </div>
+                        <div class="p-fluid">                                                        
+                            <h:panelGroup id="steamInfoPanel">
+                                <h:panelGroup rendered="#{managerPlayer.loading eq true}">
+                                    <div class="formgrid grid">
+                                        <div class="field col-12 md:col-6">
+                                            <p:outputLabel value="Steam ID" styleClass="block font-medium text-900" />
+                                            <div class="text-field-display">
+                                                <p:skeleton width="80%" height="24px" />
+                                            </div>
+                                        </div>
+
+                                        <div class="field col-12 md:col-6">
+                                            <p:outputLabel value="URL do Perfil" styleClass="block font-medium text-900" />
+                                            <div class="text-field-display">
+                                                <p:skeleton width="90%" height="24px" />
+                                            </div>
+                                        </div>
+
+                                        <div class="field col-12 md:col-6">
+                                            <p:outputLabel value="Nível Steam" styleClass="block font-medium text-900" />
+                                            <div class="text-field-display">
+                                                <p:skeleton width="70%" height="12px" styleClass="mb-2" />
+                                                <p:skeleton width="30%" height="18px" />
+                                            </div>
+                                        </div>
+
+                                        <div class="field col-12 md:col-6">
+                                            <p:outputLabel value="Status da Conta" styleClass="block font-medium text-900" />
+                                            <div class="text-field-display">
+                                                <p:skeleton width="40%" height="24px" borderRadius="16px" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="steam-stats mt-3">
+                                        <div class="grid">
+                                            <div class="col-4">
+                                                <div class="steam-stat-box">
+                                                    <p:skeleton width="60%" height="28px" styleClass="mb-2" />
+                                                    <p:skeleton width="80%" height="18px" />
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="steam-stat-box">
+                                                    <p:skeleton width="60%" height="28px" styleClass="mb-2" />
+                                                    <p:skeleton width="80%" height="18px" />
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="steam-stat-box">
+                                                    <p:skeleton width="60%" height="28px" styleClass="mb-2" />
+                                                    <p:skeleton width="80%" height="18px" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{managerPlayer.profileLoaded eq true}">
+                                    <div class="formgrid grid">
+                                        <div class="field col-12 md:col-6">
+                                            <p:outputLabel value="Steam ID" styleClass="block font-medium text-900" />
+                                            <div class="text-field-display">
+                                                <span class="steam-id">#{managerPlayer.player.steamID}</span>
+                                                <p:commandButton icon="pi pi-copy" 
+                                                                 styleClass="p-button-rounded p-button-text p-button-sm" 
+                                                                 title="Copiar Steam ID"
+                                                                 onclick="navigator.clipboard.writeText('#{managerPlayer.player.steamID}');return false;" />
+                                            </div>
+                                        </div>
+
+                                        <div class="field col-12 md:col-6">
+                                            <p:outputLabel value="URL do Perfil" styleClass="block font-medium text-900" />
+                                            <div class="text-field-display">
+                                                <p:link value="#{managerPlayer.profileUrl}" 
+                                                        href="#{managerPlayer.profileUrl}" 
+                                                        target="_blank">
+                                                    <i class="pi pi-external-link ml-2" style="font-size: 0.8rem"></i>
+                                                </p:link>
+                                            </div>
+                                        </div>
+
+                                        <div class="field col-12 md:col-6">
+                                            <p:outputLabel value="Nível Steam" styleClass="block font-medium text-900" />
+                                            <div class="text-field-display">
+                                                <p:progressBar value="#{managerPlayer.steamLevel}" 
+                                                               displayOnly="true" 
+                                                               styleClass="steam-level-progress" />
+                                                <span class="steam-level-text">Nível #{managerPlayer.steamLevel}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="field col-12 md:col-6">
+                                            <p:outputLabel value="Status da Conta" styleClass="block font-medium text-900" />
+                                            <div class="text-field-display">
+                                                <p:tag value="#{managerPlayer.statusConta}" 
+                                                       severity="#{managerPlayer.statusConta eq 'Pública' ? 'success' : 'warning'}" 
+                                                       rounded="true" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="steam-stats mt-3">
+                                        <div class="grid">
+                                            <div class="col-4">
+                                                <div class="steam-stat-box">
+                                                    <div class="steam-stat-value">#{managerPlayer.gameCount}</div>
+                                                    <div class="steam-stat-label">Jogos</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="steam-stat-box">
+                                                    <div class="steam-stat-value">#{managerPlayer.friendCount}</div>
+                                                    <div class="steam-stat-label">Amigos</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="steam-stat-box">
+                                                    <div class="steam-stat-value">#{managerPlayer.formattedPlaytime}</div>
+                                                    <div class="steam-stat-label">Tempo de Jogo</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </h:panelGroup>
+
+                                <!-- Exibir mensagem quando não há dados ou perfil é privado -->
+                                <p:outputPanel rendered="#{managerPlayer.error}">
+                                    <div class="flex align-items-center justify-content-center flex-column p-4">
+                                        <i class="pi pi-lock" style="font-size: 2rem; color: #6c757d; margin-bottom: 1rem;"></i>
+                                        <h3>Dados não disponíveis</h3>
+                                        <p class="text-center">Os dados da Steam não puderam ser carregados. O perfil pode estar privado ou ocorreu um erro na API.</p>
+                                    </div>
+                                </p:outputPanel>
+
+                                <!-- Exibir mensagem quando não há Steam ID -->
+                                <p:outputPanel rendered="#{managerPlayer.player.steamID == null or managerPlayer.player.steamID == ''}">
+                                    <div class="flex align-items-center justify-content-center flex-column p-4">
+                                        <i class="pi pi-info-circle" style="font-size: 2rem; color: #6c757d; margin-bottom: 1rem;"></i>
+                                        <h3>Steam ID não configurado</h3>
+                                        <p class="text-center">Este jogador não possui um Steam ID configurado. Edite o perfil para adicionar.</p>
+                                    </div>
+                                </p:outputPanel>
+                            </h:panelGroup>
                         </div>
                     </p:card>
                 </div>
 
-                <!-- Estatísticas por Jogo -->
-                <div class="col-12">
-                    <h2 class="section-subtitle mb-3">Estatísticas por Jogo</h2>
 
-                    <p:tabView>
-                        <!-- CS:GO -->
-                        <p:tab title="CS:GO">
-                            <div class="grid">
-                                <div class="col-12 md:col-3">
-                                    <p:card styleClass="stats-card">
-                                        <f:facet name="title">Visão Geral</f:facet>
-
-                                        <div class="grid">
-                                            <div class="col-6">
-                                                <div class="stat-box">
-                                                    <div class="stat-value">75%</div>
-                                                    <div class="stat-label">Taxa de Vitória</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="stat-box">
-                                                    <div class="stat-value">1.8</div>
-                                                    <div class="stat-label">K/D Ratio</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="stat-box">
-                                                    <div class="stat-value">24</div>
-                                                    <div class="stat-label">Partidas</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="stat-box">
-                                                    <div class="stat-value">18</div>
-                                                    <div class="stat-label">Vitórias</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </p:card>
-                                </div>
-
-                                <div class="col-12 md:col-9">
-                                    <div class="grid">
-                                        <div class="col-12 md:col-6">
-                                            <p:card styleClass="stats-card">
-                                                <f:facet name="title">Desempenho por Mapa</f:facet>
-                                                <p:barChart  model="#{null}" style="width: 100%; height: 250px;" />
-                                            </p:card>
-                                        </div>
-
-                                        <div class="col-12 md:col-6">
-                                            <p:card styleClass="stats-card">
-                                                <f:facet name="title">Precisão por Arma</f:facet>
-                                                <p:barChart model="#{null}" style="width: 100%; height: 250px;" />
-                                            </p:card>
-                                        </div>
-
-                                        <div class="col-12">
-                                            <p:card styleClass="stats-card">
-                                                <f:facet name="title">Evolução de Desempenho</f:facet>
-                                                <p:barChart model="#{null}" style="width: 100%; height: 250px;" />
-                                            </p:card>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <p:card styleClass="stats-card">
-                                        <f:facet name="title">Estatísticas Detalhadas</f:facet>
-
-                                        <div class="grid">
-                                            <div class="col-12 md:col-4">
-                                                <h3 class="stats-subtitle">Desempenho Geral</h3>
-                                                <div class="player-info">
-                                                    <div class="info-row">
-                                                        <div class="info-label">Kills</div>
-                                                        <div class="info-value">1,245</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Deaths</div>
-                                                        <div class="info-value">692</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Assistências</div>
-                                                        <div class="info-value">421</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Headshots</div>
-                                                        <div class="info-value">587</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Headshot %</div>
-                                                        <div class="info-value">47.1%</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-12 md:col-4">
-                                                <h3 class="stats-subtitle">Médias por Partida</h3>
-                                                <div class="player-info">
-                                                    <div class="info-row">
-                                                        <div class="info-label">Kills</div>
-                                                        <div class="info-value">21.5</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Deaths</div>
-                                                        <div class="info-value">12.3</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Assistências</div>
-                                                        <div class="info-value">7.8</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Dano por Rodada</div>
-                                                        <div class="info-value">95.4</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Pontuação Média</div>
-                                                        <div class="info-value">85.7</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-12 md:col-4">
-                                                <h3 class="stats-subtitle">Armas Favoritas</h3>
-                                                <div class="player-info">
-                                                    <div class="info-row">
-                                                        <div class="info-label">AK-47</div>
-                                                        <div class="info-value">42%</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">M4A4</div>
-                                                        <div class="info-value">28%</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">AWP</div>
-                                                        <div class="info-value">15%</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Desert Eagle</div>
-                                                        <div class="info-value">8%</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Outras</div>
-                                                        <div class="info-value">7%</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </p:card>
-                                </div>
-                            </div>
-                        </p:tab>
-
-                        <!-- FIFA -->
-                        <p:tab title="FIFA">
-                            <div class="grid">
-                                <div class="col-12 md:col-3">
-                                    <p:card styleClass="stats-card">
-                                        <f:facet name="title">Visão Geral</f:facet>
-
-                                        <div class="grid">
-                                            <div class="col-6">
-                                                <div class="stat-box">
-                                                    <div class="stat-value">68%</div>
-                                                    <div class="stat-label">Taxa de Vitória</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="stat-box">
-                                                    <div class="stat-value">2.4</div>
-                                                    <div class="stat-label">Gols/Partida</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="stat-box">
-                                                    <div class="stat-value">32</div>
-                                                    <div class="stat-label">Partidas</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="stat-box">
-                                                    <div class="stat-value">22</div>
-                                                    <div class="stat-label">Vitórias</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </p:card>
-                                </div>
-
-                                <div class="col-12 md:col-9">
-                                    <div class="grid">
-                                        <div class="col-12 md:col-6">
-                                            <p:card styleClass="stats-card">
-                                                <f:facet name="title">Times Mais Utilizados</f:facet>
-                                                <p:barChart model="#{null}" style="width: 100%; height: 250px;" />
-                                            </p:card>
-                                        </div>
-
-                                        <div class="col-12 md:col-6">
-                                            <p:card styleClass="stats-card">
-                                                <f:facet name="title">Estatísticas de Jogo</f:facet>
-                                                <p:barChart model="#{null}" style="width: 100%; height: 250px;" />
-                                            </p:card>
-                                        </div>
-
-                                        <div class="col-12">
-                                            <p:card styleClass="stats-card">
-                                                <f:facet name="title">Histórico de Partidas</f:facet>
-                                                <p:barChart model="#{null}" style="width: 100%; height: 250px;" />
-                                            </p:card>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <p:card styleClass="stats-card">
-                                        <f:facet name="title">Estatísticas Detalhadas</f:facet>
-
-                                        <div class="grid">
-                                            <div class="col-12 md:col-4">
-                                                <h3 class="stats-subtitle">Desempenho Ofensivo</h3>
-                                                <div class="player-info">
-                                                    <div class="info-row">
-                                                        <div class="info-label">Gols Marcados</div>
-                                                        <div class="info-value">78</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Assistências</div>
-                                                        <div class="info-value">42</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Finalizações</div>
-                                                        <div class="info-value">245</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Precisão de Chute</div>
-                                                        <div class="info-value">31.8%</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Posse de Bola</div>
-                                                        <div class="info-value">58%</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-12 md:col-4">
-                                                <h3 class="stats-subtitle">Desempenho Defensivo</h3>
-                                                <div class="player-info">
-                                                    <div class="info-row">
-                                                        <div class="info-label">Gols Sofridos</div>
-                                                        <div class="info-value">45</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Desarmes</div>
-                                                        <div class="info-value">156</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Interceptações</div>
-                                                        <div class="info-value">187</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Faltas Cometidas</div>
-                                                        <div class="info-value">68</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Cartões</div>
-                                                        <div class="info-value">12A / 2V</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-12 md:col-4">
-                                                <h3 class="stats-subtitle">Jogadores Favoritos</h3>
-                                                <div class="player-info">
-                                                    <div class="info-row">
-                                                        <div class="info-label">Messi</div>
-                                                        <div class="info-value">24 gols</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Mbappé</div>
-                                                        <div class="info-value">18 gols</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Neymar</div>
-                                                        <div class="info-value">15 gols</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">De Bruyne</div>
-                                                        <div class="info-value">22 assistências</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Van Dijk</div>
-                                                        <div class="info-value">45 desarmes</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </p:card>
-                                </div>
-                            </div>
-                        </p:tab>
-
-                        <!-- Ping Pong -->
-                        <p:tab title="Ping Pong">
-                            <div class="grid">
-                                <div class="col-12 md:col-3">
-                                    <p:card styleClass="stats-card">
-                                        <f:facet name="title">Visão Geral</f:facet>
-
-                                        <div class="grid">
-                                            <div class="col-6">
-                                                <div class="stat-box">
-                                                    <div class="stat-value">82%</div>
-                                                    <div class="stat-label">Taxa de Vitória</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="stat-box">
-                                                    <div class="stat-value">3.2</div>
-                                                    <div class="stat-label">Sets/Partida</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="stat-box">
-                                                    <div class="stat-value">18</div>
-                                                    <div class="stat-label">Partidas</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="stat-box">
-                                                    <div class="stat-value">15</div>
-                                                    <div class="stat-label">Vitórias</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </p:card>
-                                </div>
-
-                                <div class="col-12 md:col-9">
-                                    <div class="grid">
-                                        <div class="col-12 md:col-6">
-                                            <p:card styleClass="stats-card">
-                                                <f:facet name="title">Pontos por Set</f:facet>
-                                                <p:barChart model="#{null}" style="width: 100%; height: 250px;" />
-                                            </p:card>
-                                        </div>
-
-                                        <div class="col-12 md:col-6">
-                                            <p:card styleClass="stats-card">
-                                                <f:facet name="title">Desempenho por Adversário</f:facet>
-                                                <p:barChart model="#{null}" style="width: 100%; height: 250px;" />
-                                            </p:card>
-                                        </div>
-
-                                        <div class="col-12">
-                                            <p:card styleClass="stats-card">
-                                                <f:facet name="title">Evolução de Desempenho</f:facet>
-                                                <p:barChart model="#{null}" style="width: 100%; height: 250px;" />
-                                            </p:card>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <p:card styleClass="stats-card">
-                                        <f:facet name="title">Estatísticas Detalhadas</f:facet>
-
-                                        <div class="grid">
-                                            <div class="col-12 md:col-4">
-                                                <h3 class="stats-subtitle">Desempenho Geral</h3>
-                                                <div class="player-info">
-                                                    <div class="info-row">
-                                                        <div class="info-label">Sets Vencidos</div>
-                                                        <div class="info-value">42</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Sets Perdidos</div>
-                                                        <div class="info-value">15</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Pontos Marcados</div>
-                                                        <div class="info-value">685</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Pontos Sofridos</div>
-                                                        <div class="info-value">512</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Média de Pontos</div>
-                                                        <div class="info-value">11.4 por set</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-12 md:col-4">
-                                                <h3 class="stats-subtitle">Técnicas</h3>
-                                                <div class="player-info">
-                                                    <div class="info-row">
-                                                        <div class="info-label">Aces</div>
-                                                        <div class="info-value">48</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Smashes</div>
-                                                        <div class="info-value">124</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Drops</div>
-                                                        <div class="info-value">87</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Erros Não-Forçados</div>
-                                                        <div class="info-value">65</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Precisão de Saque</div>
-                                                        <div class="info-value">78%</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-12 md:col-4">
-                                                <h3 class="stats-subtitle">Torneios</h3>
-                                                <div class="player-info">
-                                                    <div class="info-row">
-                                                        <div class="info-label">Torneios Disputados</div>
-                                                        <div class="info-value">5</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Torneios Vencidos</div>
-                                                        <div class="info-value">2</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Melhor Colocação</div>
-                                                        <div class="info-value">1º lugar</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Ranking Atual</div>
-                                                        <div class="info-value">3º</div>
-                                                    </div>
-                                                    <div class="info-row">
-                                                        <div class="info-label">Pontos no Ranking</div>
-                                                        <div class="info-value">1,250</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </p:card>
-                                </div>
-                            </div>
-                        </p:tab>
-
-                        <!-- Adicionar Jogo -->
-                        <p:tab title="+ Adicionar Jogo">
-                            <div class="grid">
-                                <div class="col-12">
-                                    <p:card styleClass="stats-card">
-                                        <div class="flex align-items-center justify-content-center flex-column p-5">
-                                            <i class="pi pi-plus-circle" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
-                                            <h3>Adicionar Novo Jogo</h3>
-                                            <p class="text-center mb-4">Selecione um jogo para adicionar estatísticas para este jogador</p>
-
-                                            <div class="formgrid grid">
-                                                <div class="field col-12 md:col-6">
-                                                    <p:outputLabel for="novoJogo" value="Selecione o Jogo" />
-                                                    <p:selectOneMenu id="novoJogo">
-                                                        <f:selectItem itemLabel="Selecione um jogo" itemValue="" />
-                                                        <f:selectItem itemLabel="Valorant" itemValue="valorant" />
-                                                        <f:selectItem itemLabel="League of Legends" itemValue="lol" />
-                                                        <f:selectItem itemLabel="Dota 2" itemValue="dota2" />
-                                                        <f:selectItem itemLabel="Fortnite" itemValue="fortnite" />
-                                                        <f:selectItem itemLabel="Outro" itemValue="outro" />
-                                                    </p:selectOneMenu>
-                                                </div>
-
-                                                <div class="field col-12 md:col-6">
-                                                    <p:outputLabel for="outroJogo" value="Especifique (se Outro)" />
-                                                    <p:inputText id="outroJogo" placeholder="Nome do jogo" />
-                                                </div>
-                                            </div>
-
-                                            <p:commandButton value="Adicionar Jogo" icon="pi pi-plus" styleClass="mt-3" />
-                                        </div>
-                                    </p:card>
-                                </div>
-                            </div>
-                        </p:tab>
-                    </p:tabView>
-                </div>
-
-                <!-- Histórico de Partidas -->
-                <div class="col-12">
-                    <h2 class="section-subtitle mb-3">Histórico de Partidas</h2>
-
-                    <p:card>
-                        <p:dataTable var="partida" value="#{null}" styleClass="border-none"
-                                     emptyMessage="Nenhuma partida registrada" rows="5" paginator="true"
-                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                                     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} partidas"
-                                     rowsPerPageTemplate="5,10,20">
-
-                            <p:column headerText="Data" style="width: 120px">
-                                <h:outputText value="10/04/2023" />
-                            </p:column>
-
-                            <p:column headerText="Jogo">
-                                <h:outputText value="CS:GO" />
-                            </p:column>
-
-                            <p:column headerText="Campeonato">
-                                <h:outputText value="Copa de eSports 2023" />
-                            </p:column>
-
-                            <p:column headerText="Time">
-                                <h:outputText value="Team Alpha" />
-                            </p:column>
-
-                            <p:column headerText="Adversário">
-                                <h:outputText value="Team Beta" />
-                            </p:column>
-
-                            <p:column headerText="Resultado" style="width: 120px">
-                                <span class="match-result win">Vitória (16-10)</span>
-                            </p:column>
-
-                            <p:column headerText="Ações" style="width: 100px">
-                                <p:button icon="pi pi-eye" styleClass="p-button-text p-button-sm" />
-                            </p:column>
-                        </p:dataTable>
-                    </p:card>
-                </div>
             </div>
         </h:form>
 
         <!-- Estilos específicos para a visualização do jogador -->
         <style type="text/css">
             .player-photo-container {
-                width: 200px;
-                height: 200px;
+                width: 200px !important;
+                height: 200px !important;
                 border-radius: 50% !important;
                 overflow: hidden;
                 background-color: #f8f9fa;
@@ -712,5 +332,12 @@
                 color: #6c757d;
             }
         </style>
+
+        <script>
+            $(document).ready(function () {
+                carregarDadosSteam();
+            });
+        </script>
+
     </ui:define>
 </ui:composition>

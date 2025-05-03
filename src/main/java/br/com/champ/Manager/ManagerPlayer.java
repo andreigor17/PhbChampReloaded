@@ -15,8 +15,10 @@ import br.com.champ.Servico.AnexoServico;
 import br.com.champ.Servico.CampeonatoServico;
 import br.com.champ.Servico.EstatisticaServico;
 import br.com.champ.Servico.ItemPartidaServico;
+import br.com.champ.Servico.LoginServico;
 import br.com.champ.Servico.PartidaServico;
 import br.com.champ.Servico.PlayerServico;
+import br.com.champ.Servico.SteamAPIServico;
 import br.com.champ.Servico.TeamServico;
 import br.com.champ.Utilitario.FacesUtil;
 import br.com.champ.Utilitario.Mensagem;
@@ -32,6 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.primefaces.PrimeFaces;
 import org.primefaces.model.DualListModel;
 
 /**
@@ -56,6 +61,10 @@ public class ManagerPlayer implements Serializable {
     ItemPartidaServico itemPartidaServico;
     @EJB
     EstatisticaServico estatisticaServico;
+    @EJB
+    LoginServico loginServico;
+    @EJB
+    SteamAPIServico steamApiService;
     private Player player;
     private List<Player> players;
     private List<Campeonato> camps;
@@ -73,17 +82,38 @@ public class ManagerPlayer implements Serializable {
     private List<Estatisticas> estsTotais;
     private List<Estatisticas> estsPlayer;
     private Jogo jogo;
+    private Player playerLogado;
+    private String steamId64;
+    private JSONObject profileData;
+    private int steamLevel;
+    private int gameCount;
+    private int friendCount;
+    private double totalPlaytime;
+    private String profileUrl;
+    private String avatarUrl;
+    private boolean profileLoaded;
+    private String statusConta;
+    private boolean error;
+    private boolean loading;
+    private String termoBusca;
+    private boolean buscando;
+    private boolean estadoInicial = true;
 
     @PostConstruct
     public void init() {
         try {
             instanciar();
+            this.playerLogado = loginServico.obterPlayerId();
+            HttpServletRequest uri = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 
             String visualizarPlayerId = FacesUtil
                     .getRequestParameter("id");
 
             if (visualizarPlayerId != null && !visualizarPlayerId.isEmpty()) {
                 this.player = this.playerServico.buscaPlayer(Long.parseLong(visualizarPlayerId));
+                if (!Utils.isEmpty(this.player.getSteamID())) {
+                    this.loading = true;
+                }
             }
 
             if (this.player.getId() != null) {
@@ -91,11 +121,10 @@ public class ManagerPlayer implements Serializable {
             } else {
                 instanciar();
             }
-            HttpServletRequest uri = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 
             if (uri.getRequestURI().contains("sorteiox5.xhtml")) {
                 instanciarPlayerGroup();
-            } else if(uri.getRequestURI().contains("jogadores.xhtml")) {
+            } else if (uri.getRequestURI().contains("jogadores.xhtml")) {
                 this.players = playerServico.buscaPlayers();
                 System.err.println("size " + this.players.size());
             }
@@ -297,17 +326,246 @@ public class ManagerPlayer implements Serializable {
     }
 
     public void pesquisarPlayer() throws Exception {
-        this.players = playerServico.pesquisar(this.player.getNome());
+        if (termoBusca == null || termoBusca.trim().length() < 2) {
+            limparBusca();
+            this.termoBusca = "";
+            return;
+        }
+
+        estadoInicial = false;
+        buscando = true;
+
+        try {
+
+            this.players = playerServico.pesquisar(this.termoBusca);
+        } catch (Exception e) {
+            this.players = new ArrayList<>();
+            e.printStackTrace();
+        } finally {
+            buscando = false;
+        }
+    }
+
+    public void limparBusca() {
+        termoBusca = "";
+        this.players = new ArrayList<>();
+        estadoInicial = true;
+        buscando = false;
     }
 
     public void limpar() throws Exception {
         instanciar();
     }
 
-     public void removerPlayer() throws Exception {
+    public void removerPlayer() throws Exception {
         this.playerServico.delete(this.player, Url.APAGAR_PLAYER.getNome());
         Mensagem.successAndRedirect("pesquisarPlayer.xhtml");
         init();
     }
 
+    public boolean verificarPermissao() {
+        if (this.playerLogado == null) {
+            return false;
+        }
+        if (this.playerLogado != null && this.playerLogado.getId() != null && ((this.playerLogado.getId() == this.player.getId()) || this.playerLogado.isAdminastror())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void carregarDadosRemote() {
+        System.err.println("chegou do remote...");
+        this.profileLoaded = false;
+        this.loading = true;
+        if (this.player != null && this.player.getId() != null && this.player.getSteamID() != null && !this.player.getSteamID().isEmpty()) {
+            carregarDadosSteam();
+        }
+    }
+
+    public void carregarDadosSteam() {
+        try {
+
+            steamId64 = steamApiService.convertSteamIdTo64(this.player.getSteamID());
+
+            profileData = steamApiService.getPlayerProfile(steamId64);
+
+            if (!profileData.isEmpty()) {
+                profileUrl = profileData.getString("profileurl");
+                avatarUrl = profileData.getString("avatarfull");
+
+                int visibilityState = profileData.getInt("communityvisibilitystate");
+                statusConta = (visibilityState == 3) ? "Pública" : "Privada";
+
+                steamLevel = steamApiService.getSteamLevel(steamId64);
+
+                JSONObject gamesData = steamApiService.getOwnedGames(steamId64);
+                gameCount = gamesData.getJSONObject("response").getInt("game_count");
+
+                JSONArray friendsData = steamApiService.getFriendsList(steamId64);
+                friendCount = friendsData.length();
+
+                totalPlaytime = steamApiService.getTotalPlaytime(steamId64);
+
+                this.profileLoaded = true;
+                this.loading = false;
+                System.err.println("carrgado " + this.profileLoaded);
+                PrimeFaces.current().executeScript("atualizarCardSteam();");
+            } else {
+                this.error = true;
+            }
+        } catch (Exception e) {
+            // Tratar erro
+            e.printStackTrace();
+        }
+    }
+
+    public String getFormattedPlaytime() {
+        int hours = (int) totalPlaytime;
+        return hours + "h";
+    }
+
+    public Jogo getJogo() {
+        return jogo;
+    }
+
+    public void setJogo(Jogo jogo) {
+        this.jogo = jogo;
+    }
+
+    public Player getPlayerLogado() {
+        return playerLogado;
+    }
+
+    public void setPlayerLogado(Player playerLogado) {
+        this.playerLogado = playerLogado;
+    }
+
+    public String getSteamId64() {
+        return steamId64;
+    }
+
+    public void setSteamId64(String steamId64) {
+        this.steamId64 = steamId64;
+    }
+
+    public JSONObject getProfileData() {
+        return profileData;
+    }
+
+    public void setProfileData(JSONObject profileData) {
+        this.profileData = profileData;
+    }
+
+    public int getSteamLevel() {
+        return steamLevel;
+    }
+
+    public void setSteamLevel(int steamLevel) {
+        this.steamLevel = steamLevel;
+    }
+
+    public int getGameCount() {
+        return gameCount;
+    }
+
+    public void setGameCount(int gameCount) {
+        this.gameCount = gameCount;
+    }
+
+    public int getFriendCount() {
+        return friendCount;
+    }
+
+    public void setFriendCount(int friendCount) {
+        this.friendCount = friendCount;
+    }
+
+    public double getTotalPlaytime() {
+        return totalPlaytime;
+    }
+
+    public void setTotalPlaytime(double totalPlaytime) {
+        this.totalPlaytime = totalPlaytime;
+    }
+
+    public String getProfileUrl() {
+        return profileUrl;
+    }
+
+    public void setProfileUrl(String profileUrl) {
+        this.profileUrl = profileUrl;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public boolean isProfileLoaded() {
+        return profileLoaded;
+    }
+
+    public void setProfileLoaded(boolean profileLoaded) {
+        this.profileLoaded = profileLoaded;
+    }
+
+    public String getStatusConta() {
+        return statusConta;
+    }
+
+    public void setStatusConta(String statusConta) {
+        this.statusConta = statusConta;
+    }
+
+    public boolean isError() {
+        return error;
+    }
+
+    public void setError(boolean error) {
+        this.error = error;
+    }
+
+    public boolean isLoading() {
+        return loading;
+    }
+
+    public void setLoading(boolean loading) {
+        this.loading = loading;
+    }
+
+    public String getTermoBusca() {
+        return termoBusca;
+    }
+
+    public void setTermoBusca(String termoBusca) {
+        this.termoBusca = termoBusca;
+    }
+
+    public boolean isBuscando() {
+        return buscando;
+    }
+
+    public void setBuscando(boolean buscando) {
+        this.buscando = buscando;
+    }
+
+    public boolean isEstadoInicial() {
+        return estadoInicial;
+    }
+
+    public void setEstadoInicial(boolean estadoInicial) {
+        this.estadoInicial = estadoInicial;
+    }
+
+    public boolean isTemResultados() {
+        return !estadoInicial && !buscando && this.players != null && !this.players.isEmpty();
+    }
+
+    public boolean isSemResultados() {
+        return !estadoInicial && !buscando && (this.players == null || this.players.isEmpty());
+    }
 }

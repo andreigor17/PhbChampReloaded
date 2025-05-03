@@ -8,60 +8,167 @@
     <ui:define name="content">
         <div class="section-header">
             <h1 class="section-title">Jogadores</h1>
-            <p:button value="Novo Jogador" href="criarJogador.xhtml" icon="pi pi-plus" styleClass="p-button-primary" />
+            <p:button value="Novo Jogador" icon="pi pi-plus" outcome="criarJogador.xhtml" styleClass="p-button-success" />
         </div>
-
-        <!-- Filtros -->
-        <p:panel styleClass="filters" header="Filtros">
-            <h:form id="filterForm">
-                <div class="filters-form">
-                    <div class="form-group">
-                        <p:inputText placeholder="Buscar jogador..." styleClass="w-100" />
-                    </div>
-                    <div class="form-group">
-                        <p:selectOneMenu styleClass="w-100">
-                            <f:selectItem itemLabel="Filtrar por time" itemValue="" />
-                            <f:selectItem itemLabel="Time A" itemValue="time_a" />
-                            <f:selectItem itemLabel="Time B" itemValue="time_b" />
-                            <f:selectItem itemLabel="Time C" itemValue="time_c" />
-                            <f:selectItem itemLabel="Time D" itemValue="time_d" />
-                        </p:selectOneMenu>
-                    </div>
-                    <div class="form-group">
-                        <p:selectOneMenu styleClass="w-100">
-                            <f:selectItem itemLabel="Filtrar por jogo" itemValue="" />
-                            <f:selectItem itemLabel="Futebol" itemValue="futebol" />
-                            <f:selectItem itemLabel="Basquete" itemValue="basquete" />
-                            <f:selectItem itemLabel="Vôlei" itemValue="volei" />
-                            <f:selectItem itemLabel="League of Legends" itemValue="lol" />
-                        </p:selectOneMenu>
+        
+        <p:card>
+            <h:form id="jogadoresForm">
+                <div class="p-grid">
+                    <div class="p-col-12">
+                        <div class="p-inputgroup mb-3">
+                            <span class="p-inputgroup-addon">
+                                <i class="pi pi-search"></i>
+                            </span>
+                            <p:inputText id="searchInput" placeholder="Buscar jogador..." styleClass="w-100" 
+                                         value="#{managerPlayer.termoBusca}">
+                                <p:ajax event="keyup" listener="#{managerPlayer.players}" 
+                                       update="jogadoresTable initialMessage noResultsMessage loadingIndicator" 
+                                       delay="500" global="false" />
+                            </p:inputText>
+                            <span class="p-inputgroup-addon">
+                                <p:commandButton id="clearButton" icon="pi pi-times" styleClass="p-button-secondary" 
+                                               actionListener="#{managerPlayer.limparBusca()}" 
+                                               update="searchInput jogadoresTable initialMessage noResultsMessage" 
+                                               process="@this" />
+                            </span>
+                        </div>
                     </div>
                 </div>
+                
+                <!-- Indicador de carregamento -->
+                <p:outputPanel id="loadingIndicator">
+                    <div class="text-center p-3" style="display: #{managerPlayer.buscando ? 'block' : 'none'};">
+                        <p:progressBar style="width:50px;height:50px"  animationDuration="5" />
+                        <div class="mt-2">Buscando jogadores...</div>
+                    </div>
+                </p:outputPanel>
+                
+                <!-- Mensagem quando não há resultados -->
+                <p:outputPanel id="noResultsMessage">
+                    <div class="text-center p-5" style="display: #{managerPlayer.semResultados ? 'block' : 'none'};">
+                        <i class="pi pi-search" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                        <h3>Nenhum jogador encontrado</h3>
+                        <p>Tente usar termos diferentes na sua busca.</p>
+                    </div>
+                </p:outputPanel>
+                
+                <!-- Mensagem inicial -->
+                <p:outputPanel id="initialMessage">
+                    <div class="text-center p-5" style="display: #{managerPlayer.estadoInicial ? 'block' : 'none'};">
+                        <i class="pi pi-users" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                        <h3>Digite para buscar jogadores</h3>
+                        <p>Os resultados aparecerão aqui conforme você digita.</p>
+                    </div>
+                </p:outputPanel>
+                
+                <p:dataTable id="jogadoresTable" var="jogador" value="#{managerPlayer.players}" 
+                            styleClass="border-none" 
+                            style="display: #{managerPlayer.temResultados ? 'table' : 'none'};"
+                            emptyMessage="Nenhum jogador encontrado">
+                    
+                    <p:column headerText="Foto" style="width: 80px; text-align: center;">
+                        <div class="player-avatar-small">
+                            <p:graphicImage value="#{jogador.fotoUrl}" rendered="#{jogador.temFoto}" styleClass="player-photo-small" />
+                            <div class="player-photo-placeholder-small" rendered="#{!jogador.temFoto}">
+                                <i class="pi pi-user"></i>
+                            </div>
+                        </div>
+                    </p:column>
+                    
+                    <p:column headerText="Nome">
+                        <h:outputText value="#{jogador.nome}" />
+                    </p:column>
+                    
+                    <p:column headerText="Nickname">
+                        <h:outputText value="#{jogador.nickname}" />
+                    </p:column>
+                    
+                    <p:column headerText="Time">
+                        <h:outputText value="#{jogador.time.nome}" />
+                    </p:column>
+                    
+                    <p:column headerText="Função">
+                        <h:outputText value="#{jogador.funcao}" />
+                    </p:column>
+                    
+                    <p:column headerText="Jogos">
+                        <div class="player-games">
+                            <p:badge value="CS:GO" severity="success" styleClass="mr-1" rendered="#{jogador.jogaCSGO}" />
+                            <p:badge value="FIFA" severity="warning" styleClass="mr-1" rendered="#{jogador.jogaFIFA}" />
+                            <p:badge value="LOL" severity="info" styleClass="mr-1" rendered="#{jogador.jogaLOL}" />
+                        </div>
+                    </p:column>
+                    
+                    <p:column headerText="Ações" style="width: 100px; text-align: center;">
+                        <p:link outcome="/jogador-view" styleClass="action-icon">
+                            <i class="pi pi-eye"></i>
+                            <f:param name="id" value="#{jogador.id}" />
+                        </p:link>
+                        <p:link outcome="/jogador-form" styleClass="action-icon">
+                            <i class="pi pi-pencil"></i>
+                            <f:param name="id" value="#{jogador.id}" />
+                        </p:link>
+                        <p:commandLink styleClass="action-icon" onclick="PF('confirmDialog').show()">
+                            <i class="pi pi-trash"></i>
+                            <f:setPropertyActionListener value="#{jogador}" target="#{jogadorBean.jogadorSelecionado}" />
+                        </p:commandLink>
+                    </p:column>
+                </p:dataTable>
+                
+                <!-- Dialog de confirmação de exclusão -->
+                <p:confirmDialog widgetVar="confirmDialog" message="Tem certeza que deseja excluir este jogador?" 
+                                header="Confirmar Exclusão" severity="alert" closeOnEscape="true">
+                    <p:commandButton value="Não" type="button" styleClass="p-button-text" 
+                                   onclick="PF('confirmDialog').hide()" />
+                    <p:commandButton value="Sim" styleClass="p-button-text p-button-danger" 
+                                   actionListener="#{jogadorBean.excluirJogador}" 
+                                   update="jogadoresTable" 
+                                   oncomplete="PF('confirmDialog').hide()" />
+                </p:confirmDialog>
             </h:form>
-        </p:panel>
-
-        <!-- Tabela de jogadores -->
-        <h:form id="playersForm">
-            <p:dataTable var="player" value="#{managerPlayer.players}" styleClass="table-container"
-                         emptyMessage="Nenhum jogador encontrado">
-                <f:facet name="header">
-                    <div class="ui-d-flex ui-jc-between">
-                        <div>Jogadores</div>
-                    </div>
-                </f:facet>
-
-                <p:column headerText="Nome">
-                    <h:outputText value="#{player.descPlayer()}" />
-                </p:column>
-
-
-                <p:column headerText="Ações">
-                    <div class="action-buttons">
-                        <p:button value="Detalhes" styleClass="p-button-outlined"
-                                  href="jogador.xhtml?id=#{player.id}"/>
-                    </div>
-                </p:column>
-            </p:dataTable>
-        </h:form>
+        </p:card>
+        
+        <!-- Estilos adicionais -->
+        <style type="text/css">
+            .player-avatar-small {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                overflow: hidden;
+                margin: 0 auto;
+            }
+            
+            .player-photo-small {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            
+            .player-photo-placeholder-small {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100%;
+                background-color: #f8f9fa;
+                color: #adb5bd;
+                font-size: 1.2rem;
+            }
+            
+            .action-icon {
+                color: #6c757d;
+                margin: 0 0.25rem;
+                font-size: 1.1rem;
+            }
+            
+            .action-icon:hover {
+                color: #343a40;
+            }
+            
+            .player-games .p-badge {
+                font-size: 0.75rem;
+                font-weight: 500;
+            }
+        </style>
     </ui:define>
 </ui:composition>
