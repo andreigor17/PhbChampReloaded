@@ -17,7 +17,7 @@
 
         <p:card>
             <h:form id="playerForm" enctype="multipart/form-data">
-                <p:remoteCommand name="atualizarImagem" update="playerPhotoPanel, photoUpload" />
+                <p:remoteCommand name="atualizarImagem" update="playerPhotoPanel, uploadPanel" />
                 <div class="grid">
                     <!-- Foto do Jogador -->
                     <div class="col-12 md:col-4 flex align-items-center justify-content-center flex-column">
@@ -31,13 +31,16 @@
                                 </div>
                             </h:panelGroup>
                         </div>
-                        <div class="mb-3">
-                            <p:fileUpload id="photoUpload"  mode="simple" skinSimple="true" label="Escolher Foto"  auto="true" listener="#{managerCriarPlayer.doUpload}"
-                                          value="#{managerCriarPlayer.file}" rendered="#{managerCriarPlayer.fileTemp eq null}"/>
-                        </div>
-                        <div class="text-center">
-                            <p:commandButton value="Remover Foto" icon="pi pi-trash" styleClass="p-button-outlined p-button-danger" type="button" rendered="#{managerCriarPlayer.fileTemp ne null}"/>
-                        </div>
+                        <h:panelGroup id="uploadPanel" >
+                            <div class="mb-3">
+                                <p:fileUpload id="photoUpload"  mode="simple" skinSimple="true" label="Escolher Foto"  auto="true" listener="#{managerCriarPlayer.doUpload}"
+                                              value="#{managerCriarPlayer.file}" rendered="#{managerCriarPlayer.fileTemp eq null}"/>
+                            </div>
+                            <div class="text-center">
+                                <p:commandButton id="removerFoto"  value="Remover Foto" actionListener="#{managerCriarPlayer.removerFoto()}" icon="pi pi-trash"   
+                                                 rendered="#{managerCriarPlayer.fileTemp ne null}"/>
+                            </div>
+                        </h:panelGroup>
                     </div>
 
                     <!-- Informações Básicas -->
@@ -174,7 +177,7 @@
                 height: 200px;
                 border-radius: 50%;
                 overflow: hidden;
-                background-color: #f8f9fa;                
+                background-color: #f8f9fa;
                 align-items: center;
                 justify-content: center;
                 border: 1px solid #dee2e6;

@@ -21,7 +21,7 @@
                             </span>
                             <p:inputText id="searchInput" placeholder="Buscar jogador..." styleClass="w-100" 
                                          value="#{managerPlayer.termoBusca}">
-                                <p:ajax event="keyup" listener="#{managerPlayer.players}" 
+                                <p:ajax event="keyup" listener="#{managerPlayer.pesquisarPlayer()}" 
                                        update="jogadoresTable initialMessage noResultsMessage loadingIndicator" 
                                        delay="500" global="false" />
                             </p:inputText>
@@ -68,8 +68,8 @@
                     
                     <p:column headerText="Foto" style="width: 80px; text-align: center;">
                         <div class="player-avatar-small">
-                            <p:graphicImage value="#{jogador.fotoUrl}" rendered="#{jogador.temFoto}" styleClass="player-photo-small" />
-                            <div class="player-photo-placeholder-small" rendered="#{!jogador.temFoto}">
+                            <p:graphicImage value="image/#{jogador.anexo.nome}" rendered="#{jogador.anexo ne null}" styleClass="player-photo-small" />
+                            <div class="player-photo-placeholder-small" rendered="#{jogador.anexo eq null}">
                                 <i class="pi pi-user"></i>
                             </div>
                         </div>
@@ -80,37 +80,27 @@
                     </p:column>
                     
                     <p:column headerText="Nickname">
-                        <h:outputText value="#{jogador.nickname}" />
+                        <h:outputText value="#{jogador.nick}" />
                     </p:column>
                     
-                    <p:column headerText="Time">
-                        <h:outputText value="#{jogador.time.nome}" />
-                    </p:column>
-                    
-                    <p:column headerText="Função">
-                        <h:outputText value="#{jogador.funcao}" />
-                    </p:column>
+                   
                     
                     <p:column headerText="Jogos">
                         <div class="player-games">
-                            <p:badge value="CS:GO" severity="success" styleClass="mr-1" rendered="#{jogador.jogaCSGO}" />
-                            <p:badge value="FIFA" severity="warning" styleClass="mr-1" rendered="#{jogador.jogaFIFA}" />
-                            <p:badge value="LOL" severity="info" styleClass="mr-1" rendered="#{jogador.jogaLOL}" />
+                            <p:badge value="CS:GO" severity="success" styleClass="mr-1" rendered="#{true}" />
+                            <p:badge value="FIFA" severity="warning" styleClass="mr-1" rendered="#{true}" />
+                            <p:badge value="LOL" severity="info" styleClass="mr-1" rendered="#{true}" />
                         </div>
                     </p:column>
                     
                     <p:column headerText="Ações" style="width: 100px; text-align: center;">
-                        <p:link outcome="/jogador-view" styleClass="action-icon">
+                        <p:link outcome="jogador.xhtml" styleClass="action-icon">
                             <i class="pi pi-eye"></i>
                             <f:param name="id" value="#{jogador.id}" />
-                        </p:link>
-                        <p:link outcome="/jogador-form" styleClass="action-icon">
-                            <i class="pi pi-pencil"></i>
-                            <f:param name="id" value="#{jogador.id}" />
-                        </p:link>
+                        </p:link>                       
                         <p:commandLink styleClass="action-icon" onclick="PF('confirmDialog').show()">
                             <i class="pi pi-trash"></i>
-                            <f:setPropertyActionListener value="#{jogador}" target="#{jogadorBean.jogadorSelecionado}" />
+                            <f:setPropertyActionListener value="#{jogador}" target="#{managerPlayer.playerSelecionado}" />
                         </p:commandLink>
                     </p:column>
                 </p:dataTable>
@@ -121,7 +111,7 @@
                     <p:commandButton value="Não" type="button" styleClass="p-button-text" 
                                    onclick="PF('confirmDialog').hide()" />
                     <p:commandButton value="Sim" styleClass="p-button-text p-button-danger" 
-                                   actionListener="#{jogadorBean.excluirJogador}" 
+                                     actionListener="#{managerPlayer.removerPlayer()}" 
                                    update="jogadoresTable" 
                                    oncomplete="PF('confirmDialog').hide()" />
                 </p:confirmDialog>

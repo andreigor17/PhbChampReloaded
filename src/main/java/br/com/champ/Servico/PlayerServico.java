@@ -117,7 +117,7 @@ public class PlayerServico implements Serializable {
             }
             in.close();
             //print in String
-            //System.out.println(response.toString());
+            System.out.println(response.toString());
             //Read JSON response and print
             Gson gson = new Gson();
             Player p1 = new Player();

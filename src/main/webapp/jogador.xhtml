@@ -28,8 +28,8 @@
 
             <div class="grid">
                 <!-- Informações Básicas com Avatar -->
-                <div class="col-12 md:col-4 flex align-items-center justify-content-center flex-column">
-                    <div class="mb-3">
+                <div class="col-12 md:col-4">
+                    <div class="player-photo-container-wrapper">
                         <div class="player-photo-container">
                             <p:graphicImage id="playerPhoto" value="image/#{managerPlayer.player.anexo.nome}" styleClass="player-photo" rendered="#{managerPlayer.player.anexo ne null}"/>
                             <div class="player-photo-placeholder" style="#{managerPlayer.player.anexo eq null ?  '' : 'display: none'}">
@@ -39,7 +39,7 @@
                     </div>
                     <h2 class="player-name">#{managerPlayer.player.nome} - #{managerPlayer.player.sobreNome}</h2>
                     <p class="player-nickname">#{managerPlayer.player.nick}</p>
-                    <div class="player-badges mt-2">
+                    <div class="player-badges mt-2 text-center">
                         <p:badge value="Capitão" severity="info" styleClass="mr-2" />
                         <p:badge value="CS:GO" severity="success" styleClass="mr-2" />
                         <p:badge value="FIFA" severity="warning" />
@@ -253,30 +253,42 @@
 
         <!-- Estilos específicos para a visualização do jogador -->
         <style type="text/css">
+            .player-photo-container-wrapper {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding-top: 0; /* Remove o padding superior */
+                margin-top: 0; /* Alinha com o topo do card */
+            }
+
             .player-photo-container {
-                width: 200px !important;
-                height: 200px !important;
-                border-radius: 50% !important;
+                width: 200px;
+                height: 200px;
+                border-radius: 50%;
                 overflow: hidden;
                 background-color: #f8f9fa;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 border: 1px solid #dee2e6;
+                margin-bottom: 1rem;
             }
 
             .player-photo {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
+                border-radius: 50%; /* Garantir que a imagem mantenha o formato circular */
             }
 
             .player-photo-placeholder {
+                display: flex;
                 align-items: center;
                 justify-content: center;
                 width: 100%;
                 height: 100%;
                 background-color: #f8f9fa;
+                border-radius: 50%;
             }
 
             .player-name {
@@ -292,7 +304,6 @@
                 margin: 0 0 0.5rem;
                 text-align: center;
             }
-
             .section-subtitle {
                 font-size: 1.5rem;
                 font-weight: 600;

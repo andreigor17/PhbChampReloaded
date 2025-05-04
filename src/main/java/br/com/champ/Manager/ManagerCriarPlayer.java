@@ -5,6 +5,7 @@
  */
 package br.com.champ.Manager;
 
+import br.com.champ.Enums.Funcoes;
 import br.com.champ.Enums.Url;
 import br.com.champ.Modelo.Anexo;
 import br.com.champ.Modelo.Configuracao;
@@ -111,6 +112,7 @@ public class ManagerCriarPlayer implements Serializable {
             if (visualizarPlayerId != null && !visualizarPlayerId.isEmpty()) {
                 this.player = this.playerServico.buscaPlayer(Long.parseLong(visualizarPlayerId));
                 if (this.player.getId() != null && this.player.getAnexo() != null) {
+                    System.err.println("pegando avatar...");
                     this.fileTemp = this.player.getAnexo().getNome();
                 }
             }
@@ -290,13 +292,12 @@ public class ManagerCriarPlayer implements Serializable {
 
         if (steamId != null && !steamId.isEmpty()) {
             try {
-                
+
                 String decodedSteamId = URLDecoder.decode(steamId, StandardCharsets.UTF_8.name());
-                
+
                 String steamId64 = decodedSteamId.substring(decodedSteamId.lastIndexOf("/") + 1);
                 System.err.println("steamId64 " + steamId64);
                 this.player.setSteamId64(steamId64);
-                
 
                 PlayerSteamVo playerVo = new PlayerSteamVo();
                 playerVo = playerServico.getPlayerInfo(steamId64, "F10A919CE16995E066B463C9005AF4D3");
@@ -305,7 +306,7 @@ public class ManagerCriarPlayer implements Serializable {
                     LoginVo login = new LoginVo();
                     login.setSteamId(playerVo.getSteamid());
                     if (loginServico.autenticarSteam(login) != null) {
-                        
+
                         Mensagem.successAndRedirect("Login realizado com sucesso!", "index.xhtml");
                     }
 
@@ -330,13 +331,11 @@ public class ManagerCriarPlayer implements Serializable {
                 if (playerVo.getAvatarfull() != null) {
                     try {
                         String imagemUrl = playerVo.getAvatarfull();
-                        String destino = "/tmp"; 
+                        String destino = "/tmp";
                         String nomeArquivo = "steam_avatar_" + System.currentTimeMillis() + ".jpg";
 
-                        
                         Files.createDirectories(Paths.get(destino));
 
-                        
                         File arquivoDestino = new File(destino, nomeArquivo);
                         desabilitaVerificacaoSSL();
 
@@ -348,10 +347,8 @@ public class ManagerCriarPlayer implements Serializable {
                                 out.write(buffer, 0, bytesLidos);
                             }
 
-                            
                             String caminhoFinal = arquivoDestino.getAbsolutePath();
 
-                            
                             System.err.println("caminho final imagem steam " + caminhoFinal);
                             this.fileTemp = caminhoFinal;
                             if (this.fileTemp != null) {
@@ -406,5 +403,12 @@ public class ManagerCriarPlayer implements Serializable {
         // Ignora hostname
         HostnameVerifier allHostsValid = (hostname, session) -> true;
         HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+    }
+
+    public void removerFoto() {
+        this.player.setAnexo(null);
+        this.fileTemp = null;
+        PrimeFaces.current().executeScript("atualizarImagem();");
+
     }
 }

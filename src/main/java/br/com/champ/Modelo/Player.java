@@ -8,6 +8,7 @@ package br.com.champ.Modelo;
 import br.com.champ.Enums.Funcoes;
 import br.com.champ.Generico.ModeloGenerico;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -32,7 +33,7 @@ public class Player extends ModeloGenerico implements Serializable {
     private boolean adminastror;
     private String email;
     private String steamId64;
-    private String dataNascimento;
+    private Date dataNascimento;
 
     public String getNome() {
         return nome;
@@ -178,11 +179,11 @@ public class Player extends ModeloGenerico implements Serializable {
         this.steamId64 = steamId64;
     }
 
-    public String getDataNascimento() {
+    public Date getDataNascimento() {
         return dataNascimento;
     }
 
-    public void setDataNascimento(String dataNascimento) {
+    public void setDataNascimento(Date dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
 

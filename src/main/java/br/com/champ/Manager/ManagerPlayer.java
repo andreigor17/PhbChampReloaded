@@ -98,6 +98,7 @@ public class ManagerPlayer implements Serializable {
     private String termoBusca;
     private boolean buscando;
     private boolean estadoInicial = true;
+    private Player playerSelecionado;
 
     @PostConstruct
     public void init() {
@@ -124,10 +125,7 @@ public class ManagerPlayer implements Serializable {
 
             if (uri.getRequestURI().contains("sorteiox5.xhtml")) {
                 instanciarPlayerGroup();
-            } else if (uri.getRequestURI().contains("jogadores.xhtml")) {
-                this.players = playerServico.buscaPlayers();
-                System.err.println("size " + this.players.size());
-            }
+            } 
 
         } catch (Exception ex) {
             Logger.getLogger(ManagerPlayer.class.getName()).log(Level.SEVERE, null, ex);
@@ -145,6 +143,7 @@ public class ManagerPlayer implements Serializable {
         this.estsTotais = new ArrayList<>();
         this.estsPlayer = new ArrayList<>();
         this.jogo = new Jogo();
+        this.playerSelecionado = new Player();
     }
 
     public void instanciarPlayerGroup() throws Exception {
@@ -568,4 +567,13 @@ public class ManagerPlayer implements Serializable {
     public boolean isSemResultados() {
         return !estadoInicial && !buscando && (this.players == null || this.players.isEmpty());
     }
+
+    public Player getPlayerSelecionado() {
+        return playerSelecionado;
+    }
+
+    public void setPlayerSelecionado(Player playerSelecionado) {
+        this.playerSelecionado = playerSelecionado;
+    }
+
 }
