@@ -1,0 +1,120 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="vercel.xhtml">
+
+    <ui:define name="content">
+        <div class="under-construction-container">
+            <div class="under-construction-content">
+                <div class="under-construction-image">
+                    <i class="pi pi-cog under-construction-icon"></i>
+                </div>
+                
+                <h1 class="under-construction-title">Página em Desenvolvimento</h1>
+                
+                <p class="under-construction-message">
+                    Estamos trabalhando para trazer novos recursos e melhorias para o PHBCHAMP.
+                    Esta seção estará disponível em breve.
+                </p>
+                
+                <div class="under-construction-actions">
+                    <p:button value="Voltar ao Dashboard" outcome="index.xhtml" styleClass="p-button-secondary" />
+                </div>
+            </div>
+        </div>
+        
+        <style type="text/css">
+            .under-construction-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 70vh;
+                padding: 2rem;
+                text-align: center;
+            }
+            
+            .under-construction-content {
+                max-width: 600px;
+                background-color: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+                padding: 3rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .under-construction-image {
+                margin-bottom: 2rem;
+                position: relative;
+            }
+            
+            .under-construction-icon {
+                font-size: 6rem;
+                color: #007bff;
+                animation: spin 10s linear infinite;
+            }
+            
+            .under-construction-icon::after {
+                content: "";
+                position: absolute;
+                top: -20px;
+                left: -20px;
+                right: -20px;
+                bottom: -20px;
+                border-radius: 50%;
+                border: 2px dashed #e9ecef;
+                animation: spin 20s linear infinite reverse;
+            }
+            
+            .under-construction-title {
+                font-size: 2rem;
+                font-weight: 700;
+                color: #343a40;
+                margin-bottom: 1rem;
+            }
+            
+            .under-construction-message {
+                font-size: 1.1rem;
+                color: #6c757d;
+                line-height: 1.6;
+                margin-bottom: 2rem;
+            }
+            
+            .under-construction-actions {
+                margin-top: 1rem;
+            }
+            
+            @keyframes spin {
+                from {
+                    transform: rotate(0deg);
+                }
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+            
+            /* Versão responsiva */
+            @media (max-width: 768px) {
+                .under-construction-content {
+                    padding: 2rem;
+                }
+                
+                .under-construction-icon {
+                    font-size: 4rem;
+                }
+                
+                .under-construction-title {
+                    font-size: 1.5rem;
+                }
+                
+                .under-construction-message {
+                    font-size: 1rem;
+                }
+            }
+        </style>
+    </ui:define>
+</ui:composition>

@@ -246,6 +246,112 @@
                         </div>
                     </p:card>
                 </div>
+                <div class="col-12">
+                    <p:card styleClass="mb-3">
+                        <f:facet name="title">
+                            <div class="flex align-items-center">
+                                <i class="pi pi-chart-bar mr-2"></i>
+                                <span>Estatísticas Resumidas</span>
+                            </div>
+                        </f:facet>
+
+                        <div class="grid">
+                            <div class="col-12 md:col-3">
+                                <div class="stats-summary-box">
+                                    <div class="stats-summary-value">42</div>
+                                    <div class="stats-summary-label">Partidas Totais</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 md:col-3">
+                                <div class="stats-summary-box">
+                                    <div class="stats-summary-value text-success">28</div>
+                                    <div class="stats-summary-label">Vitórias</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 md:col-3">
+                                <div class="stats-summary-box">
+                                    <div class="stats-summary-value text-danger">14</div>
+                                    <div class="stats-summary-label">Derrotas</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 md:col-3">
+                                <div class="stats-summary-box stats-summary-action">
+                                    <p:button value="Ver estatísticas completas" icon="pi pi-chart-line" 
+                                               styleClass="p-button-outlined">
+                                        <f:param name="id" value="#{jogador.id}" />
+                                    </p:button>
+                                </div>
+                            </div>
+                        </div>
+                    </p:card>
+                </div>
+
+                <!-- NOVO: Card de Últimas Partidas (Colapsável) -->
+                <div class="col-12">
+                    <p:panel header="Últimas Partidas" toggleable="true" collapsed="false" toggleSpeed="500" styleClass="mb-3">
+                        <f:facet name="header">
+                            <div class="flex align-items-center">
+                                <i class="pi pi-history mr-2"></i>
+                                <span>Últimas Partidas</span>
+                            </div>
+                        </f:facet>
+
+                        <p:dataTable var="partida" value="#{null}" styleClass="border-none"
+                                     emptyMessage="Nenhuma partida registrada" rows="5" paginator="true"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} partidas"
+                                     rowsPerPageTemplate="5,10,20">
+
+                            <p:column headerText="Data" style="width: 120px">
+                                <h:outputText value="10/04/2023" />
+                            </p:column>
+
+                            <p:column headerText="Campeonato">
+                                <h:outputText value="Copa de eSports 2023" />
+                            </p:column>
+
+                            <p:column headerText="Jogo">
+                                <h:outputText value="CS:GO" />
+                            </p:column>
+
+                            <p:column headerText="Time">
+                                <div class="flex align-items-center">
+                                    <div class="team-logo-small mr-2">
+                                        <p:graphicImage value="/resources/images/teams/team-alpha.png" styleClass="team-logo-img" />
+                                    </div>
+                                    <span>Team Alpha</span>
+                                </div>
+                            </p:column>
+
+                            <p:column headerText="Adversário">
+                                <div class="flex align-items-center">
+                                    <div class="team-logo-small mr-2">
+                                        <p:graphicImage value="/resources/images/teams/team-beta.png" styleClass="team-logo-img" />
+                                    </div>
+                                    <span>Team Beta</span>
+                                </div>
+                            </p:column>
+
+                            <p:column headerText="Placar" style="width: 120px">
+                                <div class="match-score">
+                                    <span class="team-score">16</span>
+                                    <span class="score-separator">:</span>
+                                    <span class="team-score">10</span>
+                                </div>
+                                <span class="match-result win">Vitória</span>
+                            </p:column>
+
+                            <p:column headerText="Ações" style="width: 80px">
+                                <p:button icon="pi pi-eye" styleClass="p-button-text p-button-sm" outcome="partida.xhtml">
+                                    <f:param name="id" value="1" />
+                                </p:button>
+                            </p:column>
+                        </p:dataTable>
+                    </p:panel>
+                </div>
 
 
             </div>

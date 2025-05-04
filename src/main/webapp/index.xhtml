@@ -6,79 +6,477 @@
                 template="vercel.xhtml">
 
     <ui:define name="content">
-        <!-- Cards de estatísticas -->
-        <div class="stats-grid">
-            <p:card styleClass="stat-card">
-                <f:facet name="header">
-                    <div class="stat-title">
-                        <span>Total de Jogadores</span>
-                        <i class="pi pi-users stat-icon"></i>
-                    </div>
-                </f:facet>
-                <div class="stat-value">#{managerIndex.playersAtivos.size()}</div>
-                <div class="stat-change positive">+0 no último mês</div>
-            </p:card>
-            
-            <p:card styleClass="stat-card">
-                <f:facet name="header">
-                    <div class="stat-title">
-                        <span>Total de Times</span>
-                        <i class="pi pi-users stat-icon"></i>
-                    </div>
-                </f:facet>
-                <div class="stat-value">#{managerIndex.times.size()}</div>
-                <div class="stat-change positive">+0 no último mês</div>
-            </p:card>
-            
-            <p:card styleClass="stat-card">
-                <f:facet name="header">
-                    <div class="stat-title">
-                        <span>Campeonatos Ativos</span>
-                        <i class="pi pi-trophy stat-icon"></i>
-                    </div>
-                </f:facet>
-                <div class="stat-value">#{managerIndex.camps.size()}</div>
-                <div class="stat-change positive">+0 no último mês</div>
-            </p:card>
-            
-            <p:card styleClass="stat-card">
-                <f:facet name="header">
-                    <div class="stat-title">
-                        <span>Partidas</span>
-                        <i class="pi pi-calendar stat-icon"></i>
-                    </div>
-                </f:facet>
-                <div class="stat-value">#{managerIndex.partidas.size()}</div>
-                <div class="stat-change positive">+0 na última semana</div>
-            </p:card>
+        <div class="section-header">
+            <h1 class="section-title">Página Inicial</h1>
         </div>
 
-        <!-- Campeonatos em destaque -->
-        <section class="section">
-            <div class="section-header">
-                <h2 class="section-title">Campeonatos em Destaque</h2>
+        <!-- Resumo de Estatísticas -->
+        <div class="grid">
+            <div class="col-12 md:col-6 lg:col-3">
+                <p:card styleClass="dashboard-card">
+                    <div class="dashboard-stat">
+                        <div class="dashboard-stat-icon bg-primary">
+                            <i class="pi pi-users"></i>
+                        </div>
+                        <div class="dashboard-stat-content">
+                            <div class="dashboard-stat-value">#{managerIndex.playersAtivos.size()}</div>
+                            <div class="dashboard-stat-label">Jogadores</div>
+                        </div>
+                    </div>
+                </p:card>
             </div>
-            
-            <div class="tournaments-grid">
+
+            <div class="col-12 md:col-6 lg:col-3">
+                <p:card styleClass="dashboard-card">
+                    <div class="dashboard-stat">
+                        <div class="dashboard-stat-icon bg-success">
+                            <i class="pi pi-shield"></i>
+                        </div>
+                        <div class="dashboard-stat-content">
+                            <div class="dashboard-stat-value">#{managerIndex.times.size()}</div>
+                            <div class="dashboard-stat-label">Times</div>
+                        </div>
+                    </div>
+                </p:card>
+            </div>
+
+            <div class="col-12 md:col-6 lg:col-3">
+                <p:card styleClass="dashboard-card">
+                    <div class="dashboard-stat">
+                        <div class="dashboard-stat-icon bg-warning">
+                            <i class="pi pi-trophy"></i>
+                        </div>
+                        <div class="dashboard-stat-content">
+                            <div class="dashboard-stat-value">#{managerIndex.camps.size()}</div>
+                            <div class="dashboard-stat-label">Campeonatos</div>
+                        </div>
+                    </div>
+                </p:card>
+            </div>
+
+            <div class="col-12 md:col-6 lg:col-3">
+                <p:card styleClass="dashboard-card">
+                    <div class="dashboard-stat">
+                        <div class="dashboard-stat-icon bg-info">
+                            <i class="pi pi-flag-fill"></i>
+                        </div>
+                        <div class="dashboard-stat-content">
+                            <div class="dashboard-stat-value">#{managerIndex.partidas.size()}</div>
+                            <div class="dashboard-stat-label">Partidas</div>
+                        </div>
+                    </div>
+                </p:card>
+            </div>
+        </div>
+
+        <!-- Seção de Campeonatos -->
+        <div class="section-subheader mt-4">
+            <h2 class="section-subtitle">Campeonatos</h2>
+            <p:button value="Ver Todos" icon="pi pi-arrow-right" outcome="error.xhtml" styleClass="p-button-text" />
+        </div>
+
+        <!-- AJUSTADO: Cards de Campeonatos (3 por linha, tamanho consistente) -->
+        <div class="grid">
+            <!-- Campeonato 1 -->
+            <div class="col-12 sm:col-6 lg:col-4">
                 <ui:repeat value="#{managerIndex.campsAtuais}" var="camp">
-                <p:card styleClass="tournament-card">
-                    <f:facet name="header">
-                        <div class="tournament-header">
-                            <div>
-                                <h3 class="tournament-title">#{camp.nome}</h3>
-                                <div class="tournament-sport">#{camp.teams.size()} Participantes</div>
+                    <p:card styleClass="championship-card">
+                        <div class="championship-header">
+                            <div class="championship-logo">
+                                <i class="pi pi-trophy"></i>
                             </div>
-                            <span class="tournament-status in-progress">Em andamento</span>
+                            <div class="championship-status">
+                                <p:badge value="#{camp.status.nome}" severity="success" />
+                            </div>
                         </div>
-                    </f:facet>
-                    <f:facet name="footer">
-                        <div class="tournament-actions">
-                            <p:button value="Ver detalhes" styleClass="p-button-outlined" />
+
+                        <div class="championship-body">
+                            <h3 class="championship-title">#{camp.nome}</h3>
+                            <div class="championship-info">
+                                <div class="info-item">
+                                    <span class="info-label">Jogo:</span>
+                                    <span class="info-value">#{camp.jogo.nome}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Times:</span>
+                                    <span class="info-value">#{camp.teams.size()}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Início:</span>
+                                    <span class="info-value">#{camp.dataCriacao}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Término:</span>
+                                    <span class="info-value">#{camp.dataFinal}</span>
+                                </div>
+                            </div>
                         </div>
-                    </f:facet>
-                </p:card>               
+
+                        <div class="championship-footer">
+                            <p:button value="Detalhes" icon="pi pi-eye" outcome="error.xhtml" styleClass="p-button-outlined" />
+                        </div>
+                    </p:card>
                 </ui:repeat>
-            </div>
-        </section>
+            </div>                       
+        </div>
+
+        <!-- NOVO: Seção de Últimas Partidas -->
+        <div class="section-subheader mt-4">
+            <h2 class="section-subtitle">Últimas Partidas</h2>
+            <p:button value="Ver Todas" icon="pi pi-arrow-right" outcome="error.xhtml" styleClass="p-button-text" />
+        </div>
+
+        <!-- Cards de Partidas -->
+        <div class="grid">
+            <!-- Partida 1: Em Andamento -->
+            <ui:repeat value="#{managerIndex.partidas}" var="partida">
+                <div class="col-12 md:col-6 xl:col-4"> 
+
+                    <p:card styleClass="match-card">
+                        <div class="match-header">
+                            <div class="match-info">
+                                <p:badge value="Em Andamento" severity="warning" styleClass="match-status" />
+                                <span class="match-championship">Amistoso</span>
+                            </div>
+                            <div class="match-date">
+                                <i class="pi pi-calendar mr-1"></i>
+                                <span>Hoje, 15:30</span>
+                            </div>
+                        </div>
+
+                        <div class="match-body">
+                            <div class="match-team">
+                                <div class="team-logo">
+                                    <p:graphicImage value="image/#{partida.itemPartida.get(0).team1.anexo.nome}" rendered="#{partida.itemPartida.get(0).team1.anexo ne null}" styleClass="team-logo-img" />
+                                    <div class="team-logo" style="#{partida.itemPartida.get(0).team1.anexo eq null ?  '' : 'display: none'}">
+                                        <i class="pi pi-user" style="font-size: 2rem; color: #ccc;"></i>
+                                    </div>
+                                </div>
+                                <div class="team-name">#{partida.itemPartida.get(0).team1.nome}</div>
+                                <div class="team-score live">#{partida.itemPartida.get(0).scoreT1}</div>
+                            </div>
+
+                            <div class="match-vs">VS</div>
+
+                            <div class="match-team">
+                                <div class="team-logo">
+                                    <p:graphicImage value="image/#{partida.itemPartida.get(0).team2.anexo.nome}" rendered="#{partida.itemPartida.get(0).team2.anexo ne null}" styleClass="team-logo-img" />
+                                    <div class="team-logo" style="#{partida.itemPartida.get(0).team2.anexo eq null ?  '' : 'display: none'}">
+                                        <i class="pi pi-user" style="font-size: 2rem; color: #ccc;"></i>
+                                    </div>
+                                </div>
+                                <div class="team-name">#{partida.itemPartida.get(0).team2.nome}</div>
+                                <div class="team-score live">#{partida.itemPartida.get(0).scoreT2}</div>
+                            </div>
+                        </div>
+
+                        <div class="match-footer">
+                            <div class="match-game">
+                                <i class="pi pi-desktop mr-1"></i>
+                                <span>#{partida.jogo.nome}</span>
+                            </div>
+                            <p:button value="Detalhes" icon="pi pi-eye" outcome="error.xhtml" styleClass="p-button-text p-button-sm" />
+                        </div>
+                    </p:card>
+
+                </div>
+            </ui:repeat>
+        </div>
+
+
+
+        <!-- Estilos específicos para o dashboard -->
+        <style type="text/css">
+            /* Estilos existentes para o dashboard */
+            .dashboard-card {
+                margin-bottom: 1rem;
+            }
+
+            .dashboard-stat {
+                display: flex;
+                align-items: center;
+            }
+
+            .dashboard-stat-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 1rem;
+                color: white;
+                font-size: 1.5rem;
+            }
+
+            .bg-primary {
+                background-color: #007bff;
+            }
+
+            .bg-success {
+                background-color: #28a745;
+            }
+
+            .bg-warning {
+                background-color: #ffc107;
+            }
+
+            .bg-info {
+                background-color: #17a2b8;
+            }
+
+            .dashboard-stat-content {
+                flex: 1;
+            }
+
+            .dashboard-stat-value {
+                font-size: 1.5rem;
+                font-weight: 700;
+                line-height: 1.2;
+            }
+
+            .dashboard-stat-label {
+                color: #6c757d;
+                font-size: 0.875rem;
+            }
+
+            .section-subheader {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1rem;
+            }
+
+            .section-subtitle {
+                font-size: 1.25rem;
+                font-weight: 600;
+                margin: 0;
+            }
+
+            /* Novos estilos para os cards de campeonatos */
+            .championship-card {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 1rem;
+            }
+
+            .championship-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1rem;
+            }
+
+            .championship-logo {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                background-color: #f8f9fa;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                color: #ffc107;
+            }
+
+            .championship-body {
+                flex: 1;
+            }
+
+            .championship-title {
+                font-size: 1.25rem;
+                font-weight: 600;
+                margin-bottom: 1rem;
+                color: #343a40;
+            }
+
+            .championship-info {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.5rem;
+            }
+
+            .info-item {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .info-label {
+                font-size: 0.75rem;
+                color: #6c757d;
+            }
+
+            .info-value {
+                font-weight: 500;
+            }
+
+            .championship-footer {
+                margin-top: 1rem;
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            /* Novos estilos para os cards de partidas */
+            .match-card {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 1rem;
+            }
+
+            .match-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1rem;
+                font-size: 0.875rem;
+            }
+
+            .match-info {
+                display: flex;
+                align-items: center;
+            }
+
+            .match-status {
+                margin-right: 0.5rem;
+            }
+
+            .match-championship {
+                color: #6c757d;
+            }
+
+            .match-date {
+                color: #6c757d;
+            }
+
+            .match-body {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 1rem 0;
+                flex: 1;
+            }
+
+            .match-team {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 40%;
+                text-align: center;
+            }
+
+            .team-logo {
+                width: 64px;
+                height: 64px;
+                border-radius: 50%;
+                overflow: hidden;
+                background-color: #f8f9fa;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 0.5rem;
+            }
+
+            .team-logo-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .team-name {
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+            }
+
+            .team-score {
+                font-size: 1.5rem;
+                font-weight: 700;
+                min-width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 4px;
+                background-color: #f8f9fa;
+            }
+
+            .team-score.winner {
+                background-color: rgba(40, 167, 69, 0.1);
+                color: #28a745;
+            }
+
+            .team-score.live {
+                background-color: rgba(255, 193, 7, 0.1);
+                color: #ffc107;
+                position: relative;
+            }
+
+            .team-score.live::after {
+                content: "";
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background-color: #dc3545;
+                animation: pulse 1.5s infinite;
+            }
+
+            .team-score.upcoming {
+                color: #6c757d;
+            }
+
+            .match-vs {
+                font-weight: 700;
+                color: #6c757d;
+                font-size: 1.25rem;
+            }
+
+            .match-footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 1rem;
+                font-size: 0.875rem;
+            }
+
+            .match-game {
+                color: #6c757d;
+            }
+
+            @keyframes pulse {
+                0% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.5;
+                }
+                100% {
+                    opacity: 1;
+                }
+            }
+
+            /* Ajustes responsivos */
+            @media (max-width: 576px) {
+                .championship-info {
+                    grid-template-columns: 1fr;
+                }
+
+                .match-body {
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+
+                .match-team {
+                    width: 100%;
+                }
+
+                .match-vs {
+                    margin: 0.5rem 0;
+                }
+            }
+        </style>
     </ui:define>
 </ui:composition>
