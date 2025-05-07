@@ -20,6 +20,7 @@ public class Team extends ModeloGenerico implements Serializable {
     private List<Estatisticas> estatisticas;
     private Anexo anexo;
     private boolean timeAmistoso;
+    private String sigla;
 
     public String getNome() {
         return nome;
@@ -59,6 +60,14 @@ public class Team extends ModeloGenerico implements Serializable {
 
     public void setTimeAmistoso(boolean timeAmistoso) {
         this.timeAmistoso = timeAmistoso;
+    }
+
+    public String getSigla() {
+        return sigla;
+    }
+
+    public void setSigla(String sigla) {
+        this.sigla = sigla;
     }
 
 }

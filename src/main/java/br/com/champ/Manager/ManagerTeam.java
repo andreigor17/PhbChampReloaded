@@ -41,6 +41,11 @@ public class ManagerTeam implements Serializable {
     private UploadedFile file;
     private StreamedContent imagem;
     private String fileTemp;
+    private String termoBusca;
+    private boolean buscando;
+    private boolean carregandoJogadores;
+    private boolean estadoInicial = true;
+    private Team teamSelecionado;
 
     @PostConstruct
     public void init() {
@@ -62,6 +67,7 @@ public class ManagerTeam implements Serializable {
 
     public void instanciar() {
         this.team = new Team();
+        this.teamSelecionado = new Team();
         this.times = new ArrayList<>();
         this.membros = new ArrayList<Player>();
         this.membro = new Player();
@@ -141,8 +147,32 @@ public class ManagerTeam implements Serializable {
 
     }
 
+    public void limparBusca() {
+        termoBusca = "";
+        this.times = new ArrayList<>();
+        estadoInicial = true;
+        buscando = false;
+    }
+
     public void pesquisarTime() throws Exception {
-        this.times = teamServico.pesquisar(this.team.getNome());
+        if (termoBusca == null || termoBusca.trim().length() < 2) {
+            limparBusca();
+            this.termoBusca = "";
+            return;
+        }
+
+        estadoInicial = false;
+        buscando = true;
+
+        try {
+
+            this.times = teamServico.pesquisar(this.termoBusca);
+        } catch (Exception e) {
+            this.times = new ArrayList<>();
+            e.printStackTrace();
+        } finally {
+            buscando = false;
+        }
     }
 
     public void limpar() {
@@ -172,6 +202,50 @@ public class ManagerTeam implements Serializable {
 
     public void setMembro(Player membro) {
         this.membro = membro;
+    }
+
+    public String getTermoBusca() {
+        return termoBusca;
+    }
+
+    public void setTermoBusca(String termoBusca) {
+        this.termoBusca = termoBusca;
+    }
+
+    public boolean isBuscando() {
+        return buscando;
+    }
+
+    public void setBuscando(boolean buscando) {
+        this.buscando = buscando;
+    }
+
+    public boolean isEstadoInicial() {
+        return estadoInicial;
+    }
+
+    public void setEstadoInicial(boolean estadoInicial) {
+        this.estadoInicial = estadoInicial;
+    }
+
+    public Team getTeamSelecionado() {
+        return teamSelecionado;
+    }
+
+    public void setTeamSelecionado(Team teamSelecionado) {
+        this.teamSelecionado = teamSelecionado;
+    }
+
+    public boolean isTemResultados() {
+        return !estadoInicial && !buscando && this.times != null && !this.times.isEmpty();
+    }
+
+    public boolean isSemResultados() {
+        return !estadoInicial && !buscando && (this.times == null || this.times.isEmpty());
+    }
+
+    public void deletar() {
+
     }
 
 }

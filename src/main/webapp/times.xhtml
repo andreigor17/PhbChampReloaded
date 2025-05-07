@@ -7,151 +7,333 @@
 
     <ui:define name="content">
         <div class="section-header">
-            <h1 class="section-title">Times</h1>
-            <p:commandButton value="Novo Time" icon="pi pi-plus" styleClass="p-button-primary" />
+            <div>
+                <h1 class="section-title">Times</h1>
+                <p class="section-description">Pesquise o seu time!</p>
+            </div>
+            <p:button value="Novo Time" icon="pi pi-plus" outcome="criarTime.xhtml" styleClass="p-button-primary" />
         </div>
 
-        <!-- Filtros -->
-        <p:panel styleClass="filters" header="Filtros">
-            <h:form id="filterForm">
-                <div class="filters-form">
-                    <div class="form-group">
-                        <p:inputText placeholder="Buscar time..." styleClass="w-100" />
-                    </div>
-                    <div class="form-group">
-                        <p:selectOneMenu styleClass="w-100">
-                            <f:selectItem itemLabel="Filtrar por esporte" itemValue="" />
-                            <f:selectItem itemLabel="Futebol" itemValue="futebol" />
-                            <f:selectItem itemLabel="Basquete" itemValue="basquete" />
-                            <f:selectItem itemLabel="Vôlei" itemValue="volei" />
-                            <f:selectItem itemLabel="League of Legends" itemValue="lol" />
-                        </p:selectOneMenu>
-                    </div>
+        <div class="card mb-4">
+            <h:form id="searchForm">
+                <div class="p-inputgroup">
+                    <span class="p-inputgroup-addon">
+                        <i class="pi pi-search"></i>
+                    </span>
+                    <p:inputText id="searchInput" placeholder="Buscar times..." value="#{managerTeam.termoBusca}">
+                        <p:ajax event="keyup" update="timesTable loadingIndicator noResultsMessage initialMessage" 
+                                listener="#{managerTeam.pesquisarTime()}" delay="300" />
+                    </p:inputText>
+                    <span class="p-inputgroup-addon">
+                        <p:commandButton value="Limpar" action="#{managerTeam.limparBusca()}" 
+                                         update="searchInput timesTable loadingIndicator noResultsMessage initialMessage" 
+                                         styleClass="p-button-secondary p-button-sm" />
+                    </span>
                 </div>
             </h:form>
-        </p:panel>
-
-        <!-- Lista de times -->
-        <div class="teams-grid">
-            <p:card styleClass="team-card">
-                <f:facet name="header">
-                    <div class="team-header">
-                        <div class="team-icon">
-                            <i class="pi pi-football"></i>
-                        </div>
-                        <div class="team-info">
-                            <h3 class="team-name">Time A</h3>
-                            <div class="team-sport">Futebol</div>
-                        </div>
-                    </div>
-                </f:facet>
-                <div class="team-stats">
-                    <div class="team-stat">
-                        <span class="stat-label">Jogadores</span>
-                        <span class="stat-number">22</span>
-                    </div>
-                    <div class="team-stat">
-                        <span class="stat-label">Campeonatos</span>
-                        <span class="stat-number">3</span>
-                    </div>
-                </div>
-                <f:facet name="footer">
-                    <div class="tournament-actions">
-                        <p:button value="Ver detalhes" styleClass="p-button-outlined" />
-                        <p:button value="Editar" styleClass="p-button-outlined" />
-                    </div>
-                </f:facet>
-            </p:card>
-            
-            <p:card styleClass="team-card">
-                <f:facet name="header">
-                    <div class="team-header">
-                        <div class="team-icon">
-                            <i class="pi pi-basketball"></i>
-                        </div>
-                        <div class="team-info">
-                            <h3 class="team-name">Time B</h3>
-                            <div class="team-sport">Basquete</div>
-                        </div>
-                    </div>
-                </f:facet>
-                <div class="team-stats">
-                    <div class="team-stat">
-                        <span class="stat-label">Jogadores</span>
-                        <span class="stat-number">15</span>
-                    </div>
-                    <div class="team-stat">
-                        <span class="stat-label">Campeonatos</span>
-                        <span class="stat-number">2</span>
-                    </div>
-                </div>
-                <f:facet name="footer">
-                    <div class="tournament-actions">
-                        <p:button value="Ver detalhes" styleClass="p-button-outlined" />
-                        <p:button value="Editar" styleClass="p-button-outlined" />
-                    </div>
-                </f:facet>
-            </p:card>
-            
-            <p:card styleClass="team-card">
-                <f:facet name="header">
-                    <div class="team-header">
-                        <div class="team-icon">
-                            <i class="pi pi-volleyball"></i>
-                        </div>
-                        <div class="team-info">
-                            <h3 class="team-name">Time C</h3>
-                            <div class="team-sport">Vôlei</div>
-                        </div>
-                    </div>
-                </f:facet>
-                <div class="team-stats">
-                    <div class="team-stat">
-                        <span class="stat-label">Jogadores</span>
-                        <span class="stat-number">14</span>
-                    </div>
-                    <div class="team-stat">
-                        <span class="stat-label">Campeonatos</span>
-                        <span class="stat-number">1</span>
-                    </div>
-                </div>
-                <f:facet name="footer">
-                    <div class="tournament-actions">
-                        <p:button value="Ver detalhes" styleClass="p-button-outlined" />
-                        <p:button value="Editar" styleClass="p-button-outlined" />
-                    </div>
-                </f:facet>
-            </p:card>
-            
-            <p:card styleClass="team-card">
-                <f:facet name="header">
-                    <div class="team-header">
-                        <div class="team-icon">
-                            <i class="pi pi-desktop"></i>
-                        </div>
-                        <div class="team-info">
-                            <h3 class="team-name">Time D</h3>
-                            <div class="team-sport">League of Legends</div>
-                        </div>
-                    </div>
-                </f:facet>
-                <div class="team-stats">
-                    <div class="team-stat">
-                        <span class="stat-label">Jogadores</span>
-                        <span class="stat-number">8</span>
-                    </div>
-                    <div class="team-stat">
-                        <span class="stat-label">Campeonatos</span>
-                        <span class="stat-number">4</span>
-                    </div>
-                </div>
-                <f:facet name="footer">
-                    <div class="tournament-actions">
-                        <p:button value="Ver detalhes" styleClass="p-button-outlined" />
-                        <p:button value="Editar" styleClass="p-button-outlined" />
-                    </div>
-                </f:facet>
-            </p:card>
         </div>
+
+        <!-- Indicador de carregamento -->
+        <p:outputPanel id="loadingIndicator">
+            <div class="text-center p-3" style="display: #{managerTeam.buscando ? 'block' : 'none'};">
+                <p:progressBar style="width:50px;height:50px" animationDuration="5" />
+                <div class="mt-2">Buscando times...</div>
+            </div>
+        </p:outputPanel>
+
+        <!-- Mensagem quando não há resultados -->
+        <p:outputPanel id="noResultsMessage">
+            <div class="text-center p-5" style="display: #{managerTeam.semResultados ? 'block' : 'none'};">
+                <i class="pi pi-shield" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                <h3>Nenhum time encontrado</h3>
+                <p>Tente usar termos diferentes na sua busca.</p>
+            </div>
+        </p:outputPanel>
+
+        <!-- Mensagem inicial -->
+        <p:outputPanel id="initialMessage">
+            <div class="text-center p-5" style="display: #{managerTeam.estadoInicial ? 'block' : 'none'};">
+                <i class="pi pi-shield" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                <h3>Digite para buscar times</h3>
+                <p>Os resultados aparecerão aqui conforme você digita.</p>
+            </div>
+        </p:outputPanel>
+
+        <p:dataTable id="timesTable" var="time" value="#{managerTeam.times}" 
+                     emptyMessage="Nenhum time encontrado" styleClass="mb-4"
+                     rowKey="#{time.id}" expandedRow="false"
+                     rowExpandMode="single"
+                     style="display: #{managerTeam.temResultados ? 'table' : 'none'}">
+
+            <p:column style="width:70px;text-align:center" exportable="false">
+                <p:rowToggler />
+            </p:column>
+
+            <p:column headerText="Logo" style="width:80px;text-align:center">
+                <div class="team-logo-container">
+                    <p:graphicImage value="image/#{time.anexo.nome}" rendered="#{time.anexo ne null}" styleClass="team-logo"  />
+                    <div class="team-logo-placeholder" rendered="#{time.anexo eq null}">
+                        <i class="pi pi-shield"></i>
+                    </div>
+                </div>
+            </p:column>
+
+            <p:column headerText="Nome" sortBy="#{time.nome}" filterBy="#{time.nome}">
+                <h:outputText value="#{time.nome}" />
+            </p:column>
+
+            <p:column headerText="Sigla" sortBy="#{time.sigla}" style="width:100px">
+                <h:outputText value="#{time.sigla}" />
+            </p:column>
+
+            <p:column headerText="Jogos" style="width:100px;text-align:center">
+                <p:badge value="CS:GO" severity="success" styleClass="mr-1" />
+                <p:badge value="LOL" severity="info" />
+                <p:badge value="FIFA" severity="error" />
+            </p:column>          
+
+            <p:column headerText="Ações" style="width:120px;text-align:center" exportable="false">
+                <p:button icon="pi pi-eye" styleClass="p-button-text p-button-sm" outcome="visualizarTime.xhtml">
+                    <f:param name="id" value="#{time.id}" />
+                </p:button>                              
+            </p:column>
+
+            <p:rowExpansion>
+                <div class="team-players-container">
+                    <div class="team-players-header">
+                        <h3>Jogadores do Time</h3>                        
+                    </div>
+
+
+
+
+                    <!-- Mensagem quando o time não tem jogadores -->
+                    <p:outputPanel rendered="#{empty time.players}">
+                        <div class="text-center p-4">
+                            <i class="pi pi-users" style="font-size: 2rem; color: #ccc; margin-bottom: 1rem;"></i>
+                            <h3>Nenhum jogador neste time</h3>
+                            <p>Este time ainda não possui jogadores cadastrados.</p>
+                            <p:button value="Adicionar Jogador" outcome="criarJogador" styleClass="p-button-secondary mt-2">
+                                <f:param name="teamId" value="#{time.id}" />
+                            </p:button>
+                        </div>
+                    </p:outputPanel>
+
+                    <!-- Grid de jogadores -->
+                    <div class="team-players-grid" rendered="#{not empty time.players}">
+                        <!-- Jogador 1 -->
+                        <ui:repeat value="#{time.players}" var="player">
+                            <div class="team-player-card">
+                                <div class="player-photo-container">
+                                    <p:graphicImage value="image/#{player.anexo.nome}" rendered="#{player.anexo ne null}" styleClass="player-photo" /> 
+                                    <div class="team-logo-placeholder" rendered="#{player.anexo eq null}">
+                                        <i class="pi pi-shield"></i>
+                                    </div>
+                                </div>
+                                <div class="player-info">
+                                    <div class="player-name">#{player.nome}</div>
+                                    <div class="player-nickname">#{player.nick}</div>
+                                    <p:badge value="Capitão" severity="info" styleClass="player-role" />
+                                </div>
+                            </div>                                              
+                        </ui:repeat>
+                    </div>
+                </div>
+            </p:rowExpansion>
+        </p:dataTable>
+
+        <!-- Diálogo de confirmação de exclusão -->
+        <p:dialog id="deleteDialog" header="Confirmar Exclusão" widgetVar="deleteDialogWidget" modal="true" 
+                  resizable="false" width="400">
+            <p class="mb-3">Tem certeza que deseja excluir o time <strong>#{managerTeam.teamSelecionado.nome}</strong>?</p>
+            <p class="mb-3 text-warning">Esta ação não pode ser desfeita.</p>
+
+            <f:facet name="footer">
+                <p:commandButton value="Cancelar" styleClass="p-button-text" onclick="PF('deleteDialogWidget').hide()" />
+                <p:commandButton value="Excluir" styleClass="p-button-danger" 
+                                 action="#{managerTeam.deletar()}" oncomplete="PF('deleteDialogWidget').hide()" 
+                                 update=":timesTable" />
+            </f:facet>
+        </p:dialog>
+
+        <style type="text/css">
+            /* Estilos para a tabela de times */
+            .team-logo-container {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                overflow: hidden;
+                background-color: #f8f9fa;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto;
+                border: 1px solid #dee2e6;
+            }
+
+            .team-logo {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .team-logo-placeholder {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100%;
+                font-size: 1.5rem;
+                color: #adb5bd;
+            }
+
+            /* Estilos para a expansão de jogadores */
+            .team-players-container {
+                padding: 1rem;
+                background-color: #f8f9fa;
+                border-radius: 0.5rem;
+            }
+
+            .team-players-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1rem;
+            }
+
+            .team-players-header h3 {
+                margin: 0;
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: #343a40;
+            }
+
+            .team-players-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+
+            .team-player-card {
+                display: flex;
+                align-items: center;
+                background-color: #ffffff;
+                border-radius: 0.5rem;
+                padding: 0.75rem;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+
+            .team-player-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            .player-photo-container {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                overflow: hidden;
+                background-color: #f8f9fa;
+                margin-right: 0.75rem;
+                flex-shrink: 0;
+                border: 1px solid #dee2e6;
+            }
+
+            .player-photo {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .player-photo-placeholder {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100%;
+                font-size: 1.25rem;
+                color: #adb5bd;
+            }
+
+            .player-info {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .player-name {
+                font-weight: 600;
+                font-size: 0.875rem;
+                margin-bottom: 0.25rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .player-nickname {
+                font-size: 0.75rem;
+                color: #6c757d;
+                margin-bottom: 0.25rem;
+            }
+
+            .player-role {
+                font-size: 0.7rem;
+            }
+
+            /* Estilos para o botão "Ver Todos" */
+            .p-button-plain {
+                background-color: transparent;
+                border: none;
+                color: #6c757d;
+                font-weight: 500;
+                transition: color 0.2s;
+            }
+
+            .p-button-plain:hover {
+                background-color: transparent;
+                color: #343a40;
+                text-decoration: underline;
+            }
+
+            /* Estilos para mensagens e indicadores */
+            .text-center {
+                text-align: center;
+            }
+
+            .p-3 {
+                padding: 1rem;
+            }
+
+            .p-4 {
+                padding: 1.5rem;
+            }
+
+            .p-5 {
+                padding: 3rem;
+            }
+
+            .mt-2 {
+                margin-top: 0.5rem;
+            }
+
+            /* Responsividade */
+            @media (max-width: 768px) {
+                .team-players-grid {
+                    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                }
+            }
+
+            @media (max-width: 576px) {
+                .team-players-grid {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .team-players-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
     </ui:define>
 </ui:composition>
