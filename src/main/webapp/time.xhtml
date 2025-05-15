@@ -1,5 +1,5 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
@@ -29,7 +29,7 @@
                 <p:card styleClass="team-profile-card">
                     <div class="team-profile-header">
                         <div class="team-logo-container">
-                            <p:graphicImage value="image/#{managerTeam.team.anexo.nome}" styleClass="team-logo" rendered="#{managerTeam.team.anexo ne null}" />
+                            <h:graphicImage value="image/#{managerTeam.team.anexo.nome}" styleClass="team-logo" rendered="#{managerTeam.team.anexo ne null}" />
                             <div class="team-logo-placeholder" rendered="#{managerTeam.team.anexo eq null}">
                                 <i class="pi pi-shield"></i>
                             </div>
@@ -170,7 +170,7 @@
                             <p:badge value="Capitão" severity="info" styleClass="player-role-badge" />
                         </div>
                         <div class="player-avatar">
-                            <p:graphicImage value="image/#{jogador.anexo.nome}" styleClass="player-photo" />
+                            <h:graphicImage value="image/#{jogador.anexo.nome}" styleClass="player-photo" />
                         </div>
                         <div class="player-info">
                             <h3 class="player-name">#{jogador.nome}</h3>
@@ -269,7 +269,7 @@
                             <div class="match-body">
                                 <div class="match-team">
                                     <div class="team-logo">
-                                        <p:graphicImage value="/resources/images/teams/team-alpha.png" styleClass="team-logo-img" />
+                                        <h:graphicImage value="/resources/images/teams/team-alpha.png" styleClass="team-logo-img" />
                                     </div>
                                     <div class="team-name">Team Alpha</div>
                                     <div class="team-score upcoming">-</div>
@@ -279,7 +279,7 @@
 
                                 <div class="match-team">
                                     <div class="team-logo">
-                                        <p:graphicImage value="/resources/images/teams/team-delta.png" styleClass="team-logo-img" />
+                                        <h:graphicImage value="/resources/images/teams/team-delta.png" styleClass="team-logo-img" />
                                     </div>
                                     <div class="team-name">Team Delta</div>
                                     <div class="team-score upcoming">-</div>
@@ -322,7 +322,7 @@
                             <div class="match-body">
                                 <div class="match-team">
                                     <div class="team-logo">
-                                        <p:graphicImage value="/resources/images/teams/team-alpha.png" styleClass="team-logo-img" />
+                                        <h:graphicImage value="/resources/images/teams/team-alpha.png" styleClass="team-logo-img" />
                                     </div>
                                     <div class="team-name">Team Alpha</div>
                                     <div class="team-score winner">16</div>
@@ -332,7 +332,7 @@
 
                                 <div class="match-team">
                                     <div class="team-logo">
-                                        <p:graphicImage value="/resources/images/teams/team-beta.png" styleClass="team-logo-img" />
+                                        <h:graphicImage value="/resources/images/teams/team-beta.png" styleClass="team-logo-img" />
                                     </div>
                                     <div class="team-name">Team Beta</div>
                                     <div class="team-score">7</div>

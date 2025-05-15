@@ -1,5 +1,4 @@
 
-import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -7,8 +6,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
-
 
 /**
  * The Image servlet for serving from absolute path.
@@ -19,26 +18,28 @@ import java.nio.file.Files;
 @WebServlet("/image/*")
 public class ImageServlet extends HttpServlet {
 
-
-
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String filename = request.getPathInfo().substring(1);
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-        File file = null;
+        String pathInfo = request.getPathInfo(); 
+        if (pathInfo == null || pathInfo.equals("/")) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Arquivo não especificado.");
+            return;
+        }
 
-        file = new File(request.getPathInfo());
-        getFileCopy(response, filename, file);
-    }
+        File file = new File(pathInfo); 
+        if (!file.exists() || file.isDirectory()) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Arquivo não encontrado.");
+            return;
+        }
 
-    private void getFileCopy(HttpServletResponse response, String filename, File file) throws IOException {
-        response.setHeader("Content-Type", getServletContext().getMimeType(filename));
-        response.setHeader("Content-Length", String.valueOf(file.length()));
-        response.setHeader("Content-Disposition", "inline; filename=\"" + filename + "\"");
+        response.setContentType(getServletContext().getMimeType(file.getName()));
+        response.setContentLengthLong(file.length());
+        response.setHeader("Content-Disposition", "inline; filename=\"" + file.getName() + "\"");
 
-        if (file.exists() && !file.isDirectory()) {
-            Files.copy(file.toPath(), response.getOutputStream());
+        try (OutputStream out = response.getOutputStream()) {
+            Files.copy(file.toPath(), out);
         }
     }
-
 }
