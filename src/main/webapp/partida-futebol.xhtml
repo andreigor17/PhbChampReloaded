@@ -1,0 +1,552 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="vercel.xhtml">
+
+    <ui:define name="content">
+        <div class="section-header">
+            <div>
+                <p:link outcome="partidas.xhtml" styleClass="mb-3 d-block">
+                    <i class="pi pi-arrow-left mr-2"></i>Voltar para Partidas
+                </p:link>
+                <h1 class="section-title">#{managerPartida.edicao ? 'Editar' : 'Nova'} Partida de Futebol</h1>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <!-- Formulário de Criação/Edição -->
+            <div class="col-12 lg:col-6">
+                <p:card styleClass="mb-4">
+                    <f:facet name="title">
+                        <div class="flex align-items-center">
+                            <i class="pi pi-calendar-plus mr-2"></i>
+                            <span>Informações da Partida</span>
+                        </div>
+                    </f:facet>
+                    
+                    <h:form id="partidaForm">
+                        <div class="grid">
+                            <div class="col-12">
+                                <label for="nomePartida" class="form-label">Nome da Partida</label>
+                                <p:inputText id="nomePartida" value="#{managerPartida.partida.nome}" 
+                                           placeholder="Ex: Pelada da Sexta" styleClass="w-full" required="true" />
+                            </div>
+                            
+                            <div class="col-12 md:col-6">
+                                <label for="dataPartida" class="form-label">Data</label>
+                                <p:datePicker id="dataPartida" value="#{managerPartida.partida.dataPartida}" 
+                                            pattern="dd/MM/yyyy" showIcon="true" styleClass="w-full" required="true" />
+                            </div>
+                            
+                            <div class="col-12 md:col-6">
+                                <label for="horarioPartida" class="form-label">Horário</label>
+                                <p:inputMask id="horarioPartida" value="#{managerPartida.horarioPartida}" 
+                                           mask="99:99" placeholder="HH:MM" styleClass="w-full" required="true" />
+                            </div>
+                            
+                            <div class="col-12">
+                                <label for="localPartida" class="form-label">Local</label>
+                                <p:inputText id="localPartida" value="#{managerPartida.partida.local.nome}" 
+                                           placeholder="Ex: Campo do Clube, Quadra da Escola" styleClass="w-full" required="true" />
+                            </div>
+                            
+                            
+                            <div class="col-12 md:col-6">
+                                <label for="maxJogadores" class="form-label">Máximo de Jogadores</label>
+                                <p:inputNumber id="maxJogadores" value="#{managerPartida.partida.maxJogadores}" 
+                                             minValue="10" maxValue="30" styleClass="w-full" />
+                            </div>
+                            
+                           
+                            
+                            <div class="col-12">
+                                <div class="form-actions">
+                                    <p:commandButton value="#{managerPartida.edicao ? 'Atualizar' : 'Criar'} Partida" 
+                                                     action="#{managerPartida.salvarPartida()}" 
+                                                   update="partidaForm checkinSection " 
+                                                   styleClass="p-button-primary mr-2" />
+                                    <p:button value="Cancelar" outcome="/partidas" styleClass="p-button-secondary" />
+                                </div>
+                            </div>
+                        </div>
+                    </h:form>
+                </p:card>
+            </div>
+            
+            <!-- Status da Partida -->
+            <div class="col-12 lg:col-6">
+                <p:card styleClass="mb-4">
+                    <f:facet name="title">
+                        <div class="flex align-items-center">
+                            <i class="pi pi-info-circle mr-2"></i>
+                            <span>Status da Partida</span>
+                        </div>
+                    </f:facet>
+                    
+                    <div class="partida-status">
+                        <div class="status-item">
+                            <div class="status-icon">
+                                <i class="pi pi-calendar"></i>
+                            </div>
+                            <div class="status-info">
+                                <div class="status-label">Data e Horário</div>
+                                <div class="status-value">#{managerPartida.partida.dataPartida} às #{managerPartida.horarioPartida}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="status-item">
+                            <div class="status-icon">
+                                <i class="pi pi-map-marker"></i>
+                            </div>
+                            <div class="status-info">
+                                <div class="status-label">Local</div>
+                                <div class="status-value">#{managerPartida.partida.local.nome}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="status-item">
+                            <div class="status-icon">
+                                <i class="pi pi-users"></i>
+                            </div>
+                            <div class="status-info">
+                                <div class="status-label">Jogadores Confirmados</div>
+                                <div class="status-value">#{managerPartida.totalCheckins} / #{managerPartida.partida.maxJogadores}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="status-item">
+                            <div class="status-icon">
+                                <i class="pi pi-flag"></i>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </p:card>
+                
+                <!-- Ações Rápidas -->
+                <p:card rendered="#{managerPartida.partida.id ne null}">
+                    <f:facet name="title">
+                        <div class="flex align-items-center">
+                            <i class="pi pi-cog mr-2"></i>
+                            <span>Ações</span>
+                        </div>
+                    </f:facet>
+                    
+                    <div class="quick-actions">
+                        <p:commandButton value="Fazer Check-in" icon="pi pi-check" 
+                                       action="#{managerPartida.checkin}" 
+                                       update="checkinSection" 
+                                       styleClass="p-button-success w-full mb-2"
+                                       />
+                        
+                        <p:commandButton value="Cancelar Check-in" icon="pi pi-times" 
+                                       action="#{managerPartida.checkout}" 
+                                       update="checkinSection" 
+                                       styleClass="p-button-warning w-full mb-2"
+                                       />
+                        
+                        
+                        
+                        
+                    </div>
+                </p:card>
+            </div>
+        </div>
+        
+        <!-- Seção de Check-ins -->
+        <p:outputPanel id="checkinSection" rendered="#{managerPartida.partida.id ne null}">
+            <div class="section-subheader mt-4">
+                <h2 class="section-subtitle">Jogadores Confirmados (#{managerPartida.totalCheckins})</h2>
+                <p:commandButton value="Atualizar Lista" icon="pi pi-refresh" 
+                               update="checkinSection" styleClass="p-button-text p-button-plain" />
+            </div>
+            
+            <div class="grid">
+                <ui:repeat value="#{managerPartida.players}" var="player">
+                    <div class="col-12 sm:col-6 md:col-4 lg:col-3">
+                        <div class="checkin-card">
+                            <div class="checkin-header">
+                                <p:badge value="#{player.posicao}" severity="info" styleClass="position-badge" />
+                               
+                            </div>
+                            
+                            <div class="jogador-avatar">
+                                <h:graphicImage value="image/#{player.anexo.nome}" styleClass="player-photo" rendered="#{player.anexo ne null}"/>
+                                <div class="jogador-photo-placeholder" rendered="#{player.anexo eq null}">
+                                    <i class="pi pi-user"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="jogador-info">
+                                <h3 class="jogador-name">#{player.nome}</h3>
+                                <p class="jogador-nickname">#{player.nick}</p>
+                                <div class="jogador-stats">
+                                   
+                                </div>
+                            </div>
+                            
+                            <div class="checkin-actions" >
+                                <p:commandButton icon="pi pi-times" styleClass="p-button-text p-button-sm p-button-danger"
+                                               actionListener="#{managerPartida.checkout}"
+                                               update="checkinSection" 
+                                               title="Remover jogador" />
+                            </div>
+                        </div>
+                    </div>
+                </ui:repeat>
+                
+                <!-- Mensagem quando não há check-ins -->
+                <div class="col-12" rendered="#{managerPartida.totalCheckins == 0}">
+                    <div class="empty-state">
+                        <i class="pi pi-users" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                        <h3>Nenhum jogador confirmado ainda</h3>
+                        <p>Os jogadores que fizerem check-in aparecerão aqui.</p>
+                    </div>
+                </div>
+            </div>
+        </p:outputPanel>
+        
+
+        
+        <style type="text/css">
+            /* Estilos gerais */
+            .form-label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: 500;
+                color: #343a40;
+            }
+            
+            .form-actions {
+                display: flex;
+                gap: 0.5rem;
+                margin-top: 1rem;
+            }
+            
+            .section-subheader {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1rem;
+            }
+            
+            .section-subtitle {
+                font-size: 1.25rem;
+                font-weight: 600;
+                margin: 0;
+            }
+            
+            /* Estilos para status da partida */
+            .partida-status {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .status-item {
+                display: flex;
+                align-items: center;
+                padding: 1rem;
+                background-color: #f8f9fa;
+                border-radius: 8px;
+            }
+            
+            .status-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                background-color: #007bff;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 1rem;
+                font-size: 1.25rem;
+            }
+            
+            .status-info {
+                flex: 1;
+            }
+            
+            .status-label {
+                font-size: 0.875rem;
+                color: #6c757d;
+                margin-bottom: 0.25rem;
+            }
+            
+            .status-value {
+                font-weight: 600;
+                color: #343a40;
+            }
+            
+            /* Estilos para ações rápidas */
+            .quick-actions {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            /* Estilos para cards de check-in */
+            .checkin-card {
+                background-color: #ffffff;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                transition: transform 0.2s, box-shadow 0.2s;
+                margin-bottom: 1rem;
+                position: relative;
+            }
+            
+            .checkin-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+            
+            .checkin-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem;
+                background-color: #f8f9fa;
+                border-bottom: 1px solid #e9ecef;
+            }
+            
+            .position-badge {
+                font-size: 0.7rem;
+            }
+            
+            .checkin-time {
+                font-size: 0.75rem;
+                color: #6c757d;
+            }
+            
+            .jogador-avatar {
+                width: 100%;
+                height: 120px;
+                overflow: hidden;
+                background-color: #f8f9fa;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .jogador-photo {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            
+            .jogador-photo-placeholder {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100%;
+                font-size: 2rem;
+                color: #adb5bd;
+            }
+            
+            .jogador-info {
+                padding: 1rem;
+                text-align: center;
+            }
+            
+            .jogador-name {
+                font-size: 1rem;
+                font-weight: 600;
+                margin: 0 0 0.25rem;
+                color: #343a40;
+            }
+            
+            .jogador-nickname {
+                font-size: 0.875rem;
+                color: #6c757d;
+                margin: 0 0 0.5rem;
+            }
+            
+            .jogador-stats {
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+            }
+            
+            .stat-item {
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+                font-size: 0.875rem;
+                color: #ffc107;
+            }
+            
+            .checkin-actions {
+                position: absolute;
+                top: 0.5rem;
+                right: 0.5rem;
+            }
+            
+            /* Estilos para estado vazio */
+            .empty-state {
+                text-align: center;
+                padding: 3rem;
+                color: #6c757d;
+            }
+            
+            .empty-state h3 {
+                margin-bottom: 0.5rem;
+            }
+            
+            /* Estilos para times gerados */
+            .team-card {
+                margin-bottom: 1rem;
+            }
+            
+            .team-card.team-a {
+                border-left: 4px solid #007bff;
+            }
+            
+            .team-card.team-b {
+                border-left: 4px solid #28a745;
+            }
+            
+            .team-header {
+                display: flex;
+                align-items: center;
+            }
+            
+            .team-logo {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                background-color: #f8f9fa;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 1rem;
+                font-size: 1.5rem;
+                color: #6c757d;
+            }
+            
+            .team-info h3 {
+                margin: 0;
+                font-size: 1.25rem;
+                font-weight: 600;
+            }
+            
+            .team-count {
+                font-size: 0.875rem;
+                color: #6c757d;
+            }
+            
+            .team-players {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .team-player {
+                display: flex;
+                align-items: center;
+                padding: 0.75rem;
+                background-color: #f8f9fa;
+                border-radius: 6px;
+            }
+            
+            .player-avatar-small {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                overflow: hidden;
+                background-color: #ffffff;
+                margin-right: 0.75rem;
+                flex-shrink: 0;
+            }
+            
+            .player-photo-small {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            
+            .player-photo-placeholder-small {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100%;
+                font-size: 1rem;
+                color: #adb5bd;
+            }
+            
+            .player-details {
+                flex: 1;
+                min-width: 0;
+            }
+            
+            .player-name-small {
+                display: block;
+                font-weight: 600;
+                font-size: 0.875rem;
+                margin-bottom: 0.125rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            .player-position-small {
+                font-size: 0.75rem;
+                color: #6c757d;
+            }
+            
+            .player-level {
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+                font-size: 0.75rem;
+                color: #ffc107;
+            }
+            
+            /* Estilos para botões */
+            .p-button-plain {
+                background-color: transparent;
+                border: none;
+                color: #6c757d;
+                font-weight: 500;
+                transition: color 0.2s;
+            }
+            
+            .p-button-plain:hover {
+                background-color: transparent;
+                color: #343a40;
+                text-decoration: underline;
+            }
+            
+            /* Responsividade */
+            @media (max-width: 768px) {
+                .form-actions {
+                    flex-direction: column;
+                }
+                
+                .section-subheader {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 1rem;
+                }
+                
+                .partida-status {
+                    gap: 0.75rem;
+                }
+                
+                .status-item {
+                    padding: 0.75rem;
+                }
+                
+                .status-icon {
+                    width: 40px;
+                    height: 40px;
+                    font-size: 1rem;
+                }
+            }
+        </style>
+    </ui:define>
+</ui:composition>

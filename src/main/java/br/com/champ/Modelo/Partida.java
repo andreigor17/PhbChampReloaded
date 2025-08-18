@@ -22,6 +22,11 @@ public class Partida extends ModeloGenerico implements Serializable {
     private int contadorEsperado;
     private boolean finalizada;
     private Long faseid;
+    private String nome;
+    private String dataPartida;
+    private LocalPartida local;
+    private String minJogadores;
+    private String maxJogadores;
 
     public Partida() {
     }
@@ -80,6 +85,46 @@ public class Partida extends ModeloGenerico implements Serializable {
 
     public void setFaseid(Long faseid) {
         this.faseid = faseid;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getDataPartida() {
+        return dataPartida;
+    }
+
+    public void setDataPartida(String dataPartida) {
+        this.dataPartida = dataPartida;
+    }
+
+    public LocalPartida getLocal() {
+        return local;
+    }
+
+    public void setLocal(LocalPartida local) {
+        this.local = local;
+    }
+
+    public String getMinJogadores() {
+        return minJogadores;
+    }
+
+    public void setMinJogadores(String minJogadores) {
+        this.minJogadores = minJogadores;
+    }
+
+    public String getMaxJogadores() {
+        return maxJogadores;
+    }
+
+    public void setMaxJogadores(String maxJogadores) {
+        this.maxJogadores = maxJogadores;
     }
 
 }

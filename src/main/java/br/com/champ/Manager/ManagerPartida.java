@@ -103,6 +103,9 @@ public class ManagerPartida implements Serializable {
     private List<Team> timesPartida;
     private Team teamVencedor;
     private RadarChartModel radarModel;
+    private boolean edicao;
+    private String horarioPartida;
+    private int totalCheckins;
 
     @PostConstruct
     public void init() {
@@ -846,6 +849,10 @@ public class ManagerPartida implements Serializable {
 
         PrimeFaces.current().executeScript("PF('confirmarCriacaoX5Dialog').show();");
     }
+    
+    public void salvarPartida(){
+        
+    }
 
     public void salvarPartidaClassica() {
         try {
@@ -962,4 +969,37 @@ public class ManagerPartida implements Serializable {
             return this.partida.getItemPartida().get(0).getTeam2().getNome();
         }
     }
+
+    public boolean isEdicao() {
+        return edicao;
+    }
+
+    public void setEdicao(boolean edicao) {
+        this.edicao = edicao;
+    }
+
+    public String getHorarioPartida() {
+        return horarioPartida;
+    }
+
+    public void setHorarioPartida(String horarioPartida) {
+        this.horarioPartida = horarioPartida;
+    }
+
+    public int getTotalCheckins() {
+        return totalCheckins;
+    }
+
+    public void setTotalCheckins(int totalCheckins) {
+        this.totalCheckins = totalCheckins;
+    }
+    
+    public void checkin(){
+        
+    }
+    
+    public void checkout(){
+        
+    }
+    
 }
