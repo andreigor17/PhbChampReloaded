@@ -13,6 +13,7 @@ public enum Url {
 
     SALVAR_PLAYER("/api/player"),
     REGISTRAR_PLAYER("/api/login/usuario"),
+    REGISTRAR_PLAYER_GOOGLE("/api/login/finalizar-google/usuario"),
     ATUALIZAR_PLAYER("/api/player/"),
     BUSCAR_PLAYERS("/api/player/players"),
     BUSCAR_PLAYER_NOME("/api/player"),

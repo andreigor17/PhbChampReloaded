@@ -81,6 +81,7 @@ public class ManagerCriarPlayer implements Serializable {
     private List<Jogo> jogosSelecionados;
     private Jogo jogo;
     private boolean cadastrar;
+    private String senhaVo;
 
     @PostConstruct
     public void init() {
@@ -241,6 +242,17 @@ public class ManagerCriarPlayer implements Serializable {
 
             }
             Mensagem.successAndRedirect("Player salvo com sucesso", "jogador.xhtml?id=" + this.player.getId());
+        } else if (this.player.getId() != null && cadastrar) {
+            senhaVo = this.player.getSenha();
+            this.player = playerServico.registrarPlayer(this.player, null, Url.REGISTRAR_PLAYER_GOOGLE.getNome());
+            if (cadastrar) {
+                LoginVo loginVo = new LoginVo();
+                loginVo.setLogin(this.player.getLogin());
+                loginVo.setSenha(senhaVo);
+                loginServico.autenticar(loginVo);
+                Mensagem.successAndRedirect("Player atualizado com sucesso", "jogador.xhtml?id=" + this.player.getId());
+
+            }
         } else {
             this.player = playerServico.save(this.player, this.player.getId(), Url.ATUALIZAR_PLAYER.getNome());
             Mensagem.successAndRedirect("Player atualizado com sucesso", "jogador.xhtml?id=" + this.player.getId());
@@ -411,4 +423,13 @@ public class ManagerCriarPlayer implements Serializable {
         PrimeFaces.current().executeScript("atualizarImagem();");
 
     }
+
+    public boolean isCadastrar() {
+        return cadastrar;
+    }
+
+    public void setCadastrar(boolean cadastrar) {
+        this.cadastrar = cadastrar;
+    }
+    
 }

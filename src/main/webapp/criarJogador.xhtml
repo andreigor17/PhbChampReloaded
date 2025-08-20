@@ -94,7 +94,7 @@
                     </div>
 
                     <!-- Informações de Conta -->
-                    <div class="col-12">
+                    <div class="col-12" style="#{managerCriarPlayer.cadastrar or (managerCriarPlayer.p.id eq null and not managerCriarPlayer.cadastrar) ? 'display:block;' : 'display:none;'}">
                         <p:fieldset legend="Informações de Conta" toggleable="true" toggleSpeed="500" styleClass="mb-3">
                             <div class="p-fluid">
                                 <div class="grid">
@@ -106,9 +106,11 @@
 
                                     <div class="col-12 md:col-6 field">
                                         <p:outputLabel for="senha" value="Senha" />
-                                        <p:password id="senha"  feedback="true" toggleMask="true" value="#{managerCriarPlayer.p.senha}"/>
+                                        <p:password id="senha" feedback="true" toggleMask="true"
+                                                    value="#{managerCriarPlayer.p.senha}" />
                                         <p:message for="senha" />
                                     </div>
+
                                 </div>
 
                                 <div class="field">
