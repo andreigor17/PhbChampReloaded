@@ -27,6 +27,7 @@ public class Partida extends ModeloGenerico implements Serializable {
     private LocalPartida local;
     private String minJogadores;
     private String maxJogadores;
+    private List<Player> players;
 
     public Partida() {
     }
@@ -126,5 +127,16 @@ public class Partida extends ModeloGenerico implements Serializable {
     public void setMaxJogadores(String maxJogadores) {
         this.maxJogadores = maxJogadores;
     }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(List<Player> players) {
+        this.players = players;
+    }
+
+   
+    
 
 }

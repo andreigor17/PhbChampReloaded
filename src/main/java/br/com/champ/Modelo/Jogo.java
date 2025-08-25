@@ -16,6 +16,7 @@ public class Jogo extends ModeloGenerico{
     private String nome;
     private Anexo anexo;
     private List<VersaoJogo> versoes;
+    private boolean futebol;
 
     public String getNome() {
         return nome;
@@ -39,6 +40,14 @@ public class Jogo extends ModeloGenerico{
 
     public void setVersoes(List<VersaoJogo> versoes) {
         this.versoes = versoes;
+    }
+
+    public boolean isFutebol() {
+        return futebol;
+    }
+
+    public void setFutebol(boolean futebol) {
+        this.futebol = futebol;
     }
     
     
