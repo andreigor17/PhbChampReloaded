@@ -6,409 +6,343 @@
                 template="vercel.xhtml">
 
     <ui:define name="content">
-        <div class="section-header">
-            <div>
-                <p:link outcome="/partidas" styleClass="mb-3 d-block">
-                    <i class="pi pi-arrow-left mr-2"></i>Voltar para Partidas
-                </p:link>
-                <h1 class="section-title">#{partidaFutebolViewBean.partida.nome}</h1>
-                <p class="section-description">
-                    <p:tag value="#{partidaFutebolViewBean.statusPartida}" 
-                           severity="#{partidaFutebolViewBean.statusSeverity}" styleClass="mr-2" />
-                    #{partidaFutebolViewBean.partida.tipo}
-                </p>
+        <h:form id="partidaForm">
+            <div class="section-header">
+                <div>
+                    <p:link outcome="partidas.xhtml" styleClass="mb-3 d-block">
+                        <i class="pi pi-arrow-left mr-2"></i>Voltar para Partidas
+                    </p:link>
+                    <h1 class="section-title">#{managerPartida.partida.nome}</h1>
+
+                </div>
+
+                <div class="header-actions">
+                    <p:commandButton value="#{managerPartida.jaFezCheckin ? 'Cancelar Participação' : 'Participar da Partida'}" 
+                                     icon="#{managerPartida.jaFezCheckin ? 'pi pi-times' : 'pi pi-check'}"
+                                     actionListener="#{managerPartida.checkin()}"
+                                     update="checkinButton participantesSection statusCard" 
+                                     styleClass="#{managerPartida.jaFezCheckin ? 'p-button-warning' : 'p-button-success'} mr-2"
+                                     rendered="#{managerPartida.podeParticipar}"
+                                     id="checkinButton" />
+
+                    <p:button value="Editar" icon="pi pi-pencil" outcome="partida-futebol.xhtml" 
+                              rendered="#{managerPartida.playerLogado ne null and managerPartida.playerLogado.adminastror eq true}"
+                              styleClass="p-button-outlined mr-2">
+
+                        <f:param name="id" value="#{managerPartida.partida.id}" />
+                    </p:button>
+
+                    <p:commandButton value="Excluir" icon="pi pi-trash" 
+                                     styleClass="p-button-danger p-button-outlined"
+                                     rendered="#{managerPartida.playerLogado ne null and managerPartida.playerLogado.adminastror eq true}"
+                                     actionListener="#{managerPartida.excluir()}" 
+                                     update=":deleteDialog" 
+                                     oncomplete="PF('deleteDialogWidget').show()" />
+                </div>
             </div>
-            <div class="header-actions">
-                <p:commandButton value="#{partidaFutebolViewBean.jaFezCheckin ? 'Cancelar Participação' : 'Participar da Partida'}" 
-                               icon="#{partidaFutebolViewBean.jaFezCheckin ? 'pi pi-times' : 'pi pi-check'}"
-                               action="#{partidaFutebolViewBean.toggleCheckin}" 
-                               update="checkinButton participantesSection statusCard" 
-                               styleClass="#{partidaFutebolViewBean.jaFezCheckin ? 'p-button-warning' : 'p-button-success'} mr-2"
-                               rendered="#{partidaFutebolViewBean.podeParticipar}"
-                               id="checkinButton" />
-                
-                <p:button value="Editar" icon="pi pi-pencil" outcome="/partida-futebol" 
-                         styleClass="p-button-outlined mr-2"
-                         rendered="#{partidaFutebolViewBean.podeEditar}">
-                    <f:param name="id" value="#{partidaFutebolViewBean.partida.id}" />
-                </p:button>
-                
-                <p:commandButton value="Excluir" icon="pi pi-trash" 
-                               styleClass="p-button-danger p-button-outlined"
-                               rendered="#{partidaFutebolViewBean.podeExcluir}"
-                               actionListener="#{partidaFutebolViewBean.prepareDelete}" 
-                               update=":deleteDialog" 
-                               oncomplete="PF('deleteDialogWidget').show()" />
-            </div>
-        </div>
-        
-        <div class="grid">
-            <!-- Informações da Partida -->
-            <div class="col-12 lg:col-8">
-                <!-- Card Principal da Partida -->
-                <p:card styleClass="mb-4 partida-main-card">
-                    <div class="partida-hero">
-                        <div class="partida-icon">
-                            <i class="pi pi-calendar-plus"></i>
-                        </div>
-                        <div class="partida-details">
-                            <h2 class="partida-title">#{partidaFutebolViewBean.partida.nome}</h2>
-                            <div class="partida-meta">
-                                <div class="meta-item">
-                                    <i class="pi pi-calendar"></i>
-                                    <span>#{partidaFutebolViewBean.partida.dataFormatada}</span>
-                                </div>
-                                <div class="meta-item">
-                                    <i class="pi pi-clock"></i>
-                                    <span>#{partidaFutebolViewBean.partida.horario}</span>
-                                </div>
-                                <div class="meta-item">
-                                    <i class="pi pi-map-marker"></i>
-                                    <span>#{partidaFutebolViewBean.partida.local}</span>
-                                </div>
-                                <div class="meta-item">
-                                    <i class="pi pi-users"></i>
-                                    <span>#{partidaFutebolViewBean.totalParticipantes} / #{partidaFutebolViewBean.partida.maxJogadores} jogadores</span>
+
+            <div class="grid">
+                <!-- Informações da Partida -->
+                <div class="col-12 lg:col-8">
+                    <!-- Card Principal da Partida -->
+                    <p:card styleClass="mb-4 partida-main-card">
+                        <div class="partida-hero">
+                            <div class="partida-icon">
+                                <i class="pi pi-calendar-plus"></i>
+                            </div>
+                            <div class="partida-details">
+                                <h2 class="partida-title">#{managerPartida.partida.nome}</h2>
+                                <div class="partida-meta">
+                                    <div class="meta-item">
+                                        <i class="pi pi-calendar"></i>
+                                        <span>#{managerPartida.dataFormatadaPartida}</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="pi pi-clock"></i>
+                                        <span>#{managerPartida.horaFormatadaPartida}</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="pi pi-map-marker"></i>
+                                        <span>#{managerPartida.partida.local.nome}</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="pi pi-users"></i>
+                                        <span>#{managerPartida.quantidadeJogadores()} / #{managerPartida.partida.minJogadores} jogadores</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="partida-description" rendered="#{not empty partidaFutebolViewBean.partida.observacoes}">
-                        <h3>Observações</h3>
-                        <p>#{partidaFutebolViewBean.partida.observacoes}</p>
-                    </div>
-                </p:card>
-                
-                <!-- Participantes da Partida -->
-                <p:outputPanel id="participantesSection">
-                    <div class="section-subheader">
-                        <h2 class="section-subtitle">
-                            Participantes Confirmados (#{partidaFutebolViewBean.totalParticipantes})
-                        </h2>
-                        <p:commandButton value="Atualizar" icon="pi pi-refresh" 
-                                       update="participantesSection" 
-                                       styleClass="p-button-text p-button-plain" />
-                    </div>
-                    
-                    <!-- Lista de Participantes -->
-                    <div class="grid" rendered="#{partidaFutebolViewBean.totalParticipantes > 0}">
-                        <ui:repeat value="#{partidaFutebolViewBean.participantes}" var="participante">
-                            <div class="col-12 sm:col-6 md:col-4 lg:col-3">
-                                <div class="participante-card">
-                                    <div class="participante-header">
-                                        <p:badge value="#{participante.posicaoPreferida}" 
-                                                severity="info" styleClass="position-badge" />
-                                        <span class="checkin-time">#{participante.horarioCheckin}</span>
-                                    </div>
-                                    
-                                    <div class="participante-avatar">
-                                        <p:graphicImage value="#{participante.foto}" 
-                                                      styleClass="participante-photo" 
-                                                      rendered="#{participante.temFoto}" />
-                                        <div class="participante-photo-placeholder" 
-                                             rendered="#{!participante.temFoto}">
-                                            <i class="pi pi-user"></i>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="participante-info">
-                                        <h3 class="participante-name">#{participante.nome}</h3>
-                                        <p class="participante-nickname">#{participante.apelido}</p>
-                                        <div class="participante-stats">
-                                            <div class="stat-item">
-                                                <i class="pi pi-star-fill"></i>
-                                                <span>Nível #{participante.nivel}</span>
-                                            </div>
-                                            <div class="stat-item">
-                                                <i class="pi pi-trophy"></i>
-                                                <span>#{participante.partidasJogadas} jogos</span>
+
+
+                    </p:card>
+
+                    <!-- Participantes da Partida -->
+                    <p:outputPanel id="participantesSection">
+                        <div class="section-subheader">
+                            <h2 class="section-subtitle">
+                                Participantes Confirmados (#{managerPartida.quantidadeJogadores()})
+                            </h2>
+                            <p:commandButton value="Atualizar" icon="pi pi-refresh" 
+                                             update="participantesSection" 
+                                             styleClass="p-button-text p-button-plain" />
+                        </div>
+
+                        <!-- Lista de Participantes -->
+                        <div class="grid"  style="#{managerPartida.playerPartida() eq true? '' : 'display: none;'}">
+                            <ui:repeat value="#{managerPartida.partida.players}" var="participante">
+                                <div class="col-12 sm:col-6 md:col-4 lg:col-3">
+                                    <div class="participante-card">
+
+
+                                        <div class="participante-avatar">
+                                            <p:graphicImage value="image/#{participante.anexo.nome}" 
+                                                            styleClass="participante-photo" 
+                                                            rendered="#{participante.anexo ne null}" />
+                                            <div class="participante-photo-placeholder" 
+                                                 rendered="#{participante.anexo eq null}">
+                                                <i class="pi pi-user"></i>
                                             </div>
                                         </div>
+
+                                        <div class="participante-info">
+                                            <h3 class="participante-name">#{participante.nome}</h3>
+                                            <p class="participante-nickname">#{participante.nick}</p>
+                                            <div class="participante-stats">
+
+                                            </div>
+                                        </div>
+
+                                        <div class="participante-actions">
+                                            <p:button icon="pi pi-eye" styleClass="p-button-text p-button-sm" 
+                                                      outcome="jogador.xhtml" title="Ver perfil">
+                                                <f:param name="id" value="#{participante.id}" />
+                                            </p:button>
+
+                                            <p:commandButton icon="pi pi-times" 
+                                                             styleClass="p-button-text p-button-sm p-button-danger"
+                                                             actionListener="#{managerPartida.removerParticipante(participante)}"
+                                                             update="participantesSection statusCard" 
+                                                             title="Remover participante"
+                                                             rendered="#{managerPartida.playerLogado.adminastror}" />
+                                        </div>
                                     </div>
-                                    
-                                    <div class="participante-actions">
-                                        <p:button icon="pi pi-eye" styleClass="p-button-text p-button-sm" 
-                                                outcome="/jogador-view" title="Ver perfil">
-                                            <f:param name="id" value="#{participante.id}" />
-                                        </p:button>
-                                        
-                                        <p:commandButton icon="pi pi-times" 
-                                                       styleClass="p-button-text p-button-sm p-button-danger"
-                                                       actionListener="#{partidaFutebolViewBean.removerParticipante(participante)}"
-                                                       update="participantesSection statusCard" 
-                                                       title="Remover participante"
-                                                       rendered="#{partidaFutebolViewBean.podeRemoverParticipante}" />
+                                </div>
+                            </ui:repeat>
+                        </div>
+
+                        <!-- Estado vazio -->
+                        <div class="empty-state" style="#{managerPartida.playerPartida() eq false? '' : 'display: none;'}">
+                            <i class="pi pi-users" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                            <h3>Nenhum participante confirmado</h3>
+                            <p>Seja o primeiro a se inscrever nesta partida!</p>
+
+
+                        </div>
+                        <div class="empty-state-check">
+                            <p:commandButton value="Check-in" icon="pi pi-check" process="@this" styleClass="p-button-success mt-2"
+                                             actionListener="#{managerPartida.checkin}"/>
+                        </div>
+                    </p:outputPanel>
+
+                    <!-- Times Gerados -->
+                    <!-- Times Gerados -->
+                    <p:outputPanel rendered="#{managerPartida.partida.teams.size() > 0}">
+                        <div class="section-subheader mt-4">
+                            <h2 class="section-subtitle">Times</h2>
+                            <p:commandButton value="Embaralhar" icon="pi pi-refresh" 
+                                             actionListener="#{managerPartida.gerarTimesFutebol()}"
+
+                                             styleClass="p-button-secondary" />
+                        </div>
+
+                        <div class="grid" id="timesSection">
+                            <ui:repeat value="#{managerPartida.partida.teams}" var="team" varStatus="teamStatus">
+                                <div class="col-12 md:col-6">
+                                    <p:card styleClass="team-card #{teamStatus.index == 0 ? 'team-a' : 'team-b'}">
+                                        <f:facet name="title">
+                                            <div class="team-header">
+                                                <div class="team-logo #{teamStatus.index == 0 ? 'team-a-logo' : 'team-b-logo'}">
+                                                    <i class="pi pi-shield"></i>
+                                                </div>
+                                                <div class="team-info">
+                                                    <h3>#{team.nome}</h3>
+                                                    <span class="team-count">#{team.players.size()} jogadores</span>
+                                                </div>
+                                            </div>
+                                        </f:facet>
+
+                                        <div class="team-players">
+                                            <ui:repeat value="#{team.players}" var="jogador">
+                                                <div class="team-player">
+                                                    <div class="player-avatar-small">
+                                                        <p:graphicImage value="#{jogador.foto}" 
+                                                                        styleClass="player-photo-small" 
+                                                                        rendered="#{jogador.temFoto}" />
+                                                        <div class="player-photo-placeholder-small" 
+                                                             rendered="#{!jogador.temFoto}">
+                                                            <i class="pi pi-user"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="player-details">
+                                                        <span class="player-name-small">#{jogador.nome}</span>
+                                                        <span class="player-position-small">#{jogador.posicaoPreferida}</span>
+                                                    </div>
+                                                    <div class="player-level">
+                                                        <i class="pi pi-star-fill"></i>
+                                                        <span>#{jogador.nivel}</span>
+                                                    </div>
+                                                </div>
+                                            </ui:repeat>
+                                        </div>
+                                    </p:card>
+                                </div>
+                            </ui:repeat>
+                        </div>
+                    </p:outputPanel>
+                </div>
+
+                <!-- Sidebar com Informações Adicionais -->
+                <div class="col-12 lg:col-4">
+                    <!-- Status da Partida -->
+                    <p:outputPanel id="statusCard">
+                        <p:card styleClass="mb-4 status-card">
+                            <f:facet name="title">
+                                <div class="flex align-items-center">
+                                    <i class="pi pi-info-circle mr-2"></i>
+                                    <span>Status da Partida</span>
+                                </div>
+                            </f:facet>
+
+                            <div class="status-items">
+                                <div class="status-item">
+                                    <div class="status-icon status-participants">
+                                        <i class="pi pi-users"></i>
+                                    </div>
+                                    <div class="status-info">
+                                        <div class="status-label">Participantes</div>
+                                        <div class="status-value">#{managerPartida.partida.players.size()} / #{managerPartida.partida.minJogadores}</div>
+                                        <div class="status-progress">
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" 
+                                                     style="width: #{managerPartida.percentualParticipantes}%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="status-item">
+                                    <div class="status-icon status-weather">
+                                        <i class="pi pi-sun"></i>
+                                    </div>
+                                    <div class="status-info">
+                                        <div class="status-label">Clima Previsto</div>
+                                        <div class="status-value">Ensolarado, 25°C</div>
                                     </div>
                                 </div>
                             </div>
-                        </ui:repeat>
-                    </div>
-                    
-                    <!-- Estado vazio -->
-                    <div class="empty-state" rendered="#{partidaFutebolViewBean.totalParticipantes == 0}">
-                        <i class="pi pi-users" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
-                        <h3>Nenhum participante confirmado</h3>
-                        <p>Seja o primeiro a se inscrever nesta partida!</p>
-                        <p:commandButton value="Participar Agora" icon="pi pi-check" 
-                                       action="#{partidaFutebolViewBean.fazerCheckin}" 
-                                       update="participantesSection statusCard checkinButton" 
-                                       styleClass="p-button-success mt-2"
-                                       rendered="#{partidaFutebolViewBean.podeParticipar and !partidaFutebolViewBean.jaFezCheckin}" />
-                    </div>
-                </p:outputPanel>
-                
-                <!-- Times Gerados -->
-                <p:outputPanel rendered="#{partidaFutebolViewBean.timesGerados}">
-                    <div class="section-subheader mt-4">
-                        <h2 class="section-subtitle">Times</h2>
-                        <p:commandButton value="Embaralhar" icon="pi pi-refresh" 
-                                       action="#{partidaFutebolViewBean.embaralharTimes}" 
-                                       update="timesSection" 
-                                       styleClass="p-button-secondary"
-                                       rendered="#{partidaFutebolViewBean.podeGerenciarTimes}" />
-                    </div>
-                    
-                    <div class="grid" id="timesSection">
-                        <!-- Time A -->
-                        <div class="col-12 md:col-6">
-                            <p:card styleClass="team-card team-a">
-                                <f:facet name="title">
-                                    <div class="team-header">
-                                        <div class="team-logo team-a-logo">
-                                            <i class="pi pi-shield"></i>
-                                        </div>
-                                        <div class="team-info">
-                                            <h3>Time A</h3>
-                                            <span class="team-count">#{partidaFutebolViewBean.timeA.size()} jogadores</span>
-                                        </div>
-                                    </div>
-                                </f:facet>
-                                
-                                <div class="team-players">
-                                    <ui:repeat value="#{partidaFutebolViewBean.timeA}" var="jogador">
-                                        <div class="team-player">
-                                            <div class="player-avatar-small">
-                                                <p:graphicImage value="#{jogador.foto}" 
-                                                              styleClass="player-photo-small" 
-                                                              rendered="#{jogador.temFoto}" />
-                                                <div class="player-photo-placeholder-small" 
-                                                     rendered="#{!jogador.temFoto}">
-                                                    <i class="pi pi-user"></i>
-                                                </div>
-                                            </div>
-                                            <div class="player-details">
-                                                <span class="player-name-small">#{jogador.nome}</span>
-                                                <span class="player-position-small">#{jogador.posicaoPreferida}</span>
-                                            </div>
-                                            <div class="player-level">
-                                                <i class="pi pi-star-fill"></i>
-                                                <span>#{jogador.nivel}</span>
-                                            </div>
-                                        </div>
-                                    </ui:repeat>
-                                </div>
-                            </p:card>
-                        </div>
-                        
-                        <!-- Time B -->
-                        <div class="col-12 md:col-6">
-                            <p:card styleClass="team-card team-b">
-                                <f:facet name="title">
-                                    <div class="team-header">
-                                        <div class="team-logo team-b-logo">
-                                            <i class="pi pi-shield"></i>
-                                        </div>
-                                        <div class="team-info">
-                                            <h3>Time B</h3>
-                                            <span class="team-count">#{partidaFutebolViewBean.timeB.size()} jogadores</span>
-                                        </div>
-                                    </div>
-                                </f:facet>
-                                
-                                <div class="team-players">
-                                    <ui:repeat value="#{partidaFutebolViewBean.timeB}" var="jogador">
-                                        <div class="team-player">
-                                            <div class="player-avatar-small">
-                                                <p:graphicImage value="#{jogador.foto}" 
-                                                              styleClass="player-photo-small" 
-                                                              rendered="#{jogador.temFoto}" />
-                                                <div class="player-photo-placeholder-small" 
-                                                     rendered="#{!jogador.temFoto}">
-                                                    <i class="pi pi-user"></i>
-                                                </div>
-                                            </div>
-                                            <div class="player-details">
-                                                <span class="player-name-small">#{jogador.nome}</span>
-                                                <span class="player-position-small">#{jogador.posicaoPreferida}</span>
-                                            </div>
-                                            <div class="player-level">
-                                                <i class="pi pi-star-fill"></i>
-                                                <span>#{jogador.nivel}</span>
-                                            </div>
-                                        </div>
-                                    </ui:repeat>
-                                </div>
-                            </p:card>
-                        </div>
-                    </div>
-                </p:outputPanel>
-            </div>
-            
-            <!-- Sidebar com Informações Adicionais -->
-            <div class="col-12 lg:col-4">
-                <!-- Status da Partida -->
-                <p:outputPanel id="statusCard">
-                    <p:card styleClass="mb-4 status-card">
+                        </p:card>
+                    </p:outputPanel>
+
+                    <!-- Localização -->
+                    <p:card styleClass="mb-4">
                         <f:facet name="title">
                             <div class="flex align-items-center">
-                                <i class="pi pi-info-circle mr-2"></i>
-                                <span>Status da Partida</span>
+                                <i class="pi pi-map-marker mr-2"></i>
+                                <span>Localização</span>
                             </div>
                         </f:facet>
-                        
-                        <div class="status-items">
-                            <div class="status-item">
-                                <div class="status-icon status-participants">
-                                    <i class="pi pi-users"></i>
-                                </div>
-                                <div class="status-info">
-                                    <div class="status-label">Participantes</div>
-                                    <div class="status-value">#{partidaFutebolViewBean.totalParticipantes} / #{partidaFutebolViewBean.partida.maxJogadores}</div>
-                                    <div class="status-progress">
-                                        <div class="progress-bar">
-                                            <div class="progress-fill" 
-                                                 style="width: #{partidaFutebolViewBean.percentualParticipantes}%"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="status-item">
-                                <div class="status-icon status-time">
-                                    <i class="pi pi-clock"></i>
-                                </div>
-                                <div class="status-info">
-                                    <div class="status-label">Tempo Restante</div>
-                                    <div class="status-value">#{partidaFutebolViewBean.tempoRestante}</div>
-                                </div>
-                            </div>
-                            
-                            <div class="status-item">
-                                <div class="status-icon status-weather">
-                                    <i class="pi pi-sun"></i>
-                                </div>
-                                <div class="status-info">
-                                    <div class="status-label">Clima Previsto</div>
-                                    <div class="status-value">Ensolarado, 25°C</div>
-                                </div>
+
+                        <div class="location-info">
+                            <h4>#{managerPartida.partida.local.nome}</h4>
+                            <p class="location-address">Rua das Flores, 123 - Centro</p>
+
+                            <div class="location-actions mt-3">
+                                <p:button value="Ver no Mapa" icon="pi pi-map" 
+                                          styleClass="p-button-outlined w-full mb-2" />
+                                <p:button value="Como Chegar" icon="pi pi-directions" 
+                                          styleClass="p-button-text w-full" />
                             </div>
                         </div>
                     </p:card>
-                </p:outputPanel>
-                
-                <!-- Localização -->
-                <p:card styleClass="mb-4">
-                    <f:facet name="title">
-                        <div class="flex align-items-center">
-                            <i class="pi pi-map-marker mr-2"></i>
-                            <span>Localização</span>
+
+                    <!-- Informações Adicionais -->
+                    <p:card styleClass="mb-4">
+                        <f:facet name="title">
+                            <div class="flex align-items-center">
+                                <i class="pi pi-info mr-2"></i>
+                                <span>Informações</span>
+                            </div>
+                        </f:facet>
+
+                        <div class="additional-info">                       
+
+                            <div class="info-item">
+                                <span class="info-label">Criado por</span>
+                                <span class="info-value">#{managerPartida.partida.usuarioCadastro.nome}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">Data de Criação</span>
+                                <span class="info-value">#{managerPartida.partida.dataCriacao}</span>
+                            </div>
+
+                            <div class="info-item" rendered="#{managerPartida.partida.valor > 0}">
+                                <span class="info-label">Valor por Pessoa</span>
+                                <span class="info-value">R$ #{managerPartida.valorFormatado}</span>
+                            </div>
                         </div>
-                    </f:facet>
-                    
-                    <div class="location-info">
-                        <h4>#{partidaFutebolViewBean.partida.local}</h4>
-                        <p class="location-address">Rua das Flores, 123 - Centro</p>
-                        
-                        <div class="location-actions mt-3">
-                            <p:button value="Ver no Mapa" icon="pi pi-map" 
-                                     styleClass="p-button-outlined w-full mb-2" />
-                            <p:button value="Como Chegar" icon="pi pi-directions" 
-                                     styleClass="p-button-text w-full" />
+                    </p:card>
+
+                    <!-- Ações Rápidas -->
+                    <p:card >
+                        <f:facet name="title">
+                            <div class="flex align-items-center">
+                                <i class="pi pi-cog mr-2"></i>
+                                <span>Gerenciar</span>
+                            </div>
+                        </f:facet>
+
+                        <div class="management-actions">
+                            <p:commandButton value="Gerar Times" icon="pi pi-users" 
+
+
+                                             styleClass="p-button-primary w-full mb-2"
+                                             />
+
+                            <p:commandButton value="Notificar Participantes" icon="pi pi-bell" 
+
+                                             styleClass="p-button-info w-full mb-2" />
+
+                            <p:commandButton value="Finalizar Partida" icon="pi pi-flag-fill" 
+
+                                             styleClass="p-button-success w-full mb-2"
+                                             />
+
+                            <p:commandButton value="Cancelar Partida" icon="pi pi-times-circle" 
+                                             styleClass="p-button-danger p-button-outlined w-full"
+                                             />
                         </div>
-                    </div>
-                </p:card>
-                
-                <!-- Informações Adicionais -->
-                <p:card styleClass="mb-4">
-                    <f:facet name="title">
-                        <div class="flex align-items-center">
-                            <i class="pi pi-info mr-2"></i>
-                            <span>Informações</span>
-                        </div>
-                    </f:facet>
-                    
-                    <div class="additional-info">
-                        <div class="info-item">
-                            <span class="info-label">Tipo de Partida</span>
-                            <span class="info-value">#{partidaFutebolViewBean.partida.tipo}</span>
-                        </div>
-                        
-                        <div class="info-item">
-                            <span class="info-label">Criado por</span>
-                            <span class="info-value">#{partidaFutebolViewBean.partida.criador.nome}</span>
-                        </div>
-                        
-                        <div class="info-item">
-                            <span class="info-label">Data de Criação</span>
-                            <span class="info-value">#{partidaFutebolViewBean.partida.dataCriacaoFormatada}</span>
-                        </div>
-                        
-                        <div class="info-item" rendered="#{partidaFutebolViewBean.partida.valor > 0}">
-                            <span class="info-label">Valor por Pessoa</span>
-                            <span class="info-value">R$ #{partidaFutebolViewBean.partida.valorFormatado}</span>
-                        </div>
-                    </div>
-                </p:card>
-                
-                <!-- Ações Rápidas -->
-                <p:card rendered="#{partidaFutebolViewBean.podeGerenciar}">
-                    <f:facet name="title">
-                        <div class="flex align-items-center">
-                            <i class="pi pi-cog mr-2"></i>
-                            <span>Gerenciar</span>
-                        </div>
-                    </f:facet>
-                    
-                    <div class="management-actions">
-                        <p:commandButton value="Gerar Times" icon="pi pi-users" 
-                                       action="#{partidaFutebolViewBean.gerarTimes}" 
-                                       update="timesSection" 
-                                       styleClass="p-button-primary w-full mb-2"
-                                       rendered="#{!partidaFutebolViewBean.timesGerados and partidaFutebolViewBean.podeGerarTimes}" />
-                        
-                        <p:commandButton value="Notificar Participantes" icon="pi pi-bell" 
-                                       action="#{partidaFutebolViewBean.notificarParticipantes}" 
-                                       styleClass="p-button-info w-full mb-2" />
-                        
-                        <p:commandButton value="Finalizar Partida" icon="pi pi-flag-fill" 
-                                       action="#{partidaFutebolViewBean.finalizarPartida}" 
-                                       styleClass="p-button-success w-full mb-2"
-                                       rendered="#{partidaFutebolViewBean.podeFinalizarPartida}" />
-                        
-                        <p:commandButton value="Cancelar Partida" icon="pi pi-times-circle" 
-                                       styleClass="p-button-danger p-button-outlined w-full"
-                                       rendered="#{partidaFutebolViewBean.podeCancelarPartida}" />
-                    </div>
-                </p:card>
+                    </p:card>
+                </div>
             </div>
-        </div>
-        
-        <!-- Diálogo de confirmação de exclusão -->
-        <p:dialog id="deleteDialog" header="Confirmar Exclusão" widgetVar="deleteDialogWidget" 
-                  modal="true" resizable="false" width="400">
-            <p class="mb-3">Tem certeza que deseja excluir a partida <strong>#{partidaFutebolViewBean.partida.nome}</strong>?</p>
-            <p class="mb-3 text-warning">Esta ação não pode ser desfeita e todos os participantes serão notificados.</p>
-            
-            <f:facet name="footer">
-                <p:commandButton value="Cancelar" styleClass="p-button-text" 
-                               onclick="PF('deleteDialogWidget').hide()" />
-                <p:commandButton value="Excluir" styleClass="p-button-danger" 
-                               action="#{partidaFutebolViewBean.excluir}" 
-                               oncomplete="PF('deleteDialogWidget').hide()" />
-            </f:facet>
-        </p:dialog>
-        
+
+            <!-- Diálogo de confirmação de exclusão -->
+            <p:dialog id="deleteDialog" header="Confirmar Exclusão" widgetVar="deleteDialogWidget" 
+                      modal="true" resizable="false" width="400">
+                <p class="mb-3">Tem certeza que deseja excluir a partida <strong>#{managerPartida.partida.nome}</strong>?</p>
+                <p class="mb-3 text-warning">Esta ação não pode ser desfeita e todos os participantes serão notificados.</p>
+
+                <f:facet name="footer">
+                    <p:commandButton value="Cancelar" styleClass="p-button-text" 
+                                     onclick="PF('deleteDialogWidget').hide()" />
+                    <p:commandButton value="Excluir" styleClass="p-button-danger" 
+                                     action="#{managerPartida.excluir}" 
+                                     oncomplete="PF('deleteDialogWidget').hide()" />
+                </f:facet>
+            </p:dialog>
+        </h:form>
+
         <style type="text/css">
             /* Estilos para o cabeçalho */
             .header-actions {
@@ -416,20 +350,20 @@
                 align-items: center;
                 gap: 0.5rem;
             }
-            
+
             /* Estilos para o card principal da partida */
             .partida-main-card {
                 background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
                 border: none;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             }
-            
+
             .partida-hero {
                 display: flex;
                 align-items: center;
                 margin-bottom: 1.5rem;
             }
-            
+
             .partida-icon {
                 width: 80px;
                 height: 80px;
@@ -443,46 +377,46 @@
                 margin-right: 1.5rem;
                 box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
             }
-            
+
             .partida-details {
                 flex: 1;
             }
-            
+
             .partida-title {
                 font-size: 2rem;
                 font-weight: 700;
                 margin: 0 0 1rem;
                 color: #343a40;
             }
-            
+
             .partida-meta {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
                 gap: 1rem;
             }
-            
+
             .meta-item {
                 display: flex;
                 align-items: center;
                 font-size: 1rem;
                 color: #6c757d;
             }
-            
+
             .meta-item i {
                 margin-right: 0.5rem;
                 color: #007bff;
             }
-            
+
             .partida-description {
                 border-top: 1px solid #e9ecef;
                 padding-top: 1.5rem;
             }
-            
+
             .partida-description h3 {
                 margin-bottom: 0.5rem;
                 color: #343a40;
             }
-            
+
             /* Estilos para cards de participantes */
             .participante-card {
                 background-color: #ffffff;
@@ -493,12 +427,12 @@
                 margin-bottom: 1rem;
                 position: relative;
             }
-            
+
             .participante-card:hover {
                 transform: translateY(-3px);
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
             }
-            
+
             .participante-header {
                 display: flex;
                 justify-content: space-between;
@@ -507,16 +441,16 @@
                 background-color: #f8f9fa;
                 border-bottom: 1px solid #e9ecef;
             }
-            
+
             .position-badge {
                 font-size: 0.7rem;
             }
-            
+
             .checkin-time {
                 font-size: 0.75rem;
                 color: #6c757d;
             }
-            
+
             .participante-avatar {
                 width: 100%;
                 height: 140px;
@@ -526,13 +460,13 @@
                 align-items: center;
                 justify-content: center;
             }
-            
+
             .participante-photo {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
             }
-            
+
             .participante-photo-placeholder {
                 display: flex;
                 align-items: center;
@@ -542,32 +476,32 @@
                 font-size: 2.5rem;
                 color: #adb5bd;
             }
-            
+
             .participante-info {
                 padding: 1rem;
                 text-align: center;
             }
-            
+
             .participante-name {
                 font-size: 1rem;
                 font-weight: 600;
                 margin: 0 0 0.25rem;
                 color: #343a40;
             }
-            
+
             .participante-nickname {
                 font-size: 0.875rem;
                 color: #6c757d;
                 margin: 0 0 0.75rem;
             }
-            
+
             .participante-stats {
                 display: flex;
                 justify-content: center;
                 gap: 1rem;
                 flex-wrap: wrap;
             }
-            
+
             .stat-item {
                 display: flex;
                 align-items: center;
@@ -575,11 +509,11 @@
                 font-size: 0.75rem;
                 color: #6c757d;
             }
-            
+
             .stat-item i {
                 color: #ffc107;
             }
-            
+
             .participante-actions {
                 display: flex;
                 justify-content: center;
@@ -588,23 +522,23 @@
                 border-top: 1px solid #e9ecef;
                 background-color: #f8f9fa;
             }
-            
+
             /* Estilos para cards de status */
             .status-card {
                 border-left: 4px solid #007bff;
             }
-            
+
             .status-items {
                 display: flex;
                 flex-direction: column;
                 gap: 1rem;
             }
-            
+
             .status-item {
                 display: flex;
                 align-items: center;
             }
-            
+
             .status-icon {
                 width: 48px;
                 height: 48px;
@@ -616,38 +550,38 @@
                 color: white;
                 font-size: 1.25rem;
             }
-            
+
             .status-participants {
                 background-color: #007bff;
             }
-            
+
             .status-time {
                 background-color: #28a745;
             }
-            
+
             .status-weather {
                 background-color: #ffc107;
             }
-            
+
             .status-info {
                 flex: 1;
             }
-            
+
             .status-label {
                 font-size: 0.875rem;
                 color: #6c757d;
                 margin-bottom: 0.25rem;
             }
-            
+
             .status-value {
                 font-weight: 600;
                 color: #343a40;
             }
-            
+
             .status-progress {
                 margin-top: 0.5rem;
             }
-            
+
             .progress-bar {
                 width: 100%;
                 height: 6px;
@@ -655,36 +589,36 @@
                 border-radius: 3px;
                 overflow: hidden;
             }
-            
+
             .progress-fill {
                 height: 100%;
                 background-color: #007bff;
                 transition: width 0.3s ease;
             }
-            
+
             /* Estilos para informações adicionais */
             .location-info h4 {
                 margin-bottom: 0.5rem;
                 color: #343a40;
             }
-            
+
             .location-address {
                 color: #6c757d;
                 margin-bottom: 0;
             }
-            
+
             .location-actions {
                 display: flex;
                 flex-direction: column;
                 gap: 0.5rem;
             }
-            
+
             .additional-info {
                 display: flex;
                 flex-direction: column;
                 gap: 1rem;
             }
-            
+
             .info-item {
                 display: flex;
                 justify-content: space-between;
@@ -692,47 +626,47 @@
                 padding-bottom: 0.5rem;
                 border-bottom: 1px solid #e9ecef;
             }
-            
+
             .info-item:last-child {
                 border-bottom: none;
                 padding-bottom: 0;
             }
-            
+
             .info-label {
                 font-size: 0.875rem;
                 color: #6c757d;
             }
-            
+
             .info-value {
                 font-weight: 500;
                 color: #343a40;
             }
-            
+
             /* Estilos para ações de gerenciamento */
             .management-actions {
                 display: flex;
                 flex-direction: column;
                 gap: 0.5rem;
             }
-            
+
             /* Estilos para times */
             .team-card {
                 margin-bottom: 1rem;
             }
-            
+
             .team-card.team-a {
                 border-left: 4px solid #007bff;
             }
-            
+
             .team-card.team-b {
                 border-left: 4px solid #28a745;
             }
-            
+
             .team-header {
                 display: flex;
                 align-items: center;
             }
-            
+
             .team-logo {
                 width: 48px;
                 height: 48px;
@@ -744,32 +678,32 @@
                 font-size: 1.5rem;
                 color: white;
             }
-            
+
             .team-a-logo {
                 background-color: #007bff;
             }
-            
+
             .team-b-logo {
                 background-color: #28a745;
             }
-            
+
             .team-info h3 {
                 margin: 0;
                 font-size: 1.25rem;
                 font-weight: 600;
             }
-            
+
             .team-count {
                 font-size: 0.875rem;
                 color: #6c757d;
             }
-            
+
             .team-players {
                 display: flex;
                 flex-direction: column;
                 gap: 0.75rem;
             }
-            
+
             .team-player {
                 display: flex;
                 align-items: center;
@@ -777,7 +711,7 @@
                 background-color: #f8f9fa;
                 border-radius: 6px;
             }
-            
+
             .player-avatar-small {
                 width: 40px;
                 height: 40px;
@@ -787,13 +721,13 @@
                 margin-right: 0.75rem;
                 flex-shrink: 0;
             }
-            
+
             .player-photo-small {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
             }
-            
+
             .player-photo-placeholder-small {
                 display: flex;
                 align-items: center;
@@ -803,12 +737,12 @@
                 font-size: 1rem;
                 color: #adb5bd;
             }
-            
+
             .player-details {
                 flex: 1;
                 min-width: 0;
             }
-            
+
             .player-name-small {
                 display: block;
                 font-weight: 600;
@@ -818,12 +752,12 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
-            
+
             .player-position-small {
                 font-size: 0.75rem;
                 color: #6c757d;
             }
-            
+
             .player-level {
                 display: flex;
                 align-items: center;
@@ -831,18 +765,24 @@
                 font-size: 0.75rem;
                 color: #ffc107;
             }
-            
+
             /* Estado vazio */
             .empty-state {
                 text-align: center;
                 padding: 3rem;
                 color: #6c757d;
             }
-            
+
+            .empty-state-check {
+                text-align: center;
+                padding: 3rem;
+                color: #6c757d;
+            }
+
             .empty-state h3 {
                 margin-bottom: 0.5rem;
             }
-            
+
             /* Estilos para seções */
             .section-subheader {
                 display: flex;
@@ -850,13 +790,13 @@
                 align-items: center;
                 margin-bottom: 1rem;
             }
-            
+
             .section-subtitle {
                 font-size: 1.25rem;
                 font-weight: 600;
                 margin: 0;
             }
-            
+
             /* Estilos para botões */
             .p-button-plain {
                 background-color: transparent;
@@ -865,13 +805,13 @@
                 font-weight: 500;
                 transition: color 0.2s;
             }
-            
+
             .p-button-plain:hover {
                 background-color: transparent;
                 color: #343a40;
                 text-decoration: underline;
             }
-            
+
             /* Responsividade */
             @media (max-width: 768px) {
                 .header-actions {
@@ -879,27 +819,27 @@
                     align-items: stretch;
                     gap: 0.5rem;
                 }
-                
+
                 .partida-hero {
                     flex-direction: column;
                     text-align: center;
                 }
-                
+
                 .partida-icon {
                     margin-right: 0;
                     margin-bottom: 1rem;
                 }
-                
+
                 .partida-meta {
                     grid-template-columns: 1fr;
                 }
-                
+
                 .section-subheader {
                     flex-direction: column;
                     align-items: flex-start;
                     gap: 1rem;
                 }
-                
+
                 .participante-stats {
                     flex-direction: column;
                     gap: 0.5rem;

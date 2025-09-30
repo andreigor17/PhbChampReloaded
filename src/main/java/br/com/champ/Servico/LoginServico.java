@@ -153,7 +153,7 @@ public class LoginServico {
         if (sessao != null) {
 
             String tokenJsonStr = (String) sessao.getAttribute("token");
-            System.err.println("token init " + tokenJsonStr);
+            //System.err.println("token init " + tokenJsonStr);
             if (tokenJsonStr != null && !tokenJsonStr.isBlank() && !tokenJsonStr.isEmpty()) {
                 try {
 

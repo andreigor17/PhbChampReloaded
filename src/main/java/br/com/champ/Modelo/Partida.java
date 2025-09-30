@@ -6,7 +6,10 @@
 package br.com.champ.Modelo;
 
 import br.com.champ.Generico.ModeloGenerico;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -23,11 +26,15 @@ public class Partida extends ModeloGenerico implements Serializable {
     private boolean finalizada;
     private Long faseid;
     private String nome;
-    private String dataPartida;
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm") // garante que o JSON aceite esse formato
+    private Date dataPartida;
     private LocalPartida local;
-    private String minJogadores;
-    private String maxJogadores;
+    private int minJogadores;
+    private int maxJogadores;
     private List<Player> players;
+    private List<Team> teams;
+    private Player usuarioCadastro;
+    private BigDecimal valor;
 
     public Partida() {
     }
@@ -96,11 +103,11 @@ public class Partida extends ModeloGenerico implements Serializable {
         this.nome = nome;
     }
 
-    public String getDataPartida() {
+    public Date getDataPartida() {
         return dataPartida;
     }
 
-    public void setDataPartida(String dataPartida) {
+    public void setDataPartida(Date dataPartida) {
         this.dataPartida = dataPartida;
     }
 
@@ -112,19 +119,19 @@ public class Partida extends ModeloGenerico implements Serializable {
         this.local = local;
     }
 
-    public String getMinJogadores() {
+    public int getMinJogadores() {
         return minJogadores;
     }
 
-    public void setMinJogadores(String minJogadores) {
+    public void setMinJogadores(int minJogadores) {
         this.minJogadores = minJogadores;
     }
 
-    public String getMaxJogadores() {
+    public int getMaxJogadores() {
         return maxJogadores;
     }
 
-    public void setMaxJogadores(String maxJogadores) {
+    public void setMaxJogadores(int maxJogadores) {
         this.maxJogadores = maxJogadores;
     }
 
@@ -136,7 +143,28 @@ public class Partida extends ModeloGenerico implements Serializable {
         this.players = players;
     }
 
-   
-    
+    public List<Team> getTeams() {
+        return teams;
+    }
+
+    public void setTeams(List<Team> teams) {
+        this.teams = teams;
+    }
+
+    public Player getUsuarioCadastro() {
+        return usuarioCadastro;
+    }
+
+    public void setUsuarioCadastro(Player usuarioCadastro) {
+        this.usuarioCadastro = usuarioCadastro;
+    }
+
+    public BigDecimal getValor() {
+        return valor;
+    }
+
+    public void setValor(BigDecimal valor) {
+        this.valor = valor;
+    }
 
 }

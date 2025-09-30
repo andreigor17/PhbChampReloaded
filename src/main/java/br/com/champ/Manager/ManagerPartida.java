@@ -14,6 +14,7 @@ import br.com.champ.Modelo.Player;
 import br.com.champ.Modelo.Team;
 import br.com.champ.Servico.EstatisticaServico;
 import br.com.champ.Servico.ItemPartidaServico;
+import br.com.champ.Servico.LoginServico;
 import br.com.champ.Servico.MapaServico;
 import br.com.champ.Servico.PartidaServico;
 import br.com.champ.Servico.PlayerServico;
@@ -29,12 +30,18 @@ import jakarta.ejb.EJB;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.primefaces.PrimeFaces;
 import org.primefaces.event.DragDropEvent;
 import org.primefaces.model.DualListModel;
@@ -65,6 +72,8 @@ public class ManagerPartida implements Serializable {
     EstatisticaServico estatisticasServico;
     @EJB
     MapaServico mapaServico;
+    @EJB
+    LoginServico loginServico;
     private Partida partida;
     private Partida partidaPesquisar;
     private List<Player> playersTime1;
@@ -106,6 +115,14 @@ public class ManagerPartida implements Serializable {
     private boolean edicao;
     private String horarioPartida;
     private int totalCheckins;
+    private boolean jaFezCheckin;
+    private boolean podeParticipar;
+    private String horaFormatadaPartida;
+    private String dataFormatadaPartida;
+    private int percentualParticipantes;
+    private String tempoRestante;
+    private BigDecimal valorFormatado;
+    private Player playerLogado;
 
     @PostConstruct
     public void init() {
@@ -116,7 +133,11 @@ public class ManagerPartida implements Serializable {
             String gerarMapasId = FacesUtil
                     .getRequestParameter("partidaId");
 
+            this.playerLogado = loginServico.obterPlayerId();
+            //System.err.println("Tem player logado... " + this.playerLogado.getId());
+
             Map<String, String> parametros = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+            HttpServletRequest uri = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
             this.classica = parametros.get("classica") != null;
 
             if (this.classica) {
@@ -135,7 +156,7 @@ public class ManagerPartida implements Serializable {
                 }
             }
 
-            if (this.partida.getId() != null) {
+            if (this.partida.getId() != null && !uri.getRequestURI().contains("partida-futebol-view.xhtml")) {
                 try {
                     this.itensPartidas = this.partida.getItemPartida();
                     this.mapas = mapaServico.pesquisar();
@@ -145,6 +166,11 @@ public class ManagerPartida implements Serializable {
                 } catch (Exception ex) {
                     System.err.println(ex);
                 }
+            } else if (this.partida.getId() != null && uri.getRequestURI().contains("partida-futebol-view.xhtml")) {
+                OffsetDateTime odt = OffsetDateTime.parse(this.partida.getDataCriacao());
+
+                dataFormatadaPartida = odt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                horaFormatadaPartida = odt.format(DateTimeFormatter.ofPattern("HH:mm"));
             }
         } catch (Exception ex) {
             System.err.println(ex);
@@ -175,6 +201,7 @@ public class ManagerPartida implements Serializable {
         this.timesPartida = new ArrayList<>();
         this.teamVencedor = new Team();
         this.radarModel = new RadarChartModel();
+        this.playerLogado = new Player();
     }
 
     public void createRadarModel() throws Exception {
@@ -849,9 +876,19 @@ public class ManagerPartida implements Serializable {
 
         PrimeFaces.current().executeScript("PF('confirmarCriacaoX5Dialog').show();");
     }
-    
-    public void salvarPartida(){
-        
+
+    public void salvarPartida() {
+
+        try {
+            System.out.println("salvando...");
+            System.out.println(this.partida.getDataPartida());
+            partida = partidaServico.salvar(partida, null, Url.SALVAR_PARTIDA.getNome());
+            Mensagem.successAndRedirect("Partida criada com sucesso", "partida-futebol-view.xhtml?id=" + partida.getId());
+
+        } catch (Exception e) {
+
+        }
+
     }
 
     public void salvarPartidaClassica() {
@@ -993,13 +1030,127 @@ public class ManagerPartida implements Serializable {
     public void setTotalCheckins(int totalCheckins) {
         this.totalCheckins = totalCheckins;
     }
-    
-    public void checkin(){
-        
+
+    public void checkin() {
+
+        try {
+            System.out.println("realizando checkin...");
+            if (this.playerLogado != null && !this.partida.getPlayers().contains(this.playerLogado)) {
+                this.partida.getPlayers().add(this.playerLogado);
+                this.partida = partidaServico.salvar(this.partida, this.partida.getId(), Url.ATUALIZAR_PARTIDA.getNome());
+                Mensagem.successAndRedirect("Check-in realizado com sucesso!", "partida-futebol-view.xhtml?id=" + this.partida.getId());
+            } else {
+                PrimeFaces.current().ajax().update("@form");
+
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ManagerPartida.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
-    
-    public void checkout(){
-        
+
+    public void removerParticipante(Player playerRemove) {
+
+        try {
+
+            this.partida.getPlayers().remove(playerRemove);
+            this.partida = partidaServico.salvar(this.partida, this.partida.getId(), Url.ATUALIZAR_PARTIDA.getNome());
+            Mensagem.successAndRedirect("Player removido com sucesso!", "partida-futebol-view.xhtml?id=" + this.partida.getId());
+
+        } catch (Exception ex) {
+            Logger.getLogger(ManagerPartida.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
-    
+
+    public void checkout() {
+
+    }
+
+    public boolean isJaFezCheckin() {
+        return jaFezCheckin;
+    }
+
+    public void setJaFezCheckin(boolean jaFezCheckin) {
+        this.jaFezCheckin = jaFezCheckin;
+    }
+
+    public boolean isPodeParticipar() {
+        return podeParticipar;
+    }
+
+    public void setPodeParticipar(boolean podeParticipar) {
+        this.podeParticipar = podeParticipar;
+    }
+
+    public void gerarTimesFutebol() {
+
+    }
+
+    public String getHoraFormatadaPartida() {
+        return horaFormatadaPartida;
+    }
+
+    public void setHoraFormatadaPartida(String horaFormatadaPartida) {
+        this.horaFormatadaPartida = horaFormatadaPartida;
+    }
+
+    public int getPercentualParticipantes() {
+        return percentualParticipantes;
+    }
+
+    public void setPercentualParticipantes(int percentualParticipantes) {
+        this.percentualParticipantes = percentualParticipantes;
+    }
+
+    public String getTempoRestante() {
+        return tempoRestante;
+    }
+
+    public void setTempoRestante(String tempoRestante) {
+        this.tempoRestante = tempoRestante;
+    }
+
+    public BigDecimal getValorFormatado() {
+        return valorFormatado;
+    }
+
+    public void setValorFormatado(BigDecimal valorFormatado) {
+        this.valorFormatado = valorFormatado;
+    }
+
+    public int quantidadeJogadores() {
+        int quantidade = 0;
+        if (this.partida != null && this.partida.getPlayers() != null && !this.partida.getPlayers().isEmpty()) {
+            quantidade = this.partida.getPlayers().size();
+            return quantidade;
+        }
+        return quantidade;
+    }
+
+    public Player getPlayerLogado() {
+        return playerLogado;
+    }
+
+    public void setPlayerLogado(Player playerLogado) {
+        this.playerLogado = playerLogado;
+    }
+
+    public String getDataFormatadaPartida() {
+        return dataFormatadaPartida;
+    }
+
+    public void setDataFormatadaPartida(String dataFormatadaPartida) {
+        this.dataFormatadaPartida = dataFormatadaPartida;
+    }
+
+    public boolean playerPartida() {
+        if (this.partida != null && this.partida.getPlayers() != null) {
+            if (this.partida.getPlayers().size() > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

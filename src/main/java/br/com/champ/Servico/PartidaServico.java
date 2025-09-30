@@ -78,7 +78,7 @@ public class PartidaServico {
                 // Montando o  Json
                 Gson gson = new Gson();
                 String json = gson.toJson(partida);
-                //System.out.println("Montagem da partida: " + json);
+                System.out.println("Montagem da partida: " + json);
 
                 // Escreve o objeto JSON usando o OutputStream da requisição:
                 try (OutputStream outputStream = request.getOutputStream()) {
