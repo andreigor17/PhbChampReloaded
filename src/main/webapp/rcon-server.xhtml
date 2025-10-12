@@ -17,7 +17,7 @@
         }
         
         .console-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: #000;
             border: 2px solid #00ff00;
@@ -57,13 +57,12 @@
             border: 1px solid #00ff00;
             border-radius: 4px;
             padding: 15px;
-            height: 500px;
+            height: 450px;
             overflow-y: auto;
             margin-bottom: 15px;
-            font-size: 14px;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+            font-size: 13px;
+            line-height: 1.4;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         }
         
         .console-output::-webkit-scrollbar {
@@ -79,16 +78,45 @@
             border-radius: 5px;
         }
         
+        .log-line {
+            margin: 2px 0;
+            padding: 2px 0;
+        }
+        
+        .log-timestamp {
+            color: #888;
+            margin-right: 8px;
+        }
+        
+        .log-command {
+            color: #00ffff;
+            font-weight: bold;
+        }
+        
+        .log-result {
+            color: #00ff00;
+        }
+        
+        .log-error {
+            color: #ff4444;
+        }
+        
+        .log-info {
+            color: #ffff00;
+        }
+        
         .console-input-container {
             display: flex;
             gap: 10px;
             align-items: center;
+            margin-bottom: 15px;
         }
         
         .input-prompt {
             color: #00ff00;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 20px;
+            user-select: none;
         }
         
         .ui-inputfield {
@@ -96,49 +124,64 @@
             background: #0a0a0a !important;
             color: #00ff00 !important;
             border: 1px solid #00ff00 !important;
-            padding: 10px !important;
+            padding: 12px !important;
             font-family: 'Courier New', monospace !important;
             font-size: 14px !important;
+            border-radius: 4px !important;
         }
         
         .ui-inputfield:focus {
             box-shadow: 0 0 10px rgba(0, 255, 0, 0.5) !important;
+            outline: none !important;
         }
         
         .ui-button {
             background: #00ff00 !important;
             color: #000 !important;
             border: none !important;
-            padding: 10px 20px !important;
+            padding: 12px 25px !important;
             font-weight: bold !important;
             cursor: pointer !important;
             font-family: 'Courier New', monospace !important;
+            border-radius: 4px !important;
+            transition: all 0.2s !important;
         }
         
         .ui-button:hover {
             background: #00cc00 !important;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5) !important;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.6) !important;
+            transform: translateY(-1px);
         }
         
         .quick-commands {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
         }
         
         .quick-cmd-btn {
             background: #1a1a1a !important;
             color: #00ff00 !important;
             border: 1px solid #00ff00 !important;
-            padding: 8px 15px !important;
+            padding: 10px 15px !important;
             font-size: 12px !important;
             font-family: 'Courier New', monospace !important;
+            border-radius: 4px !important;
+            transition: all 0.2s !important;
+            text-align: center !important;
         }
         
         .quick-cmd-btn:hover {
             background: #00ff00 !important;
             color: #000 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+        }
+        
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
     </style>
     
@@ -152,10 +195,14 @@
         
         window.onload = function() {
             scrollToBottom();
+            document.getElementById('commandForm:cmdInput').focus();
         };
         
         function handleAjaxComplete() {
-            setTimeout(scrollToBottom, 100);
+            setTimeout(function() {
+                scrollToBottom();
+                document.getElementById('commandForm:cmdInput').focus();
+            }, 100);
         }
     </script>
 </h:head>
@@ -164,8 +211,11 @@
     <h:form id="commandForm">
         <div class="console-container">
             <div class="console-header">
-                <h2 style="margin: 0; color: #00ff00;">🎮 Console RCON - Counter-Strike 2</h2>
-                <div>
+                <div class="header-title">
+                    <span style="font-size: 24px;">🎮</span>
+                    <h2 style="margin: 0; color: #00ff00;">Console RCON - Counter-Strike 2</h2>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
                     <span class="status-badge #{managerRcon.conectado ? 'status-online' : 'status-offline'}">
                         #{managerRcon.conectado ? '● ONLINE' : '● OFFLINE'}
                     </span>
@@ -174,77 +224,87 @@
                                    update="@form"
                                    oncomplete="handleAjaxComplete()"
                                    styleClass="quick-cmd-btn"
-                                   style="margin-left: 10px;"
                                    title="Reconectar"/>
                 </div>
             </div>
             
             <h:panelGroup id="consoleOutput" styleClass="console-output">
-                <h:outputText value="#{managerRcon.historicoFormatado}" escape="false"/>
+                <ui:repeat value="#{managerRcon.historico}" var="linha">
+                    <div class="log-line">
+                        <h:outputText value="#{linha}" escape="false"/>
+                    </div>
+                </ui:repeat>
             </h:panelGroup>
             
             <div class="console-input-container">
                 <span class="input-prompt">$</span>
                 <p:inputText id="cmdInput" 
                            value="#{managerRcon.comando}" 
-                           placeholder="Digite um comando..."
+                           placeholder="Digite um comando... (ex: status, help, changelevel de_dust2)"
                            autocomplete="off">
                     <p:ajax event="keydown" 
                           onstart="if(event.keyCode === 13) { return true; } return false;"
                           listener="#{managerRcon.executarComando()}"
                           update="consoleOutput"
-                          oncomplete="handleAjaxComplete(); document.getElementById('commandForm:cmdInput').focus();"/>
+                          oncomplete="handleAjaxComplete()"/>
                 </p:inputText>
                 <p:commandButton value="EXECUTAR" 
                                action="#{managerRcon.executarComando()}"
                                update="consoleOutput"
-                               oncomplete="handleAjaxComplete(); document.getElementById('commandForm:cmdInput').focus();"/>
+                               oncomplete="handleAjaxComplete()"/>
             </div>
             
             <div class="quick-commands">
-                <p:commandButton value="status" 
+                <p:commandButton value="📊 status" 
                                actionListener="#{managerRcon.setComando('status')}"
                                action="#{managerRcon.executarComando()}"
                                update="consoleOutput"
                                oncomplete="handleAjaxComplete()"
                                styleClass="quick-cmd-btn"/>
                                
-                <p:commandButton value="mp_restartgame 1" 
+                <p:commandButton value="🔄 restart" 
                                actionListener="#{managerRcon.setComando('mp_restartgame 1')}"
                                action="#{managerRcon.executarComando()}"
                                update="consoleOutput"
                                oncomplete="handleAjaxComplete()"
                                styleClass="quick-cmd-btn"/>
                                
-                <p:commandButton value="de_dust2" 
+                <p:commandButton value="🗺️ dust2" 
                                actionListener="#{managerRcon.setComando('changelevel de_dust2')}"
                                action="#{managerRcon.executarComando()}"
                                update="consoleOutput"
                                oncomplete="handleAjaxComplete()"
                                styleClass="quick-cmd-btn"/>
                                
-                <p:commandButton value="de_inferno" 
+                <p:commandButton value="🔥 inferno" 
                                actionListener="#{managerRcon.setComando('changelevel de_inferno')}"
                                action="#{managerRcon.executarComando()}"
                                update="consoleOutput"
                                oncomplete="handleAjaxComplete()"
                                styleClass="quick-cmd-btn"/>
                                
-                <p:commandButton value="de_mirage" 
+                <p:commandButton value="🌴 mirage" 
                                actionListener="#{managerRcon.setComando('changelevel de_mirage')}"
                                action="#{managerRcon.executarComando()}"
                                update="consoleOutput"
                                oncomplete="handleAjaxComplete()"
                                styleClass="quick-cmd-btn"/>
+                
+                <p:commandButton value="🏛️ ancient" 
+                               actionListener="#{managerRcon.setComando('changelevel de_ancient')}"
+                               action="#{managerRcon.executarComando()}"
+                               update="consoleOutput"
+                               oncomplete="handleAjaxComplete()"
+                               styleClass="quick-cmd-btn"/>
                                
-                <p:commandButton value="help" 
+                <p:commandButton value="❓ help" 
                                actionListener="#{managerRcon.setComando('help')}"
                                action="#{managerRcon.executarComando()}"
                                update="consoleOutput"
                                oncomplete="handleAjaxComplete()"
                                styleClass="quick-cmd-btn"/>
                                
-                <p:commandButton value="clear" 
+                <p:commandButton value="🧹 clear" 
                                actionListener="#{managerRcon.setComando('clear')}"
                                action="#{managerRcon.executarComando()}"
                                update="consoleOutput"
