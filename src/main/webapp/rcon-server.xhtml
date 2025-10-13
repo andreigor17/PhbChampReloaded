@@ -108,8 +108,8 @@
                                                 value="#{managerRcon.comando}"
                                                 completeMethod="#{enums.sugerirComandos}"
                                                 var="cmd"
-                                                itemLabel="#{cmd.command}"
-                                                itemValue="#{cmd.command}"
+                                                itemLabel="#{cmd.comando}"
+                                                itemValue="#{cmd.comando}"
                                                 placeholder="Digite um comando RCON (ex: status, changelevel, mp_restartgame)..."
                                                 styleClass="console-autocomplete"
                                                 inputStyleClass="console-input-field"
@@ -118,10 +118,10 @@
                                                 minQueryLength="0"
                                                 forceSelection="false">
                                     <p:column style="width: 35%;">
-                                        <span class="cmd-name">#{cmd.command}</span>
+                                        <span class="cmd-name">#{cmd.comando}</span>
                                     </p:column>
                                     <p:column style="width: 65%;">
-                                        <span class="cmd-description">#{cmd.description}</span>
+                                        <span class="cmd-description">#{cmd.descricao}</span>
                                     </p:column>
                                     <p:ajax event="keydown" 
                                             onstart="if(event.keyCode === 13) { return true; } return false;"
