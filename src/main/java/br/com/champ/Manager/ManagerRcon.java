@@ -4,6 +4,7 @@
  */
 package br.com.champ.Manager;
 
+import br.com.champ.Enums.Cs2ConsoleCommand;
 import br.com.champ.Servico.RconService;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.view.ViewScoped;
@@ -12,8 +13,10 @@ import jakarta.inject.Named;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *

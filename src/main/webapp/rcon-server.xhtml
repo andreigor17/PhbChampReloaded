@@ -1,317 +1,761 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="jakarta.faces.html"
-      xmlns:f="jakarta.faces.core"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:p="http://primefaces.org/ui">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="vercel.xhtml">
 
-    <h:head>
-        <title>Console RCON - CS2</title>
-        <style>
-            body {
-                background: #1a1a1a;
-                color: #00ff00;
-                font-family: 'Courier New', monospace;
-                margin: 0;
-                padding: 20px;
+    <ui:define name="content">
+        <!-- Header -->
+        <div class="section-header console-header">
+            <div>
+                <h1 class="section-title">
+                    <i class="pi pi-desktop mr-2"></i>
+                    Console RCON
+                    <span class="console-subtitle">Counter-Strike 2</span>
+                </h1>
+                <p class="section-description">
+                    Terminal de controle remoto do servidor
+                </p>
+            </div>
+            <div class="header-actions">
+                <p:commandButton value="Reconectar" 
+                                 icon="pi pi-refresh" 
+                                 action="#{managerRcon.testarConexao()}"
+                                 update="connectionStatus consoleForm"
+                                 styleClass="p-button-outlined mr-2" />
+
+                <p:outputPanel id="connectionStatus">
+                    <div class="connection-badge #{managerRcon.conectado ? 'connected' : 'disconnected'}">
+                        <span class="status-dot"></span>
+                        <span class="status-text">#{managerRcon.conectado ? 'Online' : 'Offline'}</span>
+                    </div>
+                </p:outputPanel>
+            </div>
+        </div>
+
+        <!-- Aviso de Desconexão -->
+        <p:outputPanel rendered="#{!managerRcon.conectado}">
+            <div class="disconnection-alert">
+                <div class="alert-icon">
+                    <i class="pi pi-exclamation-triangle"></i>
+                </div>
+                <div class="alert-content">
+                    <h3 class="alert-title">Servidor Desconectado</h3>
+                    <p class="alert-message">
+                        Não foi possível estabelecer conexão com o servidor CS2. 
+                        Verifique as configurações RCON e tente reconectar.
+                    </p>
+                </div>
+                <div class="alert-actions">
+                    <p:commandButton value="Tentar Novamente" 
+                                     icon="pi pi-refresh"
+                                     action="#{managerRcon.testarConexao()}"
+                                     update="connectionStatus consoleForm @parent"
+                                     styleClass="p-button-danger" />
+                </div>
+            </div>
+        </p:outputPanel>
+
+        <div class="grid">
+            <!-- Console Principal -->
+            <div class="col-12 lg:col-9">
+                <p:card styleClass="console-card">
+                    <f:facet name="title">
+                        <div class="console-title-bar">
+                            <div class="console-title">
+                                <i class="pi pi-code mr-2"></i>
+                                <span>Terminal</span>
+                            </div>
+                            <p:commandButton icon="pi pi-trash" 
+                                             value="Limpar"
+                                             actionListener="#{managerRcon.setComando('clear')}"
+                                             action="#{managerRcon.executarComando()}"
+                                             update="consoleForm"
+                                             styleClass="p-button-text p-button-sm"
+                                             title="Limpar console" />
+                        </div>
+                    </f:facet>
+
+                    <h:form id="consoleForm">
+                        <!-- Terminal Output -->
+                        <div class="console-output" id="consoleOutputArea">
+                            <div class="terminal-info">
+                                <span class="terminal-label">Counter-Strike 2 Dedicated Server</span>
+                                <span class="terminal-version">v1.0.0</span>
+                            </div>
+
+                            <ui:repeat value="#{managerRcon.historico}" var="linha">
+                                <div class="console-line">
+                                    <span class="line-prefix">$</span>
+                                    <h:outputText value="#{linha}" escape="false" />
+                                </div>
+                            </ui:repeat>
+
+                            <div class="console-line cursor-line">
+                                <span class="line-prefix">$</span>
+                                <span class="cursor-blink">_</span>
+                            </div>
+                        </div>
+
+                        <!-- Input Command Area -->
+                        <div class="console-input-area">
+                            <div class="input-row">
+                                <div class="console-prompt">
+                                    <i class="pi pi-angle-right"></i>
+                                </div>
+                                <p:autoComplete id="cmdInput"
+                                                value="#{managerRcon.comando}"
+                                                completeMethod="#{enums.sugerirComandos}"
+                                                var="cmd"
+                                                itemLabel="#{cmd.command}"
+                                                itemValue="#{cmd.command}"
+                                                placeholder="Digite um comando RCON (ex: status, changelevel, mp_restartgame)..."
+                                                styleClass="console-autocomplete"
+                                                inputStyleClass="console-input-field"
+                                                dropdown="true"
+                                                scrollHeight="300"
+                                                minQueryLength="0"
+                                                forceSelection="false">
+                                    <p:column style="width: 35%;">
+                                        <span class="cmd-name">#{cmd.command}</span>
+                                    </p:column>
+                                    <p:column style="width: 65%;">
+                                        <span class="cmd-description">#{cmd.description}</span>
+                                    </p:column>
+                                    <p:ajax event="keydown" 
+                                            onstart="if(event.keyCode === 13) { return true; } return false;"
+                                            listener="#{managerRcon.executarComando()}"
+                                            update="consoleForm"
+                                            oncomplete="scrollConsoleToBottom(); focusInput();" />
+                                </p:autoComplete>
+
+                                <p:commandButton value="Executar" 
+                                                 icon="pi pi-play"
+                                                 action="#{managerRcon.executarComando()}"
+                                                 update="consoleForm"
+                                                 oncomplete="scrollConsoleToBottom(); focusInput();"
+                                                 styleClass="p-button-success execute-btn" />
+                            </div>
+                        </div>
+                    </h:form>
+                </p:card>
+
+                <!-- Command History -->
+                <p:card styleClass="mt-3">
+                    <f:facet name="title">
+                        <div class="flex align-items-center">
+                            <i class="pi pi-history mr-2"></i>
+                            <span>Histórico de Comandos</span>
+                        </div>
+                    </f:facet>
+
+                    <div class="command-history">
+                        <ui:repeat value="#{managerRcon.historico}" var="cmd" varStatus="status">
+                            <div class="history-item">
+                                <span class="history-index">#{status.index + 1}</span>
+                                <span class="history-command">#{cmd}</span>
+                                <p:commandButton icon="pi pi-replay" 
+                                                 actionListener="#{managerRcon.setComando(cmd)}"
+                                                 action="#{managerRcon.executarComando()}"
+                                                 update="consoleForm"
+                                                 oncomplete="scrollConsoleToBottom();"
+                                                 styleClass="p-button-text p-button-sm"
+                                                 title="Executar novamente" />
+                            </div>
+                        </ui:repeat>
+
+                        <div class="empty-state" 
+                             style="padding: 2rem; text-align: center;"
+                             rendered="#{empty managerRcon.historico}">
+                            <i class="pi pi-inbox" style="font-size: 2rem; color: #ccc;"></i>
+                            <p style="color: #6c757d; margin-top: 0.5rem;">Nenhum comando executado</p>
+                        </div>
+                    </div>
+                </p:card>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-12 lg:col-3">
+                <!-- Server Status -->
+                <p:card styleClass="mb-3">
+                    <f:facet name="title">
+                        <div class="flex align-items-center">
+                            <i class="pi pi-server mr-2"></i>
+                            <span>Status do Servidor</span>
+                        </div>
+                    </f:facet>
+
+                    <div class="server-info">
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="pi pi-wifi mr-2"></i>
+                                Conexão
+                            </span>
+                            <div class="connection-status #{managerRcon.conectado ? 'active' : 'inactive'}">
+                                <span class="status-indicator"></span>
+                                <span>#{managerRcon.conectado ? 'Ativo' : 'Inativo'}</span>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <p:commandButton value="Atualizar Status" 
+                                     icon="pi pi-refresh"
+                                     actionListener="#{managerRcon.setComando('status')}"
+                                     action="#{managerRcon.executarComando()}"
+                                     update="consoleForm"
+                                     styleClass="p-button-outlined w-full mt-3" />
+                </p:card>
+
+                <!-- Quick Commands -->
+                <p:card>
+                    <f:facet name="title">
+                        <div class="flex align-items-center">
+                            <i class="pi pi-bolt mr-2"></i>
+                            <span>Comandos Rápidos</span>
+                        </div>
+                    </f:facet>
+
+                    <div class="quick-commands">
+                        <!-- Server Commands -->
+                        <h4 class="command-section-title">
+                            <i class="pi pi-cog mr-1"></i>
+                            Servidor
+                        </h4>
+
+                        <p:commandButton value="Status" 
+                                         icon="pi pi-info-circle"
+                                         actionListener="#{managerRcon.setComando('status')}"
+                                         action="#{managerRcon.executarComando()}"
+                                         update="consoleForm"
+                                         styleClass="quick-cmd-btn" />
+
+                        <p:commandButton value="Reiniciar Partida" 
+                                         icon="pi pi-refresh"
+                                         actionListener="#{managerRcon.setComando('mp_restartgame 1')}"
+                                         action="#{managerRcon.executarComando()}"
+                                         update="consoleForm"
+                                         styleClass="quick-cmd-btn" />
+
+                        <p:commandButton value="Ajuda" 
+                                         icon="pi pi-question-circle"
+                                         actionListener="#{managerRcon.setComando('help')}"
+                                         action="#{managerRcon.executarComando()}"
+                                         update="consoleForm"
+                                         styleClass="quick-cmd-btn" />
+
+                        <!-- Maps -->
+                        <h4 class="command-section-title">
+                            <i class="pi pi-map mr-1"></i>
+                            Mapas
+                        </h4>
+
+                        <p:commandButton value="Dust II" 
+                                         icon="pi pi-map-marker"
+                                         actionListener="#{managerRcon.setComando('changelevel de_dust2')}"
+                                         action="#{managerRcon.executarComando()}"
+                                         update="consoleForm"
+                                         styleClass="quick-cmd-btn map-btn" />
+
+                        <p:commandButton value="Inferno" 
+                                         icon="pi pi-map-marker"
+                                         actionListener="#{managerRcon.setComando('changelevel de_inferno')}"
+                                         action="#{managerRcon.executarComando()}"
+                                         update="consoleForm"
+                                         styleClass="quick-cmd-btn map-btn" />
+
+                        <p:commandButton value="Mirage" 
+                                         icon="pi pi-map-marker"
+                                         actionListener="#{managerRcon.setComando('changelevel de_mirage')}"
+                                         action="#{managerRcon.executarComando()}"
+                                         update="consoleForm"
+                                         styleClass="quick-cmd-btn map-btn" />
+
+                        <p:commandButton value="Ancient" 
+                                         icon="pi pi-map-marker"
+                                         actionListener="#{managerRcon.setComando('changelevel de_ancient')}"
+                                         action="#{managerRcon.executarComando()}"
+                                         update="consoleForm"
+                                         styleClass="quick-cmd-btn map-btn" />
+
+                        <p:commandButton value="Nuke" 
+                                         icon="pi pi-map-marker"
+                                         actionListener="#{managerRcon.setComando('changelevel de_nuke')}"
+                                         action="#{managerRcon.executarComando()}"
+                                         update="consoleForm"
+                                         styleClass="quick-cmd-btn map-btn" />
+
+                        <p:commandButton value="Vertigo" 
+                                         icon="pi pi-map-marker"
+                                         actionListener="#{managerRcon.setComando('changelevel de_vertigo')}"
+                                         action="#{managerRcon.executarComando()}"
+                                         update="consoleForm"
+                                         styleClass="quick-cmd-btn map-btn" />
+                    </div>
+                </p:card>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            function scrollConsoleToBottom() {
+                setTimeout(function () {
+                    var output = document.getElementById('consoleOutputArea');
+                    if (output) {
+                        output.scrollTop = output.scrollHeight;
+                    }
+                }, 100);
             }
 
-            .console-container {
-                max-width: 1400px;
-                margin: 0 auto;
-                background: #000;
-                border: 2px solid #00ff00;
-                border-radius: 8px;
-                padding: 20px;
-                box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            function focusInput() {
+                setTimeout(function () {
+                    var input = document.querySelector('.console-input-field');
+                    if (input) {
+                        input.focus();
+                    }
+                }, 150);
             }
 
+            window.addEventListener('load', function () {
+                scrollConsoleToBottom();
+                focusInput();
+            });
+
+            if (typeof PrimeFaces !== 'undefined') {
+                PrimeFaces.ajax.addOnCompleteCallback(function () {
+                    scrollConsoleToBottom();
+                });
+            }
+        </script>
+
+        <style type="text/css">
+            /* Header Console */
             .console-header {
+                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                padding: 1.5rem;
+                border-radius: 8px;
+                margin-bottom: 1.5rem;
+                border-left: 4px solid #007bff;
+            }
+
+            .console-subtitle {
+                font-size: 0.875rem;
+                color: #6c757d;
+                font-weight: 500;
+                margin-left: 0.5rem;
+            }
+
+            /* Connection Badge */
+            .connection-badge {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.5rem 1rem;
+                border-radius: 20px;
+                font-weight: 600;
+                font-size: 0.875rem;
+                transition: all 0.3s;
+            }
+
+            .connection-badge.connected {
+                background: rgba(40, 167, 69, 0.1);
+                border: 2px solid #28a745;
+                color: #28a745;
+            }
+
+            .connection-badge.disconnected {
+                background: rgba(220, 53, 69, 0.1);
+                border: 2px solid #dc3545;
+                color: #dc3545;
+                animation: pulse 2s infinite;
+            }
+
+            .status-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                animation: blink 1.5s infinite;
+            }
+
+            .connected .status-dot {
+                background: #28a745;
+                box-shadow: 0 0 8px #28a745;
+            }
+
+            .disconnected .status-dot {
+                background: #dc3545;
+                box-shadow: 0 0 8px #dc3545;
+            }
+
+            /* Disconnection Alert */
+            .disconnection-alert {
+                display: flex;
+                align-items: center;
+                gap: 1.5rem;
+                background: #fff3cd;
+                border: 2px solid #ffc107;
+                border-radius: 8px;
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+                box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
+            }
+
+            .alert-icon {
+                font-size: 2.5rem;
+                color: #ffc107;
+            }
+
+            .alert-content {
+                flex: 1;
+            }
+
+            .alert-title {
+                color: #856404;
+                font-size: 1.25rem;
+                font-weight: 600;
+                margin: 0 0 0.5rem;
+            }
+
+            .alert-message {
+                color: #856404;
+                margin: 0;
+                line-height: 1.5;
+            }
+
+            /* Console Card */
+            .console-card {
+                background: #fff;
+                border: 1px solid #dee2e6;
+            }
+
+            .console-title-bar {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 1px solid #00ff00;
+                color: #495057;
+                font-weight: 600;
             }
 
-            .status-badge {
-                padding: 5px 15px;
-                border-radius: 15px;
-                font-size: 12px;
-                font-weight: bold;
+            .console-title {
+                display: flex;
+                align-items: center;
             }
 
-            .status-online {
-                background: #00ff00;
-                color: #000;
-            }
-
-            .status-offline {
-                background: #ff0000;
-                color: #fff;
-            }
-
+            /* Terminal Output - AUMENTADO */
             .console-output {
-                background: #0a0a0a;                
-                border-radius: 4px;
-                padding: 15px;
-                height: 450px;
+                background: #1e1e1e;
+                border: 1px solid #dee2e6;
+                border-radius: 6px;
+                padding: 1.5rem;
+                height: 550px; /* AUMENTADO */
                 overflow-y: auto;
-                margin-bottom: 15px;
-                font-size: 13px;
-                line-height: 1.4;
+                margin-bottom: 1rem;
                 font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+                font-size: 14px;
+                line-height: 1.8;
+                color: #d4d4d4;
+            }
+
+            .terminal-info {
+                display: flex;
+                justify-content: space-between;
+                padding-bottom: 0.75rem;
+                margin-bottom: 1rem;
+                border-bottom: 1px solid #333;
+                color: #888;
+                font-size: 0.75rem;
+            }
+
+            .terminal-version {
+                color: #007bff;
             }
 
             .console-output::-webkit-scrollbar {
-                width: 10px;
+                width: 8px;
             }
 
             .console-output::-webkit-scrollbar-track {
-                background: #0a0a0a;
+                background: #2d2d2d;
+                border-radius: 4px;
             }
 
             .console-output::-webkit-scrollbar-thumb {
-                background: #00ff00;
-                border-radius: 5px;
+                background: #555;
+                border-radius: 4px;
             }
 
-            .log-line {
-                margin: 2px 0;
+            .console-output::-webkit-scrollbar-thumb:hover {
+                background: #666;
+            }
+
+            .console-line {
+                margin: 4px 0;
                 padding: 2px 0;
-            }
-
-            .log-timestamp {
-                color: #888;
-                margin-right: 8px;
-            }
-
-            .log-command {
-                color: #00ffff;
-                font-weight: bold;
-            }
-
-            .log-result {
-                color: #00ff00;
-            }
-
-            .log-error {
-                color: #ff4444;
-            }
-
-            .log-info {
-                color: #ffff00;
-            }
-
-            .console-input-container {
                 display: flex;
-                gap: 10px;
-                align-items: center;
-                margin-bottom: 15px;
+                gap: 0.75rem;
+                align-items: flex-start;
             }
 
-            .input-prompt {
-                color: #00ff00;
+            .line-prefix {
+                color: #007bff;
                 font-weight: bold;
-                font-size: 20px;
                 user-select: none;
+                flex-shrink: 0;
             }
 
-            .ui-inputfield {
+            .cursor-line {
+                opacity: 0.6;
+            }
+
+            .cursor-blink {
+                animation: blink 1s infinite;
+            }
+
+            /* Input Area - MELHOR ALINHAMENTO */
+            .console-input-area {
+                background: #f8f9fa;
+                padding: 1.25rem;
+                border-radius: 6px;
+                border: 1px solid #dee2e6;
+            }
+
+            .input-row {
+                display: flex;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .console-prompt {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #007bff;
+                font-size: 1.5rem;
+                font-weight: bold;
+                min-width: 40px;
+            }
+
+            .console-autocomplete {
                 flex: 1;
-                background: #0a0a0a !important;
-                color: #00ff00 !important;
-                border: 1px solid #00ff00 !important;
-                padding: 12px !important;
-                font-family: 'Courier New', monospace !important;
+            }
+
+            .console-input-field {
+                width: 100%;
+                background: #fff !important;
+                color: #212529 !important;
+                border: 1px solid #ced4da !important;
+                font-family: 'Consolas', 'Monaco', monospace !important;
                 font-size: 14px !important;
-                border-radius: 4px !important;
+                padding: 0.75rem 1rem !important;
+                height: 48px !important; /* ALTURA FIXA PARA ALINHAMENTO */
             }
 
-            .ui-inputfield:focus {
-                box-shadow: 0 0 10px rgba(0, 255, 0, 0.5) !important;
-                outline: none !important;
+            .console-input-field:focus {
+                border-color: #007bff !important;
+                box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
             }
 
-            .ui-button {
-                background: #00ff00 !important;
-                color: #000 !important;
-                border: none !important;
-                padding: 12px 25px !important;
-                font-weight: bold !important;
-                cursor: pointer !important;
-                font-family: 'Courier New', monospace !important;
-                border-radius: 4px !important;
-                transition: all 0.2s !important;
+            .execute-btn {
+                min-width: 140px !important;
+                height: 48px !important; /* MESMA ALTURA DO INPUT */
+                font-weight: 600 !important;
             }
 
-            .ui-button:hover {
-                background: #00cc00 !important;
-                box-shadow: 0 0 15px rgba(0, 255, 0, 0.6) !important;
-                transform: translateY(-1px);
+            /* Autocomplete Panel */
+            .console-autocomplete .ui-autocomplete-panel {
+                font-family: 'Consolas', 'Monaco', monospace;
+                font-size: 13px;
             }
 
+            .cmd-name {
+                font-weight: 600;
+                color: #007bff;
+            }
+
+            .cmd-description {
+                color: #6c757d;
+                font-size: 0.875rem;
+            }
+
+            /* Server Info */
+            .server-info {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .info-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem;
+                background-color: #f8f9fa;
+                border-radius: 6px;
+            }
+
+            .info-label {
+                display: flex;
+                align-items: center;
+                font-weight: 500;
+                color: #495057;
+                font-size: 0.875rem;
+            }
+
+            .info-value {
+                font-weight: 600;
+                color: #212529;
+            }
+
+            .connection-status {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-weight: 600;
+                font-size: 0.875rem;
+            }
+
+            .connection-status.active {
+                color: #28a745;
+            }
+
+            .connection-status.inactive {
+                color: #dc3545;
+            }
+
+            .status-indicator {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                animation: blink 1.5s infinite;
+            }
+
+            .connection-status.active .status-indicator {
+                background: #28a745;
+                box-shadow: 0 0 8px #28a745;
+            }
+
+            .connection-status.inactive .status-indicator {
+                background: #dc3545;
+                box-shadow: 0 0 8px #dc3545;
+            }
+
+            /* Quick Commands */
             .quick-commands {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 8px;
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .command-section-title {
+                display: flex;
+                align-items: center;
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #495057;
+                margin: 1rem 0 0.5rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 1px solid #dee2e6;
+            }
+
+            .command-section-title:first-child {
+                margin-top: 0;
             }
 
             .quick-cmd-btn {
-                background: #1a1a1a !important;
-                color: #00ff00 !important;
-                border: 1px solid #00ff00 !important;
-                padding: 10px 15px !important;
-                font-size: 12px !important;
-                font-family: 'Courier New', monospace !important;
-                border-radius: 4px !important;
+                width: 100%;
+                background: #fff !important;
+                border: 1px solid #dee2e6 !important;
+                color: #495057 !important;
+                font-weight: 500 !important;
+                justify-content: flex-start !important;
+                text-align: left !important;
                 transition: all 0.2s !important;
-                text-align: center !important;
             }
 
             .quick-cmd-btn:hover {
-                background: #00ff00 !important;
-                color: #000 !important;
-                transform: translateY(-1px);
-                box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+                background: #007bff !important;
+                border-color: #007bff !important;
+                color: #fff !important;
+                transform: translateX(4px);
             }
 
-            .header-title {
+            .map-btn {
+                background: #f8f9fa !important;
+            }
+
+            /* Command History */
+            .history-item {
                 display: flex;
                 align-items: center;
-                gap: 10px;
+                gap: 0.75rem;
+                padding: 0.75rem;
+                background-color: #f8f9fa;
+                border-radius: 6px;
+                border-left: 3px solid #007bff;
+                margin-bottom: 0.5rem;
             }
-        </style>
 
-        <script>
-            function scrollToBottom() {
-                var output = document.getElementById('commandForm:consoleOutput');
-                if (output) {
-                    output.scrollTop = output.scrollHeight;
+            .history-index {
+                background: #007bff;
+                color: #fff;
+                font-weight: 700;
+                padding: 0.25rem 0.5rem;
+                border-radius: 4px;
+                font-size: 0.75rem;
+                min-width: 28px;
+                text-align: center;
+            }
+
+            .history-command {
+                flex: 1;
+                font-family: 'Consolas', monospace;
+                color: #212529;
+                font-size: 0.875rem;
+            }
+
+            /* Animations */
+            @keyframes pulse {
+                0%, 100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.7;
                 }
             }
 
-            window.onload = function () {
-                scrollToBottom();
-                document.getElementById('commandForm:cmdInput').focus();
-            };
-
-            function handleAjaxComplete() {
-                setTimeout(function () {
-                    scrollToBottom();
-                    document.getElementById('commandForm:cmdInput').focus();
-                }, 100);
+            @keyframes blink {
+                0%, 50% {
+                    opacity: 1;
+                }
+                51%, 100% {
+                    opacity: 0;
+                }
             }
-        </script>
-    </h:head>
 
-    <h:body>
-        <h:form id="commandForm">
-            <div class="console-container">
-                <div class="console-header">
-                    <div class="header-title">
-                        <span style="font-size: 24px;">🎮</span>
-                        <h2 style="margin: 0; color: #00ff00;">Console RCON - Counter-Strike 2</h2>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span class="status-badge #{managerRcon.conectado ? 'status-online' : 'status-offline'}">
-                            #{managerRcon.conectado ? '● ONLINE' : '● OFFLINE'}
-                        </span>
-                        <p:commandButton value="🔄" 
-                                         action="#{managerRcon.testarConexao()}"
-                                         update="@form"
-                                         oncomplete="handleAjaxComplete()"
-                                         styleClass="quick-cmd-btn"
-                                         title="Reconectar"/>
-                    </div>
-                </div>
+            /* Responsive */
+            @media (max-width: 768px) {
+                .console-output {
+                    height: 400px;
+                }
 
-                <h:panelGroup id="consoleOutput" styleClass="console-output">
-                    <ui:repeat value="#{managerRcon.historico}" var="linha">
-                        <div class="log-line">
-                            <h:outputText value="#{linha}" escape="false"/>
-                        </div>
-                    </ui:repeat>
-                </h:panelGroup>
+                .input-row {
+                    flex-direction: column;
+                }
 
-                <div class="console-input-container">
-                    <span class="input-prompt">$</span>
-                    <p:inputText id="cmdInput" 
-                                 value="#{managerRcon.comando}" 
-                                 placeholder="Digite um comando... (ex: status, help, changelevel de_dust2)"
-                                 autocomplete="off">
-                        <p:ajax event="keydown" 
-                                onstart="if(event.keyCode === 13) { return true; } return false;"
-                                listener="#{managerRcon.executarComando()}"
-                                update="consoleOutput"
-                                oncomplete="handleAjaxComplete()"/>
-                    </p:inputText>
-                    <p:commandButton value="EXECUTAR" 
-                                     action="#{managerRcon.executarComando()}"
-                                     update="consoleOutput"
-                                     oncomplete="handleAjaxComplete()"/>
-                </div>
+                .console-prompt {
+                    min-width: auto;
+                }
 
-                <div class="quick-commands">
-                    <p:commandButton value="📊 status" 
-                                     actionListener="#{managerRcon.setComando('status')}"
-                                     action="#{managerRcon.executarComando()}"
-                                     update="consoleOutput"
-                                     oncomplete="handleAjaxComplete()"
-                                     styleClass="quick-cmd-btn"/>
+                .execute-btn {
+                    width: 100%;
+                }
 
-                    <p:commandButton value="🔄 restart" 
-                                     actionListener="#{managerRcon.setComando('mp_restartgame 1')}"
-                                     action="#{managerRcon.executarComando()}"
-                                     update="consoleOutput"
-                                     oncomplete="handleAjaxComplete()"
-                                     styleClass="quick-cmd-btn"/>
-
-                    <p:commandButton value="🗺️ dust2" 
-                                     actionListener="#{managerRcon.setComando('changelevel de_dust2')}"
-                                     action="#{managerRcon.executarComando()}"
-                                     update="consoleOutput"
-                                     oncomplete="handleAjaxComplete()"
-                                     styleClass="quick-cmd-btn"/>
-
-                    <p:commandButton value="🔥 inferno" 
-                                     actionListener="#{managerRcon.setComando('changelevel de_inferno')}"
-                                     action="#{managerRcon.executarComando()}"
-                                     update="consoleOutput"
-                                     oncomplete="handleAjaxComplete()"
-                                     styleClass="quick-cmd-btn"/>
-
-                    <p:commandButton value="🌴 mirage" 
-                                     actionListener="#{managerRcon.setComando('changelevel de_mirage')}"
-                                     action="#{managerRcon.executarComando()}"
-                                     update="consoleOutput"
-                                     oncomplete="handleAjaxComplete()"
-                                     styleClass="quick-cmd-btn"/>
-
-                    <p:commandButton value="🏛️ ancient" 
-                                     actionListener="#{managerRcon.setComando('changelevel de_ancient')}"
-                                     action="#{managerRcon.executarComando()}"
-                                     update="consoleOutput"
-                                     oncomplete="handleAjaxComplete()"
-                                     styleClass="quick-cmd-btn"/>
-
-                    <p:commandButton value="❓ help" 
-                                     actionListener="#{managerRcon.setComando('help')}"
-                                     action="#{managerRcon.executarComando()}"
-                                     update="consoleOutput"
-                                     oncomplete="handleAjaxComplete()"
-                                     styleClass="quick-cmd-btn"/>
-
-                    <p:commandButton value="🧹 clear" 
-                                     actionListener="#{managerRcon.setComando('clear')}"
-                                     action="#{managerRcon.executarComando()}"
-                                     update="consoleOutput"
-                                     oncomplete="handleAjaxComplete()"
-                                     styleClass="quick-cmd-btn"/>
-                </div>
-            </div>
-        </h:form>
-    </h:body>
-</html>
+                .disconnection-alert {
+                    flex-direction: column;
+                    text-align: center;
+                }
+            }
+        </style>
+    </ui:define>
+</ui:composition>

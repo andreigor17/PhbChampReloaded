@@ -6,6 +6,7 @@
 package br.com.champ.Utilitario;
 
 import br.com.champ.Enums.Categoria;
+import br.com.champ.Enums.Cs2ConsoleCommand;
 import br.com.champ.Enums.Funcoes;
 import br.com.champ.Enums.Game;
 import br.com.champ.Enums.StatusCamp;
@@ -15,7 +16,9 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -65,4 +68,9 @@ public class Enums implements Serializable {
         return itens;
     }
 
+    public List<Cs2ConsoleCommand> sugerirComandos(String query) {
+        return Arrays.stream(Cs2ConsoleCommand.values())
+                .filter(cmd -> cmd.getComando().toLowerCase().contains(query.toLowerCase()))
+                .collect(Collectors.toList());
+    }
 }
