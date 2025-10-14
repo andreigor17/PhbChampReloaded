@@ -243,6 +243,7 @@ public class AnexoServico {
         } else {
             url = pathToAPI() + uri;
         }
+        System.err.println(url);
         try {
             // Cria um objeto HttpURLConnection:
             HttpURLConnection request = (HttpURLConnection) new URL(url).openConnection();
