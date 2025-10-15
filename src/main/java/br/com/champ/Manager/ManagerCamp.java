@@ -20,6 +20,7 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -88,7 +89,7 @@ public class ManagerCamp implements Serializable {
             }
         }
 
-        if (this.camp.getTeams() != null) {
+        if (this.camp.getTeams() != null && !this.camp.getTeams().isEmpty()) {
             this.mvp = somaEstsPlayersTop().get(0);
         }
 

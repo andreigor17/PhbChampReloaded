@@ -80,7 +80,7 @@
                     <div class="field col-12 md:col-4">
                         <label for="campJogo" class="block mb-2 font-medium">Jogo *</label>
                         <p:autoComplete id="localAutoComplete" value="#{managerCriarCampeonato.camp.jogo}"
-                                                forceSelection="true" dropdown="true" var="localPartida" itemValue="#{jogo}" scrollHeight="200"
+                                                forceSelection="true" dropdown="true" var="jogo" itemValue="#{jogo}" scrollHeight="200"
                                                 itemLabel="#{jogo.nome}" completeMethod="#{managerAutoCompletes.autoCompletaJogos()}"
                                                 converter="jogo_converter"  />
                     </div>

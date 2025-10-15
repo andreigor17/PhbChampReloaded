@@ -12,8 +12,8 @@ package br.com.champ.Enums;
 public enum TipoCampeonato {
     PONTOS_CORRIDOS(1, "PONTOS CORRIDOS"),
     MATA_MATA(3, "MATA-MATA"),
-    GRUPO_E_MATA_MATA(4, "GRUPO/MATA-MATA");
-    
+    SUICO(4, "SUÍÇO");
+
     private String nome;
     private Integer valor;
 

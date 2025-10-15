@@ -6,7 +6,7 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
 <h:head>
-    <title>#{campeonatoView.campeonato.nome}</title>
+    <title>#{managerCamp.camp.nome}</title>
     <style type="text/css">
         body {
             background-color: #f8f9fa;
@@ -341,37 +341,37 @@
                     <div class="header-info">
                         <h1 class="header-title">
                             <i class="pi pi-trophy"></i>
-                            #{campeonatoView.campeonato.nome}
+                            #{managerCamp.camp.nome}
                         </h1>
                         
-                        <span class="status-badge status-#{campeonatoView.campeonato.status}">
-                            #{campeonatoView.campeonato.status}
+                        <span class="status-badge status-#{managerCamp.camp.status.nome}">
+                            #{managerCamp.camp.status.nome}
                         </span>
 
                         <div class="header-meta">
                             <div class="meta-item">
                                 <i class="pi pi-calendar"></i>
-                                <span>Início: <h:outputText value="#{campeonatoView.campeonato.dataCamp}">
+                                <span>Início: <h:outputText value="#{managerCamp.camp.dataCamp}">
                                     <f:convertDateTime pattern="dd/MM/yyyy" />
                                 </h:outputText></span>
                             </div>
                             <div class="meta-item">
                                 <i class="pi pi-clock"></i>
-                                <span>Inscrições até: <h:outputText value="#{campeonatoView.campeonato.dataFinal}">
+                                <span>Inscrições até: <h:outputText value="#{managerCamp.camp.dataPrazoCamp}">
                                     <f:convertDateTime pattern="dd/MM/yyyy" />
                                 </h:outputText></span>
                             </div>
                             <div class="meta-item">
                                 <i class="pi pi-flag"></i>
-                                <span>#{campeonatoView.campeonato.jogo.nome}</span>
+                                <span>#{managerCamp.camp.jogo.nome}</span>
                             </div>
                             <div class="meta-item">
                                 <i class="pi pi-users"></i>
-                                <span>#{campeonatoView.campeonato.categoria}</span>
+                                <span>#{managerCamp.camp.categoria}</span>
                             </div>
                             <div class="meta-item">
                                 <i class="pi pi-sitemap"></i>
-                                <span>#{campeonatoView.campeonato.tipoCampeonato}</span>
+                                <span>#{managerCamp.camp.tipoCampeonato}</span>
                             </div>
                         </div>
 
@@ -385,11 +385,11 @@
                     </div>
 
                     <div class="header-logo">
-                        <h:panelGroup rendered="#{campeonatoView.campeonato.anexo != null}">
-                            <p:graphicImage value="#{campeonatoView.campeonato.anexo.url}" 
+                        <h:panelGroup rendered="#{managerCamp.camp.anexo != null}">
+                            <p:graphicImage value="#{managerCamp.camp.anexo.url}" 
                                           alt="Logo" />
                         </h:panelGroup>
-                        <h:panelGroup rendered="#{campeonatoView.campeonato.anexo == null}">
+                        <h:panelGroup rendered="#{managerCamp.camp.anexo == null}">
                             <i class="pi pi-trophy" style="font-size: 64px; color: #6c757d;"></i>
                         </h:panelGroup>
                     </div>
@@ -405,11 +405,11 @@
                 <div class="info-grid">
                     <div class="info-item">
                         <span class="info-label">Formato:</span>
-                        <span class="info-value">#{campeonatoView.campeonato.tipoCampeonato}</span>
+                        <span class="info-value">#{managerCamp.camp.tipoCampeonato}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Categoria:</span>
-                        <span class="info-value">#{campeonatoView.campeonato.categoria}</span>
+                        <span class="info-value">#{managerCamp.camp.categoria}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Participantes:</span>
@@ -417,14 +417,14 @@
                     </div>
                     <div class="info-item">
                         <span class="info-label">Status:</span>
-                        <span class="info-value">#{campeonatoView.campeonato.status}</span>
+                        <span class="info-value">#{managerCamp.camp.status}</span>
                     </div>
                 </div>
 
-                <h:panelGroup rendered="#{not empty campeonatoView.campeonato.dataString}">
+                <h:panelGroup rendered="#{not empty managerCamp.camp.dataCamp}">
                     <p:divider />
                     <h3 style="margin-top: 20px; margin-bottom: 10px; color: #495057;">Descrição</h3>
-                    <p style="color: #6c757d; line-height: 1.6;">#{campeonatoView.campeonato.dataString}</p>
+                    <p style="color: #6c757d; line-height: 1.6;">#{managerCamp.camp.observacao}</p>
                 </h:panelGroup>
             </div>
 
@@ -468,7 +468,7 @@
                 <p:tabView>
                     <!-- Tab: Chaveamento (Mata-Mata/Suíço) -->
                     <p:tab title="Chaveamento" 
-                           rendered="#{campeonatoView.campeonato.tipoCampeonato == 'MATA_MATA' or campeonatoView.campeonato.tipoCampeonato == 'SUICO'}">
+                           rendered="#{managerCamp.camp.tipoCampeonato == 'MATA_MATA' or managerCamp.camp.tipoCampeonato == 'SUICO'}">
                         <div class="section-header">
                             <h2><i class="pi pi-sitemap"></i> Chaveamento</h2>
                         </div>
@@ -548,7 +548,7 @@
 
                     <!-- Tab: Tabela (Pontos Corridos) -->
                     <p:tab title="Classificação" 
-                           rendered="#{campeonatoView.campeonato.tipoCampeonato == 'PONTOS_CORRIDOS'}">
+                           rendered="#{managerCamp.camp.tipoCampeonato == 'PONTOS_CORRIDOS'}">
                         <div class="section-header">
                             <h2><i class="pi pi-list"></i> Tabela de Classificação</h2>
                         </div>
