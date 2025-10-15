@@ -229,47 +229,56 @@ public class ManagerCriarCampeonato implements Serializable {
         return playerServico.autoCompletePessoa();
     }
 
-    public void salvarCampeonato() throws Exception {
-
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-        Fase fase = new Fase();
-        List<Fase> fases = new ArrayList<>();
-
-        String dataFormatada = formatter.format(this.dataCamp);
-        String dataFormatadaFinal = formatter.format(this.dataFinal);
-
-        this.camp.setDataCamp(dataFormatada);
-        this.camp.setDataFinal(dataFormatadaFinal);
-        this.camp.setJogo(this.jogo);
-
-        this.camp.setTeams(this.times);
-        this.camp.setPlayers(this.membros);
-        if (faseInscricao) {
-
-            this.camp.setStatus(StatusCamp.INSCRICOES_ABERTAS);
+    public void salvar() {
+        try {
             this.camp = campeonatoServico.save(this.camp, null, Url.SALVAR_CAMPEONATO.getNome());
-            Mensagem.successAndRedirect("Camp salvo", "preCampeonato.xhtml?preCampId=" + this.camp.getId());
-        } else {
-
-            this.camp.setStatus(StatusCamp.EM_ANDAMENTO);
-            this.camp = campeonatoServico.save(this.camp, null, Url.SALVAR_CAMPEONATO.getNome());
-            this.camp = campeonatoServico.buscaCamp(this.camp.getId());
-            if (this.camp != null && !this.camp.getTipoCampeonato().equals(TipoCampeonato.MATA_MATA)) {
-                this.camp.setPartidas(gerarPartidas(this.camp.getId(), this.camp));
-            } else {
-                this.camp.setPartidas(gerarPartidasMataMata(this.camp.getId(), this.camp));
-                fase.setNome(PartidaUtils.obterFaseAtual(this.camp.getTeams().size()));
-                fase.setPartidas(this.camp.getPartidas());
-                fase.setIdCamp(this.camp.getId());
-                fase = faseServico.save(fase, null, Url.SALVAR_FASE.getNome());
-                fases.add(fase);
-                this.camp.setFasesCamp(fases);
-
-            }
-            this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
-            Mensagem.successAndRedirect("Camp salvo", "visualizarCampeonato.xhtml?id=" + this.camp.getId());
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+        Mensagem.successAndRedirect("Camp salvo", "visualizarCampeonato.xhtml?preCampId=" + this.camp.getId());
     }
+
+//    public void salvarCampeonato() throws Exception {
+//
+//        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+//        Fase fase = new Fase();
+//        List<Fase> fases = new ArrayList<>();
+//
+//        String dataFormatada = formatter.format(this.dataCamp);
+//        String dataFormatadaFinal = formatter.format(this.dataFinal);
+//
+//        this.camp.setDataCamp(dataFormatada);
+//        this.camp.setDataFinal(dataFormatadaFinal);
+//        this.camp.setJogo(this.jogo);
+//
+//        this.camp.setTeams(this.times);
+//        this.camp.setPlayers(this.membros);
+//        if (faseInscricao) {
+//
+//            this.camp.setStatus(StatusCamp.INSCRICOES_ABERTAS);
+//            this.camp = campeonatoServico.save(this.camp, null, Url.SALVAR_CAMPEONATO.getNome());
+//            Mensagem.successAndRedirect("Camp salvo", "preCampeonato.xhtml?preCampId=" + this.camp.getId());
+//        } else {
+//
+//            this.camp.setStatus(StatusCamp.EM_ANDAMENTO);
+//            this.camp = campeonatoServico.save(this.camp, null, Url.SALVAR_CAMPEONATO.getNome());
+//            this.camp = campeonatoServico.buscaCamp(this.camp.getId());
+//            if (this.camp != null && !this.camp.getTipoCampeonato().equals(TipoCampeonato.MATA_MATA)) {
+//                this.camp.setPartidas(gerarPartidas(this.camp.getId(), this.camp));
+//            } else {
+//                this.camp.setPartidas(gerarPartidasMataMata(this.camp.getId(), this.camp));
+//                fase.setNome(PartidaUtils.obterFaseAtual(this.camp.getTeams().size()));
+//                fase.setPartidas(this.camp.getPartidas());
+//                fase.setIdCamp(this.camp.getId());
+//                fase = faseServico.save(fase, null, Url.SALVAR_FASE.getNome());
+//                fases.add(fase);
+//                this.camp.setFasesCamp(fases);
+//
+//            }
+//            this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
+//            Mensagem.successAndRedirect("Camp salvo", "visualizarCampeonato.xhtml?id=" + this.camp.getId());
+//        }
+//    }
 
     public void salvarPreCamp() {
 

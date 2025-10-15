@@ -4,7 +4,9 @@ import br.com.champ.Enums.Categoria;
 import br.com.champ.Enums.StatusCamp;
 import br.com.champ.Enums.TipoCampeonato;
 import br.com.champ.Generico.ModeloGenerico;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -19,15 +21,17 @@ public class Campeonato extends ModeloGenerico implements Serializable {
     private StatusCamp status;
     private List<Partida> partidas;
     private List<Estatisticas> estatisticas;
-    private String dataCamp;
-    private String dataString;
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm") // garante que o JSON aceite esse formato
+    private Date dataCamp;
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm") // garante que o JSON aceite esse formato
+    private Date dataPrazoCamp;
     private Jogo jogo;
-    private String dataFinal;
     private Anexo anexo;
     private TipoCampeonato tipoCampeonato;
     private Categoria categoria;
     private List<Grupo> grupos;
-    private List<Fase> fasesCamp;    
+    private List<Fase> fasesCamp;
+    private String observacao;
 
     public List<Partida> getPartidas() {
         return partidas;
@@ -69,20 +73,20 @@ public class Campeonato extends ModeloGenerico implements Serializable {
         this.estatisticas = estatisticas;
     }
 
-    public String getDataCamp() {
+    public Date getDataCamp() {
         return dataCamp;
     }
 
-    public void setDataCamp(String dataCamp) {
+    public void setDataCamp(Date dataCamp) {
         this.dataCamp = dataCamp;
     }
 
-    public String getDataString() {
-        return dataString;
+    public Date getDataPrazoCamp() {
+        return dataPrazoCamp;
     }
 
-    public void setDataString(String dataString) {
-        this.dataString = dataString;
+    public void setDataPrazoCamp(Date dataPrazoCamp) {
+        this.dataPrazoCamp = dataPrazoCamp;
     }
 
     public Jogo getJogo() {
@@ -91,14 +95,6 @@ public class Campeonato extends ModeloGenerico implements Serializable {
 
     public void setJogo(Jogo jogo) {
         this.jogo = jogo;
-    }
-
-    public String getDataFinal() {
-        return dataFinal;
-    }
-
-    public void setDataFinal(String dataFinal) {
-        this.dataFinal = dataFinal;
     }
 
     public List<Player> getPlayers() {
@@ -147,6 +143,14 @@ public class Campeonato extends ModeloGenerico implements Serializable {
 
     public void setFasesCamp(List<Fase> fasesCamp) {
         this.fasesCamp = fasesCamp;
+    }
+
+    public String getObservacao() {
+        return observacao;
+    }
+
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
     }
 
 }

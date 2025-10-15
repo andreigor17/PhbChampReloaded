@@ -191,4 +191,54 @@ public class JogoServico {
         return new String(os.toByteArray());
     }
 
+    public List<Jogo> autoCompleteJogos() throws Exception {
+
+        try {
+            String url = pathToAPI() + "/api/jogo/autocomplete";
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            // optional default is GET
+            con.setRequestMethod("GET");
+            //add request header
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
+            int responseCode = con.getResponseCode();
+            System.out.println("\nSending 'GET' request to URL : " + url);
+            System.out.println("Response Code : " + responseCode);
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            //print in String
+            //System.out.println(response.toString());
+            //Read JSON response and print
+            Gson gson = new Gson();
+            List<Jogo> t = new ArrayList<>();
+
+            //Team[] userArray = gson.fromJson(response.toString(), Team[].class);
+            Type userListType = new TypeToken<ArrayList<Jogo>>() {
+            }.getType();
+
+            ArrayList<Jogo> userArray = gson.fromJson(response.toString(), userListType);
+
+            for (Jogo local : userArray) {
+                t.add(local);
+            }
+
+            return t;
+        } catch (IOException iOException) {
+            System.err.println(iOException);
+        } catch (JSONException jSONException) {
+            System.err.println(jSONException);
+        } catch (NumberFormatException numberFormatException) {
+            System.err.println(numberFormatException);
+        }
+        return null;
+
+    }
+
 }

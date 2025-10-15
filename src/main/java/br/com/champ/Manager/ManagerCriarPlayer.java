@@ -233,11 +233,12 @@ public class ManagerCriarPlayer implements Serializable {
             this.player.setAnexo(anexoServico.salvarAnexo(this.player.getAnexo()));
         }
         if (this.player.getId() == null) {
+            senhaVo = this.player.getSenha();
             this.player = playerServico.registrarPlayer(this.player, null, Url.REGISTRAR_PLAYER.getNome());
             if (cadastrar) {
                 LoginVo loginVo = new LoginVo();
                 loginVo.setLogin(this.player.getLogin());
-                loginVo.setSenha(this.player.getSenha());
+                loginVo.setSenha(senhaVo);
                 loginServico.autenticar(loginVo);
 
             }
@@ -431,5 +432,5 @@ public class ManagerCriarPlayer implements Serializable {
     public void setCadastrar(boolean cadastrar) {
         this.cadastrar = cadastrar;
     }
-    
+
 }

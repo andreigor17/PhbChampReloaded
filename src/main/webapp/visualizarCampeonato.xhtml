@@ -1,331 +1,697 @@
-<ui:composition template="layout.xhtml"
-                xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-    <ui:define name="title">
-        Visualizar Campeonato
-    </ui:define>
+<h:head>
+    <title>#{campeonatoView.campeonato.nome}</title>
+    <style type="text/css">
+        body {
+            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
 
-    <ui:define name="content">
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-        <h:form id="formVisualizarCamp"
-                >
+        .card {
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
 
-            <p:growl id="messages"
-                     showDetail="false"/>
+        .header-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            position: relative;
+        }
 
-            <div  class="actions">
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
 
-                <p:commandButton title="Cancelar Campeonato"
-                                 value="Cancelar"
-                                 icon="ui-icon-close"                                  
-                                 process="@this"
-                                 update="@form"
-                                 oncomplete="PF('confirmarRemoverCampDialog').show();">
-                    <f:setPropertyActionListener value="#{campeonato}"
-                                                 target="#{managerCamp.camp}"/>
-                </p:commandButton>
-                <p:button value="Editar" outcome="criarCampeonato.xhtml"
-                          icon="ui-icon-pencil"  >
-                    <f:param value="#{ managerCamp.camp.id }" name="id"/>
-                </p:button>
+        .header-info {
+            flex: 1;
+        }
 
+        .header-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+        }
 
-            </div>
-            <p:tabView id="tabviewGeral" styleClass="row" >                                                          
-                <p:tab id="geral" title="Geral" >
-                    <p:fieldset legend="Dados">
+        .header-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
 
-                        <div class="row">
-                            <div class="column2 bold" >
-                                <p:outputLabel value="Nome:" for="nomeCampeonato"/>
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-logo {
+            width: 150px;
+            height: 150px;
+            border-radius: 12px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-logo img {
+            max-width: 120px;
+            max-height: 120px;
+            object-fit: contain;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+
+        .status-ativo {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-pendente {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .status-finalizado {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 24px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .participant-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .participant-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .participant-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 32px;
+            font-weight: bold;
+            color: #6c757d;
+        }
+
+        .participant-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .participant-info {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .bracket-container {
+            overflow-x: auto;
+            padding: 20px 0;
+        }
+
+        .bracket {
+            display: flex;
+            gap: 40px;
+            min-width: max-content;
+        }
+
+        .bracket-round {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            min-width: 200px;
+        }
+
+        .bracket-round-title {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #495057;
+        }
+
+        .bracket-match {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .bracket-team {
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .bracket-team:last-child {
+            border-bottom: none;
+        }
+
+        .bracket-team.winner {
+            background-color: #d4edda;
+            font-weight: 600;
+        }
+
+        .bracket-team-name {
+            flex: 1;
+        }
+
+        .bracket-team-score {
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .p-button-plain {
+            color: #6c757d;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .p-button-plain:hover {
+            color: #343a40;
+            background-color: transparent !important;
+        }
+
+        .p-button-secondary {
+            background-color: #f8f9fa;
+            color: #495057;
+            border-color: #e9ecef;
+            transition: all 0.2s;
+        }
+
+        .p-button-secondary:hover {
+            background-color: #e9ecef;
+            color: #212529;
+            border-color: #dee2e6;
+        }
+
+        .p-button-secondary.p-button-outlined {
+            background-color: transparent;
+            color: #6c757d;
+            border-color: #dee2e6;
+        }
+
+        .p-button-secondary.p-button-outlined:hover {
+            background-color: #f8f9fa;
+            color: #495057;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            margin-right: 10px;
+            min-width: 120px;
+        }
+
+        .info-value {
+            color: #212529;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+            }
+
+            .header-logo {
+                width: 120px;
+                height: 120px;
+            }
+
+            .header-title {
+                font-size: 28px;
+            }
+
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</h:head>
+
+<h:body>
+    <h:form id="formCampeonato">
+        <div class="container">
+            <!-- Header do Campeonato -->
+            <div class="card header-card">
+                <div class="header-content">
+                    <div class="header-info">
+                        <h1 class="header-title">
+                            <i class="pi pi-trophy"></i>
+                            #{campeonatoView.campeonato.nome}
+                        </h1>
+                        
+                        <span class="status-badge status-#{campeonatoView.campeonato.status}">
+                            #{campeonatoView.campeonato.status}
+                        </span>
+
+                        <div class="header-meta">
+                            <div class="meta-item">
+                                <i class="pi pi-calendar"></i>
+                                <span>Início: <h:outputText value="#{campeonatoView.campeonato.dataCamp}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" />
+                                </h:outputText></span>
                             </div>
-                            <div class="column4 text" >
-                                <p:outputLabel id="nomeCampeonato"
-                                               value="#{managerCamp.camp.nome}"/>
+                            <div class="meta-item">
+                                <i class="pi pi-clock"></i>
+                                <span>Inscrições até: <h:outputText value="#{campeonatoView.campeonato.dataFinal}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" />
+                                </h:outputText></span>
                             </div>
-                            <div class="column2 bold" >
-                                <p:outputLabel value="Data Criação:" for="dataCamepeonato"/>
+                            <div class="meta-item">
+                                <i class="pi pi-flag"></i>
+                                <span>#{campeonatoView.campeonato.jogo.nome}</span>
                             </div>
-                            <div class="column4 text" >
-                                <p:outputLabel id="dataCamepeonato"
-                                               value="#{managerCamp.camp.dataCamp}">
-                                    <f:convertDateTime pattern="dd/MM/yyyy"/>
-                                </p:outputLabel>
+                            <div class="meta-item">
+                                <i class="pi pi-users"></i>
+                                <span>#{campeonatoView.campeonato.categoria}</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="pi pi-sitemap"></i>
+                                <span>#{campeonatoView.campeonato.tipoCampeonato}</span>
                             </div>
                         </div>
 
-                    </p:fieldset>
+                        <p:commandButton value="Fazer Inscrição" 
+                                         icon="pi pi-user-plus"
+                                         styleClass="p-button-success p-button-lg"
+                                         style="margin-top: 20px;"
+                                         action="#{campeonatoView.inscrever()}"
+                                         update="@form"
+                                         rendered="#{campeonatoView.podeInscrever()}" />
+                    </div>
 
+                    <div class="header-logo">
+                        <h:panelGroup rendered="#{campeonatoView.campeonato.anexo != null}">
+                            <p:graphicImage value="#{campeonatoView.campeonato.anexo.url}" 
+                                          alt="Logo" />
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{campeonatoView.campeonato.anexo == null}">
+                            <i class="pi pi-trophy" style="font-size: 64px; color: #6c757d;"></i>
+                        </h:panelGroup>
+                    </div>
+                </div>
+            </div>
 
-                    <p:fieldset legend="Times" id="timesFieldset">
+            <!-- Informações Detalhadas -->
+            <div class="card">
+                <div class="section-header">
+                    <h2><i class="pi pi-info-circle"></i> Informações</h2>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Formato:</span>
+                        <span class="info-value">#{campeonatoView.campeonato.tipoCampeonato}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Categoria:</span>
+                        <span class="info-value">#{campeonatoView.campeonato.categoria}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Participantes:</span>
+                        <span class="info-value">#{campeonatoView.totalParticipantes}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value">#{campeonatoView.campeonato.status}</span>
+                    </div>
+                </div>
 
-                        <ui:repeat value="#{managerCamp.camp.teams}" var="times">
-                            <p:panel style="display: inline-block; margin: 30px; text-align: center; ">
-                                <p:outputLabel value="#{times.nome}" style="display: block; text-align: center"/>
-                                <h:graphicImage value="#{managerCamp.nomeAnexo(times)}" width="200px" height="200px" style="border-radius: 10px"
-                                                onclick="window.location.href = 'visualizarTime.xhtml?id=#{times.id}';"/>
-                            </p:panel>
-                        </ui:repeat>
-                    </p:fieldset>
+                <h:panelGroup rendered="#{not empty campeonatoView.campeonato.dataString}">
+                    <p:divider />
+                    <h3 style="margin-top: 20px; margin-bottom: 10px; color: #495057;">Descrição</h3>
+                    <p style="color: #6c757d; line-height: 1.6;">#{campeonatoView.campeonato.dataString}</p>
+                </h:panelGroup>
+            </div>
 
-                </p:tab>
-                <p:tab id="jogosGeral" title="Jogos" >
-                    <p:dataTable id="timesDataTable" value="#{ managerCamp.somaEstsTime() }" var="ests"
-                                 paginatorPosition="bottom" emptyMessage="Nenhum time adicionado"
-                                 style="#{not empty managerCamp.camp.teams ? '' : 'display:none;'}">
+            <!-- Participantes -->
+            <div class="card">
+                <div class="section-header">
+                    <h2><i class="pi pi-users"></i> Participantes</h2>
+                    <p:button value="Ver Todos" 
+                              styleClass="p-button-text p-button-plain" 
+                              onclick="return false;" />
+                </div>
 
-                        <p:column headerText="Nome" width="50%">
-                            <h:outputText value="#{ ests.team.nome }" />
-                        </p:column>
-                        <p:column headerText="Pontos" width="50%" rendered="#{managerCamp.camp.tipoCampeonato.nome ne 'MATA-MATA'}">
-                            <h:outputText value="#{ ests.pontos}" />
-                        </p:column>
-                        <p:column headerText="Kills" width="50%">
-                            <h:outputText value="#{ ests.kills}" />
-                        </p:column>
-                        <p:column headerText="Deaths" width="50%">
-                            <h:outputText value="#{ ests.deaths}" />
-                        </p:column>
-                        <p:column headerText="Rounds Ganhos" width="50%">
-                            <h:outputText value="#{ ests.roundsGanhos}" />
-                        </p:column>
-                        <p:column headerText="Rounds Perdidos" width="50%">
-                            <h:outputText value="#{ ests.roundsPerdidos}" />
-                        </p:column>
-                    </p:dataTable>
+                <div class="grid-container">
+                    <ui:repeat value="#{campeonatoView.participantes}" var="participante">
+                        <div class="participant-card">
+                            <div class="participant-avatar">
+                                <h:panelGroup rendered="#{participante.foto != null}">
+                                    <p:graphicImage value="#{participante.foto.url}" 
+                                                  style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" />
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{participante.foto == null}">
+                                    #{participante.nome.substring(0,1)}
+                                </h:panelGroup>
+                            </div>
+                            <div class="participant-name">#{participante.nome}</div>
+                            <div class="participant-info">
+                                <i class="pi pi-star-fill" style="color: #ffc107;"></i>
+                                Rating: #{participante.rating}
+                            </div>
+                            <p:button value="Ver Perfil" 
+                                      styleClass="p-button-secondary p-button-sm p-button-outlined"
+                                      style="margin-top: 10px; width: 100%;"
+                                      outcome="/participante-view?id=#{participante.id}" />
+                        </div>
+                    </ui:repeat>
+                </div>
+            </div>
 
-                    <p:dataTable id="playersDataTable" value="#{ managerCamp.somaEstsPlayers() }" var="ests"
-                                 rows="10" paginator="true" paginatorPosition="bottom" emptyMessage="Nenhum time adicionado"
-                                 sortBy="#{ ests.pontos}" sortMode="descending" style="#{not empty managerCamp.camp.players ? '' : 'display:none;'}">
+            <!-- TabView: Partidas, Tabela e Estatísticas -->
+            <div class="card">
+                <p:tabView>
+                    <!-- Tab: Chaveamento (Mata-Mata/Suíço) -->
+                    <p:tab title="Chaveamento" 
+                           rendered="#{campeonatoView.campeonato.tipoCampeonato == 'MATA_MATA' or campeonatoView.campeonato.tipoCampeonato == 'SUICO'}">
+                        <div class="section-header">
+                            <h2><i class="pi pi-sitemap"></i> Chaveamento</h2>
+                        </div>
 
-                        <p:column headerText="Nome" width="50%">
-                            <h:outputText value="#{ ests.player.nick }" />
-                        </p:column>
-                        <p:column headerText="Pontos" width="50%">
-                            <h:outputText value="#{ ests.pontos}" />
-                        </p:column>
-                        <p:column headerText="PA" width="50%">
-                            <h:outputText value="#{ ests.kills}" />
-                        </p:column>
-                        <p:column headerText="PC" width="50%">
-                            <h:outputText value="#{ ests.deaths}" />
-                        </p:column>
-                        <p:column headerText="Sets Ganhos" width="50%">
-                            <h:outputText value="#{ ests.roundsGanhos}" />
-                        </p:column>
-                        <p:column headerText="Sets Perdidos" width="50%">
-                            <h:outputText value="#{ ests.roundsPerdidos}" />
-                        </p:column>
-                    </p:dataTable>
-
-                    <p:tabView id="tabview" styleClass="row" >
-                        <c:forEach items="#{managerCamp.camp.fasesCamp}" var="fase" rendered="#{not empty managerCamp.camp.fasesCamp ? true : false}">                                            
-                            <p:tab id="fases" title="#{fase.nome}" >
-                                <p:dataTable id="fasesDataTableTeam"                                     
-                                             value="#{fase.partidas}"
-                                             rowKey="#{partida.id}"
-                                             var="partida">
-
-                                    <f:facet name="header">
-                                        <p:outputLabel value="Partidas" />
-                                    </f:facet>
-                                    <p:column width="1%">
-                                        <p:rowToggler/>
-                                    </p:column>
-                                    <p:column headerText="Opções" width="3%">
-                                        <div class="options">                        
-                                            <p:button title="Visualizar Partida"
-                                                      icon="ui-icon-search"
-                                                      href="visualizarPartida.xhtml?id=#{partida.id}"/>
+                        <div class="bracket-container">
+                            <div class="bracket">
+                                <!-- Oitavas -->
+                                <div class="bracket-round">
+                                    <div class="bracket-round-title">Oitavas de Final</div>
+                                    <ui:repeat value="#{campeonatoView.oitavas}" var="partida">
+                                        <div class="bracket-match">
+                                            <div class="bracket-team #{partida.vencedor == partida.timeA ? 'winner' : ''}">
+                                                <span class="bracket-team-name">#{partida.timeA.nome}</span>
+                                                <span class="bracket-team-score">#{partida.placarA}</span>
+                                            </div>
+                                            <div class="bracket-team #{partida.vencedor == partida.timeB ? 'winner' : ''}">
+                                                <span class="bracket-team-name">#{partida.timeB.nome}</span>
+                                                <span class="bracket-team-score">#{partida.placarB}</span>
+                                            </div>
                                         </div>
-                                    </p:column>
-                                    <p:column headerText="Time 1" width="15%">
-                                        <p:outputLabel value="#{partida.itemPartida.get(0).team1.nome}"/>
-                                    </p:column>                       
-                                    <p:column headerText="Time2" width="15%">
-                                        <p:outputLabel value="#{partida.itemPartida.get(0).team2.nome}"/>
-                                    </p:column>
-                                    <p:column headerText="Status" width="10%">
-                                        <p:panel rendered="#{partida.finalizada eq false}" style="border: none">
-                                            <span style="display: block;
-                                                  border-radius: 20px;
-                                                  padding: 4px 15px;
-                                                  align-content: center;
-                                                  align-items: center;
-                                                  background-color:  #dbe6fe;
-                                                  color: #648fe9;
-                                                  font-weight: bold;">
-                                                <h:outputText value="Não realizada"/>
-                                            </span>
-                                        </p:panel>
-                                        <p:panel rendered="#{partida.finalizada eq true}" style="border: none">
-                                            <span style="display: block;
-                                                  text-align: center;
-                                                  border-radius: 20px;
-                                                  padding: 4px 15px;
-                                                  background-color: #f43e61;
-                                                  color: #fff;
-                                                  font-weight: bold;">
-                                                <h:outputText value="Realizada"/>
-                                            </span>
-                                        </p:panel>
-                                    </p:column>
-                                    <p:rowExpansion>
-                                        <p:dataTable id="detalheItensPartidasFase" var="item" value="#{ partida.itemPartida }"
-                                                     styleClass="grid_24" emptyMessage="Nenhum item encontrado">
-                                            <f:facet name="header">Detalhe da partida</f:facet>
-                                            <p:column headerText="Mapa" width="20%">
-                                                <p:outputLabel value="#{item.mapas.nome ne null ? item.mapas.nome : 'N/A'}"/>
-                                            </p:column>
-                                            <p:column headerText="Placar">
-                                                <p:outputLabel  value="#{item.team1.nome}  #{item.scoreT1} x #{item.scoreT2}  #{item.team2.nome} "/>
-                                            </p:column>                               
-                                        </p:dataTable>       
-                                    </p:rowExpansion>
-                                </p:dataTable>                    
+                                    </ui:repeat>
+                                </div>
 
-                            </p:tab>
-                        </c:forEach>
-                        <p:tab id="jogos" title="Tabela" rendered="#{ managerCamp.camp.tipoCampeonato.nome ne 'MATA-MATA'}">
-                            <p:dataTable id="partidasDataTableTeam"
-                                         rendered="#{not empty managerCamp.camp.teams ? true : false}"
-                                         value="#{managerCamp.partidas}"
-                                         rowKey="#{partida.id}"
-                                         var="partida">
+                                <!-- Quartas -->
+                                <div class="bracket-round">
+                                    <div class="bracket-round-title">Quartas de Final</div>
+                                    <ui:repeat value="#{campeonatoView.quartas}" var="partida">
+                                        <div class="bracket-match">
+                                            <div class="bracket-team #{partida.vencedor == partida.timeA ? 'winner' : ''}">
+                                                <span class="bracket-team-name">#{partida.timeA.nome}</span>
+                                                <span class="bracket-team-score">#{partida.placarA}</span>
+                                            </div>
+                                            <div class="bracket-team #{partida.vencedor == partida.timeB ? 'winner' : ''}">
+                                                <span class="bracket-team-name">#{partida.timeB.nome}</span>
+                                                <span class="bracket-team-score">#{partida.placarB}</span>
+                                            </div>
+                                        </div>
+                                    </ui:repeat>
+                                </div>
 
-                                <f:facet name="header">
-                                    <p:outputLabel value="Partidas" />
-                                </f:facet>
-                                <p:column width="1%">
-                                    <p:rowToggler/>
-                                </p:column>
-                                <p:column headerText="Opções" width="3%">
-                                    <div class="options">                        
-                                        <p:button title="Visualizar Partida"
-                                                  icon="ui-icon-search"
-                                                  href="visualizarPartida.xhtml?id=#{partida.id}"/>
+                                <!-- Semifinais -->
+                                <div class="bracket-round">
+                                    <div class="bracket-round-title">Semifinais</div>
+                                    <ui:repeat value="#{campeonatoView.semifinais}" var="partida">
+                                        <div class="bracket-match">
+                                            <div class="bracket-team #{partida.vencedor == partida.timeA ? 'winner' : ''}">
+                                                <span class="bracket-team-name">#{partida.timeA.nome}</span>
+                                                <span class="bracket-team-score">#{partida.placarA}</span>
+                                            </div>
+                                            <div class="bracket-team #{partida.vencedor == partida.timeB ? 'winner' : ''}">
+                                                <span class="bracket-team-name">#{partida.timeB.nome}</span>
+                                                <span class="bracket-team-score">#{partida.placarB}</span>
+                                            </div>
+                                        </div>
+                                    </ui:repeat>
+                                </div>
+
+                                <!-- Final -->
+                                <div class="bracket-round">
+                                    <div class="bracket-round-title">Final</div>
+                                    <ui:repeat value="#{campeonatoView.finais}" var="partida">
+                                        <div class="bracket-match">
+                                            <div class="bracket-team #{partida.vencedor == partida.timeA ? 'winner' : ''}">
+                                                <span class="bracket-team-name">#{partida.timeA.nome}</span>
+                                                <span class="bracket-team-score">#{partida.placarA}</span>
+                                            </div>
+                                            <div class="bracket-team #{partida.vencedor == partida.timeB ? 'winner' : ''}">
+                                                <span class="bracket-team-name">#{partida.timeB.nome}</span>
+                                                <span class="bracket-team-score">#{partida.placarB}</span>
+                                            </div>
+                                        </div>
+                                    </ui:repeat>
+                                </div>
+                            </div>
+                        </div>
+                    </p:tab>
+
+                    <!-- Tab: Tabela (Pontos Corridos) -->
+                    <p:tab title="Classificação" 
+                           rendered="#{campeonatoView.campeonato.tipoCampeonato == 'PONTOS_CORRIDOS'}">
+                        <div class="section-header">
+                            <h2><i class="pi pi-list"></i> Tabela de Classificação</h2>
+                        </div>
+
+                        <p:dataTable value="#{campeonatoView.classificacao}" 
+                                     var="time"
+                                     styleClass="p-datatable-striped"
+                                     paginator="false">
+                            <p:column headerText="#" style="width: 50px; text-align: center;">
+                                <h:outputText value="#{time.posicao}" />
+                            </p:column>
+
+                            <p:column headerText="Time">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="participant-avatar" style="width: 40px; height: 40px; font-size: 16px; margin: 0;">
+                                        <h:panelGroup rendered="#{time.logo != null}">
+                                            <p:graphicImage value="#{time.logo.url}" 
+                                                          style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" />
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{time.logo == null}">
+                                            #{time.nome.substring(0,1)}
+                                        </h:panelGroup>
                                     </div>
-                                </p:column>
-                                <p:column headerText="Time 1" width="15%">
-                                    <p:outputLabel value="#{partida.itemPartida.get(0).team1.nome}"/>
-                                </p:column>                       
-                                <p:column headerText="Time2" width="15%">
-                                    <p:outputLabel value="#{partida.itemPartida.get(0).team2.nome}"/>
-                                </p:column>
-                                <p:column headerText="Status" width="10%">
-                                    <p:panel rendered="#{partida.finalizada eq false}" style="border: none">
-                                        <span style="display: block;
-                                              border-radius: 20px;
-                                              padding: 4px 15px;
-                                              align-content: center;
-                                              align-items: center;
-                                              background-color:  #dbe6fe;
-                                              color: #648fe9;
-                                              font-weight: bold;">
-                                            <h:outputText value="Não realizada"/>
-                                        </span>
-                                    </p:panel>
-                                    <p:panel rendered="#{partida.finalizada eq true}" style="border: none">
-                                        <span style="display: block;
-                                              text-align: center;
-                                              border-radius: 20px;
-                                              padding: 4px 15px;
-                                              background-color: #f43e61;
-                                              color: #fff;
-                                              font-weight: bold;">
-                                            <h:outputText value="Realizada"/>
-                                        </span>
-                                    </p:panel>
-                                </p:column>
-                                <p:rowExpansion>
-                                    <p:dataTable id="detalheItensPartidas" var="item" value="#{ partida.itemPartida }"
-                                                 styleClass="grid_24" emptyMessage="Nenhum item encontrado">
-                                        <f:facet name="header">Detalhe da partida</f:facet>
-                                        <p:column headerText="Mapa" width="20%">
-                                            <p:outputLabel value="#{item.mapas.nome ne null ? item.mapas.nome : 'N/A'}"/>
-                                        </p:column>
-                                        <p:column headerText="Placar">
-                                            <p:outputLabel  value="#{item.team1.nome}  #{item.scoreT1} x #{item.scoreT2}  #{item.team2.nome} "/>
-                                        </p:column>                               
-                                    </p:dataTable>       
-                                </p:rowExpansion>
-                            </p:dataTable>
+                                    <strong>#{time.nome}</strong>
+                                </div>
+                            </p:column>
 
-                            <p:dataTable id="partidasDataTablePlayer"
-                                         rendered="#{not empty managerCamp.camp.players ? true : false}"
-                                         value="#{managerCamp.partidas}"                                 
-                                         var="partida">
+                            <p:column headerText="P" style="width: 60px; text-align: center;">
+                                <h:outputText value="#{time.pontos}" />
+                            </p:column>
 
-                                <f:facet name="header">
-                                    <p:outputLabel value="Partidas" />
-                                </f:facet>                        
-                                <p:column headerText="Opções" width="3%">
-                                    <div class="options">                        
-                                        <p:button title="Visualizar Partida"
-                                                  icon="ui-icon-search"
-                                                  href="visualizarPartida.xhtml?id=#{partida.id}"/>
+                            <p:column headerText="J" style="width: 60px; text-align: center;">
+                                <h:outputText value="#{time.jogos}" />
+                            </p:column>
+
+                            <p:column headerText="V" style="width: 60px; text-align: center;">
+                                <h:outputText value="#{time.vitorias}" />
+                            </p:column>
+
+                            <p:column headerText="E" style="width: 60px; text-align: center;">
+                                <h:outputText value="#{time.empates}" />
+                            </p:column>
+
+                            <p:column headerText="D" style="width: 60px; text-align: center;">
+                                <h:outputText value="#{time.derrotas}" />
+                            </p:column>
+
+                            <p:column headerText="GP" style="width: 60px; text-align: center;">
+                                <h:outputText value="#{time.golsPro}" />
+                            </p:column>
+
+                            <p:column headerText="GC" style="width: 60px; text-align: center;">
+                                <h:outputText value="#{time.golsContra}" />
+                            </p:column>
+
+                            <p:column headerText="SG" style="width: 60px; text-align: center;">
+                                <h:outputText value="#{time.saldoGols}" />
+                            </p:column>
+                        </p:dataTable>
+                    </p:tab>
+
+                    <!-- Tab: Estatísticas -->
+                    <p:tab title="Estatísticas">
+                        <div class="section-header">
+                            <h2><i class="pi pi-chart-bar"></i> Estatísticas do Campeonato</h2>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-value">#{campeonatoView.totalPartidas}</div>
+                                <div class="stat-label">Total de Partidas</div>
+                            </div>
+
+                            <div class="stat-box">
+                                <div class="stat-value">#{campeonatoView.partidasRealizadas}</div>
+                                <div class="stat-label">Partidas Realizadas</div>
+                            </div>
+
+                            <div class="stat-box">
+                                <div class="stat-value">#{campeonatoView.totalGols}</div>
+                                <div class="stat-label">Total de Gols</div>
+                            </div>
+
+                            <div class="stat-box">
+                                <div class="stat-value">#{campeonatoView.mediaGols}</div>
+                                <div class="stat-label">Média de Gols/Partida</div>
+                            </div>
+
+                            <div class="stat-box">
+                                <div class="stat-value">#{campeonatoView.totalParticipantes}</div>
+                                <div class="stat-label">Participantes</div>
+                            </div>
+
+                            <div class="stat-box">
+                                <div class="stat-value">#{campeonatoView.maiorGoleada}</div>
+                                <div class="stat-label">Maior Goleada</div>
+                            </div>
+                        </div>
+
+                        <p:divider />
+
+                        <h3 style="margin-top: 30px; margin-bottom: 15px; color: #495057;">
+                            <i class="pi pi-star-fill" style="color: #ffc107;"></i> Artilheiros
+                        </h3>
+
+                        <p:dataTable value="#{campeonatoView.artilheiros}" 
+                                     var="jogador"
+                                     styleClass="p-datatable-sm"
+                                     rows="5"
+                                     paginator="false">
+                            <p:column headerText="#" style="width: 50px;">
+                                #{jogador.posicao}
+                            </p:column>
+
+                            <p:column headerText="Jogador">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="participant-avatar" style="width: 35px; height: 35px; font-size: 14px; margin: 0;">
+                                        #{jogador.nome.substring(0,1)}
                                     </div>
-                                </p:column>
-                                <p:column headerText="Player 1" width="15%">
-                                    <p:outputLabel value="#{partida.itemPartida.get(0).player1.nome}"/>
-                                </p:column>                       
-                                <p:column headerText="Player 2" width="15%">
-                                    <p:outputLabel value="#{partida.itemPartida.get(0).player2.nome}"/>
-                                </p:column>                       
-                            </p:dataTable>
+                                    #{jogador.nome}
+                                </div>
+                            </p:column>
 
-                        </p:tab>
-                    </p:tabView>
-                </p:tab>
-                <p:tab title="Estatísticas">
+                            <p:column headerText="Time">
+                                #{jogador.time.nome}
+                            </p:column>
 
-                    <p:fieldset legend="MVP" id="topJogadores">
+                            <p:column headerText="Gols" style="width: 80px; text-align: center;">
+                                <strong>#{jogador.gols}</strong>
+                            </p:column>
+                        </p:dataTable>
+                    </p:tab>
+                </p:tabView>
+            </div>
 
-                        <p:panel style="display: inline-block; margin: 30px; text-align: center; ">
-                            <p:outputLabel value="#{managerCamp.mvp.player.nick}" style="display: block; text-align: center"/>
-                            <h:graphicImage value="#{managerCamp.nomeAnexoMvp(managerCamp.mvp.player)}" width="200px" height="200px" style="border-radius: 10px"
-                                            onclick="window.location.href = 'visualizarPlayer.xhtml?id=#{managerCamp.mvp.player.id}';"/>
-                        </p:panel>
-
-                    </p:fieldset>
-
-                </p:tab>
-            </p:tabView>
-
-            <p:dialog id="confirmarRemoverCampDialog"
-                      widgetVar="confirmarRemoverCampDialog"
-                      header="Deseja cancelar esse campeonato?"
-                      modal="true"
-                      resizable="false"
-                      draggable="false"
-                      closeOnEscape="true"
-                      showEffect="fade"
-                      hideEffect="fade">
-                <center>
-                    <p:commandButton value="Não"
-                                     title="Cancelar Remoção"
-                                     icon="fa fa-ban"
-                                     oncomplete="PF('confirmarRemoverCampDialog').hide();"
-                                     styleClass="btn btn-default"/>
-
-                    <p:commandButton value="Sim"
-                                     title="Confirmar Remoção"
-                                     icon="fa fa-check"
-                                     process="@this"
-                                     update="@form"
-                                     actionListener="#{managerCamp.removeCamp()}"
-                                     styleClass="btn btn-info"/>
-
-                </center>
-
-            </p:dialog>
-
-        </h:form>
-
-    </ui:define>
-
-</ui:composition>
+            <!-- Botão Voltar -->
+            <div style="text-align: center; margin-top: 20px;">
+                <p:button value="Voltar para Campeonatos" 
+                          icon="pi pi-arrow-left"
+                          styleClass="p-button-secondary p-button-outlined"
+                          outcome="/campeonatos" />
+            </div>
+        </div>
+    </h:form>
+</h:body>
+</html>

@@ -4,8 +4,10 @@
  */
 package br.com.champ.Manager;
 
+import br.com.champ.Modelo.Jogo;
 import br.com.champ.Modelo.LocalPartida;
 import br.com.champ.Modelo.Team;
+import br.com.champ.Servico.JogoServico;
 import br.com.champ.Servico.LocalServico;
 import br.com.champ.Servico.TeamServico;
 import jakarta.ejb.EJB;
@@ -26,13 +28,19 @@ public class ManagerAutoCompletes implements Serializable {
     private TeamServico teamServico;
     @EJB
     private LocalServico localServico;
+    @EJB
+    private JogoServico jogoServico;
 
     public List<Team> autoCompletarTime() throws Exception {
         return teamServico.autoCompleteTime();
     }
-    
+
     public List<LocalPartida> autoCompletarLocalPartida() throws Exception {
         return localServico.autoCompleteLocal();
+    }
+
+    public List<Jogo> autoCompletaJogos() throws Exception {
+        return jogoServico.autoCompleteJogos();
     }
 
 }
