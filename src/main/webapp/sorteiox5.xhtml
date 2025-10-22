@@ -1,122 +1,275 @@
-<ui:composition template="layout.xhtml"
-                xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:h="http://java.sun.com/jsf/html"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-                xmlns:map="http://xmlns.jcp.org/jsf/composite/map">
-
-    <ui:define name="title">
-        Sorteio x5
-    </ui:define>
+                template="vercel.xhtml">
 
     <ui:define name="content">
+        <h:form id="formSorteioX5" enctype="multipart/form-data">
 
-        <h:form id="formPesquisarPlayers"
-                enctype="multipart/form-data"
-                class="form-horizontal">
-
-            <p:growl id="messages"
-                     showDetail="false"/> 
-
-
-            <div class="actions">
-                <p:button value="Cadastrar Player" outcome="criarPlayer.xhtml"
-                          icon="ui-icon-plus"  />
+            <!-- Header -->
+            <div class="surface-card shadow-2 border-round mb-4 p-4">
+                <div class="flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div class="flex-1">
+                        <div class="flex align-items-center mb-2">
+                            <i class="pi pi-bolt text-4xl mr-3"></i>
+                            <h1 class="text-900 font-bold text-4xl m-0">Sorteio x5</h1>
+                        </div>
+                        <p class="text-600 text-lg m-0">Selecione os jogadores para sortear os times automaticamente</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <p:commandButton value="Cadastrar Player" 
+                                         icon="pi pi-user-plus"
+                                         styleClass="p-button-outlined"
+                                         action="/criarPlayer?faces-redirect=true" />
+                    </div>
+                </div>
             </div>
 
-            <p:fieldset legend="Sorteio" id="dadosFieldset">                    
-                <div class="row" >
-                    <div class="column12">
-                        <style>
-                            .ui-picklist .ui-picklist-list{
-                                width: 350px;
-                            }
-                        </style> 
-                        <p:pickList id="grupoPickList" value="#{ managerPartida.playerGroupList }" var="player"
-                                    filterMatchMode="contains" showSourceFilter="true" showTargetFilter="true"
-                                    itemValue="#{ player }" itemLabel="#{ player.nick }" converter="player_converter">
-                            <f:facet name="sourceCaption">Players</f:facet>
-                            <f:facet name="targetCaption">Players Selecionados</f:facet>
-                        </p:pickList>
-                    </div>                  
+            
+
+            <!-- Card: Seleção de Jogadores -->
+            <div class="surface-card shadow-2 border-round mb-4 p-4">
+                <h2 class="text-900 font-bold text-2xl mb-4">
+                    <i class="pi pi-users mr-2"></i>Seleção de Jogadores
+                </h2>
+
+                <p class="text-600 mb-4">
+                    Arraste os jogadores da esquerda para a direita para incluí-los no sorteio. 
+                    São necessários 10 jogadores para um sorteio x5.
+                </p>
+
+                <div class="flex justify-content-center">
+                    <p:pickList id="grupoPickList" 
+                                value="#{managerPartida.playerGroupList}" 
+                                var="player"
+                                filterMatchMode="contains" 
+                                showSourceFilter="true" 
+                                showTargetFilter="true"
+                                itemValue="#{player}" 
+                                itemLabel="#{player.nick}" 
+                                converter="player_converter"
+                                responsive="true"
+                                showSourceControls="true"
+                                showTargetControls="true">
+
+                        <f:facet name="sourceCaption">
+                            <div class="flex align-items-center gap-2">
+                                <i class="pi pi-list"></i>
+                                <span>Players Disponíveis</span>
+                            </div>
+                        </f:facet>
+
+                        <f:facet name="targetCaption">
+                            <div class="flex align-items-center gap-2">
+                                <i class="pi pi-check-circle"></i>
+                                <span>Players Selecionados</span>
+                            </div>
+                        </f:facet>
+
+                        <p:column>
+                            <div class="flex align-items-center gap-2">
+                                <div class="participant-avatar" style="width: 35px; height: 35px; font-size: 14px; margin: 0;">
+                                    #{player.nome != null ? player.nome.substring(0,1) : 'P'}
+                                </div>
+                                <div>
+                                    <div class="font-semibold">#{player.nick}</div>
+                                    <small class="text-600">#{player.nome} #{player.sobreNome}</small>
+                                </div>
+                            </div>
+                        </p:column>
+                    </p:pickList>
                 </div>
 
-                <center>
-                    <p:commandButton value="Avançar"  icon="ui-icon-plus" 
-                                     actionListener="#{managerPartida.verificarPlayers()}"                              
-                                     process="@form" update="@form" />
+                <div class="flex justify-content-center mt-4">
+                    <div class="surface-100 border-round p-3 flex align-items-center gap-2">
+                        <i class="pi pi-info-circle text-primary"></i>
+                        <span class="text-700">
+                            <strong>Jogadores selecionados:</strong> 
+                            #{managerPartida.playerGroupList.target.size()}/10
+                        </span>
+                    </div>
+                </div>
+            </div>
 
-                </center>
+            <!-- Rodapé com Botões -->
+            <div class="surface-card shadow-2 border-round p-4">
+                <div class="flex justify-content-end gap-2">
+                    <p:commandButton value="Cancelar" 
+                                     icon="pi pi-times"
+                                     styleClass="p-button-outlined p-button-secondary"
+                                     action="/indexPartida?faces-redirect=true"
+                                     immediate="true"
+                                     process="@this" />
+                    <p:commandButton value="Avançar" 
+                                     icon="pi pi-arrow-right"
+                                     styleClass="p-button-success"
+                                     actionListener="#{managerPartida.verificarPlayers()}"
+                                     process="@form"
+                                     update="@form" />
+                </div>
+            </div>
 
-            </p:fieldset>
-
+            <!-- Dialog: Configurar Sorteio -->
             <p:dialog id="confirmarCriacaoX5Dialog"
                       widgetVar="confirmarCriacaoX5Dialog"
-                      header="Nome dos times!"
+                      header="Configurar Sorteio"
                       modal="true"
                       resizable="false"
                       draggable="false"
                       closeOnEscape="true"
                       showEffect="fade"
-                      hideEffect="fade">
+                      hideEffect="fade"
+                      width="500">
 
-
-
-                <center>
-                    <div class="row">
-                        <div class="column3">
-                            <p:outputLabel value="Nome do time 1: " for="nomeTime1"/>
-                        </div>
-                        <div class="column3">
-                            <p:inputText id="nomeTime1" value="#{managerPartida.nomeTime1}"/>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="column3">
-                            <p:outputLabel value="Nome do time 2: " for="nomeTime2"/>
-                        </div>
-                        <div class="column3">
-                            <p:inputText id="nomeTime2" value="#{managerPartida.nomeTime2}"/>
+                <div class="mb-4">
+                    <div class="surface-100 border-round p-3 flex align-items-start gap-2">
+                        <i class="pi pi-info-circle text-primary text-xl"></i>
+                        <div>
+                            <p class="font-semibold text-900 mt-0 mb-1">Como funciona?</p>
+                            <p class="text-700 text-sm mt-0 mb-0 line-height-3">
+                                Os jogadores selecionados serão divididos aleatoriamente em dois times equilibrados. 
+                                Você pode escolher o formato da partida (MD1, MD3 ou MD5).
+                            </p>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="column3">
-                            <p:outputLabel value="Selecione o número de rounds:"/>
-                        </div>
+                </div>
 
-                        <div class="column2">
-                            <p:selectOneRadio value="#{managerPartida.qtdItensPartidas}" unselectable="true">
-                                <f:selectItem itemLabel="MD1" itemValue="1"/>
-                                <f:selectItem itemLabel="MD3" itemValue="3"/>
-                                <f:selectItem itemLabel="MD5" itemValue="5"/>
-                            </p:selectOneRadio>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <p:commandButton value="Cancelar"
-                                         title="Cancelar Remoção"
-                                         icon="fa fa-ban"
-                                         oncomplete="PF('confirmarCriacaoX5Dialog').hide();"
-                                         styleClass="btn btn-default"/>
-
-                        <p:commandButton value="Sortear times"
-                                         title="Confirmar Remoção"
-                                         icon="fa fa-check"
-                                         process="@form"
-                                         update="@form"
-                                         actionListener="#{managerPartida.sorteioX5()}"
-                                         styleClass="btn btn-info"
-                                         onclick="desabilitarBotoes(true);" oncomplete="desabilitarBotoes(false);"/>
+                <div class="formgrid grid">
+                    <div class="field col-12">
+                        <label for="nomeTime1Sorteio" class="block font-medium text-900 mb-2">
+                            Nome do Time 1
+                        </label>
+                        <p:inputText id="nomeTime1Sorteio" 
+                                     value="#{managerPartida.nomeTime1}"
+                                     placeholder="Digite o nome do time 1"
+                                     styleClass="w-full" />
                     </div>
 
-                </center>
+                    <div class="field col-12">
+                        <label for="nomeTime2Sorteio" class="block font-medium text-900 mb-2">
+                            Nome do Time 2
+                        </label>
+                        <p:inputText id="nomeTime2Sorteio" 
+                                     value="#{managerPartida.nomeTime2}"
+                                     placeholder="Digite o nome do time 2"
+                                     styleClass="w-full" />
+                    </div>
 
-            </p:dialog>          
+                    <div class="field col-12">
+                        <label class="block font-medium text-900 mb-3">
+                            Formato da Partida
+                        </label>
+                        <p:selectOneRadio id="formatoPartida" 
+                                          value="#{managerPartida.qtdItensPartidas}" 
+                                          unselectable="true"
+                                          layout="responsive">
+                            <f:selectItem itemLabel="MD1 (Melhor de 1)" itemValue="1" />
+                            <f:selectItem itemLabel="MD3 (Melhor de 3)" itemValue="3" />
+                            <f:selectItem itemLabel="MD5 (Melhor de 5)" itemValue="5" />
+                        </p:selectOneRadio>
+                        <small class="block text-600 mt-2">
+                            MD = Melhor de X mapas. O vencedor será quem ganhar mais mapas.
+                        </small>
+                    </div>
+                </div>
 
+                <p:divider />
+
+                <div class="flex justify-content-end gap-2">
+                    <p:commandButton value="Cancelar"
+                                     icon="pi pi-times"
+                                     styleClass="p-button-outlined p-button-secondary"
+                                     oncomplete="PF('confirmarCriacaoX5Dialog').hide();"
+                                     process="@this" />
+                    <p:commandButton value="Sortear Times"
+                                     icon="pi pi-random"
+                                     styleClass="p-button-success"
+                                     process="@form"
+                                     update="@form"
+                                     actionListener="#{managerPartida.sorteioX5()}" />
+                </div>
+            </p:dialog>
 
         </h:form>
 
-    </ui:define>
+        <style>
+            .participant-avatar {
+                border-radius: 50%;
+                background-color: #f8f9fa;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                color: #6c757d;
+            }
 
+            /* Ajustes no PickList */
+            .p-picklist {
+                display: flex;
+                gap: 1rem;
+            }
+
+            .p-picklist-list {
+                min-height: 400px;
+                max-height: 500px;
+            }
+
+            .p-picklist-item {
+                padding: 0.75rem;
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .p-picklist-item:hover {
+                background-color: #f8f9fa;
+            }
+
+            .p-picklist-filter-container {
+                margin-bottom: 0.5rem;
+            }
+
+            /* Botões do PickList */
+            .p-picklist-buttons {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 0.5rem;
+                padding: 0 0.5rem;
+            }
+
+            .p-picklist-buttons .p-button {
+                margin: 0;
+            }
+
+            /* Captions */
+            .p-picklist-caption {
+                background-color: #f8f9fa;
+                padding: 0.75rem;
+                border-bottom: 2px solid #e9ecef;
+                font-weight: 600;
+            }
+
+            /* Radio buttons com melhor espaçamento */
+            .p-radiobutton {
+                margin-bottom: 1rem;
+            }
+
+            /* Responsividade */
+            @media (max-width: 768px) {
+                .p-picklist {
+                    flex-direction: column;
+                }
+
+                .p-picklist-buttons {
+                    flex-direction: row;
+                    padding: 0.5rem 0;
+                }
+
+                .p-picklist-list {
+                    min-height: 250px;
+                }
+            }
+        </style>
+    </ui:define>
 </ui:composition>

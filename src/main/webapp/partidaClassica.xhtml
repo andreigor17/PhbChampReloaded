@@ -7,7 +7,7 @@
 
     <ui:define name="content">
         <h:form id="formPartidaClassica" enctype="multipart/form-data">
-            
+
             <script type="text/javascript">
                 function handleDrop(event, ui) {
                     var droppedProduct = ui.draggable;
@@ -34,7 +34,7 @@
                 </div>
             </div>
 
-           
+
             <!-- Card: Jogadores Disponíveis -->
             <div class="surface-card shadow-2 border-round mb-4 p-4">
                 <h2 class="text-900 font-bold text-2xl mb-4">
@@ -48,7 +48,7 @@
                              styleClass="p-datatable-striped"
                              paginator="true"
                              rows="10">
-                    
+
                     <p:column style="width: 50px; text-align: center;">
                         <h:outputText id="dragIcon" styleClass="pi pi-arrows-alt" 
                                       style="cursor: move; font-size: 1.2rem;" />
@@ -83,7 +83,7 @@
                     <p:fieldset id="jogadoresTime1" 
                                 legend="Time 1" 
                                 styleClass="surface-card shadow-2 border-round">
-                        
+
                         <p:outputPanel id="dropArea1">
                             <h:panelGroup rendered="#{empty managerPartida.droppedPlayers1}">
                                 <div class="text-center p-6">
@@ -97,7 +97,7 @@
                                          value="#{managerPartida.droppedPlayers1}"
                                          rendered="#{not empty managerPartida.droppedPlayers1}"
                                          styleClass="p-datatable-sm">
-                                
+
                                 <p:column headerText="Nome">
                                     <div class="flex align-items-center gap-2">
                                         <div class="participant-avatar" style="width: 35px; height: 35px; font-size: 14px; margin: 0;">
@@ -126,7 +126,7 @@
                     <p:fieldset id="jogadoresTime2" 
                                 legend="Time 2" 
                                 styleClass="surface-card shadow-2 border-round">
-                        
+
                         <p:outputPanel id="dropArea2">
                             <h:panelGroup rendered="#{empty managerPartida.droppedPlayers2}">
                                 <div class="text-center p-6">
@@ -140,7 +140,7 @@
                                          value="#{managerPartida.droppedPlayers2}"
                                          rendered="#{not empty managerPartida.droppedPlayers2}"
                                          styleClass="p-datatable-sm">
-                                
+
                                 <p:column headerText="Nome">
                                     <div class="flex align-items-center gap-2">
                                         <div class="participant-avatar" style="width: 35px; height: 35px; font-size: 14px; margin: 0;">
@@ -216,7 +216,7 @@
 
                 <div class="formgrid grid">
                     <div class="field col-12 mb-4">
-                        <label class="block font-medium text-900 mb-3">Forma de escolha dos capitães</label>
+                        <p:outputLabel for="tipoEscolha" class="block font-medium text-900 mb-3">Forma de escolha dos capitães</p:outputLabel>
                         <p:selectOneRadio id="tipoEscolha" 
                                           value="#{managerPartida.tipoEscolhaCapitaes}" 
                                           unselectable="true">
@@ -238,7 +238,7 @@
                                     converter="player_converter"
                                     responsive="true">
                             <f:facet name="sourceCaption">Players Disponíveis</f:facet>
-                            <f:facet name="targetCaption">Players Selecionados</f:facet>
+                            <f:facet name="targetCaption">Capitães Selecionados</f:facet>
                         </p:pickList>
                     </div>
                 </div>
@@ -272,7 +272,7 @@
 
                 <div class="formgrid grid">
                     <div class="field col-12">
-                        <label for="nomeTime1Dialog" class="block font-medium text-900 mb-2">Nome do Time 1</label>
+                        <p:outputLabel for="nomeTime1Dialog" class="block font-medium text-900 mb-2">Nome do Time 1</p:outputLabel>
                         <p:inputText id="nomeTime1Dialog" 
                                      value="#{managerPartida.nomeTime1}"
                                      placeholder="Digite o nome do time 1"
@@ -280,7 +280,7 @@
                     </div>
 
                     <div class="field col-12">
-                        <label for="nomeTime2Dialog" class="block font-medium text-900 mb-2">Nome do Time 2</label>
+                        <p:outputLabel for="nomeTime2Dialog" class="block font-medium text-900 mb-2">Nome do Time 2</p:outputLabel>
                         <p:inputText id="nomeTime2Dialog" 
                                      value="#{managerPartida.nomeTime2}"
                                      placeholder="Digite o nome do time 2"
@@ -288,7 +288,7 @@
                     </div>
 
                     <div class="field col-12">
-                        <label class="block font-medium text-900 mb-3">Número de Rounds</label>
+                        <p:outputLabel for="qtdRounds" class="block font-medium text-900 mb-3">Número de Rounds</p:outputLabel>
                         <p:selectOneRadio id="qtdRounds" 
                                           value="#{managerPartida.qtdItensPartidas}" 
                                           unselectable="true">
@@ -327,7 +327,7 @@
 
                 <div class="formgrid grid">
                     <div class="field col-12">
-                        <label for="time1Auto" class="block font-medium text-900 mb-2">Time 1 *</label>
+                        <p:outputLabel for="time1Auto" class="block font-medium text-900 mb-2">Time 1 *</p:outputLabel>
                         <p:autoComplete id="time1Auto" 
                                         value="#{managerPartida.time1}"
                                         forceSelection="true" 
@@ -344,7 +344,7 @@
                     </div>
 
                     <div class="field col-12">
-                        <label for="time2Auto" class="block font-medium text-900 mb-2">Time 2 *</label>
+                        <p:outputLabel for="time2Auto" class="block font-medium text-900 mb-2">Time 2 *</p:outputLabel>
                         <p:autoComplete id="time2Auto" 
                                         value="#{managerPartida.time2}"
                                         forceSelection="true" 
@@ -361,7 +361,7 @@
                     </div>
 
                     <div class="field col-12">
-                        <label class="block font-medium text-900 mb-3">Número de Rounds</label>
+                        <p:outputLabel for="qtdRoundsTimes" class="block font-medium text-900 mb-3">Número de Rounds</p:outputLabel>
                         <p:selectOneRadio id="qtdRoundsTimes" 
                                           value="#{managerPartida.qtdItensPartidas}" 
                                           unselectable="true">

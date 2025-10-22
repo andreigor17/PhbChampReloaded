@@ -140,7 +140,8 @@ public class ManagerPartida implements Serializable {
             HttpServletRequest uri = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
             this.classica = parametros.get("classica") != null;
 
-            if (this.classica) {
+            if (uri.getRequestURI().contains("partidaClassica.xhtml")) {
+                System.err.println("classica");
                 PrimeFaces.current().executeScript("PF('selecaoDeCapitaesDialog').show();");
             }
 
@@ -847,6 +848,7 @@ public class ManagerPartida implements Serializable {
     public void selecionarPartidaClassica() {
         this.pickedPlayers = this.playerGroupList.getTarget();
         if (this.tipoEscolhaCapitaes == 1) {
+            System.err.println("sorteio...");
             Collections.shuffle(this.pickedPlayers);
             droppedPlayers1.add(this.pickedPlayers.get(0));
             if (!this.pickedPlayers.isEmpty() && this.pickedPlayers.get(0).getNick() != null) {
