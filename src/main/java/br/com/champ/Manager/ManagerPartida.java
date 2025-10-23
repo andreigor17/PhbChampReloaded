@@ -203,6 +203,8 @@ public class ManagerPartida implements Serializable {
         this.teamVencedor = new Team();
         this.radarModel = new RadarChartModel();
         this.playerLogado = new Player();
+        this.nomeTime1 = null;
+        this.nomeTime2 = null;
     }
 
     public void createRadarModel() throws Exception {
@@ -846,6 +848,7 @@ public class ManagerPartida implements Serializable {
     }
 
     public void selecionarPartidaClassica() {
+        System.err.println("por aqui...");
         this.pickedPlayers = this.playerGroupList.getTarget();
         if (this.tipoEscolhaCapitaes == 1) {
             System.err.println("sorteio...");
