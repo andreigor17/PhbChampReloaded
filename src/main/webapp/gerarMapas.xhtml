@@ -1,156 +1,444 @@
-<ui:composition template="layout.xhtml"
-                xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:h="http://java.sun.com/jsf/html"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-                xmlns:fox="http://java.sun.com/jsf/composite/fox">
+                template="vercel.xhtml">
 
-    <ui:define name="title">
-        Picks and Bans
-    </ui:define>
-
-    <style>
-        .vote {
-            transition: 0.5s;
-        }
-        .vote:hover {
-            transform: scale(1.5);
-        }
-    </style>
-    
     <ui:define name="content">
+        <h:form id="formPicksAndBans">
 
-        <h:form id="formVisualizarPartida"
-                >
+            
 
-            <p:growl id="messages"
-                     showDetail="false"/>
-            <div class="row" style="display: flex; flex-wrap: wrap;">
-                <div class="column4">
-                    <h1 style="text-align: center">REMAINING MAPS</h1>
-                </div>
-                <div class="column4">
-                    <h1 style="text-align: center">VOTES</h1>
-                </div>
-                <div class="column4">
-                    <h1 style="text-align: center">PICKED MAPS</h1>
-                </div>
-            </div>
-            <div class="row" style="display: flex; flex-wrap: wrap">
-                
-                <div class="column4" style="height: 70vh; overflow-x: scroll">
-                    <ui:repeat value="#{managerPartida.mapas}" var="mapa">
-                        <div class="row">
-                            <p:outputLabel id="nomeMapa" style="text-align: center !important" value="#{mapa.nome}"/>
+            <!-- Header -->
+            <div class="surface-card shadow-2 border-round mb-4 p-4">
+                <div class="flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div class="flex-1">
+                        <div class="flex align-items-center mb-2">
+                            <i class="pi pi-map text-4xl mr-3"></i>
+                            <h1 class="text-900 font-bold text-4xl m-0">Picks <h:outputText value="&amp;" escape="false" /> Bans</h1>
                         </div>
-                        <div class="row" style="display: flex; justify-content: center; align-items: center">
-                            <h:graphicImage value="image/#{mapa.anexo.nome}" width="200px" height="100px" style="border-radius: 10px"/>
-                        </div>
-                    </ui:repeat>
-                </div>
-                <div class="column4" style="height: 70vh; overflow-x: scroll">
-                    
-                    <ui:repeat value="#{managerPartida.pickBanVo}" var="pb">
-                        <div class="row">
-                            <div class="card vote" style="#{pb.tipoPickBan.nome eq 'BAN' ? 'background-color: #ff1168; padding: 0.8em; border-radius: 10px;': 'background-color: #a2e5d2; padding: 0.8em; border-radius: 10px'}">
-                                <div class="card-body" style="display: flex; justify-content: space-around; align-items: center;">                                    
-                                    <h5 class="card-title">#{pb.team.nome}</h5>
-                                    <h4 class="card-text">#{pb.mapas ne null ? ' '.concat(pb.tipoPickBan.nome).concat(' - ').concat(pb.mapas.nome) : pb.tipoPickBan.nome }</h4>
-                                    <h:graphicImage value="image/#{pb.mapas.anexo.nome}" style="height: 65px; width: 130px; object-fit: cover; border: 1px solid white" rendered="#{pb.mapas ne null}"/>                                        
-                                    <p:commandButton title="Selecionar Mapa"
-                                                     value="Selecionar" 
-                                                     rendered="#{pb.mapas eq null}"
-                                                     process="@this"
-                                                     update="@form"
-                                                     oncomplete="PF('gerarMapasDialog').show();">
-                                        <f:setPropertyActionListener value="#{pb}"
-                                                                     target="#{managerPartida.pbItem}"/>
-                                    </p:commandButton>
-                                </div>
-                            </div>                        
-                        </div>
-                    </ui:repeat>
-
-                </div>
-
-                <div class="column4" style="height: 70vh; overflow-x: scroll">
-                    <ui:repeat value="#{managerPartida.pickedMaps}" var="mapa">
-                        <div class="row" style="display: flex; justify-content: center; align-items: center; text-align: center">                            
-
-                            <p:outputLabel id="nomeMapa"
-                                           style="text-align: center !important"
-                                           value="#{mapa.nome}"/>
-                        </div>
-
-                        <div class="row" style="display: flex; justify-content: center; align-items: center">                           
-                            <h:graphicImage value="image/#{mapa.anexo.nome}" width="200px" height="100px" />
-                        </div>
-                    </ui:repeat>
-                </div>
-            </div>
-            <div class="row">
-                <div class="actions">
-
-                    <center>
+                        <p class="text-600 text-lg m-0">Sistema de seleção e banimento de mapas</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <p:commandButton value="Sortear Início"
+                                         icon="pi pi-refresh"
+                                         styleClass="p-button-help"
+                                         update="@form"
+                                         oncomplete="PF('coinFlipDialog').show();"
+                                         rendered="#{empty managerPartida.timeIniciante}" />
 
                         <p:commandButton value="Cancelar"
-                                         title="Cancelar"
-                                         icon="ui-icon-close"
-                                         process="@this"
-                                         update="@form"
+                                         icon="pi pi-times"
+                                         styleClass="p-button-outlined p-button-secondary"
                                          actionListener="#{managerPartida.retornarPartida()}"
-                                         />
+                                         update="@form" />
 
-                        <p:commandButton value="Salvar"
-                                         title="Salvar Player"
-                                         icon="ui-icon-check"
-                                         process="@form"
-                                         update="@form"                                     
+                        <p:commandButton value="Finalizar"
+                                         icon="pi pi-check"
+                                         styleClass="p-button-success"
                                          actionListener="#{managerPartida.finalizarPicks()}"
-                                         />
+                                         update="@form" />
+                    </div>
+                </div>
 
-                    </center>
+                <!-- Info do Time Iniciante -->
+                <h:panelGroup rendered="#{not empty managerPartida.timeIniciante}">
+                    <div class="mt-3 p-3 bg-blue-50 border-round">
+                        <div class="flex align-items-center gap-2">
+                            <i class="pi pi-star-fill text-yellow-500"></i>
+                            <span class="font-semibold">Time Iniciante:</span>
+                            <span class="text-primary font-bold">#{managerPartida.timeIniciante.nome}</span>
+                        </div>
+                    </div>
+                </h:panelGroup>
+            </div>
 
+            <!-- Grid Principal -->
+            <div class="grid">
+                <!-- Coluna 1: Mapas Disponíveis -->
+                <div class="col-12 lg:col-4">
+                    <div class="surface-card shadow-2 border-round p-4" style="height: 70vh;">
+                        <h2 class="text-900 font-bold text-xl mb-4 flex align-items-center">
+                            <i class="pi pi-list mr-2"></i>Mapas Disponíveis
+                        </h2>
+
+                        <div class="overflow-auto" style="max-height: calc(70vh - 80px);">
+                            <ui:repeat value="#{managerPartida.mapas}" var="mapa">
+                                <div class="surface-border border-1 border-round mb-3 overflow-hidden hover-scale">
+                                    <div class="relative">
+                                        <h:graphicImage value="image/#{mapa.anexo.nome}" 
+                                                        styleClass="w-full"
+                                                        style="height: 120px; object-fit: cover;" />
+                                        <div class="absolute bottom-0 left-0 right-0 p-2 bg-black-alpha-70">
+                                            <span class="text-white font-bold">#{mapa.nome}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ui:repeat>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coluna 2: Sequência de Picks & Bans -->
+                <div class="col-12 lg:col-4">
+                    <div class="surface-card shadow-2 border-round p-4" style="height: 70vh;">
+                        <h2 class="text-900 font-bold text-xl mb-4 flex align-items-center">
+                            <i class="pi pi-sort-alt mr-2"></i>Sequência
+                        </h2>
+
+                        <div class="overflow-auto" style="max-height: calc(70vh - 80px);">
+                            <ui:repeat value="#{managerPartida.pickBanVo}" var="pb" varStatus="status">
+                                <div class="mb-3">
+                                    <div class="#{pb.tipoPickBan.nome eq 'BAN' ? 'bg-red-100 border-red-500' : 'bg-green-100 border-green-500'} 
+                                         border-2 border-round p-3">
+                                        <!-- Header do Card -->
+                                        <div class="flex justify-content-between align-items-center mb-2">
+                                            <div class="flex align-items-center gap-2">
+                                                <span class="text-xs font-semibold surface-0 px-2 py-1 border-round">
+                                                    #{status.index + 1}
+                                                </span>
+                                                <div class="participant-avatar" style="width: 30px; height: 30px; font-size: 12px; margin: 0;">
+                                                    #{pb.team.nome.substring(0,1)}
+                                                </div>
+                                                <span class="font-bold">#{pb.team.nome}</span>
+                                            </div>
+                                            <span class="font-bold #{pb.tipoPickBan.nome eq 'BAN' ? 'text-red-900' : 'text-green-900'}">
+                                                #{pb.tipoPickBan.nome}
+                                            </span>
+                                        </div>
+
+                                        <!-- Mapa Selecionado ou Botão -->
+                                        <h:panelGroup rendered="#{pb.mapas != null}">
+                                            <div class="flex align-items-center gap-2 mt-2">
+                                                <h:graphicImage value="image/#{pb.mapas.anexo.nome}" 
+                                                                style="height: 50px; width: 100px; object-fit: cover; border-radius: 4px;" />
+                                                <span class="font-semibold">#{pb.mapas.nome}</span>
+                                            </div>
+                                        </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{pb.mapas == null}">
+                                            <p:commandButton value="Selecionar Mapa"
+                                                             icon="pi pi-map-marker"
+                                                             styleClass="p-button-sm w-full mt-2"
+                                                             update="@form"
+                                                             oncomplete="PF('gerarMapasDialog').show();">
+                                                <f:setPropertyActionListener value="#{pb}"
+                                                                             target="#{managerPartida.pbItem}" />
+                                            </p:commandButton>
+                                        </h:panelGroup>
+                                    </div>
+                                </div>
+                            </ui:repeat>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coluna 3: Mapas Escolhidos -->
+                <div class="col-12 lg:col-4">
+                    <div class="surface-card shadow-2 border-round p-4" style="height: 70vh;">
+                        <h2 class="text-900 font-bold text-xl mb-4 flex align-items-center">
+                            <i class="pi pi-check-circle mr-2"></i>Mapas Escolhidos
+                        </h2>
+
+                        <div class="overflow-auto" style="max-height: calc(70vh - 80px);">
+                            <h:panelGroup rendered="#{empty managerPartida.pickedMaps}">
+                                <div class="text-center py-6">
+                                    <i class="pi pi-inbox text-6xl text-400 mb-3"></i>
+                                    <p class="text-600 m-0">Nenhum mapa escolhido ainda</p>
+                                </div>
+                            </h:panelGroup>
+
+                            <ui:repeat value="#{managerPartida.pickedMaps}" var="mapa">
+                                <div class="surface-border border-2 border-round mb-3 overflow-hidden border-primary">
+                                    <div class="relative">
+                                        <h:graphicImage value="image/#{mapa.anexo.nome}" 
+                                                        styleClass="w-full"
+                                                        style="height: 140px; object-fit: cover;" />
+                                        <div class="absolute bottom-0 left-0 right-0 p-3 bg-black-alpha-80">
+                                            <div class="flex justify-content-between align-items-center">
+                                                <span class="text-white font-bold text-lg">#{mapa.nome}</span>
+                                                <i class="pi pi-check-circle text-green-400 text-2xl"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ui:repeat>
+                        </div>
+                    </div>
                 </div>
             </div>
 
+            <!-- Dialog: Cara ou Coroa -->
+            <p:dialog id="coinFlipDialog"
+                      widgetVar="coinFlipDialog"
+                      header="Sortear Time Iniciante"
+                      modal="true"
+                      resizable="false"
+                      draggable="false"
+                      closeOnEscape="false"
+                      closable="false"
+                      showEffect="fade"
+                      hideEffect="fade"
+                      width="500">
+
+                <div class="text-center py-4">
+                    <h3 class="text-900 font-bold mb-4">Qual time começa?</h3>
+
+                    <!-- Moeda Animada -->
+                    <div class="coin-container mb-4">
+                        <div id="coin" class="coin">
+                            <div class="coin-face coin-heads" data-team="team1">
+                                <div class="participant-avatar mx-auto" style="width: 100px; height: 100px; font-size: 40px;">
+                                    #{managerPartida.itensPartidas.get(0).team1.nome.substring(0,1)}
+                                </div>
+                                <div class="mt-2 font-bold">#{managerPartida.itensPartidas.get(0).team1.nome}</div>
+                            </div>
+                            <div class="coin-face coin-tails" data-team="team2">
+                                <div class="participant-avatar mx-auto" style="width: 100px; height: 100px; font-size: 40px;">
+                                    #{managerPartida.itensPartidas.get(0).team2.nome.substring(0,1)}
+                                </div>
+                                <div class="mt-2 font-bold">#{managerPartida.itensPartidas.get(0).team2.nome}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h:panelGroup id="resultadoSorteio" styleClass="resultado-sorteio">
+                        <h:panelGroup rendered="#{not empty managerPartida.timeIniciante}">
+                            <div class="bg-green-100 border-green-500 border-2 border-round p-4 mb-3">
+                                <i class="pi pi-trophy text-yellow-500 text-4xl mb-2"></i>
+                                <h3 class="text-green-900 font-bold m-0">
+                                    #{managerPartida.timeIniciante.nome} começa!
+                                </h3>
+                            </div>
+                        </h:panelGroup>
+                    </h:panelGroup>
+
+                    <!-- Botões -->
+                    <h:panelGroup id="botoesContainer">
+                        <div class="flex justify-content-center gap-2 mt-4">
+                            <p:commandButton id="btnSortear"
+                                             value="Sortear"
+                                             icon="pi pi-refresh"
+                                             styleClass="p-button-lg p-button-help"
+                                             onclick="flipCoin(); return false;"
+                                             rendered="#{managerPartida.timeIniciante.id eq null}" />
+
+                            <!-- Botões ocultos para chamar o método do servidor com cada time -->
+                            <p:commandButton id="btnSortearTeam1"
+                                             style="display: none;"
+                                             actionListener="#{managerPartida.sortearTimeIniciante(managerPartida.itensPartidas.get(0).team1)}"
+                                             update="resultadoSorteio botoesContainer @(.info-time-iniciante)"
+                                             oncomplete="showResult();" />
+
+                            <p:commandButton id="btnSortearTeam2"
+                                             style="display: none;"
+                                             actionListener="#{managerPartida.sortearTimeIniciante(managerPartida.itensPartidas.get(0).team2)}"
+                                             update="resultadoSorteio botoesContainer @(.info-time-iniciante)"
+                                             oncomplete="showResult();" />
+
+                            <p:commandButton value="Continuar"
+                                             id="continuarButton"
+                                             icon="pi pi-arrow-right"
+                                             styleClass="p-button-lg p-button-success"
+                                             update="@form"
+                                             oncomplete="PF('coinFlipDialog').hide();"
+                                             rendered="#{managerPartida.timeIniciante.id ne null}" />
+                        </div>
+                    </h:panelGroup>
+                </div>
+            </p:dialog>
+
+            <!-- Dialog: Selecionar Mapa -->
             <p:dialog id="gerarMapasDialog"
                       widgetVar="gerarMapasDialog"
-                      header="Mapa a ser escolhido"
-                      modal="true"                      
+                      header="Selecionar Mapa"
+                      modal="true"
+                      resizable="false"
                       draggable="false"
                       closeOnEscape="true"
                       showEffect="fade"
-                      hideEffect="fade">
+                      hideEffect="fade"
+                      width="900"
+                      height="600">
 
-
-                <div class="row" style="display: flex; flex-wrap: wrap; width: 900px; height: 80vh; justify-content: center">
-                    <div class="row">
-                        <h1 style='text-align: center'>REMAINING MAPS</h1>
-                    </div>
-                    <ui:repeat value="#{managerPartida.mapas}" var="mapa">
-                        <div style="display: flex; justify-content: center; flex-direction: column; width: 400px; margin: 10px;">
-                            <div class='row'>
-                                <p:outputLabel id="nomeMapa" style="text-align: center !important" value="#{mapa.nome}" />
-                            </div>
-                            <div class="row" style="display: flex; justify-items: center; align-items: center">                                
-                                <h:commandButton action="#{managerPartida.pickarMapa(mapa)}" style="border-radius: 10px;
-                                                 margin: 10px; width: 350px !important; height: 175px !important" 
-                                                 image="image/#{mapa.anexo.nome}" >
-                                    <p:ajax process="@this" update="@form"/>
-                                </h:commandButton>
-                            </div>
-                        </div>                
-                    </ui:repeat>
+                <div class="text-center mb-4">
+                    <h3 class="text-900 font-bold">
+                        #{managerPartida.pbItem.team.nome} - #{managerPartida.pbItem.tipoPickBan.nome}
+                    </h3>
                 </div>
 
+                <div class="grid" style="max-height: 500px; overflow-y: auto;">
+                    <ui:repeat value="#{managerPartida.mapas}" var="mapa">
+                        <div class="col-12 md:col-6 lg:col-4">
+                            <p:commandButton styleClass="p-0 w-full border-0 bg-transparent"
+                                             action="#{managerPartida.pickarMapa(mapa)}"
+                                             update="@form"
+                                             oncomplete="PF('gerarMapasDialog').hide();">
+                                <div class="map-card">
+                                    <div class="relative overflow-hidden border-round hover-scale">
+                                        <h:graphicImage value="image/#{mapa.anexo.nome}" 
+                                                        styleClass="w-full"
+                                                        style="height: 180px; object-fit: cover;" />
+                                        <div class="absolute bottom-0 left-0 right-0 p-3 bg-black-alpha-80">
+                                            <span class="text-white font-bold text-xl">#{mapa.nome}</span>
+                                        </div>
+                                        <div class="map-overlay">
+                                            <i class="pi pi-check-circle text-white text-6xl"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </p:commandButton>
+                        </div>
+                    </ui:repeat>
+                </div>
             </p:dialog>
-
-
 
         </h:form>
 
-    </ui:define>
+        <style>
+            .participant-avatar {
+                border-radius: 50%;
+                background-color: #f8f9fa;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                color: #6c757d;
+            }
 
+            .hover-scale {
+                transition: transform 0.2s;
+            }
+
+            .hover-scale:hover {
+                transform: scale(1.02);
+            }
+
+            /* Animação da Moeda */
+            .coin-container {
+                perspective: 1000px;
+                min-height: 200px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .coin {
+                width: 150px;
+                height: 150px;
+                position: relative;
+                transform-style: preserve-3d;
+                transition: transform 2s;
+            }
+
+            .coin-face {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                backface-visibility: hidden;
+                border-radius: 50%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            }
+
+            .coin-heads {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }
+
+            .coin-tails {
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                color: white;
+                transform: rotateY(180deg);
+            }
+
+            .coin.flip {
+                animation: flip 2s ease-in-out;
+            }
+
+            @keyframes flip {
+                0% {
+                    transform: rotateY(0deg);
+                }
+                100% {
+                    transform: rotateY(1800deg);
+                }
+            }
+
+            /* Mapa Card com Overlay */
+            .map-card {
+                position: relative;
+                cursor: pointer;
+            }
+
+            .map-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(33, 150, 243, 0.9);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transition: opacity 0.3s;
+                border-radius: 6px;
+            }
+
+            .map-card:hover .map-overlay {
+                opacity: 1;
+            }
+
+            /* Responsividade */
+            @media (max-width: 992px) {
+                .grid > div {
+                    margin-bottom: 1rem;
+                }
+            }
+        </style>
+
+        <script type="text/javascript">
+            //<![CDATA[
+            function flipCoin() {
+                var coin = document.getElementById('coin');
+                coin.classList.add('flip');
+
+                // Sorteia qual time vence (0 = team1, 1 = team2)
+                var winner = Math.random() < 0.5 ? 0 : 1;
+
+                // Após a animação de 2 segundos
+                setTimeout(function () {
+                    coin.classList.remove('flip');
+
+                    // Define a rotação final baseada no vencedor
+                    var rotation = winner === 0 ? 0 : 180;
+                    coin.style.transform = 'rotateY(' + rotation + 'deg)';
+
+                    // Aguarda mais 500ms para a moeda parar completamente
+                    setTimeout(function () {
+                        // Clica no botão correspondente ao time vencedor
+                        if (winner === 0) {
+                            document.getElementById('formPicksAndBans:btnSortearTeam1').click();
+                        } else {
+                            document.getElementById('formPicksAndBans:btnSortearTeam2').click();
+                        }
+                    }, 500);
+                }, 2000);
+            }
+
+            function showResult() {
+                // Função chamada após o servidor processar o resultado
+                // Pode adicionar efeitos visuais adicionais aqui se necessário
+                console.log('Time iniciante definido com sucesso!');
+            }
+            //]]>
+        </script>
+    </ui:define>
 </ui:composition>

@@ -1,377 +1,607 @@
-<ui:composition template="layout.xhtml"
-                xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:h="http://java.sun.com/jsf/html"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
-
-    <ui:define name="title">
-        #{managerPartida.partida.itemPartida.get(0).team1.nome.concat(' ').concat(managerPartida.scoreT1).concat(' x ')
-          .concat(managerPartida.scoreT2).concat(' ').concat(managerPartida.partida.itemPartida.get(0).team2.nome)}
-    </ui:define>
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                template="vercel.xhtml">
 
     <ui:define name="content">
+        <h:form id="formVisualizarPartida">
+            
+           
 
-        <h:form id="formVisualizarPartida"
-                >
-
-            <script>
-                function skinRadarChart() {
-                    Chart.defaults.startAngle = 36;
-                    Chart.defaults.plugins.tooltip.cornerRadius = 3;
-                    Chart.defaults.plugins.tooltip.enabled = true;
-                    Chart.defaults.plugins.tooltip.mode = 'point';
-                    Chart.defaults.plugins.tooltip.position = 'nearest';
-                }
-            </script>
-
-            <p:growl id="messages"
-                     showDetail="false"/>
-
-            <div  class="actions">
-
-                <p:button value="Voltar" outcome="visualizarCampeonato.xhtml?id=#{managerPartida.partida.itemPartida.get(0).camp}"
-                          icon="ui-icon-arrowthick-1-w" rendered="#{managerPartida.partida.itemPartida.get(0).camp ne null}" style="text-align: left" />   
-
-
-                <p:menu rendered="#{managerPartida.partida.finalizada eq false}">
-                    <p:submenu label="Geral" rendered="#{managerPartida.partida.finalizada eq false}">                     
-                        <p:menuitem value="Finalizar Partida"  icon="pi pi-refresh" update="@form" rendered="#{managerPartida.partida.finalizada eq false}"
-                                    oncomplete="PF('confirmarFinalizarPartidaDialog').show();"/> 
-                    </p:submenu>
-                    <p:submenu label="Picks and Bans" rendered="#{managerPartida.partida.finalizada eq false}">
-                        <p:menuitem value="Gerar mapas" outcome="gerarMapas.xhtml?partidaId=#{managerPartida.partida.id}"   icon="pi pi-external-link"/>                        
-                    </p:submenu>
-                </p:menu>                                
-
-            </div>           
-            <p:tabView id="tabview">
-                <p:tab id="tabGeral" title="Geral">
-                    <p:dataTable id="geralTime1"
-                                 rendered="#{ managerPartida.itensPartidas.get(0).team1 ne null ? true : false}"
-                                 value="#{managerPartida.somaEstsTeam(managerPartida.itensPartidas.get(0).team1)}"
-                                 var="ests1">
-
-                        <f:facet name="header">
-                            <p:outputLabel value="#{managerPartida.itensPartidas.get(0).team1.nome}" />
-                        </f:facet>
-
-                        <p:column  width="3%">
-                            <div class="options">
-                                <p:button title="Visualizar Player"
-                                          icon="ui-icon-search"
-                                          href="visualizarPlayer.xhtml?id=#{ests1.player.id}"/>
-                            </div>
-                        </p:column>
-                        <p:column headerText="Nome" width="30%">
-                            <p:outputLabel  value="#{ests1.player.nome}   '#{ests1.player.nick}' #{ests1.player.sobreNome} "/>
-                        </p:column>                            
-                        <p:column headerText="K" width="5%"   >                                  
-                            <p:outputLabel value="#{ests1.kills}"/>
-                        </p:column>
-                        <p:column headerText="A" width="5%">
-                            <p:outputLabel value="#{ests1.assists}"/>
-                        </p:column>
-                        <p:column headerText="D" width="5%">
-                            <p:outputLabel value="#{ests1.deaths}"/>
-                        </p:column>
-                        <p:column headerText="ADR" width="5%">
-                            <p:outputLabel value="#{ests1.adr}"/>
-                        </p:column>
-
-                    </p:dataTable>
-
-                    <p:dataTable id="geralPlayer1"
-                                 rendered="#{ managerPartida.itensPartidas.get(0).player1 ne null ? true : false}"
-                                 value="#{managerPartida.somaEstsPlayer(managerPartida.itensPartidas.get(0).player1)}"
-                                 var="ests1">
-
-                        <f:facet name="header">
-                            <p:outputLabel value="#{managerPartida.itensPartidas.get(0).player1.nome}" />
-                        </f:facet>
-
-                        <p:column  width="3%">
-                            <div class="options">
-                                <p:button title="Visualizar Player"
-                                          icon="ui-icon-search"
-                                          href="visualizarPlayer.xhtml?id=#{ests1.player.id}"/>
-                            </div>
-                        </p:column>
-                        <p:column headerText="Nome" width="30%">
-                            <p:outputLabel  value="#{ests1.player.nome}   '#{ests1.player.nick}' #{ests1.player.sobreNome} "/>
-                        </p:column>                            
-                        <p:column headerText="PA" width="5%"   >                                  
-                            <p:outputLabel value="#{ests1.kills}"/>
-                        </p:column>
-                        <p:column headerText="PC" width="5%">
-                            <p:outputLabel value="#{ests1.deaths}"/>
-                        </p:column>
-                        <p:column headerText="SG" width="5%">
-                            <p:outputLabel value="#{ests1.roundsGanhos}"/>
-                        </p:column>
-                        <p:column headerText="SP" width="5%">
-                            <p:outputLabel value="#{ests1.roundsPerdidos}"/>
-                        </p:column>
-
-                    </p:dataTable>
-
-                    <p:dataTable id="geralTime2"
-                                 rendered="#{ managerPartida.itensPartidas.get(0).team2 ne null ? true : false}"
-                                 value="#{managerPartida.somaEstsTeam(managerPartida.itensPartidas.get(0).team2)}"
-                                 var="ests2"
-                                 paginator="true"
-                                 paginatorPosition="bottom"
-                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                                 currentPageReportTemplate="{currentPage} de {totalPages}">
-
-                        <f:facet name="header">
-                            <p:outputLabel value="#{managerPartida.itensPartidas.get(0).team2.nome}" />
-                        </f:facet>
-
-                        <p:column  width="3%">
-                            <div class="options">
-                                <p:button title="Visualizar Player"
-                                          icon="ui-icon-search"
-                                          href="visualizarPlayer.xhtml?id=#{ests2.player.id}"/>
-                            </div>
-                        </p:column>
-
-                        <p:column headerText="Nome" width="30%">
-                            <p:outputLabel  value="#{ests2.player.nome}   '#{ests2.player.nick}' #{ests2.player.sobreNome} "/>
-                        </p:column>                            
-                        <p:column headerText="K" width="5%"   >                                  
-                            <p:outputLabel value="#{ests2.kills}"/>
-                        </p:column>
-                        <p:column headerText="A" width="5%">
-                            <p:outputLabel value="#{ests2.assists}"/>
-                        </p:column>
-                        <p:column headerText="D" width="5%">
-                            <p:outputLabel value="#{ests2.deaths}"/>
-                        </p:column>
-                        <p:column headerText="ADR" width="5%">
-                            <p:outputLabel value="#{ests2.adr}"/>
-                        </p:column>
-                    </p:dataTable>
-
-                    <p:dataTable id="geralPlayer2"
-                                 rendered="#{ managerPartida.itensPartidas.get(0).player2 ne null ? true : false}"
-                                 value="#{managerPartida.somaEstsPlayer(managerPartida.itensPartidas.get(0).player2)}"
-                                 var="ests1" >
-
-                        <f:facet name="header">
-                            <p:outputLabel value="#{managerPartida.itensPartidas.get(0).player2.nome}" />
-                        </f:facet>
-
-                        <p:column  width="3%">
-                            <div class="options">
-                                <p:button title="Visualizar Player"
-                                          icon="ui-icon-search"
-                                          href="visualizarPlayer.xhtml?id=#{ests1.player.id}"/>
-                            </div>
-                        </p:column>
-                        <p:column headerText="Nome" width="30%">
-                            <p:outputLabel  value="#{ests1.player.nome}   '#{ests1.player.nick}' #{ests1.player.sobreNome} "/>
-                        </p:column>                            
-                        <p:column headerText="PA" width="5%"   >                                  
-                            <p:outputLabel value="#{ests1.kills}"/>
-                        </p:column>
-                        <p:column headerText="PC" width="5%">
-                            <p:outputLabel value="#{ests1.deaths}"/>
-                        </p:column>
-                        <p:column headerText="SG" width="5%">
-                            <p:outputLabel value="#{ests1.roundsGanhos}"/>
-                        </p:column>
-                        <p:column headerText="SP" width="5%">
-                            <p:outputLabel value="#{ests1.roundsPerdidos}"/>
-                        </p:column>
-
-                    </p:dataTable>
-
-                    <div class="row">                        
-                        <p:radarChart model="#{managerPartida.radarModel}"/>
-
+            <!-- Header da Partida -->
+            <div class="surface-card shadow-2 border-round mb-4 p-4">
+                <!-- Breadcrumb e Ações -->
+                <div class="flex justify-content-between align-items-center mb-4">
+                    <div class="flex align-items-center gap-2">
+                        <p:button icon="pi pi-arrow-left"
+                                         styleClass="p-button-rounded p-button-text"
+                                         outcome="visualizarCampeonato.xhtml?id=#{managerPartida.partida.itemPartida.get(0).camp}"
+                                         rendered="#{managerPartida.partida.itemPartida.get(0).camp != null}"
+                                         title="Voltar ao Campeonato" />
+                        <span class="text-600">
+                            <h:outputText value="Campeonato" rendered="#{managerPartida.partida.itemPartida.get(0).camp != null}" />
+                            <h:outputText value="Amistoso" rendered="#{managerPartida.partida.itemPartida.get(0).camp == null}" />
+                        </span>
                     </div>
-                </p:tab>
-                <c:forEach items="#{managerPartida.itensPartidas}" var="item">
-                    <p:tab id="tab" title="#{item.mapas.nome ne null ? item.mapas.nome .concat(' - ').concat(item.scoreT1).concat(' x ').concat(item.scoreT2) : 'N/A' }">
 
-                        <div  class="actions">
-                            <p:commandButton id="menuButton" value="Atualizar Partida" icon="pi pi-bars"
-                                             actionListener="#{managerPartida.redirecionarPartida(item)}"/>
+                    <div class="flex gap-2">
+                        <p:commandButton value="Finalizar Partida"
+                                         icon="pi pi-check"
+                                         styleClass="p-button-danger"
+                                         rendered="#{managerPartida.partida.finalizada == false}"
+                                         update="@form"
+                                         oncomplete="PF('confirmarFinalizarPartidaDialog').show();" />
+                        <p:button value="Gerar Mapas"
+                                         icon="pi pi-map"
+                                         styleClass="p-button-outlined"
+                                         rendered="#{managerPartida.partida.finalizada == false}"
+                                         outcome="gerarMapas.xhtml?partidaId=#{managerPartida.partida.id}" />
+                    </div>
+                </div>
+
+                <!-- Status e Tipo -->
+                <div class="flex gap-2 mb-3">
+                    <h:panelGroup rendered="#{managerPartida.partida.finalizada == false}">
+                        <span class="inline-flex align-items-center gap-2 bg-green-100 text-green-900 px-3 py-1 border-round font-semibold">
+                            <i class="pi pi-circle-fill" style="font-size: 0.5rem; animation: pulse 2s infinite;"></i>
+                            AO VIVO
+                        </span>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{managerPartida.partida.finalizada == true}">
+                        <span class="inline-flex align-items-center gap-2 bg-gray-100 text-gray-900 px-3 py-1 border-round font-semibold">
+                            <i class="pi pi-check-circle"></i>
+                            FINALIZADA
+                        </span>
+                    </h:panelGroup>
+
+                    <span class="inline-flex align-items-center gap-2 bg-blue-100 text-blue-900 px-3 py-1 border-round font-semibold">
+                        <i class="pi pi-#{managerPartida.partida.itemPartida.get(0).camp != null ? 'trophy' : 'users'}"></i>
+                        #{managerPartida.partida.itemPartida.get(0).camp != null ? 'CAMPEONATO' : 'AMISTOSO'}
+                    </span>
+
+                    <span class="surface-100 px-3 py-1 border-round font-semibold text-sm">
+                        MD#{managerPartida.itensPartidas.size()}
+                    </span>
+                </div>
+
+                <!-- Placar Principal -->
+                <div class="flex justify-content-between align-items-center py-4">
+                    <!-- Time 1 -->
+                    <div class="flex-1 text-center">
+                        <div class="participant-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 32px;">
+                            #{managerPartida.itensPartidas.get(0).team1 != null ? managerPartida.itensPartidas.get(0).team1.nome.substring(0,1) : managerPartida.itensPartidas.get(0).player1.nome.substring(0,1)}
                         </div>
+                        <h2 class="text-900 font-bold text-2xl m-0 mb-2">
+                            #{managerPartida.itensPartidas.get(0).team1 != null ? managerPartida.itensPartidas.get(0).team1.nome : managerPartida.itensPartidas.get(0).player1.nome}
+                        </h2>
+                    </div>
 
-                        <p:dataTable id="partidaTime1"
-                                     rendered="#{ managerPartida.itensPartidas.get(0).team1 ne null ? true : false}"
-                                     value="#{managerPartida.estsGeraisTeam(item.team1, item)}"
-                                     var="ests1">
+                    <!-- Placar -->
+                    <div class="text-center px-4">
+                        <div class="flex align-items-center gap-3">
+                            <span class="text-6xl font-bold #{managerPartida.scoreT1 > managerPartida.scoreT2 ? 'text-green-600' : 'text-900'}">
+                                #{managerPartida.scoreT1}
+                            </span>
+                            <span class="text-4xl text-500">:</span>
+                            <span class="text-6xl font-bold #{managerPartida.scoreT2 > managerPartida.scoreT1 ? 'text-green-600' : 'text-900'}">
+                                #{managerPartida.scoreT2}
+                            </span>
+                        </div>
+                    </div>
 
-                            <f:facet name="header">
-                                <p:outputLabel value="#{managerPartida.itensPartidas.get(0).team1.nome}" />
-                            </f:facet>
+                    <!-- Time 2 -->
+                    <div class="flex-1 text-center">
+                        <div class="participant-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 32px;">
+                            #{managerPartida.itensPartidas.get(0).team2 != null ? managerPartida.itensPartidas.get(0).team2.nome.substring(0,1) : managerPartida.itensPartidas.get(0).player2.nome.substring(0,1)}
+                        </div>
+                        <h2 class="text-900 font-bold text-2xl m-0 mb-2">
+                            #{managerPartida.itensPartidas.get(0).team2 != null ? managerPartida.itensPartidas.get(0).team2.nome : managerPartida.itensPartidas.get(0).player2.nome}
+                        </h2>
+                    </div>
+                </div>
+            </div>
 
-                            <p:column headerText="Opções" width="5%">
-                                <div class="options">
-                                    <p:button title="Visualizar Player"
-                                              icon="ui-icon-search"
-                                              href="visualizarPlayer.xhtml?id=#{ests1.player.id}"/>
+            <!-- Maps Overview -->
+            <div class="surface-card shadow-2 border-round mb-4 p-4">
+                <h2 class="text-900 font-bold text-2xl mb-4">
+                    <i class="pi pi-map mr-2"></i>Mapas
+                </h2>
+
+                <div class="grid">
+                    <ui:repeat value="#{managerPartida.itensPartidas}" var="item" varStatus="status">
+                        <div class="col-12 md:col-6 lg:col-4">
+                            <div class="surface-border border-2 border-round overflow-hidden #{item.timeVencedor != null ? 'border-primary' : ''}">
+                                <!-- Map Header -->
+                                <div class="bg-primary text-white p-3">
+                                    <div class="flex justify-content-between align-items-center">
+                                        <span class="font-bold">MAPA #{status.index + 1}</span>
+                                        <h:panelGroup rendered="#{item.timeVencedor != null}">
+                                            <span class="text-xs">FINALIZADO</span>
+                                        </h:panelGroup>
+                                    </div>
+                                    <h3 class="text-white font-bold text-xl m-0 mt-2">
+                                        #{item.mapas.nome != null ? item.mapas.nome : 'TBD'}
+                                    </h3>
                                 </div>
-                            </p:column>
-                            <p:column headerText="Nome" width="30%">
-                                <p:outputLabel  value="#{ests1.player.nome}   '#{ests1.player.nick}' #{ests1.player.sobreNome} "/>
-                            </p:column>                            
-                            <p:column headerText="K" width="5%"   >                                  
-                                <p:outputLabel value="#{ests1.kills}"/>
-                            </p:column>
-                            <p:column headerText="A" width="5%">
-                                <p:outputLabel value="#{ests1.assists}"/>
-                            </p:column>
-                            <p:column headerText="D" width="5%">
-                                <p:outputLabel value="#{ests1.deaths}"/>
-                            </p:column>
-                            <p:column headerText="ADR" width="5%">
-                                <p:outputLabel value="#{ests1.adr}"/>
-                            </p:column>
-                        </p:dataTable>
 
-                        <p:dataTable id="partidaPlayer1"
-                                     rendered="#{ managerPartida.itensPartidas.get(0).player1 ne null ? true : false}"
-                                     value="#{managerPartida.estsGeraisPlayer(item.player1, item)}"
-                                     var="ests1">
+                                <!-- Map Score -->
+                                <div class="p-3">
+                                    <div class="flex justify-content-between align-items-center py-3">
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-900 mb-1">
+                                                #{managerPartida.itensPartidas.get(0).team1 != null ? managerPartida.itensPartidas.get(0).team1.nome : managerPartida.itensPartidas.get(0).player1.nome}
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="text-center px-3">
+                                            <span class="text-3xl font-bold #{item.scoreT1 > item.scoreT2 ? 'text-green-600' : 'text-900'}">
+                                                #{item.scoreT1}
+                                            </span>
+                                        </div>
+                                    </div>
 
-                            <f:facet name="header">
-                                <p:outputLabel value="#{managerPartida.itensPartidas.get(0).player1.nome}" />
-                            </f:facet>
+                                    <p:divider styleClass="my-2" />
 
-                            <p:column headerText="Opções" width="5%">
-                                <div class="options">
-                                    <p:button title="Visualizar Player"
-                                              icon="ui-icon-search"
-                                              href="visualizarPlayer.xhtml?id=#{ests1.player.id}"/>
+                                    <div class="flex justify-content-between align-items-center py-3">
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-900 mb-1">
+                                                #{managerPartida.itensPartidas.get(0).team2 != null ? managerPartida.itensPartidas.get(0).team2.nome : managerPartida.itensPartidas.get(0).player2.nome}
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="text-center px-3">
+                                            <span class="text-3xl font-bold #{item.scoreT2 > item.scoreT1 ? 'text-green-600' : 'text-900'}">
+                                                #{item.scoreT2}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Ver Detalhes -->
+                                    <p:commandButton value="Ver Estatísticas" 
+                                                     icon="pi pi-chart-bar"
+                                                     styleClass="p-button-outlined w-full mt-3"
+                                                     onclick="PF('tabview').select(#{status.index + 1});" />
                                 </div>
-                            </p:column>
-                            <p:column headerText="Nome" width="30%">
-                                <p:outputLabel  value="#{ests1.player.nome}   '#{ests1.player.nick}' #{ests1.player.sobreNome} "/>
-                            </p:column>                            
-                            <p:column headerText="K" width="5%"   >                                  
-                                <p:outputLabel value="#{ests1.kills}"/>
-                            </p:column>
-                            <p:column headerText="A" width="5%">
-                                <p:outputLabel value="#{ests1.assists}"/>
-                            </p:column>
-                            <p:column headerText="D" width="5%">
-                                <p:outputLabel value="#{ests1.deaths}"/>
-                            </p:column>
-                        </p:dataTable>
+                            </div>
+                        </div>
+                    </ui:repeat>
+                </div>
+            </div>
 
+            <!-- TabView com Estatísticas -->
+            <div class="surface-card shadow-2 border-round p-4">
+                <p:tabView id="tabview" widgetVar="tabview">
+                    <!-- Tab Geral -->
+                    <p:tab title="Visão Geral">
+                        <h3 class="text-900 font-bold text-xl mb-4">Estatísticas Gerais</h3>
 
-
-                        <p:dataTable id="partidaTime2"
-                                     rendered="#{ managerPartida.itensPartidas.get(0).team2 ne null ? true : false}"
-                                     value="#{managerPartida.estsGeraisTeam(item.team2, item)}"
-                                     var="ests2">
-
-                            <f:facet name="header">
-                                <p:outputLabel value="#{managerPartida.itensPartidas.get(0).team2.nome}" />
-                            </f:facet>
-
-                            <p:column headerText="Opções" width="5%">
-                                <div class="options">
-                                    <p:button title="Visualizar Player"
-                                              icon="ui-icon-search"
-                                              href="visualizarPlayer.xhtml?id=#{ests2.player.id}"/>
+                        <!-- Estatísticas Time 1 / Player 1 -->
+                        <h:panelGroup rendered="#{managerPartida.itensPartidas.get(0).team1 != null}">
+                            <div class="mb-4">
+                                <div class="flex align-items-center gap-2 mb-3 pb-2 border-bottom-2 border-primary">
+                                    <div class="participant-avatar" style="width: 40px; height: 40px; font-size: 16px; margin: 0;">
+                                        #{managerPartida.itensPartidas.get(0).team1.nome.substring(0,1)}
+                                    </div>
+                                    <h4 class="text-900 font-bold m-0">#{managerPartida.itensPartidas.get(0).team1.nome}</h4>
                                 </div>
-                            </p:column>
 
-                            <p:column headerText="Nome" width="30%">
-                                <p:outputLabel  value="#{ests2.player.nome}   '#{ests2.player.nick}' #{ests2.player.sobreNome} "/>
-                            </p:column>                            
-                            <p:column headerText="K" width="5%"   >                                  
-                                <p:outputLabel value="#{ests2.kills}"/>
-                            </p:column>
-                            <p:column headerText="A" width="5%">
-                                <p:outputLabel value="#{ests2.assists}"/>
-                            </p:column>
-                            <p:column headerText="D" width="5%">
-                                <p:outputLabel value="#{ests2.deaths}"/>
-                            </p:column>
-                            <p:column headerText="ADR" width="5%">
-                                <p:outputLabel value="#{ests2.adr}"/>
-                            </p:column>
-                        </p:dataTable>
+                                <p:dataTable value="#{managerPartida.somaEstsTeam(managerPartida.itensPartidas.get(0).team1)}" 
+                                             var="ests"
+                                             styleClass="p-datatable-sm p-datatable-striped">
+                                    <p:column headerText="Jogador" style="width: 40%;">
+                                        <div class="flex align-items-center gap-2">
+                                            <div class="participant-avatar" style="width: 32px; height: 32px; font-size: 12px; margin: 0;">
+                                                #{ests.player.nome.substring(0,1)}
+                                            </div>
+                                            <div>
+                                                <div class="font-semibold">#{ests.player.nick}</div>
+                                                <small class="text-600">#{ests.player.nome} #{ests.player.sobreNome}</small>
+                                            </div>
+                                        </div>
+                                    </p:column>
 
-                        <p:dataTable id="partidaPlayer2"
-                                     rendered="#{ managerPartida.itensPartidas.get(0).player2 ne null ? true : false}"
-                                     value="#{managerPartida.estsGeraisPlayer(item.player2, item)}"
-                                     var="ests2">
+                                    <p:column headerText="K" style="width: 10%; text-align: center;">
+                                        <span class="font-semibold">#{ests.kills}</span>
+                                    </p:column>
 
-                            <f:facet name="header">
-                                <p:outputLabel value="#{managerPartida.itensPartidas.get(0).player2.nome}" />
-                            </f:facet>
+                                    <p:column headerText="A" style="width: 10%; text-align: center;">
+                                        <span class="text-600">#{ests.assists}</span>
+                                    </p:column>
 
-                            <p:column headerText="Opções" width="5%">
-                                <div class="options">
-                                    <p:button title="Visualizar Player"
-                                              icon="ui-icon-search"
-                                              href="visualizarPlayer.xhtml?id=#{ests2.player.id}"/>
+                                    <p:column headerText="D" style="width: 10%; text-align: center;">
+                                        <span class="text-600">#{ests.deaths}</span>
+                                    </p:column>
+
+                                    <p:column headerText="K/D" style="width: 15%; text-align: center;">
+                                        <h:outputText value="#{ests.deaths > 0 ? ests.kills / ests.deaths : ests.kills}">
+                                            <f:convertNumber pattern="0.00" />
+                                        </h:outputText>
+                                    </p:column>
+
+                                    <p:column headerText="ADR" style="width: 15%; text-align: center;">
+                                        <span class="font-semibold text-primary">#{ests.adr}</span>
+                                    </p:column>
+
+                                    <p:column style="width: 5%; text-align: center;">
+                                        <p:button icon="pi pi-eye"
+                                                         styleClass="p-button-rounded p-button-text p-button-sm"
+                                                         title="Ver Perfil"
+                                                         href="visualizarPlayer.xhtml?id=#{ests.player.id}"/>
+                                    </p:column>
+                                </p:dataTable>
+                            </div>
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{managerPartida.itensPartidas.get(0).player1 != null}">
+                            <div class="mb-4">
+                                <div class="flex align-items-center gap-2 mb-3 pb-2 border-bottom-2 border-primary">
+                                    <div class="participant-avatar" style="width: 40px; height: 40px; font-size: 16px; margin: 0;">
+                                        #{managerPartida.itensPartidas.get(0).player1.nome.substring(0,1)}
+                                    </div>
+                                    <h4 class="text-900 font-bold m-0">#{managerPartida.itensPartidas.get(0).player1.nome}</h4>
                                 </div>
-                            </p:column>
 
-                            <p:column headerText="Nome" width="30%">
-                                <p:outputLabel  value="#{ests2.player.nome}   '#{ests2.player.nick}' #{ests2.player.sobreNome} "/>
-                            </p:column>                            
-                            <p:column headerText="K" width="5%"   >                                  
-                                <p:outputLabel value="#{ests2.kills}"/>
-                            </p:column>
-                            <p:column headerText="A" width="5%">
-                                <p:outputLabel value="#{ests2.assists}"/>
-                            </p:column>
-                            <p:column headerText="D" width="5%">
-                                <p:outputLabel value="#{ests2.deaths}"/>
-                            </p:column>
+                                <p:dataTable value="#{managerPartida.somaEstsPlayer(managerPartida.itensPartidas.get(0).player1)}" 
+                                             var="ests"
+                                             styleClass="p-datatable-sm">
+                                    <p:column headerText="PA" style="text-align: center;">
+                                        #{ests.kills}
+                                    </p:column>
+                                    <p:column headerText="PC" style="text-align: center;">
+                                        #{ests.deaths}
+                                    </p:column>
+                                    <p:column headerText="SG" style="text-align: center;">
+                                        #{ests.roundsGanhos}
+                                    </p:column>
+                                    <p:column headerText="SP" style="text-align: center;">
+                                        #{ests.roundsPerdidos}
+                                    </p:column>
+                                </p:dataTable>
+                            </div>
+                        </h:panelGroup>
 
+                        <!-- Estatísticas Time 2 / Player 2 -->
+                        <h:panelGroup rendered="#{managerPartida.itensPartidas.get(0).team2 != null}">
+                            <div class="mb-4">
+                                <div class="flex align-items-center gap-2 mb-3 pb-2 border-bottom-2 border-pink-500">
+                                    <div class="participant-avatar" style="width: 40px; height: 40px; font-size: 16px; margin: 0;">
+                                        #{managerPartida.itensPartidas.get(0).team2.nome.substring(0,1)}
+                                    </div>
+                                    <h4 class="text-900 font-bold m-0">#{managerPartida.itensPartidas.get(0).team2.nome}</h4>
+                                </div>
 
+                                <p:dataTable value="#{managerPartida.somaEstsTeam(managerPartida.itensPartidas.get(0).team2)}" 
+                                             var="ests"
+                                             styleClass="p-datatable-sm p-datatable-striped">
+                                    <p:column headerText="Jogador" style="width: 40%;">
+                                        <div class="flex align-items-center gap-2">
+                                            <div class="participant-avatar" style="width: 32px; height: 32px; font-size: 12px; margin: 0;">
+                                                #{ests.player.nome.substring(0,1)}
+                                            </div>
+                                            <div>
+                                                <div class="font-semibold">#{ests.player.nick}</div>
+                                                <small class="text-600">#{ests.player.nome} #{ests.player.sobreNome}</small>
+                                            </div>
+                                        </div>
+                                    </p:column>
 
-                        </p:dataTable>
+                                    <p:column headerText="K" style="width: 10%; text-align: center;">
+                                        <span class="font-semibold">#{ests.kills}</span>
+                                    </p:column>
 
+                                    <p:column headerText="A" style="width: 10%; text-align: center;">
+                                        <span class="text-600">#{ests.assists}</span>
+                                    </p:column>
 
-                    </p:tab>  
+                                    <p:column headerText="D" style="width: 10%; text-align: center;">
+                                        <span class="text-600">#{ests.deaths}</span>
+                                    </p:column>
 
-                </c:forEach>Ï
-            </p:tabView>
+                                    <p:column headerText="K/D" style="width: 15%; text-align: center;">
+                                        <h:outputText value="#{ests.deaths > 0 ? ests.kills / ests.deaths : ests.kills}">
+                                            <f:convertNumber pattern="0.00" />
+                                        </h:outputText>
+                                    </p:column>
 
+                                    <p:column headerText="ADR" style="width: 15%; text-align: center;">
+                                        <span class="font-semibold text-primary">#{ests.adr}</span>
+                                    </p:column>
+
+                                    <p:column style="width: 5%; text-align: center;">
+                                        <p:button icon="pi pi-eye"
+                                                         styleClass="p-button-rounded p-button-text p-button-sm"
+                                                         title="Ver Perfil"
+                                                         href="visualizarPlayer.xhtml?id=#{ests1.player.id}"/>
+                                    </p:column>
+                                </p:dataTable>
+                            </div>
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{managerPartida.itensPartidas.get(0).player2 != null}">
+                            <div class="mb-4">
+                                <div class="flex align-items-center gap-2 mb-3 pb-2 border-bottom-2 border-pink-500">
+                                    <div class="participant-avatar" style="width: 40px; height: 40px; font-size: 16px; margin: 0;">
+                                        #{managerPartida.itensPartidas.get(0).player2.nome.substring(0,1)}
+                                    </div>
+                                    <h4 class="text-900 font-bold m-0">#{managerPartida.itensPartidas.get(0).player2.nome}</h4>
+                                </div>
+
+                                <p:dataTable value="#{managerPartida.somaEstsPlayer(managerPartida.itensPartidas.get(0).player2)}" 
+                                             var="ests"
+                                             styleClass="p-datatable-sm">
+                                    <p:column headerText="PA" style="text-align: center;">
+                                        #{ests.kills}
+                                    </p:column>
+                                    <p:column headerText="PC" style="text-align: center;">
+                                        #{ests.deaths}
+                                    </p:column>
+                                    <p:column headerText="SG" style="text-align: center;">
+                                        #{ests.roundsGanhos}
+                                    </p:column>
+                                    <p:column headerText="SP" style="text-align: center;">
+                                        #{ests.roundsPerdidos}
+                                    </p:column>
+                                </p:dataTable>
+                            </div>
+                        </h:panelGroup>
+
+                        <!-- Gráfico Radar -->
+                        <div class="mt-4">
+                            <h3 class="text-900 font-bold text-xl mb-3">Comparação Geral</h3>
+                            <p:radarChart model="#{managerPartida.radarModel}" 
+                                          style="max-width: 600px; margin: 0 auto;" />
+                        </div>
+                    </p:tab>
+
+                    <!-- Tabs de Mapas Individuais -->
+                    <c:forEach items="#{managerPartida.itensPartidas}" var="item" varStatus="status">
+                        <p:tab title="#{item.mapas.nome != null ? item.mapas.nome : 'Mapa '.concat(status.index + 1)}">
+                            <!-- Header do Mapa -->
+                            <div class="flex justify-content-between align-items-center mb-4">
+                                <div>
+                                    <h3 class="text-900 font-bold text-2xl m-0 mb-2">#{item.mapas.nome}</h3>
+                                    <div class="flex gap-2">
+                                        <span class="surface-100 px-3 py-1 border-round text-sm">
+                                            <strong>#{item.scoreT1}</strong> : <strong>#{item.scoreT2}</strong>
+                                        </span>
+                                        <h:panelGroup rendered="#{item.timeVencedor != null}">
+                                            <span class="bg-green-100 text-green-900 px-3 py-1 border-round text-sm font-semibold">
+                                                Vencedor: #{item.timeVencedor.nome}
+                                            </span>
+                                        </h:panelGroup>
+                                    </div>
+                                </div>
+                                
+                                <p:commandButton value="Atualizar Partida"
+                                                 icon="pi pi-refresh"
+                                                 styleClass="p-button-outlined"
+                                                 actionListener="#{managerPartida.redirecionarPartida(item)}"
+                                                 rendered="#{managerPartida.partida.finalizada == false}" />
+                            </div>
+
+                            <!-- Estatísticas do Mapa - Time 1 -->
+                            <h:panelGroup rendered="#{item.team1 != null}">
+                                <div class="mb-4">
+                                    <div class="flex align-items-center gap-2 mb-3 pb-2 border-bottom-2 border-primary">
+                                        <div class="participant-avatar" style="width: 40px; height: 40px; font-size: 16px; margin: 0;">
+                                            #{item.team1.nome.substring(0,1)}
+                                        </div>
+                                        <h4 class="text-900 font-bold m-0">
+                                            #{item.team1.nome}
+                                           
+                                        </h4>
+                                    </div>
+
+                                    <p:dataTable value="#{managerPartida.estsGeraisTeam(item.team1, item)}" 
+                                                 var="ests"
+                                                 styleClass="p-datatable-sm p-datatable-striped">
+                                        <p:column headerText="Jogador" style="width: 35%;">
+                                            <div class="flex align-items-center gap-2">
+                                                <div class="participant-avatar" style="width: 32px; height: 32px; font-size: 12px; margin: 0;">
+                                                    #{ests.player.nome.substring(0,1)}
+                                                </div>
+                                                <div>
+                                                    <div class="font-semibold">#{ests.player.nick}</div>
+                                                    <small class="text-600">#{ests.player.nome}</small>
+                                                </div>
+                                            </div>
+                                        </p:column>
+
+                                        <p:column headerText="K" style="width: 10%; text-align: center;">
+                                            <span class="font-semibold text-green-600">#{ests.kills}</span>
+                                        </p:column>
+
+                                        <p:column headerText="A" style="width: 10%; text-align: center;">
+                                            #{ests.assists}
+                                        </p:column>
+
+                                        <p:column headerText="D" style="width: 10%; text-align: center;">
+                                            <span class="text-red-600">#{ests.deaths}</span>
+                                        </p:column>
+
+                                        <p:column headerText="K/D" style="width: 10%; text-align: center;">
+                                            <h:outputText value="#{ests.deaths > 0 ? ests.kills / ests.deaths : ests.kills}">
+                                                <f:convertNumber pattern="0.00" />
+                                            </h:outputText>
+                                        </p:column>
+
+                                        <p:column headerText="ADR" style="width: 10%; text-align: center;">
+                                            <span class="font-semibold">#{ests.adr}</span>
+                                        </p:column>
+
+                                        <p:column style="width: 5%; text-align: center;">
+                                            <p:button icon="pi pi-eye"
+                                                             styleClass="p-button-rounded p-button-text p-button-sm"
+                                                             title="Ver Perfil"
+                                                             href="visualizarPlayer.xhtml?id=#{ests.player.id}"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </div>
+                            </h:panelGroup>
+
+                            <!-- Estatísticas do Mapa - Player 1 -->
+                            <h:panelGroup rendered="#{item.player1 != null}">
+                                <div class="mb-4">
+                                    <h4 class="text-900 font-bold mb-3">#{item.player1.nome}</h4>
+                                    <p:dataTable value="#{managerPartida.estsGeraisPlayer(item.player1, item)}" 
+                                                 var="ests"
+                                                 styleClass="p-datatable-sm">
+                                        <p:column headerText="K">#{ests.kills}</p:column>
+                                        <p:column headerText="A">#{ests.assists}</p:column>
+                                        <p:column headerText="D">#{ests.deaths}</p:column>
+                                    </p:dataTable>
+                                </div>
+                            </h:panelGroup>
+
+                            <p:divider />
+
+                            <!-- Estatísticas do Mapa - Time 2 -->
+                            <h:panelGroup rendered="#{item.team2 != null}">
+                                <div class="mb-4">
+                                    <div class="flex align-items-center gap-2 mb-3 pb-2 border-bottom-2 border-pink-500">
+                                        <div class="participant-avatar" style="width: 40px; height: 40px; font-size: 16px; margin: 0;">
+                                            #{item.team2.nome.substring(0,1)}
+                                        </div>
+                                        <h4 class="text-900 font-bold m-0">
+                                            #{item.team2.nome}
+                                            
+                                        </h4>
+                                    </div>
+
+                                    <p:dataTable value="#{managerPartida.estsGeraisTeam(item.team2, item)}" 
+                                                 var="ests"
+                                                 styleClass="p-datatable-sm p-datatable-striped">
+                                        <p:column headerText="Jogador" style="width: 35%;">
+                                            <div class="flex align-items-center gap-2">
+                                                <div class="participant-avatar" style="width: 32px; height: 32px; font-size: 12px; margin: 0;">
+                                                    #{ests.player.nome.substring(0,1)}
+                                                </div>
+                                                <div>
+                                                    <div class="font-semibold">#{ests.player.nick}</div>
+                                                    <small class="text-600">#{ests.player.nome}</small>
+                                                </div>
+                                            </div>
+                                        </p:column>
+
+                                        <p:column headerText="K" style="width: 10%; text-align: center;">
+                                            <span class="font-semibold text-green-600">#{ests.kills}</span>
+                                        </p:column>
+
+                                        <p:column headerText="A" style="width: 10%; text-align: center;">
+                                            #{ests.assists}
+                                        </p:column>
+
+                                        <p:column headerText="D" style="width: 10%; text-align: center;">
+                                            <span class="text-red-600">#{ests.deaths}</span>
+                                        </p:column>
+
+                                        <p:column headerText="K/D" style="width: 10%; text-align: center;">
+                                            <h:outputText value="#{ests.deaths > 0 ? ests.kills / ests.deaths : ests.kills}">
+                                                <f:convertNumber pattern="0.00" />
+                                            </h:outputText>
+                                        </p:column>
+
+                                        <p:column headerText="ADR" style="width: 10%; text-align: center;">
+                                            <span class="font-semibold">#{ests.adr}</span>
+                                        </p:column>
+
+                                        <p:column style="width: 5%; text-align: center;">
+                                            <p:button icon="pi pi-eye"
+                                                             styleClass="p-button-rounded p-button-text p-button-sm"
+                                                             title="Ver Perfil"
+                                                             href="visualizarPlayer.xhtml?id=#{ests.player.id}"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </div>
+                            </h:panelGroup>
+
+                            <!-- Estatísticas do Mapa - Player 2 -->
+                            <h:panelGroup rendered="#{item.player2 != null}">
+                                <div class="mb-4">
+                                    <h4 class="text-900 font-bold mb-3">#{item.player2.nome}</h4>
+                                    <p:dataTable value="#{managerPartida.estsGeraisPlayer(item.player2, item)}" 
+                                                 var="ests"
+                                                 styleClass="p-datatable-sm">
+                                        <p:column headerText="K">#{ests.kills}</p:column>
+                                        <p:column headerText="A">#{ests.assists}</p:column>
+                                        <p:column headerText="D">#{ests.deaths}</p:column>
+                                    </p:dataTable>
+                                </div>
+                            </h:panelGroup>
+                        </p:tab>
+                    </c:forEach>
+                </p:tabView>
+            </div>
+
+            <!-- Dialog: Confirmar Finalização -->
             <p:dialog id="confirmarFinalizarPartidaDialog"
                       widgetVar="confirmarFinalizarPartidaDialog"
-                      header="Deseja finalizar com o time #{managerPartida.retornaTimeVencedor()} como vencedor?"
+                      header="Finalizar Partida"
                       modal="true"
                       resizable="false"
                       draggable="false"
                       closeOnEscape="true"
                       showEffect="fade"
-                      hideEffect="fade">
+                      hideEffect="fade"
+                      width="400">
 
+                <div class="text-center py-4">
+                    <i class="pi pi-exclamation-triangle text-6xl text-orange-500 mb-3"></i>
+                    <h3 class="text-900 font-bold mb-2">Confirmar Finalização</h3>
+                    <p class="text-600 mb-4">
+                        O time <strong>#{managerPartida.retornaTimeVencedor()}</strong> será declarado vencedor.
+                        Esta ação não pode ser desfeita.
+                    </p>
+                </div>
 
-
-                <center>
-
-                    <p:commandButton value="Não"
-                                     title="Cancelar Remoção"
-                                     icon="fa fa-ban"
+                <div class="flex justify-content-end gap-2">
+                    <p:commandButton value="Cancelar"
+                                     icon="pi pi-times"
+                                     styleClass="p-button-outlined p-button-secondary"
                                      oncomplete="PF('confirmarFinalizarPartidaDialog').hide();"
-                                     styleClass="btn btn-default"/>
-
-                    <p:commandButton value="Sim"
-                                     title="Confirmar"
-                                     icon="fa fa-check"
-                                     process="@this"
-                                     update="@form"
+                                     process="@this" />
+                    <p:commandButton value="Finalizar"
+                                     icon="pi pi-check"
+                                     styleClass="p-button-danger"
                                      actionListener="#{managerPartida.finalizarPartida()}"
-                                     styleClass="btn btn-info"/>
-
-                </center>
-
+                                     update="@form"
+                                     oncomplete="PF('confirmarFinalizarPartidaDialog').hide();" />
+                </div>
             </p:dialog>
+
         </h:form>
 
-    </ui:define>
+        <style>
+            .participant-avatar {
+                border-radius: 50%;
+                background-color: #f8f9fa;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                color: #6c757d;
+            }
 
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.5; }
+            }
+
+            /* Hover nos cards de mapas */
+            .surface-border:hover {
+                transform: translateY(-2px);
+                transition: transform 0.2s;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }
+
+            /* Destaque para vencedores */
+            .border-primary {
+                border-color: #2196f3 !important;
+                border-width: 3px !important;
+            }
+        </style>
+    </ui:define>
 </ui:composition>

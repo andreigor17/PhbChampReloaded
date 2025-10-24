@@ -123,6 +123,7 @@ public class ManagerPartida implements Serializable {
     private String tempoRestante;
     private BigDecimal valorFormatado;
     private Player playerLogado;
+    private Team timeIniciante;
 
     @PostConstruct
     public void init() {
@@ -205,6 +206,7 @@ public class ManagerPartida implements Serializable {
         this.playerLogado = new Player();
         this.nomeTime1 = null;
         this.nomeTime2 = null;
+        this.timeIniciante = null;
     }
 
     public void createRadarModel() throws Exception {
@@ -1157,5 +1159,19 @@ public class ManagerPartida implements Serializable {
         }
         return false;
     }
+
+    public Team getTimeIniciante() {
+        return timeIniciante;
+    }
+
+    public void setTimeIniciante(Team timeIniciante) {
+        this.timeIniciante = timeIniciante;
+    }
+    
+    public void sortearTimeIniciante(Team team){
+        System.err.println("sorteou..." + team.getId());
+        this.timeIniciante = team;
+    }
+    
 
 }

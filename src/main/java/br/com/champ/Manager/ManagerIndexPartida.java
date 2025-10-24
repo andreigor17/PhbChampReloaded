@@ -14,7 +14,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  *
  * @author andre
@@ -22,27 +21,38 @@ import java.util.List;
 @ViewScoped
 @Named
 public class ManagerIndexPartida implements Serializable {
-    
+
     @EJB
     private PartidaServico partidaServico;
     private List<Partida> partidas;
-    
+    private List<Partida> partidasEmAndamento;
+
     @PostConstruct
     public void init() {
+        instanciar();
         this.partidas = partidaServico.pesquisarPartidasGeral();
-        
+
     }
-    
+
     public void instanciar() {
         this.partidas = new ArrayList<>();
+        this.partidasEmAndamento = new ArrayList<>();
     }
-    
+
     public List<Partida> getPartidas() {
         return partidas;
     }
-    
+
     public void setPartidas(List<Partida> partidas) {
         this.partidas = partidas;
     }
-    
+
+    public List<Partida> getPartidasEmAndamento() {
+        return partidasEmAndamento;
+    }
+
+    public void setPartidasEmAndamento(List<Partida> partidasEmAndamento) {
+        this.partidasEmAndamento = partidasEmAndamento;
+    }
+
 }
