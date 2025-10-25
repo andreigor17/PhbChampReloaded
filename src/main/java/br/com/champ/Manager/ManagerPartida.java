@@ -161,8 +161,8 @@ public class ManagerPartida implements Serializable {
             if (this.partida.getId() != null && !uri.getRequestURI().contains("partida-futebol-view.xhtml")) {
                 try {
                     this.itensPartidas = this.partida.getItemPartida();
-                    this.mapas = mapaServico.pesquisar();
-                    this.pickBanVo = PickBanUtils.gerarListaPB(this.partida.getItemPartida().get(0).getTeam1(), this.partida.getItemPartida().get(0).getTeam2(), this.partida.getItemPartida().size());
+                    this.mapas = mapaServico.pesquisar();                    
+                    
                     gerarScore();
                     createRadarModel();
                 } catch (Exception ex) {
@@ -1171,6 +1171,7 @@ public class ManagerPartida implements Serializable {
     public void sortearTimeIniciante(Team team){
         System.err.println("sorteou..." + team.getId());
         this.timeIniciante = team;
+        this.pickBanVo = PickBanUtils.gerarListaPB(this.partida.getItemPartida().get(0).getTeam1(), this.partida.getItemPartida().get(0).getTeam2(), this.partida.getItemPartida().size(), this.timeIniciante);
     }
     
 

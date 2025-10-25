@@ -8,6 +8,7 @@ package br.com.champ.Modelo;
 import br.com.champ.Generico.ModeloGenerico;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -69,5 +70,43 @@ public class Team extends ModeloGenerico implements Serializable {
     public void setSigla(String sigla) {
         this.sigla = sigla;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Team other = (Team) obj;
+        if (this.timeAmistoso != other.timeAmistoso) {
+            return false;
+        }
+        if (!Objects.equals(this.nome, other.nome)) {
+            return false;
+        }
+        if (!Objects.equals(this.sigla, other.sigla)) {
+            return false;
+        }
+        if (!Objects.equals(this.players, other.players)) {
+            return false;
+        }
+        if (!Objects.equals(this.estatisticas, other.estatisticas)) {
+            return false;
+        }
+        return Objects.equals(this.anexo, other.anexo);
+    }
+    
+    
 
 }

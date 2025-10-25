@@ -19,48 +19,49 @@ import java.util.List;
  */
 public class PickBanUtils {
 
-    public static List<PickBanVo> gerarListaPB(Team team1, Team team2, int md) {
+    public static List<PickBanVo> gerarListaPB(Team team1, Team team2, int md, Team timeInicial) {
         List<PickBanVo> pickBanVo = new ArrayList<>();
 
-        if (md == 1) {
-            PickBanVo pb1 = new PickBanVo(team1, TipoPickBan.BAN);
-            pickBanVo.add(pb1);
-            PickBanVo pb2 = new PickBanVo(team2, TipoPickBan.BAN);
-            pickBanVo.add(pb2);
-            PickBanVo pb3 = new PickBanVo(team2, TipoPickBan.BAN);
-            pickBanVo.add(pb3);
-            PickBanVo pb4 = new PickBanVo(team1, TipoPickBan.BAN);
-            pickBanVo.add(pb4);
-            PickBanVo pb5 = new PickBanVo(team1, TipoPickBan.BAN);
-            pickBanVo.add(pb5);
-            PickBanVo pb6 = new PickBanVo(team2, TipoPickBan.BAN);
-            pickBanVo.add(pb6);
-            PickBanVo pb7 = new PickBanVo(team1, TipoPickBan.PICK);
-            pickBanVo.add(pb7);
+        Team primeiro = timeInicial;
+        Team segundo = (timeInicial.equals(team1)) ? team2 : team1;
 
+        if (md == 1) {
+
+            pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(segundo, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(segundo, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(segundo, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.PICK));
         } else if (md == 2) {
 
+            pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(segundo, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.PICK));
+            pickBanVo.add(new PickBanVo(segundo, TipoPickBan.PICK));
         } else if (md == 3) {
-            PickBanVo pb1 = new PickBanVo(team1, TipoPickBan.BAN);
-            pickBanVo.add(pb1);
-            PickBanVo pb2 = new PickBanVo(team2, TipoPickBan.BAN);
-            pickBanVo.add(pb2);
-            PickBanVo pb3 = new PickBanVo(team1, TipoPickBan.PICK);
-            pickBanVo.add(pb3);
-            PickBanVo pb4 = new PickBanVo(team2, TipoPickBan.PICK);
-            pickBanVo.add(pb4);
-            PickBanVo pb5 = new PickBanVo(team1, TipoPickBan.BAN);
-            pickBanVo.add(pb5);
-            PickBanVo pb6 = new PickBanVo(team2, TipoPickBan.BAN);
-            pickBanVo.add(pb6);
-            PickBanVo pb7 = new PickBanVo(team1, TipoPickBan.PICK);
-            pickBanVo.add(pb7);
 
+            pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(segundo, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.PICK));
+            pickBanVo.add(new PickBanVo(segundo, TipoPickBan.PICK));
+            pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(segundo, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.PICK));
         } else if (md == 5) {
 
+            pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(segundo, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(segundo, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.PICK));
+            pickBanVo.add(new PickBanVo(segundo, TipoPickBan.PICK));
+            pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.PICK));
         } else {
             return null;
         }
+
         return pickBanVo;
     }
 

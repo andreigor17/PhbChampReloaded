@@ -1,99 +1,149 @@
-<ui:composition template="layout.xhtml"
-                xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:h="http://java.sun.com/jsf/html"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-                xmlns:fox="http://java.sun.com/jsf/composite/fox">
+                template="vercel.xhtml">
 
     <ui:define name="title">
-        Mapa
+        Visualizar Mapa
     </ui:define>
 
     <ui:define name="content">
-
-        <h:form id="formVisualizarMapa"
-                >
-
-            <p:growl id="messages"
-                     showDetail="false"/>
-
-            <div  class="actions">
-
-                <p:commandButton title="Remover Mapa"
-                                 value="Excluir"
-                                 icon="ui-icon-close" 
-                                 process="@this"                                
-                                 oncomplete="PF('confirmarRemoverMapaDialog').show();">                    
-                </p:commandButton>
-                <p:button value="Editar" outcome="criarMapa.xhtml"
-                          icon="ui-icon-pencil"  >
-                    <f:param value="#{ managerMapa.mapa.id }" name="id"/>
-                </p:button>
-
-                <p:button value="Pesquisar" outcome="pesquisarMapas.xhtml"
-                          icon="ui-icon-search"  />
-
+        <div class="section-header">
+            <div>
+                <p:link outcome="/pesquisarMapas" styleClass="mb-3 d-block">
+                    <i class="pi pi-arrow-left mr-2"></i>Voltar para Mapas
+                </p:link>
+                <h1 class="section-title">Visualizar Mapa</h1>
             </div>
-            <p:fieldset legend="Dados">
+        </div>
 
-                <div class="row">
-                    <div class="column2 bold" >
-                        <p:outputLabel value="Nome:" for="nomeMapa"/>
-                    </div>
-                    <div class="column4 text" >
-                        <p:outputLabel id="nomeMapa"
-                                       value="#{managerMapa.mapa.nome}"/>
-                    </div>
+        <p:card>
+            <h:form id="formVisualizarMapa">
+               
 
-                    <div class="row" >
-                        <div class="column2 bold">
-                            <p:outputLabel value="Imagem:" />
+                <div class="grid">
+                    <!-- Imagem do Mapa -->
+                    <div class="col-12 md:col-4 flex align-items-center justify-content-center flex-column">
+                        <div class="mb-3">
+                            <h:panelGroup id="mapImagePanel">
+                                <div class="map-image-container">
+                                    <p:graphicImage id="mapImage" 
+                                                    value="image/#{managerMapa.mapa.anexo.nome}" 
+                                                    styleClass="map-image" 
+                                                    rendered="#{managerMapa.mapa.anexo ne null and managerMapa.mapa.anexo.nome ne null}" />
+                                    <div class="map-image-placeholder" 
+                                         rendered="#{managerMapa.mapa.anexo eq null or managerMapa.mapa.anexo.nome eq null}">
+                                        <i class="pi pi-map" style="font-size: 5rem; color: #ccc;"></i>
+                                    </div>
+                                </div>
+                            </h:panelGroup>
                         </div>
-                        <div class="column4">
-                            <h:graphicImage value="image/#{managerMapa.mapa.anexo.nome}" width="300px" height="100px" />
+                    </div>
 
-                        </div>
+                    <!-- Dados do Mapa -->
+                    <div class="col-12 md:col-8">
+                        <p:fieldset legend="Dados do Mapa" toggleable="true" toggleSpeed="500" styleClass="mb-3">
+                            <div class="p-fluid">
+                                <div class="field">
+                                    <p:outputLabel for="nomeMapa" value="Nome do Mapa" styleClass="font-bold"/>
+                                    <p:outputLabel id="nomeMapa" 
+                                                   value="#{managerMapa.mapa.nome}" 
+                                                   styleClass="text-lg"/>
+                                </div>
+                            </div>
+                        </p:fieldset>
                     </div>
                 </div>
 
-            </p:fieldset>   
+                <div class="flex justify-content-end mt-4 gap-2">
+                    <p:button value="Pesquisar" 
+                              outcome="pesquisarMapas.xhtml"
+                              icon="pi pi-search" 
+                              styleClass="p-button-outlined"/>
 
+                    <p:button value="Editar" 
+                              outcome="criarMapa.xhtml"
+                              icon="pi pi-pencil" 
+                              styleClass="p-button-outlined">
+                        <f:param value="#{managerMapa.mapa.id}" name="id"/>
+                    </p:button>
 
-            <p:dialog id="confirmarRemoverMapaDialog"
-                      widgetVar="confirmarRemoverMapaDialog"
-                      header="Deseja remover o mapa?"
-                      modal="true"
-                      resizable="false"
-                      draggable="false"
-                      closeOnEscape="true"
-                      showEffect="fade"
-                      hideEffect="fade">
+                    <p:commandButton value="Excluir"
+                                     icon="pi pi-trash" 
+                                     styleClass="p-button-danger"
+                                     process="@this"                                
+                                     oncomplete="PF('confirmarRemoverMapaDialog').show();"/>
+                </div>
+            </h:form>
+        </p:card>
 
+        <!-- Dialog de Confirmação -->
+        <p:dialog id="confirmarRemoverMapaDialog"
+                  widgetVar="confirmarRemoverMapaDialog"
+                  header="Deseja remover o mapa?"
+                  modal="true"
+                  resizable="false"
+                  draggable="false"
+                  closeOnEscape="true"
+                  showEffect="fade"
+                  hideEffect="fade">
 
-
-                <center>
-
+            <h:form>
+                <div class="flex justify-content-center gap-2 mt-3">
                     <p:commandButton value="Não"
-                                     title="Cancelar Remoção"
-                                     icon="fa fa-ban"
+                                     icon="pi pi-times"
                                      oncomplete="PF('confirmarRemoverMapaDialog').hide();"
-                                     styleClass="btn btn-default"/>
+                                     styleClass="p-button-outlined"/>
 
                     <p:commandButton value="Sim"
-                                     title="Confirmar Remoção"
-                                     icon="fa fa-check"
+                                     icon="pi pi-check"
                                      process="@this"
-                                     update="@form"
+                                     update=":formVisualizarMapa"
                                      actionListener="#{managerMapa.removerMapa()}"
-                                     styleClass="btn btn-info"/>
+                                     styleClass="p-button-danger"/>
+                </div>
+            </h:form>
+        </p:dialog>
 
-                </center>
+        <!-- Estilos específicos para a imagem do mapa -->
+        <style type="text/css">
+            .map-image-container {
+                width: 300px;
+                height: 300px;
+                border-radius: 8px;
+                overflow: hidden;
+                background-color: #f8f9fa;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid #dee2e6;
+            }
 
-            </p:dialog>
+            .map-image {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover;
+            }
 
-        </h:form>
+            .map-image-placeholder {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100%;
+                background-color: #f8f9fa;
+            }
 
+            .p-fluid .field {
+                margin-bottom: 1rem;
+            }
+
+            .p-fluid .field label {
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+        </style>
     </ui:define>
-
 </ui:composition>

@@ -18,6 +18,7 @@ import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.StreamedContent;
 import org.primefaces.model.file.UploadedFile;
@@ -118,7 +119,9 @@ public class ManagerMapa implements Serializable {
 
     public void doUpload(FileUploadEvent event) {
         this.mapa.setAnexo(anexoServico.fileUploadTemp(event));
-        this.fileTemp = this.mapa.getAnexo().getNome();
+        this.fileTemp = this.mapa.getAnexo().getNome();        
+        System.err.println("file temp " + this.fileTemp);
+        PrimeFaces.current().executeScript("atualizarImagem();");
 
     }
 

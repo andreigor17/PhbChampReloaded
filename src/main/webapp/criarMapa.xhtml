@@ -1,89 +1,133 @@
-<ui:composition template="layout.xhtml"
+<ui:composition template="vercel.xhtml"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-                xmlns:map="http://xmlns.jcp.org/jsf/composite/map"
-                xmlns:fox="http://java.sun.com/jsf/composite/fox">
+                xmlns:f="http://java.sun.com/jsf/core">
 
     <ui:define name="title">
         Criar Mapa 
     </ui:define>
 
     <ui:define name="content">
-
-        <h:form id="formMapa"
-                enctype="multipart/form-data"
-                class="form-horizontal">
-
-            <p:growl id="messages"
-                     showDetail="false"/>
-
-            <p:fieldset legend="Dados" id="dadosFieldset">
-
-                <div class="row">
-                    <div class="column2 bold">
-                        <p:outputLabel value="Nome"
-                                       for="nomeMapa"/>
-                    </div>
-                    <div class="column3 text">
-                        <p:inputText id="nomeMapa"
-                                     value="#{managerMapa.mapa.nome}"
-                                     required="true"
-                                     requiredMessage="Informe o nome do mapa!"/>
-                    </div>
-
-                </div>
-
-                <div class="row" >
-                    <div class="column2 bold">
-                        <p:outputLabel value="Anexar foto"/>
-                    </div>
-                    <div class="column2">
-                        <p:fileUpload id="upload" 
-                                      listener="#{managerMapa.doUpload}"
-                                      value="#{managerMapa.file}"
-                                      update="imagemMapa"
-                                      auto="true"
-                                      label="Anexar Mapa"
-                                      />
-                    </div>
-                </div>
-                <div class="center">
-                    <h:panelGroup id="imagemMapa" style=" text-align: center; ">
-                        <p:graphicImage  style="max-width: 600px;max-height: 350px;" cache="false" value="image/#{managerMapa.fileTemp}">
-                        </p:graphicImage><br/>
-                    </h:panelGroup>
-
-                </div>
-
-            </p:fieldset>
-
-            <div class="actions">
-
-                <center>
-
-                    <p:button value="Cancelar"
-                              title="Cancelar"
-                              icon="ui-icon-close"
-                              outcome="pesquisarMapas.xhtml"
-                              />
-
-                    <p:commandButton value="Salvar"
-                                     title="Salvar Player"
-                                     icon="ui-icon-check"
-                                     process="@form"
-                                     update="@form"                                     
-                                     actionListener="#{managerMapa.salvar()}"
-                                     />
-
-                </center>
-
+        <div class="section-header">
+            <div>
+                <p:link outcome="/pesquisarMapas" styleClass="mb-3 d-block">
+                    <i class="pi pi-arrow-left mr-2"></i>Voltar para Mapas
+                </p:link>
+                <h1 class="section-title">Cadastrar Mapa</h1>
             </div>
+        </div>
 
-        </h:form>
+        <p:card>
+            <h:form id="formMapa" enctype="multipart/form-data">
 
+                <p:remoteCommand name="atualizarImagem" update="mapImagePanel, uploadPanel" />
+
+                <div class="grid">
+                    <!-- Imagem do Mapa -->
+                    <div class="col-12 md:col-4 flex align-items-center justify-content-center flex-column">
+                        <div class="mb-3">
+                            <h:panelGroup id="mapImagePanel">
+                                <div class="map-image-container">
+                                    <p:graphicImage id="mapImage" value="image/#{managerMapa.fileTemp}" 
+                                                    styleClass="map-image" 
+                                                    rendered="#{managerMapa.fileTemp ne null}" />
+                                    <div class="map-image-placeholder" rendered="#{managerMapa.fileTemp eq null}">
+                                        <i class="pi pi-map" style="font-size: 5rem; color: #ccc;"></i>
+                                    </div>
+                                </div>
+                            </h:panelGroup>
+                        </div>
+                        <h:panelGroup id="uploadPanel">
+                            <div class="mb-3">
+                                <p:fileUpload id="upload" 
+                                              mode="simple" 
+                                              skinSimple="true" 
+                                              label="Escolher Imagem"  
+                                              auto="true" 
+                                              listener="#{managerMapa.doUpload}"
+                                              value="#{managerMapa.file}" 
+                                              rendered="#{managerMapa.fileTemp eq null}"/>
+                            </div>
+                            <div class="text-center">
+                                <p:commandButton id="removerImagem" 
+                                                 value="Remover Imagem" 
+                                                 actionListener="#{managerMapa.removerImagem()}" 
+                                                 icon="pi pi-trash"   
+                                                 rendered="#{managerMapa.fileTemp ne null}"/>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+
+                    <!-- Informações do Mapa -->
+                    <div class="col-12 md:col-8">
+                        <p:fieldset legend="Dados do Mapa" toggleable="true" toggleSpeed="500" styleClass="mb-3">
+                            <div class="p-fluid">
+                                <div class="field">
+                                    <p:outputLabel for="nomeMapa" value="Nome do Mapa" />
+                                    <p:inputText id="nomeMapa" 
+                                                 value="#{managerMapa.mapa.nome}"
+                                                 required="true"
+                                                 requiredMessage="Informe o nome do mapa!" />
+                                    <p:message for="nomeMapa" />
+                                </div>
+                            </div>
+                        </p:fieldset>
+                    </div>
+                </div>
+
+                <div class="flex justify-content-end mt-4">
+                    <p:button value="Cancelar" 
+                              outcome="/pesquisarMapas" 
+                              styleClass="p-button-outlined mr-2" />
+                    <p:commandButton value="Salvar" 
+                                     icon="pi pi-check" 
+                                     process="@form"
+                                     update="@form"  
+                                     actionListener="#{managerMapa.salvar()}"/>
+                </div>
+            </h:form>
+        </p:card>
+
+        <!-- Estilos específicos para a imagem do mapa -->
+        <style type="text/css">
+            /* Ajustando container para ser quadrado (300x300px) e garantir que a imagem preencha todo o espaço */
+            .map-image-container {
+                width: 300px;
+                height: 300px;
+                border-radius: 8px;
+                overflow: hidden;
+                background-color: #f8f9fa;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid #dee2e6;
+            }
+
+            .map-image {
+
+                height: 100% !important;
+                object-fit: cover;
+            }
+
+            .map-image-placeholder {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100%;
+                background-color: #f8f9fa;
+            }
+
+            /* Ajustes para alinhamento consistente */
+            .p-fluid .field {
+                margin-bottom: 1rem;
+            }
+
+            .p-fluid .field label {
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+        </style>
     </ui:define>
-
 </ui:composition>

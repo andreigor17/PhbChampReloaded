@@ -273,7 +273,7 @@
                     <ui:repeat value="#{managerPartida.mapas}" var="mapa">
                         <div class="col-12 md:col-6 lg:col-4">
                             <p:commandButton styleClass="p-0 w-full border-0 bg-transparent"
-                                             action="#{managerPartida.pickarMapa(mapa)}"
+                                             actionListener="#{managerPartida.pickarMapa(mapa)}"
                                              update="@form"
                                              oncomplete="PF('gerarMapasDialog').hide();">
                                 <div class="map-card">
