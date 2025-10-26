@@ -32,6 +32,8 @@ public class Campeonato extends ModeloGenerico implements Serializable {
     private List<Grupo> grupos;
     private List<Fase> fasesCamp;
     private String observacao;
+    private boolean gerarTimesPorSorteio;
+    private Integer quantidadePorTime;
 
     public List<Partida> getPartidas() {
         return partidas;
@@ -151,6 +153,22 @@ public class Campeonato extends ModeloGenerico implements Serializable {
 
     public void setObservacao(String observacao) {
         this.observacao = observacao;
+    }
+
+    public boolean isGerarTimesPorSorteio() {
+        return gerarTimesPorSorteio;
+    }
+
+    public void setGerarTimesPorSorteio(boolean gerarTimesPorSorteio) {
+        this.gerarTimesPorSorteio = gerarTimesPorSorteio;
+    }
+
+    public Integer getQuantidadePorTime() {
+        return quantidadePorTime;
+    }
+
+    public void setQuantidadePorTime(Integer quantidadePorTime) {
+        this.quantidadePorTime = quantidadePorTime;
     }
 
 }

@@ -7,7 +7,7 @@
 
     <ui:define name="content">
         <h:form id="formCampeonato" enctype="multipart/form-data">
-            
+                                   
             <!-- Cabeçalho -->
             <div class="surface-card shadow-2 border-round mb-4 p-4">
                 <div class="flex justify-content-between align-items-center flex-wrap gap-3">
@@ -28,8 +28,6 @@
                     </div>
                 </div>
             </div>
-
-            
 
             <!-- Card: Informações Básicas -->
             <div class="surface-card shadow-2 border-round mb-4 p-4">
@@ -65,24 +63,41 @@
                     <!-- Data Início -->
                     <div class="field col-12 md:col-4">
                         <label for="campDataInicio" class="block mb-2 font-medium">Data de Início *</label>
-                        <p:datePicker id="campDataInicio" value="#{managerCriarCampeonato.camp.dataCamp}" 
-                                              pattern="dd/MM/yyyy HH:mm" hourFormat="24" showIcon="true" showTime="true" styleClass="w-full" />
+                        <p:datePicker id="campDataInicio" 
+                                      value="#{managerCriarCampeonato.camp.dataCamp}" 
+                                      pattern="dd/MM/yyyy HH:mm" 
+                                      hourFormat="24" 
+                                      showIcon="true" 
+                                      showTime="true" 
+                                      styleClass="w-full" />
                     </div>
 
                     <!-- Data Final -->
                     <div class="field col-12 md:col-4">
                         <label for="campDataFinal" class="block mb-2 font-medium">Término das Inscrições *</label>
-                        <p:datePicker id="campDataFinal" value="#{managerCriarCampeonato.camp.dataPrazoCamp}" 
-                                              pattern="dd/MM/yyyy HH:mm" hourFormat="24" showIcon="true" showTime="true" styleClass="w-full" />
+                        <p:datePicker id="campDataFinal" 
+                                      value="#{managerCriarCampeonato.camp.dataPrazoCamp}" 
+                                      pattern="dd/MM/yyyy HH:mm" 
+                                      hourFormat="24" 
+                                      showIcon="true" 
+                                      showTime="true" 
+                                      styleClass="w-full" />
                     </div>
 
                     <!-- Jogo -->
                     <div class="field col-12 md:col-4">
                         <label for="campJogo" class="block mb-2 font-medium">Jogo *</label>
-                        <p:autoComplete id="localAutoComplete" value="#{managerCriarCampeonato.camp.jogo}"
-                                                forceSelection="true" dropdown="true" var="jogo" itemValue="#{jogo}" scrollHeight="200"
-                                                itemLabel="#{jogo.nome}" completeMethod="#{managerAutoCompletes.autoCompletaJogos()}"
-                                                converter="jogo_converter"  />
+                        <p:autoComplete id="campJogo" 
+                                        value="#{managerCriarCampeonato.camp.jogo}"
+                                        forceSelection="true" 
+                                        dropdown="true" 
+                                        var="jogo" 
+                                        itemValue="#{jogo}" 
+                                        scrollHeight="200"
+                                        itemLabel="#{jogo.nome}" 
+                                        completeMethod="#{managerAutoCompletes.autoCompletaJogos()}"
+                                        converter="jogo_converter"
+                                        styleClass="w-full" />
                     </div>
                 </div>
             </div>
@@ -104,11 +119,62 @@
                                                requiredMessage="Categoria é obrigatória">
                                 <f:selectItem itemLabel="Individual" itemValue="INDIVIDUAL" />
                                 <f:selectItem itemLabel="Times" itemValue="TIME" />
+                                <p:ajax update="configTimesPanel" />
                             </p:selectOneButton>
                             <small class="block text-600 mt-2">
                                 Defina se será individual ou por times
                             </small>
                         </div>
+
+                        <!-- Configurações de Times (condicional) -->
+                        <h:panelGroup id="configTimesPanel">
+                            <h:panelGroup rendered="#{managerCriarCampeonato.camp.categoria eq 'TIME'}">
+                                <p:divider />
+                                
+                               
+                                
+                                <!-- Geração de Times por Sorteio -->
+                                <div class="field mb-4">
+                                    <label class="block mb-3 font-medium">Geração de Times</label>
+                                    
+                                    <div class="surface-100 border-round p-3 mb-3">
+                                        <div class="flex align-items-center gap-2 mb-3">
+                                            <p:selectBooleanCheckbox id="sorteioTimes" 
+                                                                     value="#{managerCriarCampeonato.camp.gerarTimesPorSorteio}">
+                                                
+                                            </p:selectBooleanCheckbox>
+                                            <label for="sorteioTimes" class="font-medium cursor-pointer">
+                                                Gerar times automaticamente por sorteio
+                                            </label>
+                                        </div>
+                                        
+                                        <small class="block text-600">
+                                            <i class="pi pi-info-circle mr-1"></i>
+                                            Quando ativado, os jogadores inscritos serão distribuídos automaticamente entre os times através de sorteio
+                                        </small>
+                                    </div>
+
+                                 
+                                </div>
+                                  <p:divider />
+                                 <!-- Quantidade de Jogadores por Time -->
+                                <div class="field mb-4">
+                                    <label for="qtdJogadoresTime" class="block mb-3 font-medium">
+                                        <i class="pi pi-users mr-2"></i>Jogadores por Time
+                                    </label>
+                                    <p:inputNumber id="qtdJogadoresTime" 
+                                                   value="#{managerCriarCampeonato.camp.quantidadePorTime}"                                                   
+                                                   placeholder="Ex: 5"                                                   
+                                                   styleClass="w-full">
+                                       
+                                    </p:inputNumber>
+                                    
+                                    
+                                </div>
+
+                              
+                            </h:panelGroup>
+                        </h:panelGroup>
 
                         <p:divider />
 
@@ -142,11 +208,11 @@
                     </div>
                 </div>
 
-                <!-- Card: Imagem -->
+                <!-- Card: Imagem e Descrição -->
                 <div class="col-12 lg:col-6">
                     <div class="surface-card shadow-2 border-round p-4 h-full">
                         <h2 class="text-900 font-bold text-2xl mb-4">
-                            <i class="pi pi-image mr-2"></i>Imagem
+                            <i class="pi pi-image mr-2"></i>Imagem e Descrição
                         </h2>
 
                         <!-- Preview -->
@@ -175,7 +241,7 @@
                             <p:fileUpload id="uploadImagem"
                                           mode="basic" 
                                           auto="true"
-                                          chooseIcon="pi pi-upload"
+                                          chooseIcon="pi pi-upload"                                         
                                           listener="#{managerCriarCampeonato.uploadImagem}"
                                           update="previewImagem"
                                           accept="image/*"
@@ -196,7 +262,7 @@
                             <p:inputTextarea id="campDescricao" 
                                              value="#{managerCriarCampeonato.camp.observacao}"
                                              rows="5" 
-                                             placeholder="Informações adicionais..."
+                                             placeholder="Informações adicionais sobre o campeonato..."
                                              autoResize="true"
                                              maxlength="500"
                                              styleClass="w-full" />
@@ -218,9 +284,9 @@
                     <p:commandButton value="Criar Campeonato" 
                                      icon="pi pi-check"
                                      styleClass="p-button-success"
-                                     action="#{managerCriarCampeonato.salvar()}"
+                                     action="#{managerCriarCampeonato.salvar}"
                                      update="@form"
-                                     onclick="if(!confirm('Criar campeonato?')) return false;" />
+                                     onclick="if(!confirm('Confirma a criação do campeonato?')) return false;" />
                 </div>
             </div>
 
