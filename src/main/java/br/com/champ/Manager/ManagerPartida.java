@@ -161,8 +161,8 @@ public class ManagerPartida implements Serializable {
             if (this.partida.getId() != null && !uri.getRequestURI().contains("partida-futebol-view.xhtml")) {
                 try {
                     this.itensPartidas = this.partida.getItemPartida();
-                    this.mapas = mapaServico.pesquisar();                    
-                    
+                    this.mapas = mapaServico.pesquisar();
+
                     gerarScore();
                     createRadarModel();
                 } catch (Exception ex) {
@@ -740,6 +740,35 @@ public class ManagerPartida implements Serializable {
         }
     }
 
+    public void distribuirJogadores() {
+        System.err.println("Distribuindo...");
+
+        // Garante que a lista é mutável antes de embaralhar e remover
+        this.pickedPlayers = new ArrayList<>(this.pickedPlayers);
+
+        // Embaralha a lista de forma aleatória
+        Collections.shuffle(this.pickedPlayers);
+
+        int faltandoTime1 = 5 - droppedPlayers1.size();
+        int faltandoTime2 = 5 - droppedPlayers2.size();
+
+        // Preenche time 1
+        for (int i = 0; i < faltandoTime1 && !this.pickedPlayers.isEmpty(); i++) {
+            Player p = this.pickedPlayers.remove(0);
+            droppedPlayers1.add(p);
+        }
+
+        // Preenche time 2
+        for (int i = 0; i < faltandoTime2 && !this.pickedPlayers.isEmpty(); i++) {
+            Player p = this.pickedPlayers.remove(0);
+            droppedPlayers2.add(p);
+        }
+
+        System.out.println("Time 1: " + droppedPlayers1);
+        System.out.println("Time 2: " + droppedPlayers2);
+        System.out.println("Restantes (pickedPlayers): " + pickedPlayers);
+    }
+
     public void sorteioX5() {
         try {
             List<Player> time1 = new ArrayList<>();
@@ -1167,12 +1196,11 @@ public class ManagerPartida implements Serializable {
     public void setTimeIniciante(Team timeIniciante) {
         this.timeIniciante = timeIniciante;
     }
-    
-    public void sortearTimeIniciante(Team team){
+
+    public void sortearTimeIniciante(Team team) {
         System.err.println("sorteou..." + team.getId());
         this.timeIniciante = team;
         this.pickBanVo = PickBanUtils.gerarListaPB(this.partida.getItemPartida().get(0).getTeam1(), this.partida.getItemPartida().get(0).getTeam2(), this.partida.getItemPartida().size(), this.timeIniciante);
     }
-    
 
 }

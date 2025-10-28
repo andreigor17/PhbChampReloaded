@@ -193,11 +193,17 @@
                                      action="/indexPartida?faces-redirect=true"
                                      immediate="true"
                                      process="@this" />
+                    <p:commandButton value="Sortear times" 
+                                     icon="pi pi-arrow-right"
+                                     styleClass="p-button-success"
+                                     actionListener="#{managerPartida.distribuirJogadores()}"
+                                     process="@this"
+                                     update="@form" />
                     <p:commandButton value="Avançar" 
                                      icon="pi pi-arrow-right"
                                      styleClass="p-button-success"
                                      actionListener="#{managerPartida.dialogPartidaClassica()}"
-                                     process="@form"
+                                     process="@this"
                                      update="@form" />
                 </div>
             </div>
@@ -238,7 +244,7 @@
                                     converter="player_converter"
                                     responsive="true">
                             <f:facet name="sourceCaption">Players Disponíveis</f:facet>
-                            <f:facet name="targetCaption">Capitães Selecionados</f:facet>
+                            <f:facet name="targetCaption">Players Selecionados</f:facet>
                         </p:pickList>
                     </div>
                 </div>

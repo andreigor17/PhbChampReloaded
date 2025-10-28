@@ -7,7 +7,7 @@
 
     <ui:define name="content">
         <h:form id="formIndexPartida">
-            
+
             <!-- Header -->
             <div class="surface-card shadow-2 border-round mb-4 p-4">
                 <div class="flex justify-content-between align-items-center flex-wrap gap-3">
@@ -27,7 +27,7 @@
                 </div>
             </div>
 
-            
+
 
             <!-- Cards de Ação Rápida -->
             <div class="grid mb-4">
@@ -47,9 +47,9 @@
                                     Ideal para partidas equilibradas e dinâmicas.
                                 </p>
                                 <p:button value="Criar Sorteio x5" 
-                                                 icon="pi pi-bolt"
-                                                 styleClass="p-button-primary"
-                                                 href="sorteiox5.xhtml" />
+                                          icon="pi pi-bolt"
+                                          styleClass="p-button-primary"
+                                          href="sorteiox5.xhtml" />
                             </div>
                         </div>
                     </div>
@@ -71,9 +71,9 @@
                                     Perfeito para partidas amistosas e treinos táticos.
                                 </p>
                                 <p:button value="Criar Partida Clássica" 
-                                                 icon="pi pi-users"
-                                                 styleClass="p-button-help"
-                                                 href="partidaClassica.xhtml" />
+                                          icon="pi pi-users"
+                                          styleClass="p-button-help"
+                                          href="partidaClassica.xhtml" />
                             </div>
                         </div>
                     </div>
@@ -139,7 +139,7 @@
                                     <p:commandButton value="Acompanhar" 
                                                      icon="pi pi-eye"
                                                      styleClass="p-button-success w-full"
-                                                      />
+                                                     />
                                 </div>
                             </div>
                         </ui:repeat>
@@ -155,90 +155,92 @@
             </div>
 
             <!-- Últimas Partidas -->
-            <div class="surface-card shadow-2 border-round p-4">
-                <div class="flex justify-content-between align-items-center mb-4">
-                    <h2 class="text-900 font-bold text-2xl m-0">
-                        <i class="pi pi-history mr-2"></i>Últimas Partidas
-                    </h2>
-                    <p:commandButton value="Ver Todas" 
-                                     icon="pi pi-arrow-right"
-                                     styleClass="p-button-text p-button-plain"
-                                     action="/pesquisarPartida?faces-redirect=true" />
-                </div>
+            <h:panelGroup rendered="#{not empty managerIndexPartida.partidasEmAndamento}">
+                <div class="surface-card shadow-2 border-round p-4">
+                    <div class="flex justify-content-between align-items-center mb-4">
+                        <h2 class="text-900 font-bold text-2xl m-0">
+                            <i class="pi pi-history mr-2"></i>Últimas Partidas
+                        </h2>
+                        <p:commandButton value="Ver Todas" 
+                                         icon="pi pi-arrow-right"
+                                         styleClass="p-button-text p-button-plain"
+                                         action="/pesquisarPartida?faces-redirect=true" />
+                    </div>
 
-                <p:dataTable id="partidaDataTable" 
-                             value="#{managerIndexPartida.partidas}" 
-                             var="partida"
-                             styleClass="p-datatable-striped"
-                             paginator="true"
-                             rows="5"
-                             rowsPerPageTemplate="5,10,15"
-                             paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                             currentPageReportTemplate="{currentPage} de {totalPages}"
-                             emptyMessage="Nenhuma partida encontrada">
+                    <p:dataTable id="partidaDataTable" 
+                                 value="#{managerIndexPartida.partidas}" 
+                                 var="partida"
+                                 styleClass="p-datatable-striped"
+                                 paginator="true"
+                                 rows="5"
+                                 rowsPerPageTemplate="5,10,15"
+                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                 currentPageReportTemplate="{currentPage} de {totalPages}"
+                                 emptyMessage="Nenhuma partida encontrada">
 
-                    <p:column headerText="Times" style="width: 45%;">
-                        <div class="flex align-items-center gap-3">
-                            <!-- Team 1 -->
-                            <div class="flex align-items-center gap-2 flex-1">
-                                <div class="participant-avatar" style="width: 35px; height: 35px; font-size: 14px; margin: 0;">
-                                    #{partida.itemPartida.get(0).team1.nome.substring(0,1)}
+                        <p:column headerText="Times" style="width: 45%;">
+                            <div class="flex align-items-center gap-3">
+                                <!-- Team 1 -->
+                                <div class="flex align-items-center gap-2 flex-1">
+                                    <div class="participant-avatar" style="width: 35px; height: 35px; font-size: 14px; margin: 0;">
+                                        #{partida.itemPartida.get(0).team1.nome.substring(0,1)}
+                                    </div>
+                                    <span class="font-semibold">#{partida.itemPartida.get(0).team1.nome}</span>
                                 </div>
-                                <span class="font-semibold">#{partida.itemPartida.get(0).team1.nome}</span>
-                            </div>
 
-                            <!-- VS -->
-                            <span class="font-bold text-500">X</span>
+                                <!-- VS -->
+                                <span class="font-bold text-500">X</span>
 
-                            <!-- Team 2 -->
-                            <div class="flex align-items-center gap-2 flex-1 justify-content-end">
-                                <span class="font-semibold">#{partida.itemPartida.get(0).team2.nome}</span>
-                                <div class="participant-avatar" style="width: 35px; height: 35px; font-size: 14px; margin: 0;">
-                                    #{partida.itemPartida.get(0).team2.nome.substring(0,1)}
+                                <!-- Team 2 -->
+                                <div class="flex align-items-center gap-2 flex-1 justify-content-end">
+                                    <span class="font-semibold">#{partida.itemPartida.get(0).team2.nome}</span>
+                                    <div class="participant-avatar" style="width: 35px; height: 35px; font-size: 14px; margin: 0;">
+                                        #{partida.itemPartida.get(0).team2.nome.substring(0,1)}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </p:column>
+                        </p:column>
 
-                    <p:column headerText="Mapas" style="width: 35%;">
-                        <div class="flex flex-wrap gap-1">
-                            <ui:repeat value="#{partida.itemPartida}" var="item">
-                                <span class="surface-100 px-2 py-1 border-round text-sm">
-                                    #{item.mapas.nome != null ? item.mapas.nome : 'TBD'}
+                        <p:column headerText="Mapas" style="width: 35%;">
+                            <div class="flex flex-wrap gap-1">
+                                <ui:repeat value="#{partida.itemPartida}" var="item">
+                                    <span class="surface-100 px-2 py-1 border-round text-sm">
+                                        #{item.mapas.nome != null ? item.mapas.nome : 'TBD'}
+                                    </span>
+                                </ui:repeat>
+                            </div>
+                        </p:column>
+
+                        <p:column headerText="Status" style="width: 10%; text-align: center;">
+                            <h:panelGroup rendered="#{partida.status == 'FINALIZADA'}">
+                                <span class="inline-flex align-items-center gap-1 bg-gray-100 text-gray-900 px-2 py-1 border-round font-semibold text-xs">
+                                    <i class="pi pi-check-circle"></i>
+                                    Finalizada
                                 </span>
-                            </ui:repeat>
-                        </div>
-                    </p:column>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{partida.status == 'EM_ANDAMENTO'}">
+                                <span class="inline-flex align-items-center gap-1 bg-green-100 text-green-900 px-2 py-1 border-round font-semibold text-xs">
+                                    <i class="pi pi-circle-fill" style="font-size: 0.5rem;"></i>
+                                    Ao Vivo
+                                </span>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{partida.status == 'AGENDADA'}">
+                                <span class="inline-flex align-items-center gap-1 bg-blue-100 text-blue-900 px-2 py-1 border-round font-semibold text-xs">
+                                    <i class="pi pi-clock"></i>
+                                    Agendada
+                                </span>
+                            </h:panelGroup>
+                        </p:column>
 
-                    <p:column headerText="Status" style="width: 10%; text-align: center;">
-                        <h:panelGroup rendered="#{partida.status == 'FINALIZADA'}">
-                            <span class="inline-flex align-items-center gap-1 bg-gray-100 text-gray-900 px-2 py-1 border-round font-semibold text-xs">
-                                <i class="pi pi-check-circle"></i>
-                                Finalizada
-                            </span>
-                        </h:panelGroup>
-                        <h:panelGroup rendered="#{partida.status == 'EM_ANDAMENTO'}">
-                            <span class="inline-flex align-items-center gap-1 bg-green-100 text-green-900 px-2 py-1 border-round font-semibold text-xs">
-                                <i class="pi pi-circle-fill" style="font-size: 0.5rem;"></i>
-                                Ao Vivo
-                            </span>
-                        </h:panelGroup>
-                        <h:panelGroup rendered="#{partida.status == 'AGENDADA'}">
-                            <span class="inline-flex align-items-center gap-1 bg-blue-100 text-blue-900 px-2 py-1 border-round font-semibold text-xs">
-                                <i class="pi pi-clock"></i>
-                                Agendada
-                            </span>
-                        </h:panelGroup>
-                    </p:column>
-
-                    <p:column headerText="Ações" style="width: 10%; text-align: center;">
-                        <p:commandButton icon="pi pi-eye" 
-                                         styleClass="p-button-rounded p-button-text"
-                                         title="Visualizar Partida"
-                                         />
-                    </p:column>
-                </p:dataTable>
-            </div>
+                        <p:column headerText="Ações" style="width: 10%; text-align: center;">
+                            <p:commandButton icon="pi pi-eye" 
+                                             styleClass="p-button-rounded p-button-text"
+                                             title="Visualizar Partida"
+                                             />
+                        </p:column>
+                    </p:dataTable>
+                </div>
+            </h:panelGroup>
 
         </h:form>
 
@@ -280,8 +282,12 @@
             }
 
             @keyframes pulse {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0.5; }
+                0%, 100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.5;
+                }
             }
 
             /* Status badges responsivos */
