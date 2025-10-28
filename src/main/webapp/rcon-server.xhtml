@@ -256,9 +256,33 @@
                                              oncomplete="scrollConsoleToBottom();"
                                              styleClass="quick-cmd-btn" />
 
-                            <p:commandButton value="Ajuda" 
+                            <p:commandButton value="Iniciar Aquecimento" 
                                              icon="pi pi-question-circle"
-                                             actionListener="#{managerRcon.setComando('help')}"
+                                             actionListener="#{managerRcon.setComando('mp_warmup_start')}"
+                                             action="#{managerRcon.executarComando()}"
+                                             update="consoleOutputPanel historyPanel"
+                                             oncomplete="scrollConsoleToBottom();"
+                                             styleClass="quick-cmd-btn" />
+                            
+                            <p:commandButton value="Pausar Aquecimento" 
+                                             icon="pi pi-question-circle"
+                                             actionListener="#{managerRcon.setComando('mp_warmup_pausetimer 1')}"
+                                             action="#{managerRcon.executarComando()}"
+                                             update="consoleOutputPanel historyPanel"
+                                             oncomplete="scrollConsoleToBottom();"
+                                             styleClass="quick-cmd-btn" />
+                            
+                            <p:commandButton value="Tirar Pause Aquecimento" 
+                                             icon="pi pi-question-circle"
+                                             actionListener="#{managerRcon.setComando('mp_warmup_pausetimer 0')}"
+                                             action="#{managerRcon.executarComando()}"
+                                             update="consoleOutputPanel historyPanel"
+                                             oncomplete="scrollConsoleToBottom();"
+                                             styleClass="quick-cmd-btn" />
+                            
+                            <p:commandButton value="Finalizar Aquecimento" 
+                                             icon="pi pi-question-circle"
+                                             actionListener="#{managerRcon.setComando('mp_warmup_end')}"
                                              action="#{managerRcon.executarComando()}"
                                              update="consoleOutputPanel historyPanel"
                                              oncomplete="scrollConsoleToBottom();"
