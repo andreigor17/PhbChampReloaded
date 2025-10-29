@@ -1,11 +1,8 @@
 package br.com.champ.Manager;
 
-import br.com.champ.Enums.StatusCamp;
-import br.com.champ.Enums.TipoCampeonato;
 import br.com.champ.Enums.Url;
 import br.com.champ.Modelo.Campeonato;
 import br.com.champ.Modelo.Estatisticas;
-import br.com.champ.Modelo.Fase;
 import br.com.champ.Modelo.ItemPartida;
 import br.com.champ.Modelo.Jogo;
 import br.com.champ.Modelo.Partida;
@@ -27,7 +24,6 @@ import jakarta.ejb.EJB;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -235,7 +231,7 @@ public class ManagerCriarCampeonato implements Serializable {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        Mensagem.successAndRedirect("Camp salvo", "visualizarCampeonato.xhtml?preCampId=" + this.camp.getId());
+        Mensagem.successAndRedirect("Camp salvo", "visualizarCampeonato.xhtml?id=" + this.camp.getId());
     }
 
 //    public void salvarCampeonato() throws Exception {

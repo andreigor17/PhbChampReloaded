@@ -2,7 +2,6 @@ package br.com.champ.Modelo;
 
 import br.com.champ.Generico.ModeloGenerico;
 import java.io.Serializable;
-import java.util.Comparator;
 
 /**
  *

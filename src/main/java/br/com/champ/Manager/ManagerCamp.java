@@ -8,6 +8,7 @@ import br.com.champ.Modelo.Player;
 import br.com.champ.Modelo.Team;
 import br.com.champ.Servico.CampeonatoServico;
 import br.com.champ.Servico.EstatisticaServico;
+import br.com.champ.Servico.LoginServico;
 import br.com.champ.Servico.PartidaServico;
 import br.com.champ.Servico.PlayerServico;
 import br.com.champ.Servico.TeamServico;
@@ -20,12 +21,14 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.Serializable;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -45,6 +48,8 @@ public class ManagerCamp implements Serializable {
     EstatisticaServico estatisticaServico;
     @EJB
     PartidaServico partidaServico;
+    @EJB
+    LoginServico loginServico;
 
     private Campeonato camp;
     private Campeonato preCamp;
@@ -60,24 +65,24 @@ public class ManagerCamp implements Serializable {
     private int s1;
     private int s2;
     private Estatisticas mvp;
+    private Player playerLogado;
+    private List<Partida> oitavas;
+    private List<Partida> quartas;
+    private List<Partida> semis;
+    private List<Partida> finais;
+    private List<Partida> terceiroLugar;
 
     @PostConstruct
     public void init() {
         instanciar();
 
+        this.playerLogado = loginServico.obterPlayerId();
         String visualizarCampId = FacesUtil
                 .getRequestParameter("id");
-
-        String visualizarPreCampId = FacesUtil
-                .getRequestParameter("preCampId");
 
         if (visualizarCampId != null && !visualizarCampId.isEmpty()) {
             this.camp = this.campeonatoServico.buscaCamp(Long.parseLong(visualizarCampId));
             this.partidas = partidaServico.partidaPorCamp(this.camp.getId());
-        }
-
-        if (visualizarPreCampId != null && !visualizarPreCampId.isEmpty()) {
-            this.preCamp = this.campeonatoServico.buscaCamp(Long.parseLong(visualizarPreCampId));
         }
 
         if (this.camp.getId() != null) {
@@ -117,6 +122,12 @@ public class ManagerCamp implements Serializable {
         this.ests = new ArrayList<>();
         this.partida = new Partida();
         this.mvp = new Estatisticas();
+        this.playerLogado = null;
+        this.oitavas = new ArrayList<>();
+        this.quartas = new ArrayList<>();
+        this.semis = new ArrayList<>();
+        this.finais = new ArrayList<>();
+        this.terceiroLugar = new ArrayList<>();
 
     }
 
@@ -440,6 +451,142 @@ public class ManagerCamp implements Serializable {
         } else {
             return "media/images/cs2.png";
         }
+    }
+
+    public Player getPlayerLogado() {
+        return playerLogado;
+    }
+
+    public void setPlayerLogado(Player playerLogado) {
+        this.playerLogado = playerLogado;
+    }
+
+    public void inscrever() {
+        try {
+            this.camp.getPlayers().add(this.playerLogado);
+            this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        Mensagem.successAndRedirect("Camp salvo", "visualizarCampeonato.xhtml?id=" + this.camp.getId());
+    }
+
+    public static void gerarRodada(Campeonato camp, int rodada) {
+        List<Estatisticas> estatisticas = camp.getEstatisticas();
+        List<Team> times = camp.getTeams();
+
+        // Mapa de vitórias por time
+        Map<Long, Integer> vitPorTime = estatisticas.stream()
+                .collect(Collectors.toMap(e -> e.getTeam().getId(), Estatisticas::getPartidasGanhas));
+
+        // Mapa de derrotas por time
+        Map<Long, Integer> derPorTime = estatisticas.stream()
+                .collect(Collectors.toMap(e -> e.getTeam().getId(), Estatisticas::getPartidasPerdidas));
+
+        // Agrupa por vitórias
+        Map<Integer, List<Team>> grupos = times.stream()
+                .collect(Collectors.groupingBy(t -> vitPorTime.getOrDefault(t.getId(), 0)));
+
+        for (Map.Entry<Integer, List<Team>> entry : grupos.entrySet()) {
+            int vitorias = entry.getKey();
+            List<Team> grupo = new ArrayList<>(entry.getValue());
+            Collections.shuffle(grupo); // sorteia
+
+            while (grupo.size() >= 2) {
+                Team t1 = grupo.remove(0);
+                Team t2 = grupo.remove(0);
+
+                Partida partida = new Partida();
+                partida.getTeams().add(t1);
+                partida.getTeams().add(t2);
+
+                int v1 = vitPorTime.getOrDefault(t1.getId(), 0);
+                int d1 = derPorTime.getOrDefault(t1.getId(), 0);
+                int v2 = vitPorTime.getOrDefault(t2.getId(), 0);
+                int d2 = derPorTime.getOrDefault(t2.getId(), 0);
+
+                // Escolhe a lista de acordo com o estado (ex: 1–0, 1–1 etc.)
+                adicionarNaListaCorreta(camp, partida, v1, d1, v2, d2);
+            }
+
+            // Se sobrou um time (ímpar), você pode dar um "bye" (opcional)
+            if (!grupo.isEmpty()) {
+                Team sobrando = grupo.get(0);
+                System.out.println("Time sobrando nesta rodada (" + vitorias + " vitórias): " + sobrando.getNome());
+            }
+        }
+    }
+
+    private static void adicionarNaListaCorreta(Campeonato camp, Partida partida,
+            int v1, int d1, int v2, int d2) {
+        // Mesma pontuação entre os dois (ex: 1–0 vs 1–0)
+        String chave = v1 + "" + d1;
+        switch (chave) {
+            case "00" ->
+                camp.getRodadaSuica00().add(partida);
+            case "10" ->
+                camp.getRodadaSuica10().add(partida);
+            case "01" ->
+                camp.getRodadaSuica01().add(partida);
+            case "20" ->
+                camp.getRodadaSuica20().add(partida);
+            case "11" ->
+                camp.getRodadaSuica11().add(partida);
+            case "02" ->
+                camp.getRodadaSuica02().add(partida);
+            case "30" ->
+                camp.getRodadaSuica30().add(partida);
+            case "21" ->
+                camp.getRodadaSuica21().add(partida);
+            case "12" ->
+                camp.getRodadaSuica12().add(partida);
+            case "31" ->
+                camp.getRodadaSuica31().add(partida);
+            case "22" ->
+                camp.getRodadaSuica22().add(partida);
+            case "13" ->
+                camp.getRodadaSuica13().add(partida);
+            case "32" ->
+                camp.getRodadaSuica32().add(partida);
+            case "23" ->
+                camp.getRodadaSuica23().add(partida);
+            case "03" ->
+                camp.getRodadaSuica03().add(partida);
+            default ->
+                System.out.println("Rodada desconhecida: " + chave);
+        }
+    }
+
+    public List<Partida> getOitavas() {
+        return oitavas;
+    }
+
+    public void setOitavas(List<Partida> oitavas) {
+        this.oitavas = oitavas;
+    }
+
+    public List<Partida> getQuartas() {
+        return quartas;
+    }
+
+    public void setQuartas(List<Partida> quartas) {
+        this.quartas = quartas;
+    }
+
+    public List<Partida> getSemis() {
+        return semis;
+    }
+
+    public void setSemis(List<Partida> semis) {
+        this.semis = semis;
+    }
+
+    public List<Partida> getFinais() {
+        return finais;
+    }
+
+    public void setFinais(List<Partida> finais) {
+        this.finais = finais;
     }
 
 }
