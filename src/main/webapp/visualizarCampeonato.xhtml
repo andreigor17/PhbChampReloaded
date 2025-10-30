@@ -1,53 +1,375 @@
-<ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="http://xmlns.jcp.org/jsf/html"
-                xmlns:f="http://xmlns.jcp.org/jsf/core"
-                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui"
-                template="vercel.xhtml">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-    <ui:define name="content">
-        <h:form id="formCampeonato">
+<h:head>
+    <title>#{managerCamp.camp.nome}</title>
+    <style type="text/css">
+        body {
+            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
 
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card {
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+
+        .header-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            position: relative;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .header-info {
+            flex: 1;
+        }
+
+        .header-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+        }
+
+        .header-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-logo {
+            width: 150px;
+            height: 150px;
+            border-radius: 12px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-logo img {
+            max-width: 120px;
+            max-height: 120px;
+            object-fit: contain;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+
+        .status-ativo {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-pendente {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .status-finalizado {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 24px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .participant-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .participant-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .participant-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 32px;
+            font-weight: bold;
+            color: #6c757d;
+        }
+
+        .participant-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .participant-info {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .bracket-container {
+            overflow-x: auto;
+            padding: 20px 0;
+        }
+
+        .bracket {
+            display: flex;
+            gap: 40px;
+            min-width: max-content;
+        }
+
+        .bracket-round {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            min-width: 200px;
+        }
+
+        .bracket-round-title {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #495057;
+        }
+
+        .bracket-match {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .bracket-team {
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .bracket-team:last-child {
+            border-bottom: none;
+        }
+
+        .bracket-team.winner {
+            background-color: #d4edda;
+            font-weight: 600;
+        }
+
+        .bracket-team-name {
+            flex: 1;
+        }
+
+        .bracket-team-score {
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .p-button-plain {
+            color: #6c757d;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .p-button-plain:hover {
+            color: #343a40;
+            background-color: transparent !important;
+        }
+
+        .p-button-secondary {
+            background-color: #f8f9fa;
+            color: #495057;
+            border-color: #e9ecef;
+            transition: all 0.2s;
+        }
+
+        .p-button-secondary:hover {
+            background-color: #e9ecef;
+            color: #212529;
+            border-color: #dee2e6;
+        }
+
+        .p-button-secondary.p-button-outlined {
+            background-color: transparent;
+            color: #6c757d;
+            border-color: #dee2e6;
+        }
+
+        .p-button-secondary.p-button-outlined:hover {
+            background-color: #f8f9fa;
+            color: #495057;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            margin-right: 10px;
+            min-width: 120px;
+        }
+
+        .info-value {
+            color: #212529;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+            }
+
+            .header-logo {
+                width: 120px;
+                height: 120px;
+            }
+
+            .header-title {
+                font-size: 28px;
+            }
+
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</h:head>
+
+<h:body>
+    <h:form id="formCampeonato">
+        <div class="container">
             <!-- Header do Campeonato -->
-            <div class="surface-card shadow-2 border-round mb-4 p-4">
-                <div class="flex justify-content-between align-items-start flex-wrap gap-3">
-                    <div class="flex-1">
-                        <div class="flex align-items-center mb-3">
-                            <i class="pi pi-trophy text-5xl mr-3 text-primary"></i>
-                            <div>
-                                <h1 class="text-900 font-bold text-4xl m-0 mb-2">#{managerCamp.camp.nome}</h1>
-                                <span class="inline-flex align-items-center gap-2 px-3 py-1 border-round font-semibold text-sm
-                                      #{managerCamp.camp.status == 'EM_ANDAMENTO' ? 'bg-green-100 text-green-900' : 
-                                        managerCamp.camp.status == 'INSCRICOES_ABERTAS' ? 'bg-yellow-100 text-yellow-900' : 
-                                        'bg-gray-100 text-gray-900'}">
-                                    <i class="pi pi-circle-fill" style="font-size: 0.5rem;"></i>
-                                    #{managerCamp.camp.status}
-                                </span>
-                            </div>
-                        </div>
+            <div class="card header-card">
+                <div class="header-content">
+                    <div class="header-info">
+                        <h1 class="header-title">
+                            <i class="pi pi-trophy"></i>
+                            #{managerCamp.camp.nome}
+                        </h1>
+                        
+                        <span class="status-badge status-#{managerCamp.camp.status.nome}">
+                            #{managerCamp.camp.status.nome}
+                        </span>
 
-                        <div class="flex flex-wrap gap-4 mb-3">
-                            <div class="flex align-items-center gap-2 text-700">
+                        <div class="header-meta">
+                            <div class="meta-item">
                                 <i class="pi pi-calendar"></i>
                                 <span>Início: <h:outputText value="#{managerCamp.camp.dataCamp}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy" />
-                                    </h:outputText></span>
+                                    <f:convertDateTime pattern="dd/MM/yyyy" />
+                                </h:outputText></span>
                             </div>
-                            <div class="flex align-items-center gap-2 text-700">
+                            <div class="meta-item">
                                 <i class="pi pi-clock"></i>
                                 <span>Inscrições até: <h:outputText value="#{managerCamp.camp.dataPrazoCamp}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy" />
-                                    </h:outputText></span>
+                                    <f:convertDateTime pattern="dd/MM/yyyy" />
+                                </h:outputText></span>
                             </div>
-                            <div class="flex align-items-center gap-2 text-700">
+                            <div class="meta-item">
                                 <i class="pi pi-flag"></i>
                                 <span>#{managerCamp.camp.jogo.nome}</span>
                             </div>
-                            <div class="flex align-items-center gap-2 text-700">
+                            <div class="meta-item">
                                 <i class="pi pi-users"></i>
                                 <span>#{managerCamp.camp.categoria}</span>
                             </div>
-                            <div class="flex align-items-center gap-2 text-700">
+                            <div class="meta-item">
                                 <i class="pi pi-sitemap"></i>
                                 <span>#{managerCamp.camp.tipoCampeonato}</span>
                             </div>
@@ -55,588 +377,183 @@
 
                         <p:commandButton value="Fazer Inscrição" 
                                          icon="pi pi-user-plus"
-                                         styleClass="p-button-success"
-                                         action="#{managerCamp.inscrever()}"
+                                         styleClass="p-button-success p-button-lg"
+                                         style="margin-top: 20px;"
+                                         action="#{campeonatoView.inscrever()}"
                                          update="@form"
-                                         rendered="#{managerCamp.playerLogado ne null and managerCamp.playerLogado.adminastror}" />
+                                         rendered="#{campeonatoView.podeInscrever()}" />
                     </div>
 
-                    <div class="flex-shrink-0">
-                        <div class="border-round surface-100 flex align-items-center justify-content-center" 
-                             style="width: 150px; height: 150px;">
-                            <h:panelGroup rendered="#{managerCamp.camp.anexo != null}">
-                                <p:graphicImage value="#{managerCamp.camp.anexo.url}" 
-                                                style="max-width: 130px; max-height: 130px; object-fit: contain;" />
-                            </h:panelGroup>
-                            <h:panelGroup rendered="#{managerCamp.camp.anexo == null}">
-                                <i class="pi pi-trophy text-6xl text-400"></i>
-                            </h:panelGroup>
-                        </div>
+                    <div class="header-logo">
+                        <h:panelGroup rendered="#{managerCamp.camp.anexo != null}">
+                            <p:graphicImage value="#{managerCamp.camp.anexo.url}" 
+                                          alt="Logo" />
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{managerCamp.camp.anexo == null}">
+                            <i class="pi pi-trophy" style="font-size: 64px; color: #6c757d;"></i>
+                        </h:panelGroup>
                     </div>
                 </div>
             </div>
-           
-            <!-- Informações Detalhadas -->
-            <div class="surface-card shadow-2 border-round mb-4 p-4">
-                <h2 class="text-900 font-bold text-2xl mb-4">
-                    <i class="pi pi-info-circle mr-2"></i>Informações
-                </h2>
 
-                <div class="grid">
-                    <div class="col-12 md:col-6 lg:col-3">
-                        <div class="surface-100 border-round p-3">
-                            <div class="text-600 font-semibold mb-1">Formato</div>
-                            <div class="text-900 font-bold">#{managerCamp.camp.tipoCampeonato}</div>
-                        </div>
+            <!-- Informações Detalhadas -->
+            <div class="card">
+                <div class="section-header">
+                    <h2><i class="pi pi-info-circle"></i> Informações</h2>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Formato:</span>
+                        <span class="info-value">#{managerCamp.camp.tipoCampeonato}</span>
                     </div>
-                    <div class="col-12 md:col-6 lg:col-3">
-                        <div class="surface-100 border-round p-3">
-                            <div class="text-600 font-semibold mb-1">Jogo</div>
-                            <div class="text-900 font-bold">#{managerCamp.camp.jogo.nome}</div>
-                        </div>
+                    <div class="info-item">
+                        <span class="info-label">Categoria:</span>
+                        <span class="info-value">#{managerCamp.camp.categoria}</span>
                     </div>
-                    <div class="col-12 md:col-6 lg:col-3">
-                        <div class="surface-100 border-round p-3">
-                            <div class="text-600 font-semibold mb-1">Participantes</div>
-                            <div class="text-900 font-bold">10</div>
-                        </div>
+                    <div class="info-item">
+                        <span class="info-label">Participantes:</span>
+                        <span class="info-value">#{campeonatoView.totalParticipantes}</span>
                     </div>
-                    <div class="col-12 md:col-6 lg:col-3">
-                        <div class="surface-100 border-round p-3">
-                            <div class="text-600 font-semibold mb-1">Status</div>
-                            <div class="text-900 font-bold">#{managerCamp.camp.status}</div>
-                        </div>
+                    <div class="info-item">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value">#{managerCamp.camp.status}</span>
                     </div>
                 </div>
 
-                <h:panelGroup rendered="#{not empty managerCamp.camp.observacao}">
+                <h:panelGroup rendered="#{not empty managerCamp.camp.dataCamp}">
                     <p:divider />
-                    <h3 class="text-900 font-semibold text-lg mb-2">Descrição</h3>
-                    <p class="text-700 line-height-3 m-0">#{managerCamp.camp.observacao}</p>
+                    <h3 style="margin-top: 20px; margin-bottom: 10px; color: #495057;">Descrição</h3>
+                    <p style="color: #6c757d; line-height: 1.6;">#{managerCamp.camp.observacao}</p>
                 </h:panelGroup>
             </div>
 
-            <!-- Botão de Check-in para Admin -->
-            <h:panelGroup >
-                <div class="surface-card shadow-2 border-round mb-4 p-4">
-                    <div class="flex align-items-center justify-content-between flex-wrap gap-3">
-                        <div class="flex-1">
-                            <h3 class="text-900 font-bold text-xl m-0 mb-2">
-                                <i class="pi pi-check-circle mr-2"></i>Check-in dos Participantes
-                            </h3>
-                            <p class="text-600 m-0">Realize o check-in dos participantes antes do início do campeonato</p>
-                        </div>
-                        <p:commandButton value="Fazer Check-in" 
-                                         icon="pi pi-check"
-                                         styleClass="p-button-primary p-button-lg"
-                                         action="#{managerCamp.realizarCheckin()}"
-                                         update="@form"
-                                         onclick="PF('dlgCheckin').show();" />
-                    </div>
-                </div>
-            </h:panelGroup>
-
             <!-- Participantes -->
-            <div class="surface-card shadow-2 border-round mb-4 p-4">
-                <div class="flex justify-content-between align-items-center mb-4">
-                    <h2 class="text-900 font-bold text-2xl m-0">
-                        <i class="pi pi-users mr-2"></i>Participantes
-                    </h2>
-                    <p:commandButton value="Ver Todos" 
-                                     icon="pi pi-arrow-right"
-                                     styleClass="p-button-text p-button-plain" />
+            <div class="card">
+                <div class="section-header">
+                    <h2><i class="pi pi-users"></i> Participantes</h2>
+                    <p:button value="Ver Todos" 
+                              styleClass="p-button-text p-button-plain" 
+                              onclick="return false;" />
                 </div>
 
-                <div class="grid">
-                    <ui:repeat value="#{managerCamp.camp.players}" var="participante">
-                        <div class="col-12 md:col-6 lg:col-4 xl:col-3">
-                            <div class="surface-border border-1 border-round p-3 h-full hover:shadow-3 transition-duration-200">
-                                <div class="flex flex-column align-items-center text-center">
-                                    <div class="participant-avatar mb-3" style="width: 80px; height: 80px; font-size: 32px;">
-                                        <h:panelGroup rendered="#{participante.foto != null}">
-                                            <p:graphicImage value="#{participante.foto.url}" 
-                                                            style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" />
-                                        </h:panelGroup>
-                                        <h:panelGroup rendered="#{participante.foto == null}">
-                                            #{participante.nome.substring(0,1)}
-                                        </h:panelGroup>
-                                    </div>
-                                    <div class="font-semibold text-900 mb-1">#{participante.nome}</div>
-                                    <div class="text-600 text-sm mb-3">
-                                        <i class="pi pi-star-fill text-yellow-500"></i>
-                                        Rating: #{participante.rating}
-                                    </div>
-                                    <p:commandButton value="Ver Perfil" 
-                                                     icon="pi pi-eye"
-                                                     styleClass="p-button-outlined p-button-sm w-full"
-                                                      />
-                                </div>
+                <div class="grid-container">
+                    <ui:repeat value="#{campeonatoView.participantes}" var="participante">
+                        <div class="participant-card">
+                            <div class="participant-avatar">
+                                <h:panelGroup rendered="#{participante.foto != null}">
+                                    <p:graphicImage value="#{participante.foto.url}" 
+                                                  style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" />
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{participante.foto == null}">
+                                    #{participante.nome.substring(0,1)}
+                                </h:panelGroup>
                             </div>
+                            <div class="participant-name">#{participante.nome}</div>
+                            <div class="participant-info">
+                                <i class="pi pi-star-fill" style="color: #ffc107;"></i>
+                                Rating: #{participante.rating}
+                            </div>
+                            <p:button value="Ver Perfil" 
+                                      styleClass="p-button-secondary p-button-sm p-button-outlined"
+                                      style="margin-top: 10px; width: 100%;"
+                                      outcome="/participante-view?id=#{participante.id}" />
                         </div>
                     </ui:repeat>
                 </div>
             </div>
 
-            <!-- TabView: Chaveamento, Tabela e Estatísticas -->
-            <div class="surface-card shadow-2 border-round p-4">
+            <!-- TabView: Partidas, Tabela e Estatísticas -->
+            <div class="card">
                 <p:tabView>
-                    <!-- Tab: Chaveamento com Sistema Suíço -->
+                    <!-- Tab: Chaveamento (Mata-Mata/Suíço) -->
                     <p:tab title="Chaveamento" 
                            rendered="#{managerCamp.camp.tipoCampeonato == 'MATA_MATA' or managerCamp.camp.tipoCampeonato == 'SUICO'}">
+                        <div class="section-header">
+                            <h2><i class="pi pi-sitemap"></i> Chaveamento</h2>
+                        </div>
 
-                        <!-- Sistema Suíço -->
-                        <h:panelGroup rendered="#{managerCamp.camp.tipoCampeonato == 'SUICO'}">
-                            <div class="mb-5">
-                                <h2 class="text-900 font-bold text-2xl mb-3">
-                                    <i class="pi pi-sitemap mr-2"></i>Fase Suíça
-                                </h2>
-                                <p class="text-600 mb-4">
-                                    Times com 3 vitórias avançam para o mata-mata. Times com 3 derrotas são eliminados.
-                                </p>
-
-                                <div class="swiss-container">
-                                    <div class="swiss-system">
-                                        <!-- Coluna 0-0 (Início) -->
-                                        <div class="swiss-column">
-                                            <div class="swiss-column-header">
-                                                <span class="swiss-record">0:0</span>
+                        <div class="bracket-container">
+                            <div class="bracket">
+                                <!-- Oitavas -->
+                                <div class="bracket-round">
+                                    <div class="bracket-round-title">Oitavas de Final</div>
+                                    <ui:repeat value="#{campeonatoView.oitavas}" var="partida">
+                                        <div class="bracket-match">
+                                            <div class="bracket-team #{partida.vencedor == partida.timeA ? 'winner' : ''}">
+                                                <span class="bracket-team-name">#{partida.timeA.nome}</span>
+                                                <span class="bracket-team-score">#{partida.placarA}</span>
                                             </div>
-                                            <div class="swiss-matches">
-                                                <ui:repeat value="#{managerCamp.camp.rodadaSuica00}" var="partida">
-                                                    <div class="swiss-match">
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team1.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team1.nome}</span>
-                                                        </div>
-                                                        <span class="swiss-vs">vs</span>
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team2.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team2.nome}</span>
-                                                        </div>
-                                                        <i class="pi #{partida.vencedor == partida.team1 ? 'pi-arrow-up text-green-500' : 
-                                                                       partida.vencedor == partida.team2 ? 'pi-arrow-down text-red-500' : 
-                                                                       'pi-minus text-gray-400'} swiss-arrow"></i>
-                                                    </div>
-                                                </ui:repeat>
+                                            <div class="bracket-team #{partida.vencedor == partida.timeB ? 'winner' : ''}">
+                                                <span class="bracket-team-name">#{partida.timeB.nome}</span>
+                                                <span class="bracket-team-score">#{partida.placarB}</span>
                                             </div>
                                         </div>
-
-                                        <!-- Coluna 1-0 -->
-                                        <div class="swiss-column">
-                                            <div class="swiss-column-header">
-                                                <span class="swiss-record">1:0</span>
-                                            </div>
-                                            <div class="swiss-matches">
-                                                <ui:repeat value="#{managerCamp.camp.rodadaSuica10}" var="partida">
-                                                    <div class="swiss-match">
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team1.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team1.nome}</span>
-                                                        </div>
-                                                        <span class="swiss-vs">vs</span>
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team2.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team2.nome}</span>
-                                                        </div>
-                                                        <i class="pi #{partida.vencedor == partida.team1 ? 'pi-arrow-up text-green-500' : 
-                                                                       partida.vencedor == partida.team2 ? 'pi-arrow-down text-red-500' : 
-                                                                       'pi-minus text-gray-400'} swiss-arrow"></i>
-                                                    </div>
-                                                </ui:repeat>
-                                            </div>
-                                        </div>
-
-                                        <!-- Coluna 0-1 -->
-                                        <div class="swiss-column">
-                                            <div class="swiss-column-header">
-                                                <span class="swiss-record">0:1</span>
-                                            </div>
-                                            <div class="swiss-matches">
-                                                <ui:repeat value="#{managerCamp.camp.rodadaSuica01}" var="partida">
-                                                    <div class="swiss-match">
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team1.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team1.nome}</span>
-                                                        </div>
-                                                        <span class="swiss-vs">vs</span>
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team2.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team2.nome}</span>
-                                                        </div>
-                                                        <i class="pi #{partida.vencedor == partida.team1 ? 'pi-arrow-up text-green-500' : 
-                                                                       partida.vencedor == partida.team2 ? 'pi-arrow-down text-red-500' : 
-                                                                       'pi-minus text-gray-400'} swiss-arrow"></i>
-                                                    </div>
-                                                </ui:repeat>
-                                            </div>
-                                        </div>
-
-                                        <!-- Coluna 2-0 -->
-                                        <div class="swiss-column">
-                                            <div class="swiss-column-header">
-                                                <span class="swiss-record">2:0</span>
-                                            </div>
-                                            <div class="swiss-matches">
-                                                <ui:repeat value="#{managerCamp.camp.rodadaSuica20}" var="partida">
-                                                    <div class="swiss-match">
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team1.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team1.nome}</span>
-                                                        </div>
-                                                        <span class="swiss-vs">vs</span>
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team2.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team2.nome}</span>
-                                                        </div>
-                                                        <i class="pi #{partida.vencedor == partida.team1 ? 'pi-arrow-up text-green-500' : 
-                                                                       partida.vencedor == partida.team2 ? 'pi-arrow-down text-red-500' : 
-                                                                       'pi-minus text-gray-400'} swiss-arrow"></i>
-                                                    </div>
-                                                </ui:repeat>
-                                            </div>
-                                        </div>
-
-                                        <!-- Coluna 1-1 -->
-                                        <div class="swiss-column">
-                                            <div class="swiss-column-header">
-                                                <span class="swiss-record">1:1</span>
-                                            </div>
-                                            <div class="swiss-matches">
-                                                <ui:repeat value="#{managerCamp.camp.rodadaSuica11}" var="partida">
-                                                    <div class="swiss-match">
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team1.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team1.nome}</span>
-                                                        </div>
-                                                        <span class="swiss-vs">vs</span>
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team2.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team2.nome}</span>
-                                                        </div>
-                                                        <i class="pi #{partida.vencedor == partida.team1 ? 'pi-arrow-up text-green-500' : 
-                                                                       partida.vencedor == partida.team2 ? 'pi-arrow-down text-red-500' : 
-                                                                       'pi-minus text-gray-400'} swiss-arrow"></i>
-                                                    </div>
-                                                </ui:repeat>
-                                            </div>
-                                        </div>
-
-                                        <!-- Coluna 0-2 -->
-                                        <div class="swiss-column">
-                                            <div class="swiss-column-header">
-                                                <span class="swiss-record">0:2</span>
-                                            </div>
-                                            <div class="swiss-matches">
-                                                <ui:repeat value="#{managerCamp.camp.rodadaSuica02}" var="partida">
-                                                    <div class="swiss-match">
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team1.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team1.nome}</span>
-                                                        </div>
-                                                        <span class="swiss-vs">vs</span>
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team2.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team2.nome}</span>
-                                                        </div>
-                                                        <i class="pi #{partida.vencedor == partida.team1 ? 'pi-arrow-up text-green-500' : 
-                                                                       partida.vencedor == partida.team2 ? 'pi-arrow-down text-red-500' : 
-                                                                       'pi-minus text-gray-400'} swiss-arrow"></i>
-                                                    </div>
-                                                </ui:repeat>
-                                            </div>
-                                        </div>
-
-                                        <!-- Coluna 3-0 (Classificados) -->
-                                        <div class="swiss-column swiss-qualified">
-                                            <div class="swiss-column-header">
-                                                <span class="swiss-record">3:0</span>
-                                            </div>
-                                            <div class="swiss-matches">
-                                                <ui:repeat value="#{managerCamp.camp.rodadaSuica30}" var="partida">
-                                                    <div class="swiss-match qualified">
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team1.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team1.nome}</span>
-                                                        </div>
-                                                        <span class="swiss-vs">vs</span>
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team2.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team2.nome}</span>
-                                                        </div>
-                                                        <i class="pi pi-check-circle text-green-600 swiss-arrow"></i>
-                                                    </div>
-                                                </ui:repeat>
-                                            </div>
-                                        </div>
-
-                                        <!-- Coluna 2-1 -->
-                                        <div class="swiss-column">
-                                            <div class="swiss-column-header">
-                                                <span class="swiss-record">2:1</span>
-                                            </div>
-                                            <div class="swiss-matches">
-                                                <ui:repeat value="#{managerCamp.camp.rodadaSuica21}" var="partida">
-                                                    <div class="swiss-match">
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team1.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team1.nome}</span>
-                                                        </div>
-                                                        <span class="swiss-vs">vs</span>
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team2.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team2.nome}</span>
-                                                        </div>
-                                                        <i class="pi #{partida.vencedor == partida.team1 ? 'pi-arrow-up text-green-500' : 
-                                                                       partida.vencedor == partida.team2 ? 'pi-arrow-down text-red-500' : 
-                                                                       'pi-minus text-gray-400'} swiss-arrow"></i>
-                                                    </div>
-                                                </ui:repeat>
-                                            </div>
-                                        </div>
-
-                                        <!-- Coluna 1-2 -->
-                                        <div class="swiss-column">
-                                            <div class="swiss-column-header">
-                                                <span class="swiss-record">1:2</span>
-                                            </div>
-                                            <div class="swiss-matches">
-                                                <ui:repeat value="#{managerCamp.camp.rodadaSuica12}" var="partida">
-                                                    <div class="swiss-match">
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team1.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team1.nome}</span>
-                                                        </div>
-                                                        <span class="swiss-vs">vs</span>
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team2.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team2.nome}</span>
-                                                        </div>
-                                                        <i class="pi #{partida.vencedor == partida.team1 ? 'pi-arrow-up text-green-500' : 
-                                                                       partida.vencedor == partida.team2 ? 'pi-arrow-down text-red-500' : 
-                                                                       'pi-minus text-gray-400'} swiss-arrow"></i>
-                                                    </div>
-                                                </ui:repeat>
-                                            </div>
-                                        </div>
-
-                                        <!-- Coluna 3-1 (Classificados) -->
-                                        <div class="swiss-column swiss-qualified">
-                                            <div class="swiss-column-header">
-                                                <span class="swiss-record">3:1</span>
-                                            </div>
-                                            <div class="swiss-matches">
-                                                <ui:repeat value="#{managerCamp.camp.rodadaSuica31}" var="partida">
-                                                    <div class="swiss-match qualified">
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team1.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team1.nome}</span>
-                                                        </div>
-                                                        <i class="pi pi-check-circle text-green-600"></i>
-                                                    </div>
-                                                </ui:repeat>
-                                            </div>
-                                        </div>
-
-                                        <!-- Coluna 2-2 -->
-                                        <div class="swiss-column">
-                                            <div class="swiss-column-header">
-                                                <span class="swiss-record">2:2</span>
-                                            </div>
-                                            <div class="swiss-matches">
-                                                <ui:repeat value="#{managerCamp.camp.rodadaSuica22}" var="partida">
-                                                    <div class="swiss-match">
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team1.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team1.nome}</span>
-                                                        </div>
-                                                        <span class="swiss-vs">vs</span>
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team2.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team2.nome}</span>
-                                                        </div>
-                                                        <i class="pi #{partida.vencedor == partida.team1 ? 'pi-arrow-up text-green-500' : 
-                                                                       partida.vencedor == partida.team2 ? 'pi-arrow-down text-red-500' : 
-                                                                       'pi-minus text-gray-400'} swiss-arrow"></i>
-                                                    </div>
-                                                </ui:repeat>
-                                            </div>
-                                        </div>
-
-                                        <!-- Coluna 1-3 (Eliminados) -->
-                                        <div class="swiss-column swiss-eliminated">
-                                            <div class="swiss-column-header">
-                                                <span class="swiss-record">1:3</span>
-                                            </div>
-                                            <div class="swiss-matches">
-                                                <ui:repeat value="#{managerCamp.camp.rodadaSuica13}" var="partida">
-                                                    <div class="swiss-match eliminated">
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team1.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team1.nome}</span>
-                                                        </div>
-                                                        <i class="pi pi-times-circle text-red-600"></i>
-                                                    </div>
-                                                </ui:repeat>
-                                            </div>
-                                        </div>
-
-                                        <!-- Coluna 3-2 (Classificados) -->
-                                        <div class="swiss-column swiss-qualified">
-                                            <div class="swiss-column-header">
-                                                <span class="swiss-record">3:2</span>
-                                            </div>
-                                            <div class="swiss-matches">
-                                                <ui:repeat value="#{managerCamp.camp.rodadaSuica32}" var="partida">
-                                                    <div class="swiss-match qualified">
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team1.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team1.nome}</span>
-                                                        </div>
-                                                        <i class="pi pi-check-circle text-green-600"></i>
-                                                    </div>
-                                                </ui:repeat>
-                                            </div>
-                                        </div>
-
-                                        <!-- Coluna 2-3 (Eliminados) -->
-                                        <div class="swiss-column swiss-eliminated">
-                                            <div class="swiss-column-header">
-                                                <span class="swiss-record">2:3</span>
-                                            </div>
-                                            <div class="swiss-matches">
-                                                <ui:repeat value="#{managerCamp.camp.rodadaSuica23}" var="partida">
-                                                    <div class="swiss-match eliminated">
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team1.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team1.nome}</span>
-                                                        </div>
-                                                        <i class="pi pi-times-circle text-red-600"></i>
-                                                    </div>
-                                                </ui:repeat>
-                                            </div>
-                                        </div>
-
-                                        <!-- Coluna 0-3 (Eliminados) -->
-                                        <div class="swiss-column swiss-eliminated">
-                                            <div class="swiss-column-header">
-                                                <span class="swiss-record">0:3</span>
-                                            </div>
-                                            <div class="swiss-matches">
-                                                <ui:repeat value="#{managerCamp.camp.rodadaSuica03}" var="partida">
-                                                    <div class="swiss-match eliminated">
-                                                        <div class="swiss-team">
-                                                            <div class="swiss-team-logo">#{partida.team1.nome.substring(0,1)}</div>
-                                                            <span class="swiss-team-name">#{partida.team1.nome}</span>
-                                                        </div>
-                                                        <i class="pi pi-times-circle text-red-600"></i>
-                                                    </div>
-                                                </ui:repeat>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    </ui:repeat>
                                 </div>
-                            </div>
 
-                            <p:divider />
-                        </h:panelGroup>
-
-                        <!-- Mata-Mata -->
-                        <div class="mb-4">
-                            <h2 class="text-900 font-bold text-2xl mb-4">
-                                <i class="pi pi-sitemap mr-2"></i>
-                                #{managerCamp.camp.tipoCampeonato == 'SUICO' ? 'Playoffs (Mata-Mata)' : 'Chaveamento'}
-                            </h2>
-
-                            <div class="bracket-container">
-                                <div class="flex gap-4">
-                                    <!-- Oitavas -->
-                                    <h:panelGroup rendered="#{not empty managerCamp.oitavas}">
-                                        <div class="bracket-round">
-                                            <div class="text-center font-semibold text-700 mb-3">Oitavas de Final</div>
-                                            <ui:repeat value="#{managerCamp.oitavas}" var="partida">
-                                                <div class="bracket-match mb-3">
-                                                    <div class="bracket-team #{partida.vencedor == partida.team1 ? 'winner' : ''}">
-                                                        <span class="bracket-team-name">#{partida.team1.nome}</span>
-                                                        <span class="bracket-team-score">#{partida.placarA}</span>
-                                                    </div>
-                                                    <div class="bracket-team #{partida.vencedor == partida.team2 ? 'winner' : ''}">
-                                                        <span class="bracket-team-name">#{partida.team2.nome}</span>
-                                                        <span class="bracket-team-score">#{partida.placarB}</span>
-                                                    </div>
-                                                </div>
-                                            </ui:repeat>
+                                <!-- Quartas -->
+                                <div class="bracket-round">
+                                    <div class="bracket-round-title">Quartas de Final</div>
+                                    <ui:repeat value="#{campeonatoView.quartas}" var="partida">
+                                        <div class="bracket-match">
+                                            <div class="bracket-team #{partida.vencedor == partida.timeA ? 'winner' : ''}">
+                                                <span class="bracket-team-name">#{partida.timeA.nome}</span>
+                                                <span class="bracket-team-score">#{partida.placarA}</span>
+                                            </div>
+                                            <div class="bracket-team #{partida.vencedor == partida.timeB ? 'winner' : ''}">
+                                                <span class="bracket-team-name">#{partida.timeB.nome}</span>
+                                                <span class="bracket-team-score">#{partida.placarB}</span>
+                                            </div>
                                         </div>
-                                    </h:panelGroup>
+                                    </ui:repeat>
+                                </div>
 
-                                    <!-- Quartas -->
-                                    <h:panelGroup rendered="#{not empty managerCamp.quartas}">
-                                        <div class="bracket-round">
-                                            <div class="text-center font-semibold text-700 mb-3">Quartas de Final</div>
-                                            <ui:repeat value="#{managerCamp.quartas}" var="partida">
-                                                <div class="bracket-match mb-3">
-                                                    <div class="bracket-team #{partida.vencedor == partida.team1 ? 'winner' : ''}">
-                                                        <span class="bracket-team-name">#{partida.team1.nome}</span>
-                                                        <span class="bracket-team-score">#{partida.placarA}</span>
-                                                    </div>
-                                                    <div class="bracket-team #{partida.vencedor == partida.team2 ? 'winner' : ''}">
-                                                        <span class="bracket-team-name">#{partida.team2.nome}</span>
-                                                        <span class="bracket-team-score">#{partida.placarB}</span>
-                                                    </div>
-                                                </div>
-                                            </ui:repeat>
+                                <!-- Semifinais -->
+                                <div class="bracket-round">
+                                    <div class="bracket-round-title">Semifinais</div>
+                                    <ui:repeat value="#{campeonatoView.semifinais}" var="partida">
+                                        <div class="bracket-match">
+                                            <div class="bracket-team #{partida.vencedor == partida.timeA ? 'winner' : ''}">
+                                                <span class="bracket-team-name">#{partida.timeA.nome}</span>
+                                                <span class="bracket-team-score">#{partida.placarA}</span>
+                                            </div>
+                                            <div class="bracket-team #{partida.vencedor == partida.timeB ? 'winner' : ''}">
+                                                <span class="bracket-team-name">#{partida.timeB.nome}</span>
+                                                <span class="bracket-team-score">#{partida.placarB}</span>
+                                            </div>
                                         </div>
-                                    </h:panelGroup>
+                                    </ui:repeat>
+                                </div>
 
-                                    <!-- Semifinais -->
-                                    <h:panelGroup rendered="#{not empty managerCamp.semis}">
-                                        <div class="bracket-round">
-                                            <div class="text-center font-semibold text-700 mb-3">Semifinais</div>
-                                            <ui:repeat value="#{managerCamp.semifinais}" var="partida">
-                                                <div class="bracket-match mb-3">
-                                                    <div class="bracket-team #{partida.vencedor == partida.team1 ? 'winner' : ''}">
-                                                        <span class="bracket-team-name">#{partida.team1.nome}</span>
-                                                        <span class="bracket-team-score">#{partida.placarA}</span>
-                                                    </div>
-                                                    <div class="bracket-team #{partida.vencedor == partida.team2 ? 'winner' : ''}">
-                                                        <span class="bracket-team-name">#{partida.team2.nome}</span>
-                                                        <span class="bracket-team-score">#{partida.placarB}</span>
-                                                    </div>
-                                                </div>
-                                            </ui:repeat>
+                                <!-- Final -->
+                                <div class="bracket-round">
+                                    <div class="bracket-round-title">Final</div>
+                                    <ui:repeat value="#{campeonatoView.finais}" var="partida">
+                                        <div class="bracket-match">
+                                            <div class="bracket-team #{partida.vencedor == partida.timeA ? 'winner' : ''}">
+                                                <span class="bracket-team-name">#{partida.timeA.nome}</span>
+                                                <span class="bracket-team-score">#{partida.placarA}</span>
+                                            </div>
+                                            <div class="bracket-team #{partida.vencedor == partida.timeB ? 'winner' : ''}">
+                                                <span class="bracket-team-name">#{partida.timeB.nome}</span>
+                                                <span class="bracket-team-score">#{partida.placarB}</span>
+                                            </div>
                                         </div>
-                                    </h:panelGroup>
-
-                                    <!-- Final -->
-                                    <h:panelGroup rendered="#{not empty managerCamp.finais}">
-                                        <div class="bracket-round">
-                                            <div class="text-center font-semibold text-700 mb-3">Final</div>
-                                            <ui:repeat value="#{managerCamp.finais}" var="partida">
-                                                <div class="bracket-match mb-3">
-                                                    <div class="bracket-team #{partida.vencedor == partida.team1 ? 'winner' : ''}">
-                                                        <span class="bracket-team-name">#{partida.team1.nome}</span>
-                                                        <span class="bracket-team-score">#{partida.placarA}</span>
-                                                    </div>
-                                                    <div class="bracket-team #{partida.vencedor == partida.team2 ? 'winner' : ''}">
-                                                        <span class="bracket-team-name">#{partida.team2.nome}</span>
-                                                        <span class="bracket-team-score">#{partida.placarB}</span>
-                                                    </div>
-                                                </div>
-                                            </ui:repeat>
-                                        </div>
-                                    </h:panelGroup>
+                                    </ui:repeat>
                                 </div>
                             </div>
                         </div>
                     </p:tab>
 
-                    <!-- Tab: Classificação (Pontos Corridos) -->
+                    <!-- Tab: Tabela (Pontos Corridos) -->
                     <p:tab title="Classificação" 
                            rendered="#{managerCamp.camp.tipoCampeonato == 'PONTOS_CORRIDOS'}">
-                        <h2 class="text-900 font-bold text-2xl mb-4">
-                            <i class="pi pi-list mr-2"></i>Tabela de Classificação
-                        </h2>
+                        <div class="section-header">
+                            <h2><i class="pi pi-list"></i> Tabela de Classificação</h2>
+                        </div>
 
-                        <p:dataTable value="#{managerCamp.classificacao}" 
+                        <p:dataTable value="#{campeonatoView.classificacao}" 
                                      var="time"
                                      styleClass="p-datatable-striped"
                                      paginator="false">
@@ -645,99 +562,113 @@
                             </p:column>
 
                             <p:column headerText="Time">
-                                <div class="flex align-items-center gap-2">
-                                    <div class="participant-avatar" style="width: 35px; height: 35px; font-size: 14px; margin: 0;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="participant-avatar" style="width: 40px; height: 40px; font-size: 16px; margin: 0;">
                                         <h:panelGroup rendered="#{time.logo != null}">
                                             <p:graphicImage value="#{time.logo.url}" 
-                                                            style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" />
+                                                          style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" />
                                         </h:panelGroup>
                                         <h:panelGroup rendered="#{time.logo == null}">
                                             #{time.nome.substring(0,1)}
                                         </h:panelGroup>
                                     </div>
-                                    <span class="font-semibold">#{time.nome}</span>
+                                    <strong>#{time.nome}</strong>
                                 </div>
                             </p:column>
 
                             <p:column headerText="P" style="width: 60px; text-align: center;">
-                                <strong>#{time.pontos}</strong>
+                                <h:outputText value="#{time.pontos}" />
                             </p:column>
 
                             <p:column headerText="J" style="width: 60px; text-align: center;">
-                                #{time.jogos}
+                                <h:outputText value="#{time.jogos}" />
                             </p:column>
 
                             <p:column headerText="V" style="width: 60px; text-align: center;">
-                                #{time.vitorias}
+                                <h:outputText value="#{time.vitorias}" />
                             </p:column>
 
                             <p:column headerText="E" style="width: 60px; text-align: center;">
-                                #{time.empates}
+                                <h:outputText value="#{time.empates}" />
                             </p:column>
 
                             <p:column headerText="D" style="width: 60px; text-align: center;">
-                                #{time.derrotas}
+                                <h:outputText value="#{time.derrotas}" />
                             </p:column>
 
                             <p:column headerText="GP" style="width: 60px; text-align: center;">
-                                #{time.golsPro}
+                                <h:outputText value="#{time.golsPro}" />
                             </p:column>
 
                             <p:column headerText="GC" style="width: 60px; text-align: center;">
-                                #{time.golsContra}
+                                <h:outputText value="#{time.golsContra}" />
                             </p:column>
 
                             <p:column headerText="SG" style="width: 60px; text-align: center;">
-                                #{time.saldoGols}
+                                <h:outputText value="#{time.saldoGols}" />
                             </p:column>
                         </p:dataTable>
                     </p:tab>
 
                     <!-- Tab: Estatísticas -->
                     <p:tab title="Estatísticas">
-                        <h2 class="text-900 font-bold text-2xl mb-4">
-                            <i class="pi pi-chart-bar mr-2"></i>Estatísticas do Campeonato
-                        </h2>
+                        <div class="section-header">
+                            <h2><i class="pi pi-chart-bar"></i> Estatísticas do Campeonato</h2>
+                        </div>
 
-                        <div class="grid mb-4">
-                            <div class="col-12 md:col-6 lg:col-3">
-                                <div class="surface-100 border-round p-4 text-center">
-                                    <div class="text-4xl font-bold text-900 mb-2">0</div>
-                                    <div class="text-600 font-semibold">Total de Partidas</div>
-                                </div>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-value">#{campeonatoView.totalPartidas}</div>
+                                <div class="stat-label">Total de Partidas</div>
                             </div>
 
-                            <div class="col-12 md:col-6 lg:col-3">
-                                <div class="surface-100 border-round p-4 text-center">
-                                    <div class="text-4xl font-bold text-900 mb-2">0</div>
-                                    <div class="text-600 font-semibold">Partidas Realizadas</div>
-                                </div>
+                            <div class="stat-box">
+                                <div class="stat-value">#{campeonatoView.partidasRealizadas}</div>
+                                <div class="stat-label">Partidas Realizadas</div>
                             </div>
 
-                           
+                            <div class="stat-box">
+                                <div class="stat-value">#{campeonatoView.totalGols}</div>
+                                <div class="stat-label">Total de Gols</div>
+                            </div>
+
+                            <div class="stat-box">
+                                <div class="stat-value">#{campeonatoView.mediaGols}</div>
+                                <div class="stat-label">Média de Gols/Partida</div>
+                            </div>
+
+                            <div class="stat-box">
+                                <div class="stat-value">#{campeonatoView.totalParticipantes}</div>
+                                <div class="stat-label">Participantes</div>
+                            </div>
+
+                            <div class="stat-box">
+                                <div class="stat-value">#{campeonatoView.maiorGoleada}</div>
+                                <div class="stat-label">Maior Goleada</div>
+                            </div>
                         </div>
 
                         <p:divider />
 
-                        <h3 class="text-900 font-semibold text-xl mb-3">
-                            <i class="pi pi-star-fill text-yellow-500 mr-2"></i>Artilheiros
+                        <h3 style="margin-top: 30px; margin-bottom: 15px; color: #495057;">
+                            <i class="pi pi-star-fill" style="color: #ffc107;"></i> Artilheiros
                         </h3>
 
-                        <p:dataTable value="#{managerCamp.artilheiros}" 
+                        <p:dataTable value="#{campeonatoView.artilheiros}" 
                                      var="jogador"
                                      styleClass="p-datatable-sm"
-                                     rows="10"
+                                     rows="5"
                                      paginator="false">
-                            <p:column headerText="#" style="width: 50px; text-align: center;">
+                            <p:column headerText="#" style="width: 50px;">
                                 #{jogador.posicao}
                             </p:column>
 
                             <p:column headerText="Jogador">
-                                <div class="flex align-items-center gap-2">
+                                <div style="display: flex; align-items: center; gap: 10px;">
                                     <div class="participant-avatar" style="width: 35px; height: 35px; font-size: 14px; margin: 0;">
                                         #{jogador.nome.substring(0,1)}
                                     </div>
-                                    <span>#{jogador.nome}</span>
+                                    #{jogador.nome}
                                 </div>
                             </p:column>
 
@@ -746,7 +677,7 @@
                             </p:column>
 
                             <p:column headerText="Gols" style="width: 80px; text-align: center;">
-                                <strong class="text-primary">#{jogador.gols}</strong>
+                                <strong>#{jogador.gols}</strong>
                             </p:column>
                         </p:dataTable>
                     </p:tab>
@@ -754,265 +685,13 @@
             </div>
 
             <!-- Botão Voltar -->
-            <div class="text-center mt-4">
-                <p:commandButton value="Voltar para Campeonatos" 
-                                 icon="pi pi-arrow-left"
-                                 styleClass="p-button-outlined"
-                                 action="/campeonatos?faces-redirect=true" />
+            <div style="text-align: center; margin-top: 20px;">
+                <p:button value="Voltar para Campeonatos" 
+                          icon="pi pi-arrow-left"
+                          styleClass="p-button-secondary p-button-outlined"
+                          outcome="/campeonatos" />
             </div>
-
-        </h:form>
-
-        <!-- Dialog de Check-in -->
-        <p:dialog header="Check-in de Participantes" 
-                  widgetVar="dlgCheckin" 
-                  modal="true" 
-                  width="600"
-                  responsive="true">
-            <h:form id="formCheckin">
-                <p class="text-600 mb-3">Selecione os participantes que fizeram check-in:</p>
-
-                <p:dataTable value="#{managerCamp.participantes}" 
-                             var="participante"
-                             selection="#{managerCamp.participantesCheckin}"
-                             rowKey="#{participante.id}"
-                             styleClass="p-datatable-sm">
-                    <p:column selectionMode="multiple" style="width: 50px; text-align: center;" />
-
-                    <p:column headerText="Participante">
-                        <div class="flex align-items-center gap-2">
-                            <div class="participant-avatar" style="width: 30px; height: 30px; font-size: 12px; margin: 0;">
-                                #{participante.nome.substring(0,1)}
-                            </div>
-                            <span>#{participante.nome}</span>
-                        </div>
-                    </p:column>
-                </p:dataTable>
-
-                <div class="flex justify-content-end gap-2 mt-4">
-                    <p:commandButton value="Cancelar" 
-                                     icon="pi pi-times"
-                                     styleClass="p-button-outlined"
-                                     onclick="PF('dlgCheckin').hide();" 
-                                     type="button" />
-                    <p:commandButton value="Confirmar Check-in" 
-                                     icon="pi pi-check"
-                                     styleClass="p-button-success"
-                                     action="#{managerCamp.confirmarCheckin()}"
-                                     update=":formCampeonato"
-                                     oncomplete="PF('dlgCheckin').hide();" />
-                </div>
-            </h:form>
-        </p:dialog>
-
-        <style>
-            .participant-avatar {
-                border-radius: 50%;
-                background-color: var(--surface-100);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: bold;
-                color: var(--text-color-secondary);
-            }
-
-            .p-button-plain {
-                color: var(--text-color-secondary);
-                font-weight: 500;
-            }
-
-            .p-button-plain:hover {
-                color: var(--text-color);
-                background-color: transparent !important;
-            }
-
-            /* Bracket Styles */
-            .bracket-container {
-                overflow-x: auto;
-                padding: 20px 0;
-            }
-
-            .bracket-round {
-                min-width: 220px;
-            }
-
-            .bracket-match {
-                background: var(--surface-card);
-                border: 1px solid var(--surface-border);
-                border-radius: 6px;
-                overflow: hidden;
-            }
-
-            .bracket-team {
-                padding: 12px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 1px solid var(--surface-border);
-            }
-
-            .bracket-team:last-child {
-                border-bottom: none;
-            }
-
-            .bracket-team.winner {
-                background-color: var(--green-50);
-                font-weight: 600;
-            }
-
-            .bracket-team-name {
-                flex: 1;
-            }
-
-            .bracket-team-score {
-                font-weight: bold;
-                margin-left: 10px;
-            }
-
-            /* Swiss System Styles */
-            .swiss-container {
-                overflow-x: auto;
-                padding: 20px 0;
-                background: var(--surface-50);
-                border-radius: 8px;
-            }
-
-            .swiss-system {
-                display: flex;
-                gap: 15px;
-                min-width: max-content;
-                padding: 20px;
-            }
-
-            .swiss-column {
-                min-width: 200px;
-                background: var(--surface-card);
-                border-radius: 8px;
-                padding: 10px;
-                border: 2px solid var(--surface-border);
-            }
-
-            .swiss-column-header {
-                text-align: center;
-                padding: 10px;
-                background: var(--surface-100);
-                border-radius: 6px;
-                margin-bottom: 15px;
-            }
-
-            .swiss-record {
-                font-size: 18px;
-                font-weight: bold;
-                color: var(--text-color);
-            }
-
-            .swiss-matches {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .swiss-match {
-                background: var(--surface-0);
-                border: 1px solid var(--surface-border);
-                border-radius: 6px;
-                padding: 10px;
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-                position: relative;
-            }
-
-            .swiss-team {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-
-            .swiss-team-logo {
-                width: 30px;
-                height: 30px;
-                border-radius: 50%;
-                background: var(--surface-100);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: bold;
-                font-size: 12px;
-                color: var(--text-color-secondary);
-                flex-shrink: 0;
-            }
-
-            .swiss-team-name {
-                font-size: 13px;
-                font-weight: 500;
-                color: var(--text-color);
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .swiss-vs {
-                text-align: center;
-                font-size: 11px;
-                font-weight: 600;
-                color: var(--text-color-secondary);
-            }
-
-            .swiss-arrow {
-                position: absolute;
-                right: 8px;
-                top: 50%;
-                transform: translateY(-50%);
-                font-size: 16px;
-            }
-
-            /* Qualified teams (green) */
-            .swiss-column.swiss-qualified {
-                border-color: var(--green-500);
-                background: linear-gradient(to bottom, var(--green-50), var(--surface-card));
-            }
-
-            .swiss-column.swiss-qualified .swiss-column-header {
-                background: var(--green-100);
-                color: var(--green-900);
-            }
-
-            .swiss-match.qualified {
-                background: var(--green-50);
-                border-color: var(--green-200);
-            }
-
-            /* Eliminated teams (red) */
-            .swiss-column.swiss-eliminated {
-                border-color: var(--red-500);
-                background: linear-gradient(to bottom, var(--red-50), var(--surface-card));
-            }
-
-            .swiss-column.swiss-eliminated .swiss-column-header {
-                background: var(--red-100);
-                color: var(--red-900);
-            }
-
-            .swiss-match.eliminated {
-                background: var(--red-50);
-                border-color: var(--red-200);
-            }
-
-            /* Responsive */
-            @media (max-width: 768px) {
-                .swiss-system {
-                    padding: 10px;
-                }
-
-                .swiss-column {
-                    min-width: 180px;
-                }
-
-                .swiss-team-name {
-                    font-size: 12px;
-                }
-            }
-        </style>
-    </ui:define>
-</ui:composition>
+        </div>
+    </h:form>
+</h:body>
+</html>
