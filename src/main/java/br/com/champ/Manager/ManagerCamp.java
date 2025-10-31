@@ -21,9 +21,11 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -503,6 +505,125 @@ public class ManagerCamp implements Serializable {
 
     public void setFinais(List<Partida> finais) {
         this.finais = finais;
+    }
+
+    // Helpers para view
+    public int getTimesConfirmados(Campeonato camp) {
+        if (camp != null && camp.getTeams() != null) {
+            return camp.getTeams().size();
+        }
+        return 0;
+    }
+
+    public String formataData(Date data) {
+        if (data != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            return sdf.format(data);
+        }
+        return "—";
+    }
+
+    // Helpers para Swiss System
+    public List<SwissRound> getRodadasSuicas() {
+        List<SwissRound> rodadas = new ArrayList<>();
+        if (camp == null || camp.getTipoCampeonato() == null || !camp.getTipoCampeonato().getNome().equals("SUÍÇO")) {
+            return rodadas;
+        }
+        
+        // Mapear todas as rodadas suíças disponíveis
+        if (camp.getRodadaSuica00() != null && !camp.getRodadaSuica00().isEmpty()) {
+            rodadas.add(new SwissRound("0:0", camp.getRodadaSuica00()));
+        }
+        if (camp.getRodadaSuica01() != null && !camp.getRodadaSuica01().isEmpty()) {
+            rodadas.add(new SwissRound("0:1", camp.getRodadaSuica01()));
+        }
+        if (camp.getRodadaSuica02() != null && !camp.getRodadaSuica02().isEmpty()) {
+            rodadas.add(new SwissRound("0:2", camp.getRodadaSuica02()));
+        }
+        if (camp.getRodadaSuica03() != null && !camp.getRodadaSuica03().isEmpty()) {
+            rodadas.add(new SwissRound("0:3", camp.getRodadaSuica03()));
+        }
+        if (camp.getRodadaSuica10() != null && !camp.getRodadaSuica10().isEmpty()) {
+            rodadas.add(new SwissRound("1:0", camp.getRodadaSuica10()));
+        }
+        if (camp.getRodadaSuica11() != null && !camp.getRodadaSuica11().isEmpty()) {
+            rodadas.add(new SwissRound("1:1", camp.getRodadaSuica11()));
+        }
+        if (camp.getRodadaSuica12() != null && !camp.getRodadaSuica12().isEmpty()) {
+            rodadas.add(new SwissRound("1:2", camp.getRodadaSuica12()));
+        }
+        if (camp.getRodadaSuica13() != null && !camp.getRodadaSuica13().isEmpty()) {
+            rodadas.add(new SwissRound("1:3", camp.getRodadaSuica13()));
+        }
+        if (camp.getRodadaSuica20() != null && !camp.getRodadaSuica20().isEmpty()) {
+            rodadas.add(new SwissRound("2:0", camp.getRodadaSuica20()));
+        }
+        if (camp.getRodadaSuica21() != null && !camp.getRodadaSuica21().isEmpty()) {
+            rodadas.add(new SwissRound("2:1", camp.getRodadaSuica21()));
+        }
+        if (camp.getRodadaSuica22() != null && !camp.getRodadaSuica22().isEmpty()) {
+            rodadas.add(new SwissRound("2:2", camp.getRodadaSuica22()));
+        }
+        if (camp.getRodadaSuica23() != null && !camp.getRodadaSuica23().isEmpty()) {
+            rodadas.add(new SwissRound("2:3", camp.getRodadaSuica23()));
+        }
+        if (camp.getRodadaSuica30() != null && !camp.getRodadaSuica30().isEmpty()) {
+            rodadas.add(new SwissRound("3:0", camp.getRodadaSuica30()));
+        }
+        if (camp.getRodadaSuica31() != null && !camp.getRodadaSuica31().isEmpty()) {
+            rodadas.add(new SwissRound("3:1", camp.getRodadaSuica31()));
+        }
+        if (camp.getRodadaSuica32() != null && !camp.getRodadaSuica32().isEmpty()) {
+            rodadas.add(new SwissRound("3:2", camp.getRodadaSuica32()));
+        }
+        
+        return rodadas;
+    }
+
+    public boolean isRodadaAtualFinalizada(SwissRound rodada) {
+        if (rodada == null || rodada.partidas == null || rodada.partidas.isEmpty()) {
+            return true;
+        }
+        for (Partida p : rodada.partidas) {
+            if (!p.isFinalizada()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean podeMostrarProximaRodada() {
+        List<SwissRound> rodadas = getRodadasSuicas();
+        if (rodadas.isEmpty()) {
+            return false;
+        }
+        // Verifica se a última rodada está finalizada
+        SwissRound ultimaRodada = rodadas.get(rodadas.size() - 1);
+        return isRodadaAtualFinalizada(ultimaRodada);
+    }
+
+    public void gerarProximaRodada() {
+        // TODO: Implementar lógica de geração da próxima rodada suíça
+        Mensagem.success("Próxima rodada gerada com sucesso!");
+    }
+
+    // Classe interna para representar uma rodada suíça
+    public static class SwissRound {
+        public String record;
+        public List<Partida> partidas;
+
+        public SwissRound(String record, List<Partida> partidas) {
+            this.record = record;
+            this.partidas = partidas;
+        }
+
+        public String getRecord() {
+            return record;
+        }
+
+        public List<Partida> getPartidas() {
+            return partidas;
+        }
     }
 
 }

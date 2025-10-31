@@ -13,6 +13,190 @@
     
     <link rel="stylesheet" href="media/css2/style.css"/>     
     <link rel="stylesheet" href="https://unpkg.com/primeflex@latest/primeflex.css"/>
+    
+    <style>
+        :root{
+            --bg-900:#0f1217; --bg-850:#121722; --bg-800:#141923; --bg-700:#1a2030;
+            --text-100:#e6ebf2; --text-300:#b7c1d1; --muted:#8b93a6;
+            --accent:#00e1ff; --accent-2:#ff8a3d; --success:#22c55e;
+            --border:rgba(255,255,255,0.06); --shadow:0 12px 28px rgba(0,0,0,.45);
+            --radius:14px;
+        }
+        html, body { height: 100%; }
+        body{
+            background:
+                radial-gradient(1200px 500px at -10% -10%, rgba(0,225,255,.06), transparent),
+                radial-gradient(1000px 500px at 110% -10%, rgba(255,138,61,.05), transparent),
+                linear-gradient(180deg, var(--bg-850), var(--bg-900));
+            color: var(--text-100);
+            -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+        }
+        .container{
+            max-width: 1200px; margin: 0 auto; padding: 1.25rem 1rem 2rem;
+        }
+        /* Header */
+        .header{
+            position: sticky; top: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: .75rem 1rem; margin: .75rem 0 0;
+            background: linear-gradient(180deg, var(--bg-800), var(--bg-900));
+            border: 1px solid var(--border); border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: saturate(120%) blur(6px);
+        }
+        .logo{ display:flex; align-items:center; gap:.5rem; color: var(--text-100) !important; font-weight: 800; letter-spacing:.2px; }
+        .logo:hover{ color: var(--accent) !important; }
+        /* Menubar */
+        .nav-menu{ background: transparent; border: none; color: var(--text-300); }
+        .nav-menu .ui-menuitem-link{
+            border-radius: 10px; transition: background .2s ease, color .2s ease, transform .15s ease;
+        }
+        .nav-menu .ui-menuitem-link:hover{ background: rgba(255,255,255,.06); color: var(--text-100); transform: translateY(-1px); }
+        .nav-menu .ui-menuitem-icon{ color: var(--accent); }
+        /* Buttons */
+        .auth-buttons .p-button{ border-color: rgba(0,225,255,.35) !important; color: var(--text-100) !important; }
+        .auth-buttons .p-button:hover{ box-shadow: 0 0 0 1px rgba(0,225,255,.2), 0 0 22px rgba(0,225,255,.08); }
+        /* Main */
+        main.container{ margin-top: 1rem; }
+        /* PrimeFaces common overrides */
+        .p-card, .ui-panel{ background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important; border:1px solid var(--border) !important; border-radius: var(--radius) !important; box-shadow: var(--shadow) !important; }
+        .glass-card, .glass-panel .ui-panel-content{ background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important; border:1px solid var(--border) !important; border-radius: var(--radius) !important; box-shadow: var(--shadow) !important; }
+        .p-button, .ui-button{ transition: transform .15s ease, box-shadow .15s ease; }
+        .p-button:hover, .ui-button:hover{ transform: translateY(-1px); box-shadow: var(--shadow); }
+        .ui-widget{ color: var(--text-100); }
+        .ui-widget input, .ui-widget select, .ui-widget textarea{ background: var(--bg-700); border:1px solid var(--border); color: var(--text-100); border-radius:10px; }
+        .ui-widget .ui-state-highlight{ background: rgba(0,225,255,.12); border-color: rgba(0,225,255,.25); }
+
+        /* InputGroup dark defaults + glass variants */
+        .p-inputgroup-addon, .ui-inputgroup-addon{ background: rgba(255,255,255,0.04); border:1px solid var(--border); color: var(--text-300); }
+        .p-inputtext, .ui-inputtext{ background: rgba(255,255,255,0.03); border:1px solid var(--border); color: var(--text-100); }
+        .search-group .glass-addon{ background: rgba(255,255,255,0.04) !important; border:1px solid rgba(255,255,255,0.08) !important; color: var(--text-300) !important; }
+        .search-group .glass-input{ background: rgba(255,255,255,0.03) !important; border:1px solid rgba(255,255,255,0.08) !important; color: var(--text-100) !important; }
+        .search-group .glass-input::placeholder{ color:#98a2b3; }
+        .search-group .glass-input:focus{ box-shadow: 0 0 0 1px rgba(0,225,255,0.18), 0 0 16px rgba(0,225,255,0.08); border-color: rgba(0,225,255,0.35) !important; }
+
+        /* Elegant DataTable (global) */
+        .elegant-table .ui-datatable{ background: transparent !important; border:none !important; }
+        .elegant-table .ui-datatable-tablewrapper{ background: transparent !important; }
+        .elegant-table .ui-datatable-tablewrapper table{ border-collapse: separate; border-spacing: 0 8px; background: transparent !important; }
+        .elegant-table thead tr th, .elegant-table thead tr th.ui-state-default{ background: rgba(255,255,255,0.02) !important; color: var(--text-300) !important; text-transform: uppercase; font-size: .75rem; letter-spacing: .8px; font-weight: 700; border: none !important; padding: .6rem .9rem !important; }
+        .elegant-table thead .ui-sortable-column-icon{ color: var(--text-300) !important; opacity: .8; }
+        .elegant-table .ui-datatable-data > tr{ background: linear-gradient(135deg, var(--bg-800), var(--bg-900)); border:1px solid var(--border); border-radius: 10px; transition: all .2s ease; }
+        .elegant-table .ui-datatable-data > tr:hover{ transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.4); background: linear-gradient(135deg, var(--bg-700), var(--bg-800)); }
+        .elegant-table .ui-datatable-data > tr td{ border:none !important; padding: .75rem .9rem !important; vertical-align: middle; color: var(--text-100) !important; background: transparent !important; }
+        .elegant-table .ui-datatable-header, .elegant-table .ui-datatable-footer{ background: transparent !important; border:none !important; color: var(--text-300) !important; }
+        .elegant-table .ui-paginator{ background: transparent !important; border:none !important; color: var(--text-300) !important; margin-top: .5rem; }
+        .elegant-table .ui-paginator .ui-paginator-page,
+        .elegant-table .ui-paginator .ui-paginator-next,
+        .elegant-table .ui-paginator .ui-paginator-prev,
+        .elegant-table .ui-paginator .ui-paginator-first,
+        .elegant-table .ui-paginator .ui-paginator-last{
+            background: rgba(255,255,255,0.04) !important; border:1px solid rgba(255,255,255,0.08) !important; color: var(--text-300) !important; border-radius: 8px;
+        }
+        .elegant-table .ui-paginator .ui-paginator-page.ui-state-active{ background: rgba(0,225,255,0.12) !important; border-color: rgba(0,225,255,0.35) !important; color: var(--text-100) !important; }
+        
+        /* Messages (global glass) */
+        .ui-messages, .p-messages{
+            background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-100) !important;
+            border-radius: var(--radius) !important;
+            box-shadow: var(--shadow) !important;
+        }
+        .ui-messages .ui-messages-info, .p-message-info{ border-left: 3px solid var(--accent) !important; }
+        .ui-messages .ui-messages-warn, .p-message-warn{ border-left: 3px solid var(--warning) !important; }
+        .ui-messages .ui-messages-error, .p-message-error{ border-left: 3px solid #ef4444 !important; }
+        .ui-messages .ui-messages-fatal{ border-left: 3px solid #ef4444 !important; }
+        .ui-messages > div, .p-message{ background: transparent !important; border: none !important; color: var(--text-100) !important; }
+        .ui-messages .ui-messages-close{ color: var(--text-300) !important; }
+
+        /* Dialog (global glass) */
+        .ui-dialog{ background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important; border: 1px solid var(--border) !important; border-radius: var(--radius) !important; box-shadow: var(--shadow) !important; }
+        .ui-dialog .ui-dialog-titlebar{ background: transparent !important; border: none !important; color: var(--text-100) !important; font-weight: 700; }
+        .ui-dialog .ui-dialog-content{ color: var(--text-100) !important; }
+        .ui-dialog .ui-dialog-titlebar-icon{ color: var(--text-300) !important; border-radius: 8px; }
+        .ui-dialog .ui-dialog-titlebar-icon:hover{ background: rgba(255,255,255,0.06) !important; color: var(--text-100) !important; }
+        
+        /* TabView (global glass) - FORÇAR TEMA DARK */
+        .ui-tabview, .p-tabview{ 
+            background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important; 
+            border: none !important; 
+        }
+        .ui-tabview-nav, .p-tabview-nav{ 
+            background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important; 
+            border: none !important; 
+            border-bottom: 2px solid var(--border) !important; 
+        }
+        .ui-tabview-nav li, .p-tabview-nav li{ 
+            background: transparent !important; 
+        }
+        .ui-tabview-nav li a,
+        .ui-tabview-nav li .ui-tabview-title,
+        .p-tabview-nav li .p-tabview-nav-link{ 
+            color: var(--text-300) !important; 
+            background: rgba(255,255,255,0.02) !important; 
+            border: 1px solid var(--border) !important; 
+            border-bottom: none !important; 
+            margin-right: .25rem !important;
+            border-radius: 12px 12px 0 0 !important;
+        }
+        .ui-tabview-nav li a *,
+        .ui-tabview-nav li .ui-tabview-title *,
+        .ui-tabview-nav li span,
+        .p-tabview-nav li .p-tabview-nav-link * {
+            color: var(--text-300) !important;
+        }
+        .ui-tabview-nav li.ui-state-active a,
+        .ui-tabview-nav li.ui-state-active .ui-tabview-title,
+        .p-tabview-nav li .p-tabview-nav-link-active,
+        .p-tabview-nav li.p-highlight .p-tabview-nav-link{ 
+            color: var(--text-100) !important; 
+            background: rgba(0,225,255,0.1) !important; 
+            border-color: rgba(0,225,255,0.25) !important; 
+            border-bottom: none !important; 
+        }
+        .ui-tabview-nav li.ui-state-active a *,
+        .ui-tabview-nav li.ui-state-active .ui-tabview-title *,
+        .ui-tabview-nav li.ui-state-active span,
+        .p-tabview-nav li.p-highlight .p-tabview-nav-link * {
+            color: var(--text-100) !important;
+        }
+        .ui-tabview-nav li a:hover,
+        .ui-tabview-nav li .ui-tabview-title:hover,
+        .p-tabview-nav li .p-tabview-nav-link:hover{ 
+            color: var(--text-100) !important; 
+            background: rgba(255,255,255,0.04) !important; 
+        }
+        .ui-tabview-nav li a:hover *,
+        .ui-tabview-nav li .ui-tabview-title:hover *,
+        .ui-tabview-nav li:hover span,
+        .p-tabview-nav li .p-tabview-nav-link:hover * {
+            color: var(--text-100) !important;
+        }
+        .ui-tabview-panels, .p-tabview-panels{ 
+            background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important; 
+            border: none !important; 
+            padding: 1.5rem !important; 
+        }
+        .ui-tabview-panel, .p-tabview-panel{ 
+            background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important; 
+            color: var(--text-100) !important;
+        }
+        
+        /* Forçar cores de texto nas abas e conteúdo */
+        .ui-tabview .ui-widget,
+        .ui-tabview .ui-widget-content,
+        .ui-tabview .ui-widget-header,
+        .p-tabview .ui-widget,
+        .p-tabview .ui-widget-content {
+            background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important;
+            color: var(--text-100) !important;
+        }
+        @media (max-width: 768px){
+            .header{ border-radius: 12px; }
+            .nav-menu{ width: 100%; }
+        }
+    </style>
 </h:head>
 
 <h:body>

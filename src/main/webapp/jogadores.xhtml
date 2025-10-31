@@ -8,25 +8,25 @@
     <ui:define name="content">
         <div class="section-header">
             <h1 class="section-title">Jogadores</h1>
-            <p:button value="Novo Jogador" icon="pi pi-plus" outcome="criarJogador.xhtml" styleClass="p-button-success" />
+            <p:button value="Novo Jogador" icon="pi pi-plus" outcome="criarJogador.xhtml" styleClass="p-button-outlined full-stats-btn" />
         </div>
         
-        <p:card>
+        <p:card styleClass="glass-card">
             <h:form id="jogadoresForm">
                 <div class="p-grid">
                     <div class="p-col-12">
-                        <div class="p-inputgroup mb-3">
-                            <span class="p-inputgroup-addon">
+                        <div class="p-inputgroup mb-3 search-group">
+                            <span class="p-inputgroup-addon glass-addon">
                                 <i class="pi pi-search"></i>
                             </span>
-                            <p:inputText id="searchInput" placeholder="Buscar jogador..." styleClass="w-100" 
+                            <p:inputText id="searchInput" placeholder="Buscar jogador..." styleClass="w-100 glass-input" 
                                          value="#{managerPlayer.termoBusca}">
                                 <p:ajax event="keyup" listener="#{managerPlayer.pesquisarPlayer()}" 
                                        update="jogadoresTable initialMessage noResultsMessage loadingIndicator" 
                                        delay="500" global="false" />
                             </p:inputText>
-                            <span class="p-inputgroup-addon">
-                                <p:commandButton id="clearButton" icon="pi pi-times" styleClass="p-button-secondary" 
+                            <span class="p-inputgroup-addon glass-addon">
+                                <p:commandButton id="clearButton" icon="pi pi-times" styleClass="p-button-text" 
                                                actionListener="#{managerPlayer.limparBusca()}" 
                                                update="searchInput jogadoresTable initialMessage noResultsMessage" 
                                                process="@this" />
@@ -62,24 +62,30 @@
                 </p:outputPanel>
                 
                 <p:dataTable id="jogadoresTable" var="jogador" value="#{managerPlayer.players}" 
-                            styleClass="border-none" 
+                            styleClass="elegant-table" 
                             style="display: #{managerPlayer.temResultados ? 'table' : 'none'};"
-                            emptyMessage="Nenhum jogador encontrado">
+                            emptyMessage="Nenhum jogador encontrado"
+                            paginator="true" rows="10"
+                            rowsPerPageTemplate="10,20,50"
+                            paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} jogadores">
                     
                     <p:column headerText="Foto" style="width: 80px; text-align: center;">
                         <div class="player-avatar-small">
                             <p:graphicImage value="image/#{jogador.anexo.nome}" rendered="#{jogador.anexo ne null}" styleClass="player-photo-small" />
-                            <div class="player-photo-placeholder-small" rendered="#{jogador.anexo eq null}">
-                                <i class="pi pi-user"></i>
-                            </div>
+                            <h:panelGroup rendered="#{jogador.anexo eq null}">
+                                <div class="player-photo-placeholder-small dark">
+                                    <i class="pi pi-user"></i>
+                                </div>
+                            </h:panelGroup>
                         </div>
                     </p:column>
                     
-                    <p:column headerText="Nome">
+                    <p:column headerText="Nome" sortBy="#{jogador.nome}">
                         <h:outputText value="#{jogador.nome}" />
                     </p:column>
                     
-                    <p:column headerText="Nickname">
+                    <p:column headerText="Nickname" sortBy="#{jogador.nick}">
                         <h:outputText value="#{jogador.nick}" />
                     </p:column>
                     
@@ -93,12 +99,12 @@
                         </div>
                     </p:column>
                     
-                    <p:column headerText="Ações" style="width: 100px; text-align: center;">
-                        <p:link outcome="jogador.xhtml" styleClass="action-icon">
+                    <p:column headerText="Ações" style="width: 120px; text-align: center;">
+                        <p:link outcome="jogador.xhtml" styleClass="action-icon neon-action">
                             <i class="pi pi-eye"></i>
                             <f:param name="id" value="#{jogador.id}" />
                         </p:link>                       
-                        <p:commandLink styleClass="action-icon" onclick="PF('confirmDialog').show()">
+                        <p:commandLink type="button" styleClass="action-icon danger" onclick="PF('confirmDialog').show()">
                             <i class="pi pi-trash"></i>
                             <f:setPropertyActionListener value="#{jogador}" target="#{managerPlayer.playerSelecionado}" />
                         </p:commandLink>
@@ -118,8 +124,18 @@
             </h:form>
         </p:card>
         
-        <!-- Estilos adicionais -->
+        <!-- Estilos adicionais (tema dark elegante) -->
         <style type="text/css">
+            /* Força tema dark no grupo de busca */
+            .search-group .glass-addon { background: rgba(255,255,255,0.04) !important; border: 1px solid rgba(255,255,255,0.08) !important; color: var(--text-300) !important; }
+            .search-group .glass-input { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.08) !important; color: var(--text-100) !important; }
+            .search-group .glass-input:focus { box-shadow: 0 0 0 1px rgba(0,225,255,0.18), 0 0 16px rgba(0,225,255,0.08); border-color: rgba(0,225,255,0.35) !important; }
+            .search-group .glass-input::placeholder { color: #98a2b3; }
+            .search-group .ui-inputfield { background: transparent !important; color: var(--text-100) !important; }
+            /* Compatibilidade com possíveis classes antigas */
+            .search-group .p-inputgroup-addon, .search-group .ui-inputgroup-addon { background: rgba(255,255,255,0.04) !important; border: 1px solid rgba(255,255,255,0.08) !important; color: var(--text-300) !important; }
+            .search-group .p-inputtext, .search-group .ui-inputtext { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.08) !important; color: var(--text-100) !important; }
+
             .player-avatar-small {
                 width: 40px;
                 height: 40px;
@@ -134,30 +150,49 @@
                 object-fit: cover;
             }
             
-            .player-photo-placeholder-small {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-                height: 100%;
-                background-color: #f8f9fa;
-                color: #adb5bd;
-                font-size: 1.2rem;
-            }
+            .player-photo-placeholder-small { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 1.2rem; }
+            .player-photo-placeholder-small.dark { background: rgba(255,255,255,0.06); color: #8b93a6; }
             
-            .action-icon {
-                color: #6c757d;
-                margin: 0 0.25rem;
-                font-size: 1.1rem;
-            }
-            
-            .action-icon:hover {
-                color: #343a40;
-            }
+            .action-icon { color: var(--text-300); margin: 0 0.35rem; font-size: 1.1rem; transition: transform .15s ease, color .15s ease; }
+            .action-icon:hover { color: var(--text-100); transform: translateY(-1px); }
+            .action-icon.neon-action { color: var(--accent); }
+            .action-icon.danger { color: #ef4444; }
             
             .player-games .p-badge {
                 font-size: 0.75rem;
                 font-weight: 500;
+            }
+
+            /* Busca glass */
+            .search-group .glass-addon { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); }
+            .search-group .glass-input { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); color: var(--text-100); }
+            .search-group .glass-input::placeholder { color: #98a2b3; }
+
+            /* Tabela elegante (alinhada com jogador.xhtml) */
+            .elegant-table .ui-datatable { background: transparent !important; border: none !important; }
+            .elegant-table .ui-datatable-tablewrapper { background: transparent !important; }
+            .elegant-table .ui-datatable-tablewrapper table { border-collapse: separate; border-spacing: 0 8px; background: transparent !important; }
+            .elegant-table thead tr th, .elegant-table thead tr th.ui-state-default { background: rgba(255,255,255,0.02) !important; color: var(--text-300) !important; text-transform: uppercase; font-size: .75rem; letter-spacing: .8px; font-weight: 700; border: none !important; padding: .6rem .9rem !important; }
+            .elegant-table thead .ui-sortable-column-icon { color: var(--text-300) !important; opacity: .8; }
+            .elegant-table .ui-datatable-header, .elegant-table .ui-datatable-footer { background: transparent !important; border: none !important; color: var(--text-300) !important; }
+            .elegant-table .ui-datatable-data > tr { background: linear-gradient(135deg, var(--bg-800), var(--bg-900)); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; transition: all .2s ease; }
+            .elegant-table .ui-datatable-data > tr:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.4); background: linear-gradient(135deg, var(--bg-700), var(--bg-800)); }
+            .elegant-table .ui-datatable-data > tr td { border: none !important; padding: .75rem .9rem !important; vertical-align: middle; color: var(--text-100) !important; background: transparent !important; }
+            .elegant-table .ui-paginator { background: transparent !important; border: none !important; color: var(--text-300) !important; margin-top: .5rem; }
+            .elegant-table .ui-paginator .ui-paginator-page, 
+            .elegant-table .ui-paginator .ui-paginator-next, 
+            .elegant-table .ui-paginator .ui-paginator-prev, 
+            .elegant-table .ui-paginator .ui-paginator-first, 
+            .elegant-table .ui-paginator .ui-paginator-last {
+                background: rgba(255,255,255,0.04) !important; 
+                border: 1px solid rgba(255,255,255,0.08) !important; 
+                color: var(--text-300) !important; 
+                border-radius: 8px; 
+            }
+            .elegant-table .ui-paginator .ui-paginator-page.ui-state-active {
+                background: rgba(0,225,255,0.12) !important; 
+                border-color: rgba(0,225,255,0.35) !important; 
+                color: var(--text-100) !important;
             }
         </style>
     </ui:define>

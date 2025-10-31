@@ -9,19 +9,15 @@
     <ui:define name="content">
         <h:form id="formVisualizarPartida">
             
-           
-
-            <!-- Header da Partida -->
-            <div class="surface-card shadow-2 border-round mb-4 p-4">
-                <!-- Breadcrumb e Ações -->
-                <div class="flex justify-content-between align-items-center mb-4">
+            <!-- Header Hero da Partida -->
+            <div class="match-hero glass-card mb-4">
+                <div class="match-hero-top">
                     <div class="flex align-items-center gap-2">
                         <p:button icon="pi pi-arrow-left"
-                                         styleClass="p-button-rounded p-button-text"
-                                         outcome="visualizarCampeonato.xhtml?id=#{managerPartida.partida.itemPartida.get(0).camp}"
-                                         rendered="#{managerPartida.partida.itemPartida.get(0).camp != null}"
-                                         title="Voltar ao Campeonato" />
-                        <span class="text-600">
+                                  styleClass="p-button-text"
+                                  outcome="indexPartida.xhtml"
+                                  title="Voltar" />
+                        <span style="color: #98a2b3">
                             <h:outputText value="Campeonato" rendered="#{managerPartida.partida.itemPartida.get(0).camp != null}" />
                             <h:outputText value="Amistoso" rendered="#{managerPartida.partida.itemPartida.get(0).camp == null}" />
                         </span>
@@ -35,69 +31,82 @@
                                          update="@form"
                                          oncomplete="PF('confirmarFinalizarPartidaDialog').show();" />
                         <p:button value="Gerar Mapas"
-                                         icon="pi pi-map"
-                                         styleClass="p-button-outlined"
-                                         rendered="#{managerPartida.partida.finalizada == false}"
-                                         outcome="gerarMapas.xhtml?partidaId=#{managerPartida.partida.id}" />
+                                  icon="pi pi-map"
+                                  styleClass="p-button-outlined"
+                                  rendered="#{managerPartida.partida.finalizada == false}"
+                                  outcome="gerarMapas.xhtml?partidaId=#{managerPartida.partida.id}" />
                     </div>
                 </div>
 
-                <!-- Status e Tipo -->
-                <div class="flex gap-2 mb-3">
+                <!-- Status Badges -->
+                <div class="flex gap-2 mb-4">
                     <h:panelGroup rendered="#{managerPartida.partida.finalizada == false}">
-                        <span class="inline-flex align-items-center gap-2 bg-green-100 text-green-900 px-3 py-1 border-round font-semibold">
-                            <i class="pi pi-circle-fill" style="font-size: 0.5rem; animation: pulse 2s infinite;"></i>
-                            AO VIVO
+                        <span class="status-tag live">
+                            <i class="pi pi-circle-fill"></i>
+                            <span>AO VIVO</span>
                         </span>
                     </h:panelGroup>
                     <h:panelGroup rendered="#{managerPartida.partida.finalizada == true}">
-                        <span class="inline-flex align-items-center gap-2 bg-gray-100 text-gray-900 px-3 py-1 border-round font-semibold">
-                            <i class="pi pi-check-circle"></i>
-                            FINALIZADA
-                        </span>
+                        <span class="status-tag finished">FINALIZADA</span>
                     </h:panelGroup>
 
-                    <span class="inline-flex align-items-center gap-2 bg-blue-100 text-blue-900 px-3 py-1 border-round font-semibold">
+                    <span class="status-tag scheduled">
                         <i class="pi pi-#{managerPartida.partida.itemPartida.get(0).camp != null ? 'trophy' : 'users'}"></i>
-                        #{managerPartida.partida.itemPartida.get(0).camp != null ? 'CAMPEONATO' : 'AMISTOSO'}
+                        <span>#{managerPartida.partida.itemPartida.get(0).camp != null ? 'CAMPEONATO' : 'AMISTOSO'}</span>
                     </span>
 
-                    <span class="surface-100 px-3 py-1 border-round font-semibold text-sm">
-                        MD#{managerPartida.itensPartidas.size()}
+                    <span class="status-tag scheduled">
+                        <i class="pi pi-map"></i>
+                        <span>MD#{managerPartida.itensPartidas.size()}</span>
                     </span>
                 </div>
 
                 <!-- Placar Principal -->
-                <div class="flex justify-content-between align-items-center py-4">
-                    <!-- Time 1 -->
-                    <div class="flex-1 text-center">
-                        <div class="participant-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 32px;">
-                            #{managerPartida.itensPartidas.get(0).team1 != null ? managerPartida.itensPartidas.get(0).team1.nome.substring(0,1) : managerPartida.itensPartidas.get(0).player1.nome.substring(0,1)}
+                <div class="match-score-container">
+                    <div class="match-team-box">
+                        <div class="match-team-avatar-large">
+                            <h:panelGroup rendered="#{managerPartida.itensPartidas.get(0).team1 != null and managerPartida.itensPartidas.get(0).team1.anexo != null}">
+                                <p:graphicImage value="image/#{managerPartida.itensPartidas.get(0).team1.anexo.nome}" 
+                                              styleClass="team-avatar-img" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{managerPartida.itensPartidas.get(0).team1 != null and managerPartida.itensPartidas.get(0).team1.anexo == null}">
+                                #{managerPartida.itensPartidas.get(0).team1.nome.substring(0,1).toUpperCase()}
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{managerPartida.itensPartidas.get(0).player1 != null}">
+                                #{managerPartida.itensPartidas.get(0).player1.nome.substring(0,1).toUpperCase()}
+                            </h:panelGroup>
                         </div>
-                        <h2 class="text-900 font-bold text-2xl m-0 mb-2">
+                        <h2 class="match-team-name-large">
                             #{managerPartida.itensPartidas.get(0).team1 != null ? managerPartida.itensPartidas.get(0).team1.nome : managerPartida.itensPartidas.get(0).player1.nome}
                         </h2>
                     </div>
 
-                    <!-- Placar -->
-                    <div class="text-center px-4">
-                        <div class="flex align-items-center gap-3">
-                            <span class="text-6xl font-bold #{managerPartida.scoreT1 > managerPartida.scoreT2 ? 'text-green-600' : 'text-900'}">
+                    <div class="match-score-box">
+                        <div class="match-score">
+                            <span class="match-score-number #{managerPartida.scoreT1 > managerPartida.scoreT2 ? 'winner' : ''}">
                                 #{managerPartida.scoreT1}
                             </span>
-                            <span class="text-4xl text-500">:</span>
-                            <span class="text-6xl font-bold #{managerPartida.scoreT2 > managerPartida.scoreT1 ? 'text-green-600' : 'text-900'}">
+                            <span class="match-score-separator">:</span>
+                            <span class="match-score-number #{managerPartida.scoreT2 > managerPartida.scoreT1 ? 'winner' : ''}">
                                 #{managerPartida.scoreT2}
                             </span>
                         </div>
                     </div>
 
-                    <!-- Time 2 -->
-                    <div class="flex-1 text-center">
-                        <div class="participant-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 32px;">
-                            #{managerPartida.itensPartidas.get(0).team2 != null ? managerPartida.itensPartidas.get(0).team2.nome.substring(0,1) : managerPartida.itensPartidas.get(0).player2.nome.substring(0,1)}
+                    <div class="match-team-box">
+                        <div class="match-team-avatar-large">
+                            <h:panelGroup rendered="#{managerPartida.itensPartidas.get(0).team2 != null and managerPartida.itensPartidas.get(0).team2.anexo != null}">
+                                <p:graphicImage value="image/#{managerPartida.itensPartidas.get(0).team2.anexo.nome}" 
+                                              styleClass="team-avatar-img" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{managerPartida.itensPartidas.get(0).team2 != null and managerPartida.itensPartidas.get(0).team2.anexo == null}">
+                                #{managerPartida.itensPartidas.get(0).team2.nome.substring(0,1).toUpperCase()}
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{managerPartida.itensPartidas.get(0).player2 != null}">
+                                #{managerPartida.itensPartidas.get(0).player2.nome.substring(0,1).toUpperCase()}
+                            </h:panelGroup>
                         </div>
-                        <h2 class="text-900 font-bold text-2xl m-0 mb-2">
+                        <h2 class="match-team-name-large">
                             #{managerPartida.itensPartidas.get(0).team2 != null ? managerPartida.itensPartidas.get(0).team2.nome : managerPartida.itensPartidas.get(0).player2.nome}
                         </h2>
                     </div>
@@ -105,100 +114,98 @@
             </div>
 
             <!-- Maps Overview -->
-            <div class="surface-card shadow-2 border-round mb-4 p-4">
-                <h2 class="text-900 font-bold text-2xl mb-4">
-                    <i class="pi pi-map mr-2"></i>Mapas
-                </h2>
+            <p:card styleClass="glass-card mb-4">
+                <f:facet name="title">
+                    <div class="flex align-items-center">
+                        <i class="pi pi-map mr-2" style="color: var(--accent)"></i>
+                        <span>Mapas</span>
+                    </div>
+                </f:facet>
 
                 <div class="grid">
                     <ui:repeat value="#{managerPartida.itensPartidas}" var="item" varStatus="status">
                         <div class="col-12 md:col-6 lg:col-4">
-                            <div class="surface-border border-2 border-round overflow-hidden #{item.timeVencedor != null ? 'border-primary' : ''}">
-                                <!-- Map Header -->
-                                <div class="bg-primary text-white p-3">
+                            <div class="map-card #{item.timeVencedor != null ? 'map-winner' : ''}">
+                                <div class="map-header">
                                     <div class="flex justify-content-between align-items-center">
-                                        <span class="font-bold">MAPA #{status.index + 1}</span>
+                                        <span class="map-header-number">MAPA #{status.index + 1}</span>
                                         <h:panelGroup rendered="#{item.timeVencedor != null}">
-                                            <span class="text-xs">FINALIZADO</span>
+                                            <span class="status-tag finished">FINALIZADO</span>
                                         </h:panelGroup>
                                     </div>
-                                    <h3 class="text-white font-bold text-xl m-0 mt-2">
-                                        #{item.mapas.nome != null ? item.mapas.nome : 'TBD'}
-                                    </h3>
+                                    <h3 class="map-name">#{item.mapas.nome != null ? item.mapas.nome : 'TBD'}</h3>
                                 </div>
 
-                                <!-- Map Score -->
-                                <div class="p-3">
-                                    <div class="flex justify-content-between align-items-center py-3">
-                                        <div class="flex-1">
-                                            <div class="font-semibold text-900 mb-1">
-                                                #{managerPartida.itensPartidas.get(0).team1 != null ? managerPartida.itensPartidas.get(0).team1.nome : managerPartida.itensPartidas.get(0).player1.nome}
-                                            </div>
-                                            
-                                        </div>
-                                        <div class="text-center px-3">
-                                            <span class="text-3xl font-bold #{item.scoreT1 > item.scoreT2 ? 'text-green-600' : 'text-900'}">
-                                                #{item.scoreT1}
-                                            </span>
-                                        </div>
+                                <div class="map-score-container">
+                                    <div class="map-team-score">
+                                        <span class="map-team-name">
+                                            #{managerPartida.itensPartidas.get(0).team1 != null ? managerPartida.itensPartidas.get(0).team1.nome : managerPartida.itensPartidas.get(0).player1.nome}
+                                        </span>
+                                        <span class="map-score #{item.scoreT1 > item.scoreT2 ? 'winner' : ''}">
+                                            #{item.scoreT1}
+                                        </span>
                                     </div>
 
-                                    <p:divider styleClass="my-2" />
+                                    <p:divider />
 
-                                    <div class="flex justify-content-between align-items-center py-3">
-                                        <div class="flex-1">
-                                            <div class="font-semibold text-900 mb-1">
-                                                #{managerPartida.itensPartidas.get(0).team2 != null ? managerPartida.itensPartidas.get(0).team2.nome : managerPartida.itensPartidas.get(0).player2.nome}
-                                            </div>
-                                            
-                                        </div>
-                                        <div class="text-center px-3">
-                                            <span class="text-3xl font-bold #{item.scoreT2 > item.scoreT1 ? 'text-green-600' : 'text-900'}">
-                                                #{item.scoreT2}
-                                            </span>
-                                        </div>
+                                    <div class="map-team-score">
+                                        <span class="map-team-name">
+                                            #{managerPartida.itensPartidas.get(0).team2 != null ? managerPartida.itensPartidas.get(0).team2.nome : managerPartida.itensPartidas.get(0).player2.nome}
+                                        </span>
+                                        <span class="map-score #{item.scoreT2 > item.scoreT1 ? 'winner' : ''}">
+                                            #{item.scoreT2}
+                                        </span>
                                     </div>
-
-                                    <!-- Ver Detalhes -->
-                                    <p:commandButton value="Ver Estatísticas" 
-                                                     icon="pi pi-chart-bar"
-                                                     styleClass="p-button-outlined w-full mt-3"
-                                                     onclick="PF('tabview').select(#{status.index + 1});" />
                                 </div>
+
+                                <p:commandButton value="Ver Estatísticas" 
+                                                 icon="pi pi-chart-bar"
+                                                 styleClass="action-btn w-full mt-3"
+                                                 type="button"
+                                                 onclick="PF('tabview').select(0);" />
                             </div>
                         </div>
                     </ui:repeat>
                 </div>
-            </div>
+            </p:card>
 
             <!-- TabView com Estatísticas -->
-            <div class="surface-card shadow-2 border-round p-4">
-                <p:tabView id="tabview" widgetVar="tabview">
+            <div class="glass-tab-container mb-4" style="background: linear-gradient(180deg, #141923, #0f1217) !important;">
+                <p:tabView id="tabview" widgetVar="tabview" styleClass="dark-tabview">
                     <!-- Tab Geral -->
                     <p:tab title="Visão Geral">
-                        <h3 class="text-900 font-bold text-xl mb-4">Estatísticas Gerais</h3>
+                        <div class="section-subheader mb-4">
+                            <h2 class="m-0" style="font-weight: 700; color: var(--text-100)">
+                                <i class="pi pi-chart-bar mr-2"></i>Estatísticas Gerais
+                            </h2>
+                        </div>
 
-                        <!-- Estatísticas Time 1 / Player 1 -->
+                        <!-- Time 1 / Player 1 -->
                         <h:panelGroup rendered="#{managerPartida.itensPartidas.get(0).team1 != null}">
-                            <div class="mb-4">
-                                <div class="flex align-items-center gap-2 mb-3 pb-2 border-bottom-2 border-primary">
-                                    <div class="participant-avatar" style="width: 40px; height: 40px; font-size: 16px; margin: 0;">
-                                        #{managerPartida.itensPartidas.get(0).team1.nome.substring(0,1)}
-                                    </div>
-                                    <h4 class="text-900 font-bold m-0">#{managerPartida.itensPartidas.get(0).team1.nome}</h4>
+                            <div class="team-stats-box mb-4">
+                                <div class="team-stats-header">
+                                    <h3 class="m-0" style="font-weight: 700; color: var(--text-100)">
+                                        #{managerPartida.itensPartidas.get(0).team1.nome}
+                                    </h3>
                                 </div>
 
                                 <p:dataTable value="#{managerPartida.somaEstsTeam(managerPartida.itensPartidas.get(0).team1)}" 
                                              var="ests"
-                                             styleClass="p-datatable-sm p-datatable-striped">
+                                             styleClass="elegant-table">
                                     <p:column headerText="Jogador" style="width: 40%;">
                                         <div class="flex align-items-center gap-2">
-                                            <div class="participant-avatar" style="width: 32px; height: 32px; font-size: 12px; margin: 0;">
-                                                #{ests.player.nome.substring(0,1)}
+                                            <div class="player-photo-mini">
+                                                <h:panelGroup rendered="#{ests.player.anexo != null}">
+                                                    <p:graphicImage value="image/#{ests.player.anexo.nome}" 
+                                                                  styleClass="player-photo-img" />
+                                                </h:panelGroup>
+                                                <h:panelGroup rendered="#{ests.player.anexo == null}">
+                                                    #{ests.player.nome.substring(0,1).toUpperCase()}
+                                                </h:panelGroup>
                                             </div>
                                             <div>
-                                                <div class="font-semibold">#{ests.player.nick}</div>
-                                                <small class="text-600">#{ests.player.nome} #{ests.player.sobreNome}</small>
+                                                <div class="font-semibold" style="color: var(--text-100);">#{ests.player.nick}</div>
+                                                <small style="color: #98a2b3">#{ests.player.nome} #{ests.player.sobreNome}</small>
                                             </div>
                                         </div>
                                     </p:column>
@@ -208,11 +215,11 @@
                                     </p:column>
 
                                     <p:column headerText="A" style="width: 10%; text-align: center;">
-                                        <span class="text-600">#{ests.assists}</span>
+                                        #{ests.assists}
                                     </p:column>
 
                                     <p:column headerText="D" style="width: 10%; text-align: center;">
-                                        <span class="text-600">#{ests.deaths}</span>
+                                        #{ests.deaths}
                                     </p:column>
 
                                     <p:column headerText="K/D" style="width: 15%; text-align: center;">
@@ -221,69 +228,66 @@
                                         </h:outputText>
                                     </p:column>
 
-                                    <p:column headerText="ADR" style="width: 15%; text-align: center;">
-                                        <span class="font-semibold text-primary">#{ests.adr}</span>
+                                    <p:column headerText="ADR" style="width: 10%; text-align: center;">
+                                        <span class="font-semibold" style="color: var(--accent);">#{ests.adr}</span>
                                     </p:column>
 
                                     <p:column style="width: 5%; text-align: center;">
                                         <p:button icon="pi pi-eye"
-                                                         styleClass="p-button-rounded p-button-text p-button-sm"
-                                                         title="Ver Perfil"
-                                                         href="visualizarPlayer.xhtml?id=#{ests.player.id}"/>
+                                                  styleClass="p-button-text p-button-sm"
+                                                  title="Ver Perfil"
+                                                  href="visualizarPlayer.xhtml?id=#{ests.player.id}"/>
                                     </p:column>
                                 </p:dataTable>
                             </div>
                         </h:panelGroup>
 
+                        <!-- Player 1 Individual -->
                         <h:panelGroup rendered="#{managerPartida.itensPartidas.get(0).player1 != null}">
-                            <div class="mb-4">
-                                <div class="flex align-items-center gap-2 mb-3 pb-2 border-bottom-2 border-primary">
-                                    <div class="participant-avatar" style="width: 40px; height: 40px; font-size: 16px; margin: 0;">
-                                        #{managerPartida.itensPartidas.get(0).player1.nome.substring(0,1)}
-                                    </div>
-                                    <h4 class="text-900 font-bold m-0">#{managerPartida.itensPartidas.get(0).player1.nome}</h4>
+                            <div class="team-stats-box mb-4">
+                                <div class="team-stats-header">
+                                    <h3 class="m-0" style="font-weight: 700; color: var(--text-100)">
+                                        #{managerPartida.itensPartidas.get(0).player1.nome}
+                                    </h3>
                                 </div>
 
                                 <p:dataTable value="#{managerPartida.somaEstsPlayer(managerPartida.itensPartidas.get(0).player1)}" 
                                              var="ests"
-                                             styleClass="p-datatable-sm">
-                                    <p:column headerText="PA" style="text-align: center;">
-                                        #{ests.kills}
-                                    </p:column>
-                                    <p:column headerText="PC" style="text-align: center;">
-                                        #{ests.deaths}
-                                    </p:column>
-                                    <p:column headerText="SG" style="text-align: center;">
-                                        #{ests.roundsGanhos}
-                                    </p:column>
-                                    <p:column headerText="SP" style="text-align: center;">
-                                        #{ests.roundsPerdidos}
-                                    </p:column>
+                                             styleClass="elegant-table">
+                                    <p:column headerText="PA" style="text-align: center;">#{ests.kills}</p:column>
+                                    <p:column headerText="PC" style="text-align: center;">#{ests.deaths}</p:column>
+                                    <p:column headerText="SG" style="text-align: center;">#{ests.roundsGanhos}</p:column>
+                                    <p:column headerText="SP" style="text-align: center;">#{ests.roundsPerdidos}</p:column>
                                 </p:dataTable>
                             </div>
                         </h:panelGroup>
 
-                        <!-- Estatísticas Time 2 / Player 2 -->
+                        <!-- Time 2 / Player 2 -->
                         <h:panelGroup rendered="#{managerPartida.itensPartidas.get(0).team2 != null}">
-                            <div class="mb-4">
-                                <div class="flex align-items-center gap-2 mb-3 pb-2 border-bottom-2 border-pink-500">
-                                    <div class="participant-avatar" style="width: 40px; height: 40px; font-size: 16px; margin: 0;">
-                                        #{managerPartida.itensPartidas.get(0).team2.nome.substring(0,1)}
-                                    </div>
-                                    <h4 class="text-900 font-bold m-0">#{managerPartida.itensPartidas.get(0).team2.nome}</h4>
+                            <div class="team-stats-box mb-4">
+                                <div class="team-stats-header">
+                                    <h3 class="m-0" style="font-weight: 700; color: var(--text-100)">
+                                        #{managerPartida.itensPartidas.get(0).team2.nome}
+                                    </h3>
                                 </div>
 
                                 <p:dataTable value="#{managerPartida.somaEstsTeam(managerPartida.itensPartidas.get(0).team2)}" 
                                              var="ests"
-                                             styleClass="p-datatable-sm p-datatable-striped">
+                                             styleClass="elegant-table">
                                     <p:column headerText="Jogador" style="width: 40%;">
                                         <div class="flex align-items-center gap-2">
-                                            <div class="participant-avatar" style="width: 32px; height: 32px; font-size: 12px; margin: 0;">
-                                                #{ests.player.nome.substring(0,1)}
+                                            <div class="player-photo-mini">
+                                                <h:panelGroup rendered="#{ests.player.anexo != null}">
+                                                    <p:graphicImage value="image/#{ests.player.anexo.nome}" 
+                                                                  styleClass="player-photo-img" />
+                                                </h:panelGroup>
+                                                <h:panelGroup rendered="#{ests.player.anexo == null}">
+                                                    #{ests.player.nome.substring(0,1).toUpperCase()}
+                                                </h:panelGroup>
                                             </div>
                                             <div>
-                                                <div class="font-semibold">#{ests.player.nick}</div>
-                                                <small class="text-600">#{ests.player.nome} #{ests.player.sobreNome}</small>
+                                                <div class="font-semibold" style="color: var(--text-100);">#{ests.player.nick}</div>
+                                                <small style="color: #98a2b3">#{ests.player.nome} #{ests.player.sobreNome}</small>
                                             </div>
                                         </div>
                                     </p:column>
@@ -293,11 +297,11 @@
                                     </p:column>
 
                                     <p:column headerText="A" style="width: 10%; text-align: center;">
-                                        <span class="text-600">#{ests.assists}</span>
+                                        #{ests.assists}
                                     </p:column>
 
                                     <p:column headerText="D" style="width: 10%; text-align: center;">
-                                        <span class="text-600">#{ests.deaths}</span>
+                                        #{ests.deaths}
                                     </p:column>
 
                                     <p:column headerText="K/D" style="width: 15%; text-align: center;">
@@ -306,51 +310,43 @@
                                         </h:outputText>
                                     </p:column>
 
-                                    <p:column headerText="ADR" style="width: 15%; text-align: center;">
-                                        <span class="font-semibold text-primary">#{ests.adr}</span>
+                                    <p:column headerText="ADR" style="width: 10%; text-align: center;">
+                                        <span class="font-semibold" style="color: var(--accent);">#{ests.adr}</span>
                                     </p:column>
 
                                     <p:column style="width: 5%; text-align: center;">
                                         <p:button icon="pi pi-eye"
-                                                         styleClass="p-button-rounded p-button-text p-button-sm"
-                                                         title="Ver Perfil"
-                                                         href="visualizarPlayer.xhtml?id=#{ests1.player.id}"/>
+                                                  styleClass="p-button-text p-button-sm"
+                                                  title="Ver Perfil"
+                                                  href="visualizarPlayer.xhtml?id=#{ests.player.id}"/>
                                     </p:column>
                                 </p:dataTable>
                             </div>
                         </h:panelGroup>
 
+                        <!-- Player 2 Individual -->
                         <h:panelGroup rendered="#{managerPartida.itensPartidas.get(0).player2 != null}">
-                            <div class="mb-4">
-                                <div class="flex align-items-center gap-2 mb-3 pb-2 border-bottom-2 border-pink-500">
-                                    <div class="participant-avatar" style="width: 40px; height: 40px; font-size: 16px; margin: 0;">
-                                        #{managerPartida.itensPartidas.get(0).player2.nome.substring(0,1)}
-                                    </div>
-                                    <h4 class="text-900 font-bold m-0">#{managerPartida.itensPartidas.get(0).player2.nome}</h4>
+                            <div class="team-stats-box mb-4">
+                                <div class="team-stats-header">
+                                    <h3 class="m-0" style="font-weight: 700; color: var(--text-100)">
+                                        #{managerPartida.itensPartidas.get(0).player2.nome}
+                                    </h3>
                                 </div>
 
                                 <p:dataTable value="#{managerPartida.somaEstsPlayer(managerPartida.itensPartidas.get(0).player2)}" 
                                              var="ests"
-                                             styleClass="p-datatable-sm">
-                                    <p:column headerText="PA" style="text-align: center;">
-                                        #{ests.kills}
-                                    </p:column>
-                                    <p:column headerText="PC" style="text-align: center;">
-                                        #{ests.deaths}
-                                    </p:column>
-                                    <p:column headerText="SG" style="text-align: center;">
-                                        #{ests.roundsGanhos}
-                                    </p:column>
-                                    <p:column headerText="SP" style="text-align: center;">
-                                        #{ests.roundsPerdidos}
-                                    </p:column>
+                                             styleClass="elegant-table">
+                                    <p:column headerText="PA" style="text-align: center;">#{ests.kills}</p:column>
+                                    <p:column headerText="PC" style="text-align: center;">#{ests.deaths}</p:column>
+                                    <p:column headerText="SG" style="text-align: center;">#{ests.roundsGanhos}</p:column>
+                                    <p:column headerText="SP" style="text-align: center;">#{ests.roundsPerdidos}</p:column>
                                 </p:dataTable>
                             </div>
                         </h:panelGroup>
 
                         <!-- Gráfico Radar -->
                         <div class="mt-4">
-                            <h3 class="text-900 font-bold text-xl mb-3">Comparação Geral</h3>
+                            <h3 class="mb-3" style="font-weight: 700; color: var(--text-100)">Comparação Geral</h3>
                             <p:radarChart model="#{managerPartida.radarModel}" 
                                           style="max-width: 600px; margin: 0 auto;" />
                         </div>
@@ -359,16 +355,15 @@
                     <!-- Tabs de Mapas Individuais -->
                     <c:forEach items="#{managerPartida.itensPartidas}" var="item" varStatus="status">
                         <p:tab title="#{item.mapas.nome != null ? item.mapas.nome : 'Mapa '.concat(status.index + 1)}">
-                            <!-- Header do Mapa -->
                             <div class="flex justify-content-between align-items-center mb-4">
                                 <div>
-                                    <h3 class="text-900 font-bold text-2xl m-0 mb-2">#{item.mapas.nome}</h3>
+                                    <h3 class="m-0 mb-2" style="font-weight: 700; color: var(--text-100)">#{item.mapas.nome}</h3>
                                     <div class="flex gap-2">
-                                        <span class="surface-100 px-3 py-1 border-round text-sm">
+                                        <span class="status-tag scheduled">
                                             <strong>#{item.scoreT1}</strong> : <strong>#{item.scoreT2}</strong>
                                         </span>
                                         <h:panelGroup rendered="#{item.timeVencedor != null}">
-                                            <span class="bg-green-100 text-green-900 px-3 py-1 border-round text-sm font-semibold">
+                                            <span class="status-tag finished">
                                                 Vencedor: #{item.timeVencedor.nome}
                                             </span>
                                         </h:panelGroup>
@@ -382,36 +377,38 @@
                                                  rendered="#{managerPartida.partida.finalizada == false}" />
                             </div>
 
-                            <!-- Estatísticas do Mapa - Time 1 -->
+                            <!-- Time 1 Stats -->
                             <h:panelGroup rendered="#{item.team1 != null}">
-                                <div class="mb-4">
-                                    <div class="flex align-items-center gap-2 mb-3 pb-2 border-bottom-2 border-primary">
-                                        <div class="participant-avatar" style="width: 40px; height: 40px; font-size: 16px; margin: 0;">
-                                            #{item.team1.nome.substring(0,1)}
-                                        </div>
-                                        <h4 class="text-900 font-bold m-0">
+                                <div class="team-stats-box mb-4">
+                                    <div class="team-stats-header">
+                                        <h3 class="m-0" style="font-weight: 700; color: var(--text-100)">
                                             #{item.team1.nome}
-                                           
-                                        </h4>
+                                        </h3>
                                     </div>
 
                                     <p:dataTable value="#{managerPartida.estsGeraisTeam(item.team1, item)}" 
                                                  var="ests"
-                                                 styleClass="p-datatable-sm p-datatable-striped">
+                                                 styleClass="elegant-table">
                                         <p:column headerText="Jogador" style="width: 35%;">
                                             <div class="flex align-items-center gap-2">
-                                                <div class="participant-avatar" style="width: 32px; height: 32px; font-size: 12px; margin: 0;">
-                                                    #{ests.player.nome.substring(0,1)}
+                                                <div class="player-photo-mini">
+                                                    <h:panelGroup rendered="#{ests.player.anexo != null}">
+                                                        <p:graphicImage value="image/#{ests.player.anexo.nome}" 
+                                                                      styleClass="player-photo-img" />
+                                                    </h:panelGroup>
+                                                    <h:panelGroup rendered="#{ests.player.anexo == null}">
+                                                        #{ests.player.nome.substring(0,1).toUpperCase()}
+                                                    </h:panelGroup>
                                                 </div>
                                                 <div>
-                                                    <div class="font-semibold">#{ests.player.nick}</div>
-                                                    <small class="text-600">#{ests.player.nome}</small>
+                                                    <div class="font-semibold" style="color: var(--text-100);">#{ests.player.nick}</div>
+                                                    <small style="color: #98a2b3">#{ests.player.nome}</small>
                                                 </div>
                                             </div>
                                         </p:column>
 
                                         <p:column headerText="K" style="width: 10%; text-align: center;">
-                                            <span class="font-semibold text-green-600">#{ests.kills}</span>
+                                            <span class="font-semibold" style="color: var(--success);">#{ests.kills}</span>
                                         </p:column>
 
                                         <p:column headerText="A" style="width: 10%; text-align: center;">
@@ -419,7 +416,7 @@
                                         </p:column>
 
                                         <p:column headerText="D" style="width: 10%; text-align: center;">
-                                            <span class="text-red-600">#{ests.deaths}</span>
+                                            <span style="color: #f87171;">#{ests.deaths}</span>
                                         </p:column>
 
                                         <p:column headerText="K/D" style="width: 10%; text-align: center;">
@@ -434,21 +431,21 @@
 
                                         <p:column style="width: 5%; text-align: center;">
                                             <p:button icon="pi pi-eye"
-                                                             styleClass="p-button-rounded p-button-text p-button-sm"
-                                                             title="Ver Perfil"
-                                                             href="visualizarPlayer.xhtml?id=#{ests.player.id}"/>
+                                                      styleClass="p-button-text p-button-sm"
+                                                      title="Ver Perfil"
+                                                      href="visualizarPlayer.xhtml?id=#{ests.player.id}"/>
                                         </p:column>
                                     </p:dataTable>
                                 </div>
                             </h:panelGroup>
 
-                            <!-- Estatísticas do Mapa - Player 1 -->
+                            <!-- Player 1 Stats -->
                             <h:panelGroup rendered="#{item.player1 != null}">
-                                <div class="mb-4">
-                                    <h4 class="text-900 font-bold mb-3">#{item.player1.nome}</h4>
+                                <div class="team-stats-box mb-4">
+                                    <h3 class="mb-3" style="font-weight: 700; color: var(--text-100)">#{item.player1.nome}</h3>
                                     <p:dataTable value="#{managerPartida.estsGeraisPlayer(item.player1, item)}" 
                                                  var="ests"
-                                                 styleClass="p-datatable-sm">
+                                                 styleClass="elegant-table">
                                         <p:column headerText="K">#{ests.kills}</p:column>
                                         <p:column headerText="A">#{ests.assists}</p:column>
                                         <p:column headerText="D">#{ests.deaths}</p:column>
@@ -458,36 +455,38 @@
 
                             <p:divider />
 
-                            <!-- Estatísticas do Mapa - Time 2 -->
+                            <!-- Time 2 Stats -->
                             <h:panelGroup rendered="#{item.team2 != null}">
-                                <div class="mb-4">
-                                    <div class="flex align-items-center gap-2 mb-3 pb-2 border-bottom-2 border-pink-500">
-                                        <div class="participant-avatar" style="width: 40px; height: 40px; font-size: 16px; margin: 0;">
-                                            #{item.team2.nome.substring(0,1)}
-                                        </div>
-                                        <h4 class="text-900 font-bold m-0">
+                                <div class="team-stats-box mb-4">
+                                    <div class="team-stats-header">
+                                        <h3 class="m-0" style="font-weight: 700; color: var(--text-100)">
                                             #{item.team2.nome}
-                                            
-                                        </h4>
+                                        </h3>
                                     </div>
 
                                     <p:dataTable value="#{managerPartida.estsGeraisTeam(item.team2, item)}" 
                                                  var="ests"
-                                                 styleClass="p-datatable-sm p-datatable-striped">
+                                                 styleClass="elegant-table">
                                         <p:column headerText="Jogador" style="width: 35%;">
                                             <div class="flex align-items-center gap-2">
-                                                <div class="participant-avatar" style="width: 32px; height: 32px; font-size: 12px; margin: 0;">
-                                                    #{ests.player.nome.substring(0,1)}
+                                                <div class="player-photo-mini">
+                                                    <h:panelGroup rendered="#{ests.player.anexo != null}">
+                                                        <p:graphicImage value="image/#{ests.player.anexo.nome}" 
+                                                                      styleClass="player-photo-img" />
+                                                    </h:panelGroup>
+                                                    <h:panelGroup rendered="#{ests.player.anexo == null}">
+                                                        #{ests.player.nome.substring(0,1).toUpperCase()}
+                                                    </h:panelGroup>
                                                 </div>
                                                 <div>
-                                                    <div class="font-semibold">#{ests.player.nick}</div>
-                                                    <small class="text-600">#{ests.player.nome}</small>
+                                                    <div class="font-semibold" style="color: var(--text-100);">#{ests.player.nick}</div>
+                                                    <small style="color: #98a2b3">#{ests.player.nome}</small>
                                                 </div>
                                             </div>
                                         </p:column>
 
                                         <p:column headerText="K" style="width: 10%; text-align: center;">
-                                            <span class="font-semibold text-green-600">#{ests.kills}</span>
+                                            <span class="font-semibold" style="color: var(--success);">#{ests.kills}</span>
                                         </p:column>
 
                                         <p:column headerText="A" style="width: 10%; text-align: center;">
@@ -495,7 +494,7 @@
                                         </p:column>
 
                                         <p:column headerText="D" style="width: 10%; text-align: center;">
-                                            <span class="text-red-600">#{ests.deaths}</span>
+                                            <span style="color: #f87171;">#{ests.deaths}</span>
                                         </p:column>
 
                                         <p:column headerText="K/D" style="width: 10%; text-align: center;">
@@ -510,21 +509,21 @@
 
                                         <p:column style="width: 5%; text-align: center;">
                                             <p:button icon="pi pi-eye"
-                                                             styleClass="p-button-rounded p-button-text p-button-sm"
-                                                             title="Ver Perfil"
-                                                             href="visualizarPlayer.xhtml?id=#{ests.player.id}"/>
+                                                      styleClass="p-button-text p-button-sm"
+                                                      title="Ver Perfil"
+                                                      href="visualizarPlayer.xhtml?id=#{ests.player.id}"/>
                                         </p:column>
                                     </p:dataTable>
                                 </div>
                             </h:panelGroup>
 
-                            <!-- Estatísticas do Mapa - Player 2 -->
+                            <!-- Player 2 Stats -->
                             <h:panelGroup rendered="#{item.player2 != null}">
-                                <div class="mb-4">
-                                    <h4 class="text-900 font-bold mb-3">#{item.player2.nome}</h4>
+                                <div class="team-stats-box mb-4">
+                                    <h3 class="mb-3" style="font-weight: 700; color: var(--text-100)">#{item.player2.nome}</h3>
                                     <p:dataTable value="#{managerPartida.estsGeraisPlayer(item.player2, item)}" 
                                                  var="ests"
-                                                 styleClass="p-datatable-sm">
+                                                 styleClass="elegant-table">
                                         <p:column headerText="K">#{ests.kills}</p:column>
                                         <p:column headerText="A">#{ests.assists}</p:column>
                                         <p:column headerText="D">#{ests.deaths}</p:column>
@@ -535,6 +534,113 @@
                     </c:forEach>
                 </p:tabView>
             </div>
+
+            <!-- Histórico de Partidas (se for time) -->
+            <h:panelGroup rendered="#{managerPartida.itensPartidas.get(0).team1 != null}">
+                <div class="grid">
+                    <!-- Time 1 -->
+                    <div class="col-12 lg:col-6">
+                        <p:card styleClass="glass-card mb-4 h-full">
+                            <f:facet name="title">
+                                <div class="flex align-items-center justify-content-between">
+                                    <span class="flex align-items-center">
+                                        <i class="pi pi-history mr-2" style="color: var(--accent)"></i>
+                                        <span>Histórico - #{managerPartida.itensPartidas.get(0).team1.nome}</span>
+                                    </span>
+                                </div>
+                            </f:facet>
+
+                            <div class="history-list">
+                                <ui:repeat value="#{managerPartida.historicoTime1}" var="hist" varStatus="status">
+                                    <h:panelGroup rendered="#{status.index lt 5 and hist.itemPartida ne null and hist.itemPartida.size() gt 0}">
+                                        <h:panelGroup rendered="#{hist.itemPartida.get(0).team1.id eq managerPartida.itensPartidas.get(0).team1.id or hist.itemPartida.get(0).team2.id eq managerPartida.itensPartidas.get(0).team1.id}">
+                                            <div class="history-item">
+                                                <div class="flex align-items-center gap-2">
+                                                    <div class="history-team-avatar">
+                                                        #{hist.itemPartida.get(0).team1.nome.substring(0,1).toUpperCase()}
+                                                    </div>
+                                                    <span class="history-vs">VS</span>
+                                                    <div class="history-team-avatar">
+                                                        #{hist.itemPartida.get(0).team2.nome.substring(0,1).toUpperCase()}
+                                                    </div>
+                                                </div>
+                                                <div class="history-score-box">
+                                                    <span class="history-score #{hist.itemPartida.get(0).team1.id eq managerPartida.itensPartidas.get(0).team1.id ? (hist.timeVencedor.id eq hist.itemPartida.get(0).team1.id ? 'win' : 'loss') : (hist.timeVencedor.id eq hist.itemPartida.get(0).team2.id ? 'win' : 'loss')}">
+                                                        #{hist.itemPartida.get(0).team1.id eq managerPartida.itensPartidas.get(0).team1.id ? hist.itemPartida.get(0).scoreT1 : hist.itemPartida.get(0).scoreT2} : #{hist.itemPartida.get(0).team1.id eq managerPartida.itensPartidas.get(0).team1.id ? hist.itemPartida.get(0).scoreT2 : hist.itemPartida.get(0).scoreT1}
+                                                    </span>
+                                                </div>
+                                                <p:link value="Ver" 
+                                                        styleClass="action-icon neon-action"
+                                                        outcome="visualizarPartida.xhtml?id=#{hist.id}">
+                                                    <i class="pi pi-eye"></i>
+                                                </p:link>
+                                            </div>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
+                                </ui:repeat>
+                            </div>
+
+                            <h:panelGroup rendered="#{empty managerPartida.historicoTime1}">
+                                <div class="text-center py-5">
+                                    <i class="pi pi-clock mb-3" style="font-size: 3rem; color: var(--muted)"></i>
+                                    <p style="color: #d1d8e6">Nenhuma partida no histórico</p>
+                                </div>
+                            </h:panelGroup>
+                        </p:card>
+                    </div>
+
+                    <!-- Time 2 -->
+                    <div class="col-12 lg:col-6">
+                        <p:card styleClass="glass-card mb-4 h-full">
+                            <f:facet name="title">
+                                <div class="flex align-items-center justify-content-between">
+                                    <span class="flex align-items-center">
+                                        <i class="pi pi-history mr-2" style="color: var(--accent)"></i>
+                                        <span>Histórico - #{managerPartida.itensPartidas.get(0).team2.nome}</span>
+                                    </span>
+                                </div>
+                            </f:facet>
+
+                            <div class="history-list">
+                                <ui:repeat value="#{managerPartida.historicoTime2}" var="hist" varStatus="status">
+                                    <h:panelGroup rendered="#{status.index lt 5 and hist.itemPartida ne null and hist.itemPartida.size() gt 0}">
+                                        <h:panelGroup rendered="#{hist.itemPartida.get(0).team1.id eq managerPartida.itensPartidas.get(0).team2.id or hist.itemPartida.get(0).team2.id eq managerPartida.itensPartidas.get(0).team2.id}">
+                                            <div class="history-item">
+                                                <div class="flex align-items-center gap-2">
+                                                    <div class="history-team-avatar">
+                                                        #{hist.itemPartida.get(0).team1.nome.substring(0,1).toUpperCase()}
+                                                    </div>
+                                                    <span class="history-vs">VS</span>
+                                                    <div class="history-team-avatar">
+                                                        #{hist.itemPartida.get(0).team2.nome.substring(0,1).toUpperCase()}
+                                                    </div>
+                                                </div>
+                                                <div class="history-score-box">
+                                                    <span class="history-score #{hist.itemPartida.get(0).team1.id eq managerPartida.itensPartidas.get(0).team2.id ? (hist.timeVencedor.id eq hist.itemPartida.get(0).team1.id ? 'win' : 'loss') : (hist.timeVencedor.id eq hist.itemPartida.get(0).team2.id ? 'win' : 'loss')}">
+                                                        #{hist.itemPartida.get(0).team1.id eq managerPartida.itensPartidas.get(0).team2.id ? hist.itemPartida.get(0).scoreT1 : hist.itemPartida.get(0).scoreT2} : #{hist.itemPartida.get(0).team1.id eq managerPartida.itensPartidas.get(0).team2.id ? hist.itemPartida.get(0).scoreT2 : hist.itemPartida.get(0).scoreT1}
+                                                    </span>
+                                                </div>
+                                                <p:link value="Ver" 
+                                                        styleClass="action-icon neon-action"
+                                                        outcome="visualizarPartida.xhtml?id=#{hist.id}">
+                                                    <i class="pi pi-eye"></i>
+                                                </p:link>
+                                            </div>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
+                                </ui:repeat>
+                            </div>
+
+                            <h:panelGroup rendered="#{empty managerPartida.historicoTime2}">
+                                <div class="text-center py-5">
+                                    <i class="pi pi-clock mb-3" style="font-size: 3rem; color: var(--muted)"></i>
+                                    <p style="color: #d1d8e6">Nenhuma partida no histórico</p>
+                                </div>
+                            </h:panelGroup>
+                        </p:card>
+                    </div>
+                </div>
+            </h:panelGroup>
 
             <!-- Dialog: Confirmar Finalização -->
             <p:dialog id="confirmarFinalizarPartidaDialog"
@@ -550,9 +656,9 @@
 
                 <div class="text-center py-4">
                     <i class="pi pi-exclamation-triangle text-6xl text-orange-500 mb-3"></i>
-                    <h3 class="text-900 font-bold mb-2">Confirmar Finalização</h3>
-                    <p class="text-600 mb-4">
-                        O time <strong>#{managerPartida.retornaTimeVencedor()}</strong> será declarado vencedor.
+                    <h3 class="font-bold mb-2" style="color: var(--text-100)">Confirmar Finalização</h3>
+                    <p class="mb-4" style="color: #98a2b3">
+                        O time <strong style="color: var(--text-100)">#{managerPartida.retornaTimeVencedor()}</strong> será declarado vencedor.
                         Esta ação não pode ser desfeita.
                     </p>
                 </div>
@@ -560,12 +666,12 @@
                 <div class="flex justify-content-end gap-2">
                     <p:commandButton value="Cancelar"
                                      icon="pi pi-times"
-                                     styleClass="p-button-outlined p-button-secondary"
+                                     styleClass="p-button-outlined"
                                      oncomplete="PF('confirmarFinalizarPartidaDialog').hide();"
                                      process="@this" />
                     <p:commandButton value="Finalizar"
                                      icon="pi pi-check"
-                                     styleClass="p-button-danger"
+                                     styleClass="full-stats-btn"
                                      actionListener="#{managerPartida.finalizarPartida()}"
                                      update="@form"
                                      oncomplete="PF('confirmarFinalizarPartidaDialog').hide();" />
@@ -575,32 +681,285 @@
         </h:form>
 
         <style>
-            .participant-avatar {
-                border-radius: 50%;
-                background-color: #f8f9fa;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: bold;
-                color: #6c757d;
-            }
+            /* Match Hero */
+            .match-hero { background: linear-gradient(135deg, var(--bg-800), var(--bg-900)) !important; padding: 2rem !important; }
+            .match-hero-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+            
+            /* Match Score Container */
+            .match-score-container { display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; }
+            .match-team-box { flex: 1; min-width: 200px; text-align: center; }
+            .match-team-avatar-large { width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2.5rem; font-weight: 800; color: var(--text-100); position: relative; }
+            .team-avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+            .match-team-name-large { font-size: 1.5rem; font-weight: 800; color: var(--text-100); margin: 0; }
+            
+            /* Match Score */
+            .match-score-box { text-align: center; min-width: 200px; }
+            .match-score { display: flex; align-items: center; justify-content: center; gap: .5rem; }
+            .match-score-number { font-size: 4rem; font-weight: 800; color: var(--text-100); transition: all .2s ease; }
+            .match-score-number.winner { color: var(--success); text-shadow: 0 0 20px rgba(34,197,94,0.3); }
+            .match-score-separator { font-size: 3rem; font-weight: 700; color: var(--text-300); }
+            
+            /* Map Cards */
+            .map-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; transition: all .2s ease; }
+            .map-card:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(0,0,0,0.4); border-color: rgba(0,225,255,0.2); }
+            .map-card.map-winner { border-color: rgba(0,225,255,0.3); background: rgba(0,225,255,0.03); }
+            .map-header { background: linear-gradient(135deg, rgba(0,225,255,0.12), rgba(0,225,255,0.06)); border-bottom: 1px solid rgba(255,255,255,0.08); padding: 1rem; }
+            .map-header-number { font-size: .75rem; text-transform: uppercase; letter-spacing: .5px; font-weight: 700; color: var(--accent); }
+            .map-name { font-size: 1.1rem; font-weight: 800; color: var(--text-100); margin: .5rem 0 0 0; }
+            .map-score-container { padding: 1rem; }
+            .map-team-score { display: flex; justify-content: space-between; align-items: center; padding: .5rem 0; }
+            .map-team-name { font-weight: 600; color: var(--text-100); font-size: .9rem; }
+            .map-score { font-size: 1.5rem; font-weight: 800; color: var(--text-300); }
+            .map-score.winner { color: var(--success); }
+            
+            /* Team Stats */
+            .team-stats-box { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.5rem; }
+            .team-stats-header { border-bottom: 2px solid rgba(0,225,255,0.2); padding-bottom: .75rem; margin-bottom: 1rem; }
+            
+            /* Player Photos */
+            .player-photo-mini { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 800; color: var(--text-100); flex-shrink: 0; overflow: hidden; }
+            .player-photo-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
             @keyframes pulse {
                 0%, 100% { opacity: 1; }
                 50% { opacity: 0.5; }
             }
 
-            /* Hover nos cards de mapas */
-            .surface-border:hover {
-                transform: translateY(-2px);
-                transition: transform 0.2s;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            /* Force TabView styles - sempre no tema dark - ESPECIFICIDADE MÁXIMA */
+            div.glass-tab-container .dark-tabview,
+            div.glass-tab-container .dark-tabview.ui-tabview,
+            div.glass-tab-container .ui-tabview.dark-tabview,
+            div.glass-tab-container .ui-tabview,
+            div.glass-tab-container .p-tabview,
+            .glass-tab-container .dark-tabview,
+            .glass-tab-container .dark-tabview.ui-tabview,
+            .glass-tab-container .ui-tabview.dark-tabview,
+            .glass-tab-container .ui-tabview,
+            #formVisualizarPartida .glass-tab-container .ui-tabview { 
+                background: linear-gradient(180deg, #141923, #0f1217) !important; 
+                background-color: #141923 !important;
+                border: none !important; 
+            }
+            
+            div.glass-tab-container .ui-tabview-nav,
+            div.glass-tab-container .ui-tabview-nav-container,
+            .glass-tab-container .ui-tabview-nav { 
+                background: linear-gradient(180deg, #141923, #0f1217) !important; 
+                background-color: #141923 !important;
+                border: none !important; 
+                border-bottom: 2px solid rgba(255,255,255,0.08) !important; 
+            }
+            
+            div.glass-tab-container .ui-tabview-nav li,
+            .glass-tab-container .ui-tabview-nav li { 
+                background: transparent !important; 
+                background-color: transparent !important;
+            }
+            
+            /* Forçar fundo escuro nas abas individuais */
+            div.glass-tab-container .dark-tabview .ui-tabview-nav li a,
+            div.glass-tab-container .dark-tabview .ui-tabview-nav li .ui-tabview-title,
+            div.glass-tab-container .ui-tabview-nav li a,
+            div.glass-tab-container .ui-tabview-nav li .ui-tabview-title,
+            .glass-tab-container .dark-tabview .ui-tabview-nav li a,
+            .glass-tab-container .dark-tabview .ui-tabview-nav li .ui-tabview-title,
+            .glass-tab-container .ui-tabview-nav li a,
+            .glass-tab-container .ui-tabview-nav li .ui-tabview-title { 
+                color: #b7c1d1 !important; 
+                background: rgba(255,255,255,0.02) !important;
+                background-color: rgba(255,255,255,0.02) !important;
+                border: 1px solid rgba(255,255,255,0.08) !important; 
+                border-bottom: none !important; 
+                margin-right: .25rem !important;
+                border-radius: 12px 12px 0 0 !important;
+                padding: .75rem 1.25rem !important;
+            }
+            
+            /* Texto das abas - todos os elementos */
+            div.glass-tab-container .dark-tabview .ui-tabview-nav li a *,
+            div.glass-tab-container .dark-tabview .ui-tabview-nav li .ui-tabview-title *,
+            div.glass-tab-container .dark-tabview .ui-tabview-nav li span,
+            div.glass-tab-container .dark-tabview .ui-tabview-nav li .ui-tabview-title,
+            div.glass-tab-container .ui-tabview-nav li a *,
+            div.glass-tab-container .ui-tabview-nav li .ui-tabview-title *,
+            div.glass-tab-container .ui-tabview-nav li span,
+            div.glass-tab-container .ui-tabview-nav li .ui-tabview-title,
+            .glass-tab-container .dark-tabview .ui-tabview-nav li a *,
+            .glass-tab-container .dark-tabview .ui-tabview-nav li .ui-tabview-title *,
+            .glass-tab-container .dark-tabview .ui-tabview-nav li span,
+            .glass-tab-container .dark-tabview .ui-tabview-nav li a,
+            .glass-tab-container .ui-tabview-nav li a *,
+            .glass-tab-container .ui-tabview-nav li .ui-tabview-title *,
+            .glass-tab-container .ui-tabview-nav li span,
+            .glass-tab-container .ui-tabview-nav li a {
+                color: #b7c1d1 !important;
+            }
+            
+            /* Aba ativa */
+            div.glass-tab-container .dark-tabview .ui-tabview-nav li.ui-state-active,
+            div.glass-tab-container .dark-tabview .ui-tabview-nav li.ui-state-active a,
+            div.glass-tab-container .dark-tabview .ui-tabview-nav li.ui-state-active .ui-tabview-title,
+            div.glass-tab-container .ui-tabview-nav li.ui-state-active,
+            div.glass-tab-container .ui-tabview-nav li.ui-state-active a,
+            div.glass-tab-container .ui-tabview-nav li.ui-state-active .ui-tabview-title,
+            .glass-tab-container .dark-tabview .ui-tabview-nav li.ui-state-active,
+            .glass-tab-container .dark-tabview .ui-tabview-nav li.ui-state-active a,
+            .glass-tab-container .dark-tabview .ui-tabview-nav li.ui-state-active .ui-tabview-title,
+            .glass-tab-container .ui-tabview-nav li.ui-state-active a,
+            .glass-tab-container .ui-tabview-nav li.ui-state-active .ui-tabview-title { 
+                color: #e6ebf2 !important; 
+                background: rgba(0,225,255,0.1) !important;
+                background-color: rgba(0,225,255,0.1) !important;
+                border-color: rgba(0,225,255,0.25) !important; 
+                border-bottom: none !important; 
+            }
+            
+            /* Texto da aba ativa */
+            div.glass-tab-container .dark-tabview .ui-tabview-nav li.ui-state-active a *,
+            div.glass-tab-container .dark-tabview .ui-tabview-nav li.ui-state-active .ui-tabview-title *,
+            div.glass-tab-container .dark-tabview .ui-tabview-nav li.ui-state-active span,
+            div.glass-tab-container .dark-tabview .ui-tabview-nav li.ui-state-active .ui-tabview-title,
+            div.glass-tab-container .ui-tabview-nav li.ui-state-active a *,
+            div.glass-tab-container .ui-tabview-nav li.ui-state-active .ui-tabview-title *,
+            div.glass-tab-container .ui-tabview-nav li.ui-state-active span,
+            div.glass-tab-container .ui-tabview-nav li.ui-state-active .ui-tabview-title,
+            .glass-tab-container .dark-tabview .ui-tabview-nav li.ui-state-active a *,
+            .glass-tab-container .dark-tabview .ui-tabview-nav li.ui-state-active .ui-tabview-title *,
+            .glass-tab-container .dark-tabview .ui-tabview-nav li.ui-state-active span,
+            .glass-tab-container .ui-tabview-nav li.ui-state-active a *,
+            .glass-tab-container .ui-tabview-nav li.ui-state-active .ui-tabview-title *,
+            .glass-tab-container .ui-tabview-nav li.ui-state-active span {
+                color: #e6ebf2 !important;
+            }
+            
+            /* Hover */
+            div.glass-tab-container .dark-tabview .ui-tabview-nav li .ui-tabview-title:hover,
+            div.glass-tab-container .dark-tabview .ui-tabview-nav li a:hover,
+            div.glass-tab-container .ui-tabview-nav li .ui-tabview-title:hover,
+            div.glass-tab-container .ui-tabview-nav li a:hover,
+            .glass-tab-container .dark-tabview .ui-tabview-nav li .ui-tabview-title:hover,
+            .glass-tab-container .dark-tabview .ui-tabview-nav li a:hover,
+            .glass-tab-container .ui-tabview-nav li .ui-tabview-title:hover,
+            .glass-tab-container .ui-tabview-nav li a:hover { 
+                color: #e6ebf2 !important; 
+                background: rgba(255,255,255,0.04) !important;
+                background-color: rgba(255,255,255,0.04) !important;
+            }
+            
+            div.glass-tab-container .ui-tabview-nav li a:hover *,
+            div.glass-tab-container .ui-tabview-nav li .ui-tabview-title:hover *,
+            div.glass-tab-container .ui-tabview-nav li:hover span,
+            .glass-tab-container .ui-tabview-nav li a:hover *,
+            .glass-tab-container .ui-tabview-nav li .ui-tabview-title:hover *,
+            .glass-tab-container .ui-tabview-nav li:hover span {
+                color: #e6ebf2 !important;
+            }
+            
+            /* Painéis */
+            div.glass-tab-container .dark-tabview .ui-tabview-panels,
+            div.glass-tab-container .dark-tabview .ui-tabview-panel-wrapper,
+            div.glass-tab-container .ui-tabview-panels,
+            div.glass-tab-container .ui-tabview-panel-wrapper,
+            .glass-tab-container .dark-tabview .ui-tabview-panels,
+            .glass-tab-container .ui-tabview-panels { 
+                background: linear-gradient(180deg, #141923, #0f1217) !important;
+                background-color: #141923 !important;
+                border: none !important; 
+                padding: 1.5rem !important; 
+            }
+            
+            div.glass-tab-container .dark-tabview .ui-tabview-panel,
+            div.glass-tab-container .dark-tabview .ui-tabview-panel-wrapper .ui-widget-content,
+            div.glass-tab-container .ui-tabview-panel,
+            div.glass-tab-container .ui-tabview-panel-wrapper .ui-widget-content,
+            .glass-tab-container .dark-tabview .ui-tabview-panel,
+            .glass-tab-container .ui-tabview-panel { 
+                background: linear-gradient(180deg, #141923, #0f1217) !important;
+                background-color: #141923 !important;
+                color: #e6ebf2 !important;
+            }
+            
+            /* Garantir que textos dentro das abas fiquem claros */
+            div.glass-tab-container .ui-tabview-panel h2,
+            div.glass-tab-container .ui-tabview-panel h3,
+            div.glass-tab-container .ui-tabview-panel h4,
+            div.glass-tab-container .ui-tabview-panel p,
+            div.glass-tab-container .ui-tabview-panel span:not(.history-score):not(.history-vs),
+            div.glass-tab-container .ui-tabview-panel div:not(.history-item),
+            .glass-tab-container .ui-tabview-panel h2,
+            .glass-tab-container .ui-tabview-panel h3,
+            .glass-tab-container .ui-tabview-panel h4,
+            .glass-tab-container .ui-tabview-panel p,
+            .glass-tab-container .ui-tabview-panel span:not(.history-score):not(.history-vs),
+            .glass-tab-container .ui-tabview-panel div:not(.history-item) { 
+                color: #e6ebf2 !important; 
+            }
+            
+            /* Sobrescrever qualquer cor branca de fundo - TODOS OS ELEMENTOS */
+            div.glass-tab-container .ui-widget,
+            div.glass-tab-container .ui-widget-content,
+            div.glass-tab-container .ui-widget-header,
+            div.glass-tab-container .ui-state-default,
+            div.glass-tab-container .ui-state-active,
+            .glass-tab-container .ui-widget,
+            .glass-tab-container .ui-widget-content,
+            .glass-tab-container .ui-widget-header,
+            .glass-tab-container .ui-state-default,
+            .glass-tab-container .ui-state-active {
+                background: linear-gradient(180deg, #141923, #0f1217) !important;
+                background-color: #141923 !important;
+                color: #e6ebf2 !important;
+            }
+            
+            /* Forçar remoção de background branco apenas em elementos que não sejam do TabView */
+            div.glass-tab-container *:not(.ui-tabview):not(.ui-tabview-nav):not(.ui-tabview-nav li):not(.ui-tabview-panels):not(.ui-tabview-panel):not(.ui-tabview-nav li a):not(.ui-tabview-nav li .ui-tabview-title) {
+                background-color: transparent !important;
+            }
+            
+            /* Reforçar backgrounds do TabView após a regra genérica */
+            div.glass-tab-container .ui-tabview,
+            div.glass-tab-container .ui-tabview-nav,
+            div.glass-tab-container .ui-tabview-panels,
+            div.glass-tab-container .ui-tabview-panel,
+            .glass-tab-container .ui-tabview,
+            .glass-tab-container .ui-tabview-nav,
+            .glass-tab-container .ui-tabview-panels,
+            .glass-tab-container .ui-tabview-panel {
+                background: linear-gradient(180deg, #141923, #0f1217) !important;
+                background-color: #141923 !important;
+            }
+            
+            div.glass-tab-container .ui-tabview-nav li.ui-state-active,
+            div.glass-tab-container .ui-tabview-nav li.ui-state-active a,
+            div.glass-tab-container .ui-tabview-nav li.ui-state-active .ui-tabview-title {
+                background: rgba(0,225,255,0.1) !important;
+                background-color: rgba(0,225,255,0.1) !important;
+            }
+            
+            div.glass-tab-container .ui-tabview-nav li:not(.ui-state-active) a,
+            div.glass-tab-container .ui-tabview-nav li:not(.ui-state-active) .ui-tabview-title {
+                background: rgba(255,255,255,0.02) !important;
+                background-color: rgba(255,255,255,0.02) !important;
             }
 
-            /* Destaque para vencedores */
-            .border-primary {
-                border-color: #2196f3 !important;
-                border-width: 3px !important;
+            /* History List */
+            .history-list { display: flex; flex-direction: column; gap: .75rem; }
+            .history-item { display: flex; align-items: center; gap: 1rem; padding: .75rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; transition: all .2s ease; }
+            .history-item:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.35); border-color: rgba(0,225,255,0.2); }
+            .history-team-avatar { width: 35px; height: 35px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; font-size: .9rem; font-weight: 800; color: var(--text-100); }
+            .history-vs { font-size: .75rem; font-weight: 700; color: var(--text-300); text-transform: uppercase; letter-spacing: .5px; }
+            .history-score-box { flex: 1; text-align: center; }
+            .history-score { font-size: 1.1rem; font-weight: 800; padding: .25rem .75rem; border-radius: 20px; transition: all .2s ease; }
+            .history-score.win { background: rgba(34,197,94,0.12); color: var(--success); border: 1px solid rgba(34,197,94,0.25); }
+            .history-score.loss { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+
+            @media (max-width: 768px) {
+                .match-score-container { flex-direction: column; }
+                .match-team-box { width: 100%; }
+                .match-score-box { width: 100%; }
+                .match-score-number { font-size: 3rem; }
+                .history-item { flex-direction: column; gap: .5rem; }
+                .history-score-box { width: 100%; }
             }
         </style>
     </ui:define>

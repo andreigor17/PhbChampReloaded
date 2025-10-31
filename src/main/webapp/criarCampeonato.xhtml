@@ -8,48 +8,43 @@
     <ui:define name="content">
         <h:form id="formCampeonato" enctype="multipart/form-data">
                                    
-            <!-- Cabeçalho -->
-            <div class="surface-card shadow-2 border-round mb-4 p-4">
+            <!-- Header Glass -->
+            <p:card styleClass="glass-card mb-4">
                 <div class="flex justify-content-between align-items-center flex-wrap gap-3">
                     <div class="flex-1">
                         <div class="flex align-items-center mb-2">
-                            <i class="pi pi-trophy text-4xl mr-3"></i>
-                            <h1 class="text-900 font-bold text-4xl m-0">Criar Novo Campeonato</h1>
+                            <i class="pi pi-trophy mr-3" style="font-size: 1.8rem; color: var(--accent)"></i>
+                            <h1 class="m-0" style="font-weight: 800; font-size: 1.8rem; color: var(--text-100)">Criar Novo Campeonato</h1>
                         </div>
-                        <p class="text-600 text-lg m-0">Preencha as informações para criar um novo campeonato</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <p:commandButton value="Cancelar" 
-                                         icon="pi pi-times"
-                                         styleClass="p-button-outlined p-button-secondary"
-                                         action="/campeonatos?faces-redirect=true"
-                                         immediate="true"
-                                         process="@this" />                       
+                        <p class="m-0" style="color: #d1d8e6">Preencha as informações para criar um novo campeonato</p>
                     </div>
                 </div>
-            </div>
+            </p:card>
 
             <!-- Card: Informações Básicas -->
-            <div class="surface-card shadow-2 border-round mb-4 p-4">
-                <h2 class="text-900 font-bold text-2xl mb-4">
-                    <i class="pi pi-info-circle mr-2"></i>Informações Básicas
-                </h2>
+            <p:card styleClass="glass-card mb-4">
+                <f:facet name="title">
+                    <div class="flex align-items-center">
+                        <i class="pi pi-info-circle mr-2" style="color: var(--accent)"></i>
+                        <span>Informações Básicas</span>
+                    </div>
+                </f:facet>
 
                 <div class="formgrid grid">
                     <!-- Nome -->
                     <div class="field col-12 md:col-8">
-                        <label for="campNome" class="block mb-2 font-medium">Nome do Campeonato *</label>
+                        <label for="campNome" class="block mb-2 font-medium" style="color: #cbd5e1">Nome do Campeonato *</label>
                         <p:inputText id="campNome" 
                                      value="#{managerCriarCampeonato.camp.nome}"
                                      placeholder="Ex: Campeonato Brasileiro 2024"
                                      required="true"
                                      requiredMessage="Nome é obrigatório"
-                                     styleClass="w-full" />
+                                     styleClass="glass-input w-full" />
                     </div>
 
                     <!-- Status -->
                     <div class="field col-12 md:col-4">
-                        <label for="campStatus" class="block mb-2 font-medium">Status *</label>
+                        <label for="campStatus" class="block mb-2 font-medium" style="color: #cbd5e1">Status *</label>
                         <p:selectOneMenu id="campStatus" 
                                          value="#{managerCriarCampeonato.camp.status}"
                                          required="true"
@@ -62,7 +57,7 @@
 
                     <!-- Data Início -->
                     <div class="field col-12 md:col-4">
-                        <label for="campDataInicio" class="block mb-2 font-medium">Data de Início *</label>
+                        <label for="campDataInicio" class="block mb-2 font-medium" style="color: #cbd5e1">Data de Início *</label>
                         <p:datePicker id="campDataInicio" 
                                       value="#{managerCriarCampeonato.camp.dataCamp}" 
                                       pattern="dd/MM/yyyy HH:mm" 
@@ -74,7 +69,7 @@
 
                     <!-- Data Final -->
                     <div class="field col-12 md:col-4">
-                        <label for="campDataFinal" class="block mb-2 font-medium">Término das Inscrições *</label>
+                        <label for="campDataFinal" class="block mb-2 font-medium" style="color: #cbd5e1">Término das Inscrições *</label>
                         <p:datePicker id="campDataFinal" 
                                       value="#{managerCriarCampeonato.camp.dataPrazoCamp}" 
                                       pattern="dd/MM/yyyy HH:mm" 
@@ -86,7 +81,7 @@
 
                     <!-- Jogo -->
                     <div class="field col-12 md:col-4">
-                        <label for="campJogo" class="block mb-2 font-medium">Jogo *</label>
+                        <label for="campJogo" class="block mb-2 font-medium" style="color: #cbd5e1">Jogo *</label>
                         <p:autoComplete id="campJogo" 
                                         value="#{managerCriarCampeonato.camp.jogo}"
                                         forceSelection="true" 
@@ -100,19 +95,22 @@
                                         styleClass="w-full" />
                     </div>
                 </div>
-            </div>
+            </p:card>
 
             <div class="grid">
                 <!-- Card: Configurações -->
                 <div class="col-12 lg:col-6">
-                    <div class="surface-card shadow-2 border-round p-4 h-full">
-                        <h2 class="text-900 font-bold text-2xl mb-4">
-                            <i class="pi pi-cog mr-2"></i>Configurações
-                        </h2>
+                    <p:card styleClass="glass-card h-full">
+                        <f:facet name="title">
+                            <div class="flex align-items-center">
+                                <i class="pi pi-cog mr-2" style="color: var(--accent)"></i>
+                                <span>Configurações</span>
+                            </div>
+                        </f:facet>
 
                         <!-- Categoria -->
                         <div class="field mb-4">
-                            <label for="campCategoria" class="block mb-3 font-medium">Categoria *</label>
+                            <label for="campCategoria" class="block mb-3 font-medium" style="color: #cbd5e1">Categoria *</label>
                             <p:selectOneButton id="campCategoria" 
                                                value="#{managerCriarCampeonato.camp.categoria}"
                                                required="true"
@@ -121,7 +119,7 @@
                                 <f:selectItem itemLabel="Times" itemValue="TIME" />
                                 <p:ajax update="configTimesPanel" />
                             </p:selectOneButton>
-                            <small class="block text-600 mt-2">
+                            <small class="block mt-2" style="color: #98a2b3">
                                 Defina se será individual ou por times
                             </small>
                         </div>
@@ -131,35 +129,33 @@
                             <h:panelGroup rendered="#{managerCriarCampeonato.camp.categoria eq 'TIME'}">
                                 <p:divider />
                                 
-                               
-                                
                                 <!-- Geração de Times por Sorteio -->
                                 <div class="field mb-4">
-                                    <label class="block mb-3 font-medium">Geração de Times</label>
+                                    <label class="block mb-3 font-medium" style="color: #cbd5e1">Geração de Times</label>
                                     
-                                    <div class="surface-100 border-round p-3 mb-3">
+                                    <div class="config-box mb-3">
                                         <div class="flex align-items-center gap-2 mb-3">
                                             <p:selectBooleanCheckbox id="sorteioTimes" 
                                                                      value="#{managerCriarCampeonato.camp.gerarTimesPorSorteio}">
                                                 
                                             </p:selectBooleanCheckbox>
-                                            <label for="sorteioTimes" class="font-medium cursor-pointer">
+                                            <label for="sorteioTimes" class="font-medium cursor-pointer" style="color: var(--text-100)">
                                                 Gerar times automaticamente por sorteio
                                             </label>
                                         </div>
                                         
-                                        <small class="block text-600">
+                                        <small class="block" style="color: #98a2b3">
                                             <i class="pi pi-info-circle mr-1"></i>
                                             Quando ativado, os jogadores inscritos serão distribuídos automaticamente entre os times através de sorteio
                                         </small>
                                     </div>
 
-                                 
                                 </div>
-                                  <p:divider />
-                                 <!-- Quantidade de Jogadores por Time -->
+                                <p:divider />
+                                
+                                <!-- Quantidade de Jogadores por Time -->
                                 <div class="field mb-4">
-                                    <label for="qtdJogadoresTime" class="block mb-3 font-medium">
+                                    <label for="qtdJogadoresTime" class="block mb-3 font-medium" style="color: #cbd5e1">
                                         <i class="pi pi-users mr-2"></i>Jogadores por Time
                                     </label>
                                     <p:inputNumber id="qtdJogadoresTime" 
@@ -168,11 +164,8 @@
                                                    styleClass="w-full">
                                        
                                     </p:inputNumber>
-                                    
-                                    
                                 </div>
 
-                              
                             </h:panelGroup>
                         </h:panelGroup>
 
@@ -180,7 +173,7 @@
 
                         <!-- Formato -->
                         <div class="field">
-                            <label for="campTipo" class="block mb-3 font-medium">Formato *</label>
+                            <label for="campTipo" class="block mb-3 font-medium" style="color: #cbd5e1">Formato *</label>
                             <div class="flex flex-column gap-3">
                                 <p:selectOneRadio id="campTipo" 
                                                   value="#{managerCriarCampeonato.camp.tipoCampeonato}"
@@ -192,12 +185,12 @@
                         </div>
 
                         <!-- Info Box -->
-                        <div class="surface-100 border-round p-3 mt-4">
+                        <div class="info-box mt-4">
                             <div class="flex gap-2">
-                                <i class="pi pi-info-circle text-primary"></i>
+                                <i class="pi pi-info-circle" style="color: var(--accent)"></i>
                                 <div>
-                                    <p class="font-semibold text-900 mt-0 mb-2">Sobre os formatos:</p>
-                                    <ul class="text-700 mt-0 mb-0 pl-3">
+                                    <p class="font-semibold mt-0 mb-2" style="color: var(--text-100)">Sobre os formatos:</p>
+                                    <ul class="mt-0 mb-0 pl-3" style="color: #d1d8e6">
                                         <li><strong>Suíço:</strong> Pontuações semelhantes se enfrentam</li>
                                         <li><strong>Mata-Mata:</strong> Eliminação direta</li>
                                         <li><strong>Pontos Corridos:</strong> Todos contra todos</li>
@@ -205,51 +198,54 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </p:card>
                 </div>
 
                 <!-- Card: Imagem e Descrição -->
                 <div class="col-12 lg:col-6">
-                    <div class="surface-card shadow-2 border-round p-4 h-full">
-                        <h2 class="text-900 font-bold text-2xl mb-4">
-                            <i class="pi pi-image mr-2"></i>Imagem e Descrição
-                        </h2>
+                    <p:card styleClass="glass-card h-full">
+                        <f:facet name="title">
+                            <div class="flex align-items-center">
+                                <i class="pi pi-image mr-2" style="color: var(--accent)"></i>
+                                <span>Imagem e Descrição</span>
+                            </div>
+                        </f:facet>
 
                         <!-- Preview -->
                         <div class="field mb-4">
-                            <label class="block mb-3 font-medium">Logo/Banner</label>
+                            <label class="block mb-3 font-medium" style="color: #cbd5e1">Logo/Banner</label>
                             
                             <p:outputPanel id="previewImagem" styleClass="block text-center mb-3">
                                 <h:panelGroup rendered="#{managerCriarCampeonato.camp.anexo != null}">
                                     <p:graphicImage value="#{managerCriarCampeonato.camp.anexo.url}" 
                                                     alt="Logo"
-                                                    styleClass="border-round shadow-2"
-                                                    style="max-width: 100%; max-height: 300px; object-fit: cover;" />
+                                                    styleClass="border-round"
+                                                    style="max-width: 100%; max-height: 300px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1);" />
                                 </h:panelGroup>
 
                                 <h:panelGroup rendered="#{managerCriarCampeonato.camp.anexo == null}">
-                                    <div class="surface-100 border-round flex align-items-center justify-content-center border-2 border-dashed surface-border"
-                                         style="height: 300px;">
+                                    <div class="upload-placeholder">
                                         <div class="text-center">
-                                            <i class="pi pi-image text-6xl text-400"></i>
-                                            <p class="text-600 mt-2">Nenhuma imagem</p>
+                                            <i class="pi pi-image"></i>
+                                            <p class="mt-2" style="color: #98a2b3">Nenhuma imagem</p>
                                         </div>
                                     </div>
                                 </h:panelGroup>
                             </p:outputPanel>
 
                             <p:fileUpload id="uploadImagem"
-                                          mode="basic" 
+                                          mode="simple" 
+                                          skinSimple="true"
                                           auto="true"
-                                          chooseIcon="pi pi-upload"                                         
+                                          label="Escolher Imagem"                                         
                                           listener="#{managerCriarCampeonato.uploadImagem}"
                                           update="previewImagem"
                                           accept="image/*"
                                           invalidFileMessage="Formato inválido"
                                           invalidSizeMessage="Máximo 5MB"
-                                          styleClass="p-button-outlined w-full" />
+                                          styleClass="w-full" />
 
-                            <small class="block text-600 mt-2 text-center">
+                            <small class="block mt-2 text-center" style="color: #98a2b3">
                                 JPG, PNG, GIF (máx. 5MB)
                             </small>
                         </div>
@@ -258,7 +254,7 @@
 
                         <!-- Descrição -->
                         <div class="field">
-                            <label for="campDescricao" class="block mb-2 font-medium">Descrição</label>
+                            <label for="campDescricao" class="block mb-2 font-medium" style="color: #cbd5e1">Descrição</label>
                             <p:inputTextarea id="campDescricao" 
                                              value="#{managerCriarCampeonato.camp.observacao}"
                                              rows="5" 
@@ -266,30 +262,99 @@
                                              autoResize="true"
                                              maxlength="500"
                                              styleClass="w-full" />
-                            <small class="block text-600 mt-2">Máximo 500 caracteres</small>
+                            <small class="block mt-2" style="color: #98a2b3">Máximo 500 caracteres</small>
                         </div>
-                    </div>
+                    </p:card>
                 </div>
             </div>
 
-            <!-- Rodapé -->
-            <div class="surface-card shadow-2 border-round mt-4 p-4">
+            <!-- Rodapé Actions -->
+            <p:card styleClass="glass-card mt-4">
                 <div class="flex justify-content-end gap-2">
                     <p:commandButton value="Cancelar" 
                                      icon="pi pi-times"
-                                     styleClass="p-button-outlined p-button-secondary"
+                                     styleClass="p-button-outlined"
                                      action="/campeonatos?faces-redirect=true"
                                      immediate="true"
                                      process="@this" />                    
                     <p:commandButton value="Criar Campeonato" 
                                      icon="pi pi-check"
-                                     styleClass="p-button-success"
+                                     styleClass="full-stats-btn"
                                      action="#{managerCriarCampeonato.salvar}"
                                      update="@form"
                                      onclick="if(!confirm('Confirma a criação do campeonato?')) return false;" />
                 </div>
-            </div>
+            </p:card>
 
         </h:form>
+
+        <style>
+            /* Inputs glass */
+            .glass-input { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.08) !important; color: var(--text-100) !important; }
+            .glass-input::placeholder { color: #98a2b3; }
+            .glass-input:focus { box-shadow: 0 0 0 1px rgba(0,225,255,0.18), 0 0 16px rgba(0,225,255,0.08) !important; border-color: rgba(0,225,255,0.35) !important; }
+            
+            /* Config box */
+            .config-box { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1rem; }
+            
+            /* Info box */
+            .info-box { background: rgba(0,225,255,0.05); border: 1px solid rgba(0,225,255,0.15); border-radius: 10px; padding: 1rem; }
+            
+            /* Upload placeholder */
+            .upload-placeholder { background: rgba(255,255,255,0.02); border: 2px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 2rem; height: 300px; display: flex; align-items: center; justify-content: center; }
+            .upload-placeholder i { font-size: 3rem; color: var(--muted); }
+
+            /* SelectOneRadio dark */
+            .ui-selectoneradio { background: transparent !important; }
+            .ui-selectoneradio .ui-radiobutton-label { color: var(--text-100) !important; }
+
+            /* SelectOneButton dark */
+            .ui-selectonebutton { background: transparent !important; }
+            .ui-selectonebutton .ui-button { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.08) !important; color: var(--text-300) !important; }
+            .ui-selectonebutton .ui-state-active { background: rgba(0,225,255,0.12) !important; border-color: rgba(0,225,255,0.35) !important; color: var(--accent) !important; }
+
+            /* SelectOneMenu dark */
+            .ui-selectonemenu { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.08) !important; color: var(--text-100) !important; }
+            .ui-selectonemenu-panel { background: var(--bg-800) !important; border-color: rgba(255,255,255,0.08) !important; }
+
+            /* InputNumber dark */
+            .ui-inputnumber { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.08) !important; }
+
+            /* DatePicker dark */
+            .ui-calendar { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.08) !important; }
+            .ui-calendar-panel { background: var(--bg-800) !important; border-color: rgba(255,255,255,0.08) !important; }
+
+            /* AutoComplete dark */
+            .ui-autocomplete { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.08) !important; }
+            .ui-autocomplete-panel { background: var(--bg-800) !important; border-color: rgba(255,255,255,0.08) !important; }
+
+            /* TextArea dark */
+            .ui-inputtextarea { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.08) !important; color: var(--text-100) !important; }
+
+            /* Checkbox dark */
+            .ui-chkbox { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.08) !important; }
+            .ui-chkbox .ui-chkbox-label { color: var(--text-100) !important; }
+
+            /* FileUpload dark - Simple mode */
+            .ui-fileupload-simple { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 10px !important; }
+            .ui-fileupload-simple:hover { background: rgba(255,255,255,0.06) !important; border-color: rgba(0,225,255,0.3) !important; }
+            .ui-fileupload-simple input[type="file"] { background: transparent !important; color: var(--text-100) !important; border: none !important; padding: .5rem; }
+            .ui-fileupload-simple .ui-button { background: transparent !important; border: none !important; color: var(--text-100) !important; }
+            .ui-fileupload-simple .ui-button-text { color: var(--text-100) !important; }
+            .ui-fileupload-simple .ui-button:hover { color: var(--accent) !important; }
+            .ui-fileupload-simple .ui-icon-upload { color: var(--accent) !important; }
+            
+            /* Basic mode fallback */
+            .ui-fileupload { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.08) !important; color: var(--text-100) !important; border-radius: 10px !important; }
+            .ui-fileupload-buttonbar { background: transparent !important; border: none !important; }
+            .ui-fileupload-choose { background: rgba(0,225,255,0.08) !important; border: 1px solid rgba(0,225,255,0.2) !important; color: var(--accent) !important; border-radius: 8px; }
+            .ui-fileupload-choose:hover { background: rgba(0,225,255,0.15) !important; border-color: rgba(0,225,255,0.3) !important; }
+            .ui-fileupload-choose .ui-button-icon-left { color: var(--accent) !important; }
+            .ui-fileupload-content { background: transparent !important; }
+            .ui-fileupload-row { background: transparent !important; border-color: rgba(255,255,255,0.08) !important; }
+            .ui-fileupload-filename { color: var(--text-100) !important; }
+            .ui-fileupload-buttonbar .ui-button { background: transparent !important; border: none !important; color: var(--text-100) !important; }
+            .ui-fileupload-buttonbar .ui-button:hover { color: var(--accent) !important; }
+        </style>
     </ui:define>
 </ui:composition>

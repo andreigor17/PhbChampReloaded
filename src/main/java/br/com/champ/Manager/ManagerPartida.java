@@ -124,6 +124,8 @@ public class ManagerPartida implements Serializable {
     private BigDecimal valorFormatado;
     private Player playerLogado;
     private Team timeIniciante;
+    private List<Partida> historicoTime1;
+    private List<Partida> historicoTime2;
 
     @PostConstruct
     public void init() {
@@ -165,6 +167,12 @@ public class ManagerPartida implements Serializable {
 
                     gerarScore();
                     createRadarModel();
+                    
+                    // Carregar histórico dos times
+                    if (!this.itensPartidas.isEmpty() && this.itensPartidas.get(0).getTeam1() != null && this.itensPartidas.get(0).getTeam2() != null) {
+                        this.historicoTime1 = partidaServico.pesquisarPartidasGeral();
+                        this.historicoTime2 = partidaServico.pesquisarPartidasGeral();
+                    }
                 } catch (Exception ex) {
                     System.err.println(ex);
                 }
@@ -207,6 +215,8 @@ public class ManagerPartida implements Serializable {
         this.nomeTime1 = null;
         this.nomeTime2 = null;
         this.timeIniciante = null;
+        this.historicoTime1 = new ArrayList<>();
+        this.historicoTime2 = new ArrayList<>();
     }
 
     public void createRadarModel() throws Exception {
@@ -1201,6 +1211,22 @@ public class ManagerPartida implements Serializable {
         System.err.println("sorteou..." + team.getId());
         this.timeIniciante = team;
         this.pickBanVo = PickBanUtils.gerarListaPB(this.partida.getItemPartida().get(0).getTeam1(), this.partida.getItemPartida().get(0).getTeam2(), this.partida.getItemPartida().size(), this.timeIniciante);
+    }
+
+    public List<Partida> getHistoricoTime1() {
+        return historicoTime1;
+    }
+
+    public void setHistoricoTime1(List<Partida> historicoTime1) {
+        this.historicoTime1 = historicoTime1;
+    }
+
+    public List<Partida> getHistoricoTime2() {
+        return historicoTime2;
+    }
+
+    public void setHistoricoTime2(List<Partida> historicoTime2) {
+        this.historicoTime2 = historicoTime2;
     }
 
 }

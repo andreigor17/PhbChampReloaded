@@ -6,16 +6,20 @@
                 template="vercel.xhtml">
 
     <ui:define name="content">
-        <div class="section-header">
-            <h1 class="section-title">Página Inicial</h1>
+        <!-- Hero Section -->
+        <div class="hero-section mb-5">
+            <div class="hero-content">
+                <h1 class="hero-title">Bem-vindo ao PhbChamp</h1>
+                <p class="hero-subtitle">Gerencie campeonatos, times e partidas com estilo profissional</p>
+            </div>
         </div>
 
         <!-- Resumo de Estatísticas -->
         <div class="grid">
             <div class="col-12 md:col-6 lg:col-3">
-                <p:card styleClass="dashboard-card">
-                    <div class="dashboard-stat">
-                        <div class="dashboard-stat-icon bg-primary">
+                <p:card styleClass="dashboard-card glass-card">
+                    <div class="dashboard-stat elegant">
+                        <div class="dashboard-stat-icon">
                             <i class="pi pi-users"></i>
                         </div>
                         <div class="dashboard-stat-content">
@@ -27,9 +31,9 @@
             </div>
 
             <div class="col-12 md:col-6 lg:col-3">
-                <p:card styleClass="dashboard-card">
-                    <div class="dashboard-stat">
-                        <div class="dashboard-stat-icon bg-success">
+                <p:card styleClass="dashboard-card glass-card">
+                    <div class="dashboard-stat elegant">
+                        <div class="dashboard-stat-icon accent-success">
                             <i class="pi pi-shield"></i>
                         </div>
                         <div class="dashboard-stat-content">
@@ -41,9 +45,9 @@
             </div>
 
             <div class="col-12 md:col-6 lg:col-3">
-                <p:card styleClass="dashboard-card">
-                    <div class="dashboard-stat">
-                        <div class="dashboard-stat-icon bg-warning">
+                <p:card styleClass="dashboard-card glass-card">
+                    <div class="dashboard-stat elegant">
+                        <div class="dashboard-stat-icon accent-warn">
                             <i class="pi pi-trophy"></i>
                         </div>
                         <div class="dashboard-stat-content">
@@ -55,9 +59,9 @@
             </div>
 
             <div class="col-12 md:col-6 lg:col-3">
-                <p:card styleClass="dashboard-card">
-                    <div class="dashboard-stat">
-                        <div class="dashboard-stat-icon bg-info">
+                <p:card styleClass="dashboard-card glass-card">
+                    <div class="dashboard-stat elegant">
+                        <div class="dashboard-stat-icon accent-info">
                             <i class="pi pi-flag-fill"></i>
                         </div>
                         <div class="dashboard-stat-content">
@@ -72,17 +76,17 @@
         <!-- Seção de Campeonatos -->
         <div class="section-subheader mt-4">
             <h2 class="section-subtitle">Campeonatos</h2>
-            <p:button value="Ver Todos" icon="pi pi-arrow-right" outcome="error.xhtml" styleClass="p-button-text" />
+            <p:button value="Ver Todos" icon="pi pi-arrow-right" outcome="indexCampeonato.xhtml" styleClass="elegant-btn-text" />
         </div>
 
-        <!-- AJUSTADO: Cards de Campeonatos (3 por linha, tamanho consistente) -->
+        <!-- Cards de Campeonatos (3 por linha, tema dark elegante) -->
         <div class="grid">
             <!-- Campeonato 1 -->
             <div class="col-12 sm:col-6 lg:col-4">
                 <ui:repeat value="#{managerIndex.campsAtuais}" var="camp">
-                    <p:card styleClass="championship-card">
+                    <p:card styleClass="championship-card glass-card">
                         <div class="championship-header">
-                            <div class="championship-logo">
+                            <div class="championship-logo glass-logo">
                                 <i class="pi pi-trophy"></i>
                             </div>
                             <div class="championship-status">
@@ -94,26 +98,26 @@
                             <h3 class="championship-title">#{camp.nome}</h3>
                             <div class="championship-info">
                                 <div class="info-item">
-                                    <span class="info-label">Jogo:</span>
+                                    <span class="info-label">Jogo</span>
                                     <span class="info-value">#{camp.jogo.nome}</span>
                                 </div>
                                 <div class="info-item">
-                                    <span class="info-label">Times:</span>
+                                    <span class="info-label">Times</span>
                                     <span class="info-value">#{camp.teams.size()}</span>
                                 </div>
                                 <div class="info-item">
-                                    <span class="info-label">Início:</span>
+                                    <span class="info-label">Início</span>
                                     <span class="info-value">#{camp.dataCriacao}</span>
                                 </div>
                                 <div class="info-item">
-                                    <span class="info-label">Término:</span>
-                                    <span class="info-value">#{camp.dataFinal}</span>
+                                    <span class="info-label">Término</span>
+                                    <span class="info-value">#{camp.dataCamp}</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="championship-footer">
-                            <p:button value="Detalhes" icon="pi pi-eye" outcome="error.xhtml" styleClass="p-button-outlined" />
+                            <p:button value="Detalhes" icon="pi pi-eye" outcome="visualizarCampeonato.xhtml?id=#{camp.id}" styleClass="elegant-btn-outlined" />
                         </div>
                     </p:card>
                 </ui:repeat>
@@ -123,7 +127,7 @@
         <!-- NOVO: Seção de Últimas Partidas -->
         <div class="section-subheader mt-4">
             <h2 class="section-subtitle">Últimas Partidas</h2>
-            <p:button value="Ver Todas" icon="pi pi-arrow-right" outcome="error.xhtml" styleClass="p-button-text" />
+            <p:button value="Ver Todas" icon="pi pi-arrow-right" outcome="indexPartida.xhtml" styleClass="elegant-btn-text" />
         </div>
 
         <!-- Cards de Partidas -->
@@ -132,7 +136,7 @@
             <ui:repeat value="#{managerIndex.partidas}" var="partida">
                 <div class="col-12 md:col-6 xl:col-4"> 
 
-                    <p:card styleClass="match-card">
+                    <p:card styleClass="match-card glass-card">
                         <div class="match-header">
                             <div class="match-info">
                                 <p:badge value="Em Andamento" severity="warning" styleClass="match-status" />
@@ -149,7 +153,7 @@
                                 <div class="team-logo">
                                     <p:graphicImage value="image/#{partida.itemPartida.get(0).team1.anexo.nome}" rendered="#{partida.itemPartida.get(0).team1.anexo ne null}" styleClass="team-logo-img" />
                                     <div class="team-logo" style="#{partida.itemPartida.get(0).team1.anexo eq null ?  '' : 'display: none'}">
-                                        <i class="pi pi-user" style="font-size: 2rem; color: #ccc;"></i>
+                                        <i class="pi pi-user" style="font-size: 2rem; color: var(--text-300);"></i>
                                     </div>
                                 </div>
                                 <div class="team-name">#{partida.itemPartida.get(0).team1.nome}</div>
@@ -162,7 +166,7 @@
                                 <div class="team-logo">
                                     <p:graphicImage value="image/#{partida.itemPartida.get(0).team2.anexo.nome}" rendered="#{partida.itemPartida.get(0).team2.anexo ne null}" styleClass="team-logo-img" />
                                     <div class="team-logo" style="#{partida.itemPartida.get(0).team2.anexo eq null ?  '' : 'display: none'}">
-                                        <i class="pi pi-user" style="font-size: 2rem; color: #ccc;"></i>
+                                        <i class="pi pi-user" style="font-size: 2rem; color: var(--text-300);"></i>
                                     </div>
                                 </div>
                                 <div class="team-name">#{partida.itemPartida.get(0).team2.nome}</div>
@@ -175,7 +179,7 @@
                                 <i class="pi pi-desktop mr-1"></i>
                                 <span>#{partida.jogo.nome}</span>
                             </div>
-                            <p:button value="Detalhes" icon="pi pi-eye" outcome="error.xhtml" styleClass="p-button-text p-button-sm" />
+                            <p:button value="Ver Detalhes" icon="pi pi-eye" outcome="visualizarPartida.xhtml?id=#{partida.id}" styleClass="elegant-btn-text" />
                         </div>
                     </p:card>
 
@@ -183,83 +187,186 @@
             </ui:repeat>
         </div>
 
+        <!-- NOVO: Destaques da Semana -->
+        <div class="section-subheader mt-4">
+            <h2 class="section-subtitle">Destaques da Semana</h2>
+        </div>
+
+        <div class="grid">
+            <!-- Players of the Week -->
+            <div class="col-12 md:col-6">
+                <p:card styleClass="glass-card">
+                    <f:facet name="title">
+                        <div class="flex align-items-center" style="color: var(--text-100);">
+                            <i class="pi pi-users mr-2" style="color: var(--accent);"></i>
+                            <span>Players of the Week</span>
+                        </div>
+                    </f:facet>
+                    <div class="grid">
+                        <ui:repeat value="#{managerIndex.playersOfTheWeek}" var="pweek">
+                            <div class="col-12 sm:col-6">
+                                <div class="pow-card">
+                                    <div class="pow-avatar">
+                                        <p:graphicImage value="image/#{pweek.anexo.nome}" rendered="#{pweek.anexo ne null}" styleClass="pow-img" />
+                                        <div class="pow-placeholder" style="#{pweek.anexo eq null ? '' : 'display:none'}">
+                                            <i class="pi pi-user"></i>
+                                        </div>
+                                    </div>
+                                    <div class="pow-info">
+                                        <div class="pow-name">#{pweek.nome}</div>
+                                        <div class="pow-nick">@#{pweek.nick}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </ui:repeat>
+                        <h:panelGroup rendered="#{empty managerIndex.playersOfTheWeek}">
+                            <div class="col-12">
+                                <div class="empty-state">Sem destaques nesta semana.</div>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                </p:card>
+            </div>
+
+            <!-- Jogadas da Week -->
+            <div class="col-12 md:col-6">
+                <p:card styleClass="glass-card">
+                    <f:facet name="title">
+                        <div class="flex align-items-center" style="color: var(--text-100);">
+                            <i class="pi pi-bolt mr-2" style="color: var(--accent);"></i>
+                            <span>Jogadas da Week</span>
+                        </div>
+                    </f:facet>
+                    <div class="plays-list">
+                        <ui:repeat value="#{managerIndex.playsOfTheWeek}" var="play">
+                            <div class="play-item">
+                                <i class="pi pi-star-fill play-icon"></i>
+                                <span class="play-text">#{play}</span>
+                            </div>
+                        </ui:repeat>
+                        <h:panelGroup rendered="#{empty managerIndex.playsOfTheWeek}">
+                            <div class="empty-state">Sem jogadas registradas nesta semana.</div>
+                        </h:panelGroup>
+                    </div>
+                </p:card>
+            </div>
+        </div>
 
 
-        <!-- Estilos específicos para o dashboard -->
+        <!-- Estilos específicos para o dashboard (tema dark elegante) -->
         <style type="text/css">
-            /* Estilos existentes para o dashboard */
-            .dashboard-card {
-                margin-bottom: 1rem;
+            /* Hero Section */
+            .hero-section {
+                background: linear-gradient(135deg, rgba(0,225,255,0.08), rgba(255,138,61,0.05));
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: var(--radius);
+                padding: 3rem 2rem;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
             }
-
-            .dashboard-stat {
-                display: flex;
-                align-items: center;
+            
+            .hero-section::before {
+                content: "";
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 200%;
+                height: 200%;
+                background: radial-gradient(circle, rgba(0,225,255,0.03) 0%, transparent 70%);
+                pointer-events: none;
             }
-
-            .dashboard-stat-icon {
-                width: 48px;
-                height: 48px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-right: 1rem;
-                color: white;
-                font-size: 1.5rem;
+            
+            .hero-content {
+                position: relative;
+                z-index: 1;
             }
-
-            .bg-primary {
-                background-color: #007bff;
+            
+            .hero-title {
+                font-size: 2.5rem;
+                font-weight: 800;
+                margin: 0 0 1rem 0;
+                color: var(--text-100);
+                background: linear-gradient(135deg, var(--text-100), var(--accent));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
             }
-
-            .bg-success {
-                background-color: #28a745;
-            }
-
-            .bg-warning {
-                background-color: #ffc107;
-            }
-
-            .bg-info {
-                background-color: #17a2b8;
-            }
-
-            .dashboard-stat-content {
-                flex: 1;
-            }
-
-            .dashboard-stat-value {
-                font-size: 1.5rem;
-                font-weight: 700;
-                line-height: 1.2;
-            }
-
-            .dashboard-stat-label {
-                color: #6c757d;
-                font-size: 0.875rem;
-            }
-
-            .section-subheader {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 1rem;
-            }
-
-            .section-subtitle {
-                font-size: 1.25rem;
-                font-weight: 600;
+            
+            .hero-subtitle {
+                font-size: 1.125rem;
+                color: var(--text-300);
                 margin: 0;
+                font-weight: 400;
             }
+            
+            .section-title { font-size: 1.75rem; font-weight: 700; margin: 0; color: var(--text-100); }
+            .section-subtitle { font-size: 1.25rem; font-weight: 700; margin: 0; color: var(--text-100); }
+            
+            /* Botões Elegantes e Leves */
+            .elegant-btn-text,
+            .elegant-btn-text.p-button,
+            .elegant-btn-text.ui-button {
+                background: transparent !important;
+                border: none !important;
+                color: var(--accent) !important;
+                padding: 0.5rem 1rem !important;
+                font-weight: 500 !important;
+                font-size: 0.875rem !important;
+                border-radius: 8px !important;
+                transition: all 0.2s ease !important;
+                text-decoration: none !important;
+            }
+            
+            .elegant-btn-text:hover,
+            .elegant-btn-text.p-button:hover,
+            .elegant-btn-text.ui-button:hover {
+                background: rgba(0,225,255,0.08) !important;
+                color: var(--accent) !important;
+                transform: translateX(2px) !important;
+            }
+            
+            .elegant-btn-outlined,
+            .elegant-btn-outlined.p-button,
+            .elegant-btn-outlined.ui-button {
+                background: transparent !important;
+                border: 1px solid rgba(255,255,255,0.15) !important;
+                color: var(--text-100) !important;
+                padding: 0.5rem 1.25rem !important;
+                font-weight: 500 !important;
+                font-size: 0.875rem !important;
+                border-radius: 10px !important;
+                transition: all 0.2s ease !important;
+            }
+            
+            .elegant-btn-outlined:hover,
+            .elegant-btn-outlined.p-button:hover,
+            .elegant-btn-outlined.ui-button:hover {
+                background: rgba(255,255,255,0.04) !important;
+                border-color: rgba(0,225,255,0.3) !important;
+                color: var(--accent) !important;
+                transform: translateY(-1px) !important;
+                box-shadow: 0 4px 12px rgba(0,225,255,0.1) !important;
+            }
+            .dashboard-card { margin-bottom: 1rem; }
+            .dashboard-stat.elegant { display: flex; align-items: center; gap: 1rem; padding: .75rem; }
+            .dashboard-stat-icon { 
+                width: 48px; height: 48px; border-radius: 12px; 
+                display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+                background: linear-gradient(135deg, rgba(0,225,255,0.12), rgba(0,225,255,0.06));
+                border: 1px solid rgba(0,225,255,0.25); color: var(--accent);
+            }
+            .dashboard-stat-icon.accent-success { background: linear-gradient(135deg, rgba(34,197,94,0.14), rgba(34,197,94,0.06)); border-color: rgba(34,197,94,0.35); color: var(--success); }
+            .dashboard-stat-icon.accent-warn { background: linear-gradient(135deg, rgba(245,158,11,0.14), rgba(245,158,11,0.06)); border-color: rgba(245,158,11,0.35); color: var(--warning); }
+            .dashboard-stat-icon.accent-info { background: linear-gradient(135deg, rgba(59,130,246,0.14), rgba(59,130,246,0.06)); border-color: rgba(59,130,246,0.35); color: #60a5fa; }
+            .dashboard-stat-content { flex: 1; }
+            .dashboard-stat-value { font-size: 1.6rem; font-weight: 800; color: var(--text-100); line-height: 1.2; }
+            .dashboard-stat-label { color: var(--text-300); font-size: .85rem; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
 
-            /* Novos estilos para os cards de campeonatos */
-            .championship-card {
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                margin-bottom: 1rem;
-            }
+            .section-subheader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+
+            /* Cards de campeonatos */
+            .championship-card { height: 100%; display: flex; flex-direction: column; margin-bottom: 1rem; }
 
             .championship-header {
                 display: flex;
@@ -268,28 +375,14 @@
                 margin-bottom: 1rem;
             }
 
-            .championship-logo {
-                width: 48px;
-                height: 48px;
-                border-radius: 50%;
-                background-color: #f8f9fa;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.5rem;
-                color: #ffc107;
-            }
+            .championship-logo { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+            .glass-logo { background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); border: 1px solid rgba(255,255,255,0.12); color: var(--warning); }
 
             .championship-body {
                 flex: 1;
             }
 
-            .championship-title {
-                font-size: 1.25rem;
-                font-weight: 600;
-                margin-bottom: 1rem;
-                color: #343a40;
-            }
+            .championship-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-100); }
 
             .championship-info {
                 display: grid;
@@ -302,13 +395,34 @@
                 flex-direction: column;
             }
 
-            .info-label {
-                font-size: 0.75rem;
-                color: #6c757d;
-            }
+            .info-label { font-size: 0.75rem; color: var(--text-300); text-transform: uppercase; letter-spacing: .4px; font-weight: 600; }
 
-            .info-value {
-                font-weight: 500;
+            .info-value { font-weight: 600; color: var(--text-100) !important; font-size: 0.875rem; }
+            
+            /* Garantir textos claros em todos os cards */
+            .championship-card *,
+            .championship-body *,
+            .championship-info *,
+            .championship-card span,
+            .championship-card div,
+            .championship-card h3 {
+                color: var(--text-100) !important;
+            }
+            
+            .championship-card .info-label {
+                color: var(--text-300) !important;
+            }
+            
+            .match-card *,
+            .match-card span,
+            .match-card div {
+                color: var(--text-100) !important;
+            }
+            
+            .match-card .match-championship,
+            .match-card .match-date,
+            .match-card .match-game {
+                color: var(--text-300) !important;
             }
 
             .championship-footer {
@@ -317,13 +431,8 @@
                 justify-content: flex-end;
             }
 
-            /* Novos estilos para os cards de partidas */
-            .match-card {
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                margin-bottom: 1rem;
-            }
+            /* Cards de partidas */
+            .match-card { height: 100%; display: flex; flex-direction: column; margin-bottom: 1rem; }
 
             .match-header {
                 display: flex;
@@ -342,13 +451,9 @@
                 margin-right: 0.5rem;
             }
 
-            .match-championship {
-                color: #6c757d;
-            }
+            .match-championship { color: var(--text-300); }
 
-            .match-date {
-                color: #6c757d;
-            }
+            .match-date { color: var(--text-300); }
 
             .match-body {
                 display: flex;
@@ -366,17 +471,7 @@
                 text-align: center;
             }
 
-            .team-logo {
-                width: 64px;
-                height: 64px;
-                border-radius: 50%;
-                overflow: hidden;
-                background-color: #f8f9fa;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-bottom: 0.5rem;
-            }
+            .team-logo { width: 64px; height: 64px; border-radius: 50%; overflow: hidden; background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); border: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem; }
 
             .team-logo-img {
                 width: 100%;
@@ -387,30 +482,14 @@
             .team-name {
                 font-weight: 600;
                 margin-bottom: 0.5rem;
+                color: var(--text-100);
             }
 
-            .team-score {
-                font-size: 1.5rem;
-                font-weight: 700;
-                min-width: 40px;
-                height: 40px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 4px;
-                background-color: #f8f9fa;
-            }
+            .team-score { font-size: 1.5rem; font-weight: 800; min-width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: rgba(255,255,255,0.06); color: var(--text-100); }
 
-            .team-score.winner {
-                background-color: rgba(40, 167, 69, 0.1);
-                color: #28a745;
-            }
+            .team-score.winner { background: rgba(34,197,94,0.12); color: var(--success); border: 1px solid rgba(34,197,94,0.25); }
 
-            .team-score.live {
-                background-color: rgba(255, 193, 7, 0.1);
-                color: #ffc107;
-                position: relative;
-            }
+            .team-score.live { background: rgba(245,158,11,0.12); color: var(--warning); position: relative; border: 1px solid rgba(245,158,11,0.25); }
 
             .team-score.live::after {
                 content: "";
@@ -425,14 +504,10 @@
             }
 
             .team-score.upcoming {
-                color: #6c757d;
+                color: var(--text-300);
             }
 
-            .match-vs {
-                font-weight: 700;
-                color: #6c757d;
-                font-size: 1.25rem;
-            }
+            .match-vs { font-weight: 800; color: var(--text-300); font-size: 1.25rem; }
 
             .match-footer {
                 display: flex;
@@ -442,8 +517,84 @@
                 font-size: 0.875rem;
             }
 
-            .match-game {
-                color: #6c757d;
+            .match-game { color: var(--text-300); }
+
+            /* Players of the Week */
+            .pow-card { display: flex; align-items: center; gap: .75rem; padding: .75rem; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); transition: all .2s ease; }
+            .pow-card:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.4); border-color: rgba(0,225,255,0.15); }
+            .pow-avatar { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; position: relative; }
+            .pow-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+            .pow-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.06); color: var(--muted); }
+            .pow-info { display: flex; flex-direction: column; }
+            .pow-name { font-weight: 700; color: var(--text-100); }
+            .pow-nick { color: var(--text-300); font-size: .85rem; }
+            .empty-state { color: var(--text-300); padding: .75rem 0; }
+
+            /* Jogadas da Week */
+            .plays-list { display: flex; flex-direction: column; gap: .5rem; }
+            .play-item { display: flex; align-items: center; gap: .5rem; padding: .65rem .75rem; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); transition: all .2s ease; }
+            .play-item:hover { transform: translateX(2px); border-color: rgba(0,225,255,0.2); }
+            .play-icon { color: var(--accent); font-size: .9rem; }
+            .play-text { color: var(--text-100); }
+            
+            /* Garantir que títulos dos cards fiquem claros */
+            .glass-card .p-card-title,
+            .glass-card .p-card-header,
+            .glass-card .p-card-title *,
+            .glass-card .p-card-header * {
+                color: var(--text-100) !important;
+            }
+            
+            .glass-card .p-card-body,
+            .glass-card .p-card-content,
+            .glass-card .p-card-body *,
+            .glass-card .p-card-content * {
+                color: var(--text-100) !important;
+            }
+            
+            /* Forçar todos os textos dentro dos cards a ficarem claros */
+            .glass-card,
+            .glass-card *,
+            .glass-card span,
+            .glass-card div,
+            .glass-card p,
+            .glass-card h1,
+            .glass-card h2,
+            .glass-card h3,
+            .glass-card h4,
+            .glass-card label {
+                color: var(--text-100) !important;
+            }
+            
+            .glass-card .info-label,
+            .glass-card .match-championship,
+            .glass-card .match-date,
+            .glass-card .match-game,
+            .glass-card .dashboard-stat-label,
+            .glass-card .pow-nick,
+            .glass-card .empty-state {
+                color: var(--text-300) !important;
+            }
+            
+            /* Melhorar legibilidade dos cards */
+            .championship-card {
+                transition: all 0.3s ease;
+            }
+            
+            .championship-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+                border-color: rgba(0,225,255,0.2) !important;
+            }
+            
+            .match-card {
+                transition: all 0.3s ease;
+            }
+            
+            .match-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+                border-color: rgba(0,225,255,0.2) !important;
             }
 
             @keyframes pulse {
@@ -459,7 +610,33 @@
             }
 
             /* Ajustes responsivos */
+            @media (max-width: 768px) {
+                .hero-section {
+                    padding: 2rem 1.5rem;
+                }
+                
+                .hero-title {
+                    font-size: 2rem;
+                }
+                
+                .hero-subtitle {
+                    font-size: 1rem;
+                }
+            }
+            
             @media (max-width: 576px) {
+                .hero-section {
+                    padding: 1.5rem 1rem;
+                }
+                
+                .hero-title {
+                    font-size: 1.75rem;
+                }
+                
+                .hero-subtitle {
+                    font-size: 0.9rem;
+                }
+                
                 .championship-info {
                     grid-template-columns: 1fr;
                 }

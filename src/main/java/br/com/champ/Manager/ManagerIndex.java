@@ -51,6 +51,8 @@ public class ManagerIndex implements Serializable {
     private List<Campeonato> camps;
     private List<Campeonato> campsCards;
     private List<Player> playersAtivos;
+    private List<Player> playersOfTheWeek;
+    private List<String> playsOfTheWeek;
 
     @PostConstruct
     public void init() {
@@ -61,6 +63,24 @@ public class ManagerIndex implements Serializable {
             this.campsAtuais = campeonatoServico.pesquisarIndex(3);
             this.playersAtivos = playerServico.buscaPlayers();
             this.times = teamServico.buscaTimes();
+
+            // Inicializações seguras para novos blocos (sem dependência externa):
+            // Players of the Week: seleciona até 3 jogadores ativos (se disponíveis)
+            if (this.playersAtivos != null && !this.playersAtivos.isEmpty()) {
+                int limit = Math.min(3, this.playersAtivos.size());
+                this.playersOfTheWeek = new ArrayList<>(this.playersAtivos.subList(0, limit));
+            } else {
+                this.playersOfTheWeek = new ArrayList<>();
+            }
+
+            // Jogadas da Week: cria destaques textuais simples baseados na quantidade de partidas
+            this.playsOfTheWeek = new ArrayList<>();
+            if (this.partidas != null && !this.partidas.isEmpty()) {
+                int max = Math.min(3, this.partidas.size());
+                for (int i = 0; i < max; i++) {
+                    this.playsOfTheWeek.add("Destaque da partida #" + (i + 1));
+                }
+            }
         } catch (Exception ex) {
             Logger.getLogger(ManagerIndex.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -76,6 +96,8 @@ public class ManagerIndex implements Serializable {
         this.ests = new ArrayList<>();
         this.partidas = new ArrayList<>();
         this.playersAtivos = new ArrayList<>();
+        this.playersOfTheWeek = new ArrayList<>();
+        this.playsOfTheWeek = new ArrayList<>();
 
     }
 
@@ -168,6 +190,22 @@ public class ManagerIndex implements Serializable {
 
     public void setPlayersAtivos(List<Player> playersAtivos) {
         this.playersAtivos = playersAtivos;
+    }
+
+    public List<Player> getPlayersOfTheWeek() {
+        return playersOfTheWeek;
+    }
+
+    public void setPlayersOfTheWeek(List<Player> playersOfTheWeek) {
+        this.playersOfTheWeek = playersOfTheWeek;
+    }
+
+    public List<String> getPlaysOfTheWeek() {
+        return playsOfTheWeek;
+    }
+
+    public void setPlaysOfTheWeek(List<String> playsOfTheWeek) {
+        this.playsOfTheWeek = playsOfTheWeek;
     }
 
 }

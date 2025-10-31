@@ -9,81 +9,75 @@
         <h:form id="formIndexPartida">
 
             <!-- Header -->
-            <div class="surface-card shadow-2 border-round mb-4 p-4">
+            <p:card styleClass="glass-card mb-4">
                 <div class="flex justify-content-between align-items-center flex-wrap gap-3">
                     <div class="flex-1">
                         <div class="flex align-items-center mb-2">
-                            <i class="pi pi-flag text-4xl mr-3"></i>
-                            <h1 class="text-900 font-bold text-4xl m-0">Partidas</h1>
+                            <i class="pi pi-flag mr-3" style="font-size: 1.8rem; color: var(--accent)"></i>
+                            <h1 class="m-0" style="font-weight: 800; font-size: 1.8rem; color: var(--text-100)">Partidas</h1>
                         </div>
-                        <p class="text-600 text-lg m-0">Gerencie e acompanhe todas as partidas</p>
+                        <p class="m-0" style="color: var(--text-300)">Gerencie e acompanhe todas as partidas</p>
                     </div>
                     <div class="flex gap-2">
                         <p:commandButton value="Pesquisar Partidas" 
                                          icon="pi pi-search"
-                                         styleClass="p-button-outlined"
+                                         styleClass="p-button-outlined full-stats-btn"
                                          action="/pesquisarPartida?faces-redirect=true" />
                     </div>
                 </div>
-            </div>
+            </p:card>
 
 
 
             <!-- Cards de Ação Rápida -->
             <div class="grid mb-4">
                 <div class="col-12 lg:col-6">
-                    <div class="surface-card shadow-2 border-round p-4 h-full">
+                    <p:card styleClass="glass-card h-full">
                         <div class="flex align-items-start gap-3">
-                            <div class="flex-shrink-0">
-                                <div class="bg-blue-100 border-round flex align-items-center justify-content-center" 
-                                     style="width: 60px; height: 60px;">
-                                    <i class="pi pi-bolt text-blue-600 text-3xl"></i>
-                                </div>
+                            <div class="flex-shrink-0 action-logo">
+                                <i class="pi pi-bolt"></i>
                             </div>
                             <div class="flex-1">
-                                <h3 class="text-900 font-bold text-xl mt-0 mb-2">Sorteio x5</h3>
-                                <p class="text-600 mt-0 mb-3 line-height-3">
+                                <h3 class="mt-0 mb-2" style="font-weight: 800; color: var(--text-100)">Sorteio x5</h3>
+                                <p class="mt-0 mb-3 line-height-3" style="color: var(--text-300)">
                                     Crie uma partida 5v5 com times sorteados automaticamente. 
                                     Ideal para partidas equilibradas e dinâmicas.
                                 </p>
                                 <p:button value="Criar Sorteio x5" 
                                           icon="pi pi-bolt"
-                                          styleClass="p-button-primary"
+                                          styleClass="full-stats-btn"
                                           href="sorteiox5.xhtml" />
                             </div>
                         </div>
-                    </div>
+                    </p:card>
                 </div>
 
                 <div class="col-12 lg:col-6">
-                    <div class="surface-card shadow-2 border-round p-4 h-full">
+                    <p:card styleClass="glass-card h-full">
                         <div class="flex align-items-start gap-3">
-                            <div class="flex-shrink-0">
-                                <div class="bg-purple-100 border-round flex align-items-center justify-content-center" 
-                                     style="width: 60px; height: 60px;">
-                                    <i class="pi pi-users text-purple-600 text-3xl"></i>
-                                </div>
+                            <div class="flex-shrink-0 action-logo alt">
+                                <i class="pi pi-users"></i>
                             </div>
                             <div class="flex-1">
-                                <h3 class="text-900 font-bold text-xl mt-0 mb-2">Partida Clássica</h3>
-                                <p class="text-600 mt-0 mb-3 line-height-3">
+                                <h3 class="mt-0 mb-2" style="font-weight: 800; color: var(--text-100)">Partida Clássica</h3>
+                                <p class="mt-0 mb-3 line-height-3" style="color: var(--text-300)">
                                     Monte os times manualmente com drag <h:outputText value="&amp;" escape="false" /> drop. 
                                     Perfeito para partidas amistosas e treinos táticos.
                                 </p>
                                 <p:button value="Criar Partida Clássica" 
                                           icon="pi pi-users"
-                                          styleClass="p-button-help"
+                                          styleClass="full-stats-btn"
                                           href="partidaClassica.xhtml" />
                             </div>
                         </div>
-                    </div>
+                    </p:card>
                 </div>
             </div>
 
             <!-- Partidas em Andamento -->
-            <div class="surface-card shadow-2 border-round mb-4 p-4">
+            <p:card styleClass="glass-card mb-4">
                 <div class="section-header mb-4">
-                    <h2 class="text-900 font-bold text-2xl m-0">
+                    <h2 class="m-0" style="font-weight: 800; color: var(--text-100)">
                         <i class="pi pi-play-circle mr-2"></i>Partidas em Andamento
                     </h2>
                 </div>
@@ -92,43 +86,43 @@
                     <div class="grid">
                         <ui:repeat value="#{managerIndexPartida.partidasEmAndamento}" var="partida">
                             <div class="col-12 md:col-6 lg:col-4">
-                                <div class="surface-border border-1 border-round p-3 h-full">
+                                <div class="match-mini">
                                     <!-- Status Badge -->
                                     <div class="flex justify-content-between align-items-center mb-3">
-                                        <span class="inline-flex align-items-center gap-2 bg-green-100 text-green-900 px-3 py-1 border-round font-semibold text-sm">
-                                            <i class="pi pi-circle-fill" style="font-size: 0.5rem;"></i>
+                                        <span class="status-tag live">
+                                            <i class="pi pi-circle-fill"></i>
                                             AO VIVO
                                         </span>
-                                        <small class="text-600">#{partida.itemPartida.size()} mapa(s)</small>
+                                        <small style="color: var(--text-300)">#{partida.itemPartida.size()} mapa(s)</small>
                                     </div>
 
                                     <!-- Times -->
-                                    <div class="flex justify-content-between align-items-center mb-3 py-3 border-top-1 border-bottom-1 surface-border">
+                                    <div class="flex justify-content-between align-items-center mb-3 py-3 teams-divider">
                                         <div class="text-center flex-1">
                                             <div class="participant-avatar mx-auto mb-2" style="width: 50px; height: 50px; font-size: 20px;">
                                                 #{partida.itemPartida.get(0).team1.nome.substring(0,1)}
                                             </div>
-                                            <div class="font-semibold text-900">#{partida.itemPartida.get(0).team1.nome}</div>
+                                            <div class="font-semibold" style="color: var(--text-100)">#{partida.itemPartida.get(0).team1.nome}</div>
                                         </div>
 
                                         <div class="text-center px-3">
-                                            <span class="text-3xl font-bold text-900">VS</span>
+                                            <span class="text-3xl font-bold" style="color: var(--text-300)">VS</span>
                                         </div>
 
                                         <div class="text-center flex-1">
                                             <div class="participant-avatar mx-auto mb-2" style="width: 50px; height: 50px; font-size: 20px;">
                                                 #{partida.itemPartida.get(0).team2.nome.substring(0,1)}
                                             </div>
-                                            <div class="font-semibold text-900">#{partida.itemPartida.get(0).team2.nome}</div>
+                                            <div class="font-semibold" style="color: var(--text-100)">#{partida.itemPartida.get(0).team2.nome}</div>
                                         </div>
                                     </div>
 
                                     <!-- Mapas -->
                                     <div class="mb-3">
-                                        <small class="text-600 font-semibold">Mapas:</small>
+                                        <small class="font-semibold" style="color: var(--text-300)">Mapas:</small>
                                         <div class="flex flex-wrap gap-2 mt-2">
                                             <ui:repeat value="#{partida.itemPartida}" var="item">
-                                                <span class="surface-100 px-2 py-1 border-round text-sm">
+                                                <span class="map-chip">
                                                     #{item.mapas.nome != null ? item.mapas.nome : 'TBD'}
                                                 </span>
                                             </ui:repeat>
@@ -138,7 +132,7 @@
                                     <!-- Botão -->
                                     <p:commandButton value="Acompanhar" 
                                                      icon="pi pi-eye"
-                                                     styleClass="p-button-success w-full"
+                                                     styleClass="action-btn w-full"
                                                      />
                                 </div>
                             </div>
@@ -148,29 +142,29 @@
 
                 <h:panelGroup rendered="#{empty managerIndexPartida.partidasEmAndamento}">
                     <div class="text-center py-6">
-                        <i class="pi pi-inbox text-6xl text-400 mb-3"></i>
-                        <p class="text-600 text-xl m-0">Nenhuma partida em andamento</p>
+                        <i class="pi pi-inbox mb-3" style="font-size: 3rem; color: var(--muted)"></i>
+                        <p class="text-xl m-0" style="color: var(--text-300)">Nenhuma partida em andamento</p>
                     </div>
                 </h:panelGroup>
-            </div>
+            </p:card>
 
             <!-- Últimas Partidas -->
             <h:panelGroup rendered="#{not empty managerIndexPartida.partidasEmAndamento}">
-                <div class="surface-card shadow-2 border-round p-4">
+                <p:card styleClass="glass-card">
                     <div class="flex justify-content-between align-items-center mb-4">
-                        <h2 class="text-900 font-bold text-2xl m-0">
+                        <h2 class="m-0" style="font-weight: 800; color: var(--text-100)">
                             <i class="pi pi-history mr-2"></i>Últimas Partidas
                         </h2>
                         <p:commandButton value="Ver Todas" 
                                          icon="pi pi-arrow-right"
-                                         styleClass="p-button-text p-button-plain"
+                                         styleClass="p-button-text"
                                          action="/pesquisarPartida?faces-redirect=true" />
                     </div>
 
                     <p:dataTable id="partidaDataTable" 
                                  value="#{managerIndexPartida.partidas}" 
                                  var="partida"
-                                 styleClass="p-datatable-striped"
+                                 styleClass="elegant-table"
                                  paginator="true"
                                  rows="5"
                                  rowsPerPageTemplate="5,10,15"
@@ -204,7 +198,7 @@
                         <p:column headerText="Mapas" style="width: 35%;">
                             <div class="flex flex-wrap gap-1">
                                 <ui:repeat value="#{partida.itemPartida}" var="item">
-                                    <span class="surface-100 px-2 py-1 border-round text-sm">
+                                    <span class="map-chip">
                                         #{item.mapas.nome != null ? item.mapas.nome : 'TBD'}
                                     </span>
                                 </ui:repeat>
@@ -213,33 +207,24 @@
 
                         <p:column headerText="Status" style="width: 10%; text-align: center;">
                             <h:panelGroup rendered="#{partida.status == 'FINALIZADA'}">
-                                <span class="inline-flex align-items-center gap-1 bg-gray-100 text-gray-900 px-2 py-1 border-round font-semibold text-xs">
-                                    <i class="pi pi-check-circle"></i>
-                                    Finalizada
-                                </span>
+                                <span class="status-tag finished"><i class="pi pi-check-circle"></i> Finalizada</span>
                             </h:panelGroup>
                             <h:panelGroup rendered="#{partida.status == 'EM_ANDAMENTO'}">
-                                <span class="inline-flex align-items-center gap-1 bg-green-100 text-green-900 px-2 py-1 border-round font-semibold text-xs">
-                                    <i class="pi pi-circle-fill" style="font-size: 0.5rem;"></i>
-                                    Ao Vivo
-                                </span>
+                                <span class="status-tag live"><i class="pi pi-circle-fill"></i> Ao Vivo</span>
                             </h:panelGroup>
                             <h:panelGroup rendered="#{partida.status == 'AGENDADA'}">
-                                <span class="inline-flex align-items-center gap-1 bg-blue-100 text-blue-900 px-2 py-1 border-round font-semibold text-xs">
-                                    <i class="pi pi-clock"></i>
-                                    Agendada
-                                </span>
+                                <span class="status-tag scheduled"><i class="pi pi-clock"></i> Agendada</span>
                             </h:panelGroup>
                         </p:column>
 
                         <p:column headerText="Ações" style="width: 10%; text-align: center;">
                             <p:commandButton icon="pi pi-eye" 
-                                             styleClass="p-button-rounded p-button-text"
+                                             styleClass="p-button-rounded p-button-text action-btn"
                                              title="Visualizar Partida"
                                              />
                         </p:column>
                     </p:dataTable>
-                </div>
+                </p:card>
             </h:panelGroup>
 
         </h:form>
@@ -247,12 +232,13 @@
         <style>
             .participant-avatar {
                 border-radius: 50%;
-                background-color: #f8f9fa;
+                background: rgba(255,255,255,0.06);
+                border: 1px solid rgba(255,255,255,0.12);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-weight: bold;
-                color: #6c757d;
+                font-weight: 800;
+                color: var(--text-100);
             }
 
             .section-header h2 {
@@ -260,26 +246,18 @@
                 align-items: center;
             }
 
-            .p-button-plain {
-                color: #6c757d;
-                font-weight: 500;
-            }
-
-            .p-button-plain:hover {
-                color: #495057;
-                background-color: transparent !important;
-            }
+            .action-logo { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--accent); background: linear-gradient(135deg, rgba(0,225,255,0.12), rgba(0,225,255,0.06)); border: 1px solid rgba(0,225,255,0.25); font-size: 1.6rem; }
+            .action-logo.alt { color: #60a5fa; background: linear-gradient(135deg, rgba(59,130,246,0.14), rgba(59,130,246,0.06)); border-color: rgba(59,130,246,0.35); }
 
             /* Cards de ação com hover */
-            .surface-card:hover {
-                transform: translateY(-2px);
-                transition: transform 0.2s;
-            }
+            .glass-card:hover { transform: translateY(-2px); transition: transform 0.2s; }
 
             /* Badges com animação */
-            .bg-green-100 .pi-circle-fill {
-                animation: pulse 2s infinite;
-            }
+            .status-tag { display: inline-flex; align-items: center; gap: .4rem; padding: .2rem .5rem; border-radius: 999px; font-weight: 700; font-size: .78rem; }
+            .status-tag.live { background: rgba(34,197,94,0.12); color: var(--success); border: 1px solid rgba(34,197,94,0.25); }
+            .status-tag.scheduled { background: rgba(59,130,246,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
+            .status-tag.finished { background: rgba(255,255,255,0.06); color: var(--text-100); border: 1px solid rgba(255,255,255,0.15); }
+            .status-tag .pi-circle-fill { font-size: .5rem; }
 
             @keyframes pulse {
                 0%, 100% {
@@ -289,6 +267,11 @@
                     opacity: 0.5;
                 }
             }
+
+            .teams-divider { border-top: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.06); }
+            .map-chip { background: rgba(255,255,255,0.06); color: var(--text-100); border: 1px solid rgba(255,255,255,0.12); padding: .15rem .45rem; border-radius: 999px; font-size: .78rem; }
+            .match-mini { border: 1px solid rgba(255,255,255,0.08); background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border-radius: 12px; padding: 1rem; height: 100%; transition: all .2s ease; }
+            .match-mini:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.4); border-color: rgba(0,225,255,0.2); }
 
             /* Status badges responsivos */
             @media (max-width: 768px) {

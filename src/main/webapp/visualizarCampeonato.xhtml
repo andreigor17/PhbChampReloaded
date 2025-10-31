@@ -1,697 +1,490 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:p="http://primefaces.org/ui"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="vercel.xhtml">
 
-<h:head>
-    <title>#{managerCamp.camp.nome}</title>
-    <style type="text/css">
-        body {
-            background-color: #f8f9fa;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .card {
-            margin-bottom: 20px;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            background-color: white;
-        }
-
-        .header-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            position: relative;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .header-info {
-            flex: 1;
-        }
-
-        .header-title {
-            font-size: 36px;
-            font-weight: bold;
-            margin: 0 0 10px 0;
-        }
-
-        .header-meta {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .header-logo {
-            width: 150px;
-            height: 150px;
-            border-radius: 12px;
-            background-color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .header-logo img {
-            max-width: 120px;
-            max-height: 120px;
-            object-fit: contain;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 500;
-            margin-top: 10px;
-        }
-
-        .status-ativo {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .status-pendente {
-            background-color: #ffc107;
-            color: #212529;
-        }
-
-        .status-finalizado {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .section-header h2 {
-            margin: 0;
-            font-size: 24px;
-            color: #333;
-            font-weight: 600;
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .participant-card {
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .participant-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .participant-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: #f8f9fa;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 12px;
-            font-size: 32px;
-            font-weight: bold;
-            color: #6c757d;
-        }
-
-        .participant-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .participant-info {
-            font-size: 14px;
-            color: #6c757d;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .stat-box {
-            text-align: center;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-        }
-
-        .stat-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            color: #6c757d;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .bracket-container {
-            overflow-x: auto;
-            padding: 20px 0;
-        }
-
-        .bracket {
-            display: flex;
-            gap: 40px;
-            min-width: max-content;
-        }
-
-        .bracket-round {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            min-width: 200px;
-        }
-
-        .bracket-round-title {
-            text-align: center;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #495057;
-        }
-
-        .bracket-match {
-            background: white;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-
-        .bracket-team {
-            padding: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .bracket-team:last-child {
-            border-bottom: none;
-        }
-
-        .bracket-team.winner {
-            background-color: #d4edda;
-            font-weight: 600;
-        }
-
-        .bracket-team-name {
-            flex: 1;
-        }
-
-        .bracket-team-score {
-            font-weight: bold;
-            margin-left: 10px;
-        }
-
-        .p-button-plain {
-            color: #6c757d;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .p-button-plain:hover {
-            color: #343a40;
-            background-color: transparent !important;
-        }
-
-        .p-button-secondary {
-            background-color: #f8f9fa;
-            color: #495057;
-            border-color: #e9ecef;
-            transition: all 0.2s;
-        }
-
-        .p-button-secondary:hover {
-            background-color: #e9ecef;
-            color: #212529;
-            border-color: #dee2e6;
-        }
-
-        .p-button-secondary.p-button-outlined {
-            background-color: transparent;
-            color: #6c757d;
-            border-color: #dee2e6;
-        }
-
-        .p-button-secondary.p-button-outlined:hover {
-            background-color: #f8f9fa;
-            color: #495057;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-        }
-
-        .info-item {
-            display: flex;
-            padding: 12px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: #495057;
-            margin-right: 10px;
-            min-width: 120px;
-        }
-
-        .info-value {
-            color: #212529;
-        }
-
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-            }
-
-            .header-logo {
-                width: 120px;
-                height: 120px;
-            }
-
-            .header-title {
-                font-size: 28px;
-            }
-
-            .grid-container {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</h:head>
-
-<h:body>
-    <h:form id="formCampeonato">
-        <div class="container">
-            <!-- Header do Campeonato -->
-            <div class="card header-card">
-                <div class="header-content">
-                    <div class="header-info">
-                        <h1 class="header-title">
-                            <i class="pi pi-trophy"></i>
-                            #{managerCamp.camp.nome}
-                        </h1>
+    <ui:define name="content">
+        <h:form id="formCampeonato">
+            
+            <!-- Header Hero do Campeonato -->
+            <div class="camp-hero glass-card mb-4">
+                <div class="camp-hero-content">
+                    <div class="camp-hero-info">
+                        <div class="flex align-items-center gap-2 mb-3">
+                            <h1 class="m-0" style="font-weight: 800; font-size: 2rem; color: var(--text-100)">
+                                <i class="pi pi-trophy mr-2" style="color: var(--accent)"></i>#{managerCamp.camp.nome}
+                            </h1>
+                        </div>
                         
-                        <span class="status-badge status-#{managerCamp.camp.status.nome}">
+                        <span class="status-tag-camp #{managerCamp.camp.status.nome eq 'Em Andamento' ? 'live' : (managerCamp.camp.status.nome eq 'Finalizado' ? 'finished' : 'scheduled')}">
                             #{managerCamp.camp.status.nome}
                         </span>
 
-                        <div class="header-meta">
-                            <div class="meta-item">
-                                <i class="pi pi-calendar"></i>
-                                <span>Início: <h:outputText value="#{managerCamp.camp.dataCamp}">
-                                    <f:convertDateTime pattern="dd/MM/yyyy" />
-                                </h:outputText></span>
+                        <div class="camp-hero-meta">
+                            <div class="meta-item-camp">
+                                <i class="pi pi-calendar" style="color: var(--accent)"></i>
+                                <span><strong>Início:</strong> 
+                                    <h:outputText value="#{managerCamp.camp.dataCamp}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                                    </h:outputText>
+                                </span>
                             </div>
-                            <div class="meta-item">
-                                <i class="pi pi-clock"></i>
-                                <span>Inscrições até: <h:outputText value="#{managerCamp.camp.dataPrazoCamp}">
-                                    <f:convertDateTime pattern="dd/MM/yyyy" />
-                                </h:outputText></span>
+                            <div class="meta-item-camp">
+                                <i class="pi pi-clock" style="color: var(--accent)"></i>
+                                <span><strong>Inscrições até:</strong> 
+                                    <h:outputText value="#{managerCamp.camp.dataPrazoCamp}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                                    </h:outputText>
+                                </span>
                             </div>
-                            <div class="meta-item">
-                                <i class="pi pi-flag"></i>
+                            <div class="meta-item-camp">
+                                <i class="pi pi-desktop" style="color: var(--accent)"></i>
                                 <span>#{managerCamp.camp.jogo.nome}</span>
                             </div>
-                            <div class="meta-item">
-                                <i class="pi pi-users"></i>
+                            <div class="meta-item-camp">
+                                <i class="pi pi-users" style="color: var(--accent)"></i>
                                 <span>#{managerCamp.camp.categoria}</span>
                             </div>
-                            <div class="meta-item">
-                                <i class="pi pi-sitemap"></i>
+                            <div class="meta-item-camp">
+                                <i class="pi pi-sitemap" style="color: var(--accent)"></i>
                                 <span>#{managerCamp.camp.tipoCampeonato}</span>
                             </div>
                         </div>
 
                         <p:commandButton value="Fazer Inscrição" 
                                          icon="pi pi-user-plus"
-                                         styleClass="p-button-success p-button-lg"
-                                         style="margin-top: 20px;"
-                                         action="#{campeonatoView.inscrever()}"
-                                         update="@form"
-                                         rendered="#{campeonatoView.podeInscrever()}" />
+                                         styleClass="action-btn mt-3"
+                                         style="margin-top: 1rem;"
+                                         rendered="#{managerCamp.playerLogado ne null and (managerCamp.camp.categoria eq 'INDIVIDUAL' or managerCamp.camp.categoria eq 'INDIVIDUAL')}"
+                                         action="#{managerCamp.inscrever()}"
+                                         update="@form" />
                     </div>
 
-                    <div class="header-logo">
+                    <div class="camp-hero-logo">
                         <h:panelGroup rendered="#{managerCamp.camp.anexo != null}">
-                            <p:graphicImage value="#{managerCamp.camp.anexo.url}" 
-                                          alt="Logo" />
+                            <p:graphicImage value="image/#{managerCamp.camp.anexo.nome}" 
+                                          alt="Logo" 
+                                          styleClass="camp-logo-img" />
                         </h:panelGroup>
                         <h:panelGroup rendered="#{managerCamp.camp.anexo == null}">
-                            <i class="pi pi-trophy" style="font-size: 64px; color: #6c757d;"></i>
+                            <div class="camp-logo-placeholder">
+                                <i class="pi pi-trophy"></i>
+                            </div>
                         </h:panelGroup>
                     </div>
                 </div>
             </div>
 
             <!-- Informações Detalhadas -->
-            <div class="card">
-                <div class="section-header">
-                    <h2><i class="pi pi-info-circle"></i> Informações</h2>
-                </div>
+            <p:card styleClass="glass-card mb-4">
+                <f:facet name="title">
+                    <div class="flex align-items-center">
+                        <i class="pi pi-info-circle mr-2" style="color: var(--accent)"></i>
+                        <span>Informações</span>
+                    </div>
+                </f:facet>
                 
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">Formato:</span>
-                        <span class="info-value">#{managerCamp.camp.tipoCampeonato}</span>
+                <div class="info-grid-modern">
+                    <div class="info-item-modern">
+                        <i class="pi pi-sitemap info-item-icon"></i>
+                        <div>
+                            <p class="info-item-label">Formato</p>
+                            <p class="info-item-value">#{managerCamp.camp.tipoCampeonato}</p>
+                        </div>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">Categoria:</span>
-                        <span class="info-value">#{managerCamp.camp.categoria}</span>
+                    <div class="info-item-modern">
+                        <i class="pi pi-users info-item-icon"></i>
+                        <div>
+                            <p class="info-item-label">Categoria</p>
+                            <p class="info-item-value">#{managerCamp.camp.categoria}</p>
+                        </div>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">Participantes:</span>
-                        <span class="info-value">#{campeonatoView.totalParticipantes}</span>
+                    <div class="info-item-modern">
+                        <i class="pi pi-list info-item-icon"></i>
+                        <div>
+                            <p class="info-item-label">Times Inscritos</p>
+                            <p class="info-item-value">#{managerCamp.getTimesConfirmados(managerCamp.camp)}</p>
+                        </div>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">Status:</span>
-                        <span class="info-value">#{managerCamp.camp.status}</span>
+                    <div class="info-item-modern">
+                        <i class="pi pi-flag info-item-icon"></i>
+                        <div>
+                            <p class="info-item-label">Status</p>
+                            <p class="info-item-value">#{managerCamp.camp.status.nome}</p>
+                        </div>
                     </div>
                 </div>
 
-                <h:panelGroup rendered="#{not empty managerCamp.camp.dataCamp}">
+                <h:panelGroup rendered="#{not empty managerCamp.camp.observacao}">
                     <p:divider />
-                    <h3 style="margin-top: 20px; margin-bottom: 10px; color: #495057;">Descrição</h3>
-                    <p style="color: #6c757d; line-height: 1.6;">#{managerCamp.camp.observacao}</p>
+                    <div class="mt-3">
+                        <h3 style="margin-bottom: .5rem; color: var(--text-100); font-weight: 700">
+                            <i class="pi pi-file mr-2" style="color: var(--accent)"></i>Descrição
+                        </h3>
+                        <p style="color: #d1d8e6; line-height: 1.8;">#{managerCamp.camp.observacao}</p>
+                    </div>
                 </h:panelGroup>
-            </div>
+            </p:card>
 
             <!-- Participantes -->
-            <div class="card">
-                <div class="section-header">
-                    <h2><i class="pi pi-users"></i> Participantes</h2>
-                    <p:button value="Ver Todos" 
-                              styleClass="p-button-text p-button-plain" 
-                              onclick="return false;" />
-                </div>
+            <p:card styleClass="glass-card mb-4">
+                <f:facet name="title">
+                    <div class="flex align-items-center justify-content-between">
+                        <span class="flex align-items-center">
+                            <i class="pi pi-users mr-2" style="color: var(--accent)"></i>
+                            <span>Participantes</span>
+                        </span>
+                        <p:button value="Ver Todos" 
+                                  styleClass="p-button-text" 
+                                  outcome="indexCampeonato.xhtml" />
+                    </div>
+                </f:facet>
 
-                <div class="grid-container">
-                    <ui:repeat value="#{campeonatoView.participantes}" var="participante">
-                        <div class="participant-card">
-                            <div class="participant-avatar">
-                                <h:panelGroup rendered="#{participante.foto != null}">
-                                    <p:graphicImage value="#{participante.foto.url}" 
-                                                  style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" />
+                <div class="grid-container-modern">
+                    <ui:repeat value="#{managerCamp.camp.teams}" var="time">
+                        <div class="participant-card-modern">
+                            <div class="participant-avatar-modern">
+                                <h:panelGroup rendered="#{time.anexo != null}">
+                                    <p:graphicImage value="image/#{time.anexo.nome}" 
+                                                  styleClass="participant-img" />
                                 </h:panelGroup>
-                                <h:panelGroup rendered="#{participante.foto == null}">
-                                    #{participante.nome.substring(0,1)}
+                                <h:panelGroup rendered="#{time.anexo == null}">
+                                    #{time.nome.substring(0,1).toUpperCase()}
                                 </h:panelGroup>
                             </div>
-                            <div class="participant-name">#{participante.nome}</div>
-                            <div class="participant-info">
-                                <i class="pi pi-star-fill" style="color: #ffc107;"></i>
-                                Rating: #{participante.rating}
-                            </div>
-                            <p:button value="Ver Perfil" 
-                                      styleClass="p-button-secondary p-button-sm p-button-outlined"
-                                      style="margin-top: 10px; width: 100%;"
-                                      outcome="/participante-view?id=#{participante.id}" />
+                            <div class="participant-name-modern">#{time.nome}</div>
+                            <p:link value="Ver Time" 
+                                   styleClass="action-icon neon-action"
+                                   outcome="error.xhtml">
+                                <i class="pi pi-eye"></i>
+                            </p:link>
                         </div>
                     </ui:repeat>
                 </div>
-            </div>
 
-            <!-- TabView: Partidas, Tabela e Estatísticas -->
-            <div class="card">
+                <h:panelGroup rendered="#{empty managerCamp.camp.teams}">
+                    <div class="text-center py-5">
+                        <i class="pi pi-users mb-3" style="font-size: 3rem; color: var(--muted)"></i>
+                        <p style="color: #d1d8e6">Nenhum time inscrito ainda</p>
+                    </div>
+                </h:panelGroup>
+            </p:card>
+
+            <!-- Swiss System Bracket (apenas para formato SUÍÇO) -->
+            <h:panelGroup rendered="#{managerCamp.camp.tipoCampeonato.nome eq 'SUÍÇO'}">
+                <p:card styleClass="glass-card mb-4">
+                    <f:facet name="title">
+                        <div class="flex align-items-center justify-content-between">
+                            <span class="flex align-items-center">
+                                <i class="pi pi-sitemap mr-2" style="color: var(--accent)"></i>
+                                <span>Rodadas (Formato Suíço)</span>
+                            </span>
+                            <p:commandButton value="Gerar Próxima Rodada" 
+                                           icon="pi pi-refresh"
+                                           styleClass="action-btn"
+                                           rendered="#{managerCamp.podeMostrarProximaRodada()}"
+                                           action="#{managerCamp.gerarProximaRodada()}"
+                                           update="@form" />
+                        </div>
+                    </f:facet>
+
+                    <!-- Container de Rodadas Suíças -->
+                    <div class="swiss-bracket-container">
+                        <ui:repeat value="#{managerCamp.getRodadasSuicas()}" var="rodada">
+                            <div class="swiss-column">
+                                <div class="swiss-column-header">
+                                    <span class="swiss-record-badge">#{rodada.record}</span>
+                                    <h:panelGroup rendered="#{rodada.record eq '3:0' or rodada.record eq '3:1' or rodada.record eq '3:2'}">
+                                        <span class="status-tag qualified">Qualificado</span>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{rodada.record eq '0:3' or rodada.record eq '1:3' or rodada.record eq '2:3'}">
+                                        <span class="status-tag eliminated">Eliminado</span>
+                                    </h:panelGroup>
+                                </div>
+
+                                <div class="swiss-matches">
+                                    <ui:repeat value="#{rodada.partidas}" var="partida">
+                                        <div class="swiss-match">
+                                            <h:panelGroup rendered="#{partida.itemPartida ne null and partida.itemPartida.size() gt 0}">
+                                                <div class="swiss-team #{partida.isFinalizada() and partida.itemPartida.get(0).team1.id eq partida.timeVencedor.id ? 'winner' : ''}">
+                                                    <div class="swiss-team-logo">
+                                                        <h:panelGroup rendered="#{partida.itemPartida.get(0).team1.anexo != null}">
+                                                            <p:graphicImage value="image/#{partida.itemPartida.get(0).team1.anexo.nome}" 
+                                                                          styleClass="team-logo-small" />
+                                                        </h:panelGroup>
+                                                        <h:panelGroup rendered="#{partida.itemPartida.get(0).team1.anexo == null}">
+                                                            #{partida.itemPartida.get(0).team1.nome.substring(0,1).toUpperCase()}
+                                                        </h:panelGroup>
+                                                    </div>
+                                                    <span class="swiss-team-name">#{partida.itemPartida.get(0).team1.nome}</span>
+                                                    <h:panelGroup rendered="#{partida.isFinalizada()}">
+                                                        <span class="swiss-score">#{partida.itemPartida.get(0).scoreT1}</span>
+                                                    </h:panelGroup>
+                                                </div>
+
+                                                <div class="swiss-divider">
+                                                    <span class="swiss-vs">vs</span>
+                                                </div>
+
+                                                <div class="swiss-team #{partida.isFinalizada() and partida.itemPartida.get(0).team2.id eq partida.timeVencedor.id ? 'winner' : ''}">
+                                                    <div class="swiss-team-logo">
+                                                        <h:panelGroup rendered="#{partida.itemPartida.get(0).team2.anexo != null}">
+                                                            <p:graphicImage value="image/#{partida.itemPartida.get(0).team2.anexo.nome}" 
+                                                                          styleClass="team-logo-small" />
+                                                        </h:panelGroup>
+                                                        <h:panelGroup rendered="#{partida.itemPartida.get(0).team2.anexo == null}">
+                                                            #{partida.itemPartida.get(0).team2.nome.substring(0,1).toUpperCase()}
+                                                        </h:panelGroup>
+                                                    </div>
+                                                    <span class="swiss-team-name">#{partida.itemPartida.get(0).team2.nome}</span>
+                                                    <h:panelGroup rendered="#{partida.isFinalizada()}">
+                                                        <span class="swiss-score">#{partida.itemPartida.get(0).scoreT2}</span>
+                                                    </h:panelGroup>
+                                                </div>
+                                            </h:panelGroup>
+
+                                            <div class="swiss-match-status">
+                                                <h:panelGroup rendered="#{partida.isFinalizada()}">
+                                                    <span class="status-tag finished">Finalizada</span>
+                                                </h:panelGroup>
+                                                <h:panelGroup rendered="#{not partida.isFinalizada()}">
+                                                    <span class="status-tag scheduled">Aguardando</span>
+                                                </h:panelGroup>
+                                            </div>
+
+                                            <p:commandButton value="Registrar Resultado" 
+                                                           icon="pi pi-pencil"
+                                                           styleClass="action-btn w-full mt-2"
+                                                           rendered="#{not partida.isFinalizada() and managerCamp.playerLogado ne null}"
+                                                           onclick="alert('Funcionalidade em desenvolvimento'); return false;" />
+                                        </div>
+                                    </ui:repeat>
+                                </div>
+                            </div>
+                        </ui:repeat>
+                    </div>
+
+                    <h:panelGroup rendered="#{empty managerCamp.getRodadasSuicas()}">
+                        <div class="text-center py-5">
+                            <i class="pi pi-clock mb-3" style="font-size: 3rem; color: var(--muted)"></i>
+                            <p style="color: #d1d8e6">Nenhuma rodada gerada ainda</p>
+                        </div>
+                    </h:panelGroup>
+                </p:card>
+            </h:panelGroup>
+
+            <!-- Partidas e Estatísticas -->
+            <div class="glass-tab-container mb-4">
                 <p:tabView>
-                    <!-- Tab: Chaveamento (Mata-Mata/Suíço) -->
-                    <p:tab title="Chaveamento" 
-                           rendered="#{managerCamp.camp.tipoCampeonato == 'MATA_MATA' or managerCamp.camp.tipoCampeonato == 'SUICO'}">
-                        <div class="section-header">
-                            <h2><i class="pi pi-sitemap"></i> Chaveamento</h2>
+                    <p:tab title="Partidas">
+                        <div class="section-subheader mb-3">
+                            <h2 class="m-0" style="font-weight: 700; color: var(--text-100)">
+                                <i class="pi pi-calendar mr-2"></i>Partidas do Campeonato
+                            </h2>
                         </div>
 
-                        <div class="bracket-container">
-                            <div class="bracket">
-                                <!-- Oitavas -->
-                                <div class="bracket-round">
-                                    <div class="bracket-round-title">Oitavas de Final</div>
-                                    <ui:repeat value="#{campeonatoView.oitavas}" var="partida">
-                                        <div class="bracket-match">
-                                            <div class="bracket-team #{partida.vencedor == partida.timeA ? 'winner' : ''}">
-                                                <span class="bracket-team-name">#{partida.timeA.nome}</span>
-                                                <span class="bracket-team-score">#{partida.placarA}</span>
-                                            </div>
-                                            <div class="bracket-team #{partida.vencedor == partida.timeB ? 'winner' : ''}">
-                                                <span class="bracket-team-name">#{partida.timeB.nome}</span>
-                                                <span class="bracket-team-score">#{partida.placarB}</span>
-                                            </div>
-                                        </div>
-                                    </ui:repeat>
-                                </div>
-
-                                <!-- Quartas -->
-                                <div class="bracket-round">
-                                    <div class="bracket-round-title">Quartas de Final</div>
-                                    <ui:repeat value="#{campeonatoView.quartas}" var="partida">
-                                        <div class="bracket-match">
-                                            <div class="bracket-team #{partida.vencedor == partida.timeA ? 'winner' : ''}">
-                                                <span class="bracket-team-name">#{partida.timeA.nome}</span>
-                                                <span class="bracket-team-score">#{partida.placarA}</span>
-                                            </div>
-                                            <div class="bracket-team #{partida.vencedor == partida.timeB ? 'winner' : ''}">
-                                                <span class="bracket-team-name">#{partida.timeB.nome}</span>
-                                                <span class="bracket-team-score">#{partida.placarB}</span>
-                                            </div>
-                                        </div>
-                                    </ui:repeat>
-                                </div>
-
-                                <!-- Semifinais -->
-                                <div class="bracket-round">
-                                    <div class="bracket-round-title">Semifinais</div>
-                                    <ui:repeat value="#{campeonatoView.semifinais}" var="partida">
-                                        <div class="bracket-match">
-                                            <div class="bracket-team #{partida.vencedor == partida.timeA ? 'winner' : ''}">
-                                                <span class="bracket-team-name">#{partida.timeA.nome}</span>
-                                                <span class="bracket-team-score">#{partida.placarA}</span>
-                                            </div>
-                                            <div class="bracket-team #{partida.vencedor == partida.timeB ? 'winner' : ''}">
-                                                <span class="bracket-team-name">#{partida.timeB.nome}</span>
-                                                <span class="bracket-team-score">#{partida.placarB}</span>
-                                            </div>
-                                        </div>
-                                    </ui:repeat>
-                                </div>
-
-                                <!-- Final -->
-                                <div class="bracket-round">
-                                    <div class="bracket-round-title">Final</div>
-                                    <ui:repeat value="#{campeonatoView.finais}" var="partida">
-                                        <div class="bracket-match">
-                                            <div class="bracket-team #{partida.vencedor == partida.timeA ? 'winner' : ''}">
-                                                <span class="bracket-team-name">#{partida.timeA.nome}</span>
-                                                <span class="bracket-team-score">#{partida.placarA}</span>
-                                            </div>
-                                            <div class="bracket-team #{partida.vencedor == partida.timeB ? 'winner' : ''}">
-                                                <span class="bracket-team-name">#{partida.timeB.nome}</span>
-                                                <span class="bracket-team-score">#{partida.placarB}</span>
-                                            </div>
-                                        </div>
-                                    </ui:repeat>
-                                </div>
-                            </div>
-                        </div>
-                    </p:tab>
-
-                    <!-- Tab: Tabela (Pontos Corridos) -->
-                    <p:tab title="Classificação" 
-                           rendered="#{managerCamp.camp.tipoCampeonato == 'PONTOS_CORRIDOS'}">
-                        <div class="section-header">
-                            <h2><i class="pi pi-list"></i> Tabela de Classificação</h2>
-                        </div>
-
-                        <p:dataTable value="#{campeonatoView.classificacao}" 
-                                     var="time"
-                                     styleClass="p-datatable-striped"
-                                     paginator="false">
-                            <p:column headerText="#" style="width: 50px; text-align: center;">
-                                <h:outputText value="#{time.posicao}" />
-                            </p:column>
-
-                            <p:column headerText="Time">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div class="participant-avatar" style="width: 40px; height: 40px; font-size: 16px; margin: 0;">
-                                        <h:panelGroup rendered="#{time.logo != null}">
-                                            <p:graphicImage value="#{time.logo.url}" 
-                                                          style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" />
-                                        </h:panelGroup>
-                                        <h:panelGroup rendered="#{time.logo == null}">
-                                            #{time.nome.substring(0,1)}
-                                        </h:panelGroup>
+                        <div class="grid-container-modern">
+                            <ui:repeat value="#{managerCamp.partidas}" var="partida">
+                                <div class="match-card-modern">
+                                    <div class="flex justify-content-between align-items-center mb-3">
+                                        <span class="status-tag scheduled">Agendada</span>
+                                        <small style="color: #98a2b3">#{managerCamp.formataData(partida.dataPartida)}</small>
                                     </div>
-                                    <strong>#{time.nome}</strong>
+                                    <div class="match-teams">
+                                        <div class="match-team-item">
+                                            <div class="team-mini-avatar">#{partida.itemPartida.get(0).team1.nome.substring(0,1)}</div>
+                                            <span>#{partida.itemPartida.get(0).team1.nome}</span>
+                                        </div>
+                                        <span class="match-vs-mini">VS</span>
+                                        <div class="match-team-item">
+                                            <div class="team-mini-avatar">#{partida.itemPartida.get(0).team2.nome.substring(0,1)}</div>
+                                            <span>#{partida.itemPartida.get(0).team2.nome}</span>
+                                        </div>
+                                    </div>
+                                    <p:button value="Ver Detalhes" 
+                                             icon="pi pi-eye"
+                                             styleClass="action-btn w-full mt-2"
+                                             outcome="error.xhtml" />
                                 </div>
-                            </p:column>
+                            </ui:repeat>
+                        </div>
 
-                            <p:column headerText="P" style="width: 60px; text-align: center;">
-                                <h:outputText value="#{time.pontos}" />
-                            </p:column>
-
-                            <p:column headerText="J" style="width: 60px; text-align: center;">
-                                <h:outputText value="#{time.jogos}" />
-                            </p:column>
-
-                            <p:column headerText="V" style="width: 60px; text-align: center;">
-                                <h:outputText value="#{time.vitorias}" />
-                            </p:column>
-
-                            <p:column headerText="E" style="width: 60px; text-align: center;">
-                                <h:outputText value="#{time.empates}" />
-                            </p:column>
-
-                            <p:column headerText="D" style="width: 60px; text-align: center;">
-                                <h:outputText value="#{time.derrotas}" />
-                            </p:column>
-
-                            <p:column headerText="GP" style="width: 60px; text-align: center;">
-                                <h:outputText value="#{time.golsPro}" />
-                            </p:column>
-
-                            <p:column headerText="GC" style="width: 60px; text-align: center;">
-                                <h:outputText value="#{time.golsContra}" />
-                            </p:column>
-
-                            <p:column headerText="SG" style="width: 60px; text-align: center;">
-                                <h:outputText value="#{time.saldoGols}" />
-                            </p:column>
-                        </p:dataTable>
+                        <h:panelGroup rendered="#{empty managerCamp.partidas}">
+                            <div class="text-center py-5">
+                                <i class="pi pi-calendar-times mb-3" style="font-size: 3rem; color: var(--muted)"></i>
+                                <p style="color: #d1d8e6">Nenhuma partida registrada</p>
+                            </div>
+                        </h:panelGroup>
                     </p:tab>
 
-                    <!-- Tab: Estatísticas -->
                     <p:tab title="Estatísticas">
-                        <div class="section-header">
-                            <h2><i class="pi pi-chart-bar"></i> Estatísticas do Campeonato</h2>
+                        <div class="section-subheader mb-3">
+                            <h2 class="m-0" style="font-weight: 700; color: var(--text-100)">
+                                <i class="pi pi-chart-bar mr-2"></i>Estatísticas
+                            </h2>
                         </div>
 
-                        <div class="stats-grid">
-                            <div class="stat-box">
-                                <div class="stat-value">#{campeonatoView.totalPartidas}</div>
-                                <div class="stat-label">Total de Partidas</div>
-                            </div>
-
-                            <div class="stat-box">
-                                <div class="stat-value">#{campeonatoView.partidasRealizadas}</div>
-                                <div class="stat-label">Partidas Realizadas</div>
-                            </div>
-
-                            <div class="stat-box">
-                                <div class="stat-value">#{campeonatoView.totalGols}</div>
-                                <div class="stat-label">Total de Gols</div>
-                            </div>
-
-                            <div class="stat-box">
-                                <div class="stat-value">#{campeonatoView.mediaGols}</div>
-                                <div class="stat-label">Média de Gols/Partida</div>
-                            </div>
-
-                            <div class="stat-box">
-                                <div class="stat-value">#{campeonatoView.totalParticipantes}</div>
-                                <div class="stat-label">Participantes</div>
-                            </div>
-
-                            <div class="stat-box">
-                                <div class="stat-value">#{campeonatoView.maiorGoleada}</div>
-                                <div class="stat-label">Maior Goleada</div>
-                            </div>
-                        </div>
-
-                        <p:divider />
-
-                        <h3 style="margin-top: 30px; margin-bottom: 15px; color: #495057;">
-                            <i class="pi pi-star-fill" style="color: #ffc107;"></i> Artilheiros
-                        </h3>
-
-                        <p:dataTable value="#{campeonatoView.artilheiros}" 
-                                     var="jogador"
-                                     styleClass="p-datatable-sm"
-                                     rows="5"
-                                     paginator="false">
-                            <p:column headerText="#" style="width: 50px;">
-                                #{jogador.posicao}
-                            </p:column>
-
-                            <p:column headerText="Jogador">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div class="participant-avatar" style="width: 35px; height: 35px; font-size: 14px; margin: 0;">
-                                        #{jogador.nome.substring(0,1)}
-                                    </div>
-                                    #{jogador.nome}
+                        <div class="stats-grid-modern">
+                            <div class="stat-box-modern">
+                                <div class="stat-icon-box accent-blue">
+                                    <i class="pi pi-calendar"></i>
                                 </div>
-                            </p:column>
+                                <div class="stat-value-modern">#{managerCamp.partidas.size()}</div>
+                                <div class="stat-label-modern">Total de Partidas</div>
+                            </div>
 
-                            <p:column headerText="Time">
-                                #{jogador.time.nome}
-                            </p:column>
+                            <div class="stat-box-modern">
+                                <div class="stat-icon-box accent-green">
+                                    <i class="pi pi-check-circle"></i>
+                                </div>
+                                <div class="stat-value-modern">0</div>
+                                <div class="stat-label-modern">Realizadas</div>
+                            </div>
 
-                            <p:column headerText="Gols" style="width: 80px; text-align: center;">
-                                <strong>#{jogador.gols}</strong>
-                            </p:column>
-                        </p:dataTable>
+                            <div class="stat-box-modern">
+                                <div class="stat-icon-box accent-warning">
+                                    <i class="pi pi-list"></i>
+                                </div>
+                                <div class="stat-value-modern">#{managerCamp.getTimesConfirmados(managerCamp.camp)}</div>
+                                <div class="stat-label-modern">Times</div>
+                            </div>
+                        </div>
                     </p:tab>
                 </p:tabView>
             </div>
 
             <!-- Botão Voltar -->
-            <div style="text-align: center; margin-top: 20px;">
+            <div class="text-center mt-4">
                 <p:button value="Voltar para Campeonatos" 
                           icon="pi pi-arrow-left"
-                          styleClass="p-button-secondary p-button-outlined"
-                          outcome="/campeonatos" />
+                          styleClass="p-button-outlined full-stats-btn"
+                          outcome="indexCampeonato.xhtml" />
             </div>
-        </div>
-    </h:form>
-</h:body>
-</html>
+
+        </h:form>
+
+        <style>
+            /* Hero do Campeonato */
+            .camp-hero { background: linear-gradient(135deg, var(--bg-800), var(--bg-900)) !important; padding: 2rem 1.5rem; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: var(--radius) !important; box-shadow: var(--shadow) !important; }
+            .camp-hero-content { display: flex; align-items: flex-start; gap: 2rem; flex-wrap: wrap; }
+            .camp-hero-info { flex: 1; min-width: 300px; }
+            .camp-hero-meta { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1.5rem; }
+            .meta-item-camp { display: flex; align-items: center; gap: .5rem; color: var(--text-300); font-size: .9rem; }
+            .status-tag-camp { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1rem; border-radius: 999px; font-weight: 700; font-size: .9rem; margin-top: .75rem; }
+            .status-tag-camp.live { background: rgba(34,197,94,0.12); color: var(--success); border: 1px solid rgba(34,197,94,0.25); }
+            .status-tag-camp.scheduled { background: rgba(59,130,246,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
+            .status-tag-camp.finished { background: rgba(255,255,255,0.06); color: var(--text-100); border: 1px solid rgba(255,255,255,0.15); }
+            .camp-hero-logo { width: 150px; height: 150px; border-radius: 16px; overflow: hidden; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; }
+            .camp-logo-img { width: 100%; height: 100%; object-fit: cover; }
+            .camp-logo-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: var(--muted); }
+
+            /* Info grid moderno */
+            .info-grid-modern { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; }
+            .info-item-modern { display: flex; align-items: flex-start; gap: .75rem; padding: 1rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; transition: all .2s ease; }
+            .info-item-modern:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.35); border-color: rgba(0,225,255,0.15); }
+            .info-item-icon { font-size: 1.5rem; color: var(--accent); margin-top: .15rem; }
+            .info-item-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .5px; color: #98a2b3; margin: 0 0 .25rem 0; font-weight: 600; }
+            .info-item-value { font-size: 1rem; font-weight: 700; color: var(--text-100); margin: 0; }
+
+            /* Participants grid */
+            .grid-container-modern { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+            .participant-card-modern { border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.25rem; text-align: center; background: rgba(255,255,255,0.01); transition: all .2s ease; }
+            .participant-card-modern:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(0,0,0,0.4); border-color: rgba(0,225,255,0.2); }
+            .participant-avatar-modern { width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; margin: 0 auto .75rem; font-size: 1.8rem; font-weight: 800; color: var(--text-100); }
+            .participant-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+            .participant-name-modern { font-size: .95rem; font-weight: 700; color: var(--text-100); margin-bottom: .5rem; }
+
+            /* Match cards */
+            .match-card-modern { border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); border-radius: 12px; padding: 1rem; transition: all .2s ease; }
+            .match-card-modern:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(0,0,0,0.4); border-color: rgba(0,225,255,0.2); }
+            .match-teams { display: flex; align-items: center; gap: .75rem; padding: .75rem 0; }
+            .match-team-item { display: flex; align-items: center; gap: .5rem; flex: 1; font-weight: 600; color: var(--text-100); font-size: .9rem; }
+            .team-mini-avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(0,225,255,0.1); border: 1px solid rgba(0,225,255,0.2); display: flex; align-items: center; justify-content: center; font-size: .85rem; font-weight: 800; color: var(--accent); }
+            .match-vs-mini { font-weight: 800; color: var(--text-300); font-size: .85rem; }
+
+            /* Stats grid */
+            .stats-grid-modern { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; }
+            .stat-box-modern { text-align: center; padding: 1.5rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; transition: all .25s ease; position: relative; overflow: hidden; }
+            .stat-box-modern::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); opacity: 0; transition: opacity .25s ease; }
+            .stat-box-modern:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,0,0,0.4); border-color: rgba(0,225,255,0.2); }
+            .stat-box-modern:hover::before { opacity: 1; }
+            .stat-icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto .75rem; font-size: 1.4rem; }
+            .stat-icon-box.accent-blue { background: linear-gradient(135deg, rgba(59,130,246,0.14), rgba(59,130,246,0.06)); border: 1px solid rgba(59,130,246,0.35); color: #60a5fa; }
+            .stat-icon-box.accent-green { background: linear-gradient(135deg, rgba(34,197,94,0.14), rgba(34,197,94,0.06)); border: 1px solid rgba(34,197,94,0.35); color: var(--success); }
+            .stat-icon-box.accent-warning { background: linear-gradient(135deg, rgba(245,158,11,0.14), rgba(245,158,11,0.06)); border: 1px solid rgba(245,158,11,0.35); color: var(--warning); }
+            .stat-value-modern { font-size: 2rem; font-weight: 800; color: var(--text-100); margin-bottom: .25rem; }
+            .stat-label-modern { color: #98a2b3; font-size: .85rem; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
+
+
+            /* TabView Container */
+            .glass-tab-container {
+                background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important;
+                border: 1px solid rgba(255,255,255,0.08) !important;
+                border-radius: var(--radius) !important;
+                box-shadow: var(--shadow) !important;
+                padding: 1.5rem !important;
+            }
+            
+            /* Force TabView styles */
+            .glass-tab-container .ui-tabview { background: transparent !important; border: none !important; }
+            .glass-tab-container .ui-tabview-nav { background: transparent !important; border: none !important; border-bottom: 2px solid rgba(255,255,255,0.08) !important; }
+            .glass-tab-container .ui-tabview-nav li { background: transparent !important; }
+            .glass-tab-container .ui-tabview-nav li .ui-tabview-title { 
+                color: var(--text-300) !important; 
+                background: rgba(255,255,255,0.02) !important; 
+                border: 1px solid rgba(255,255,255,0.08) !important; 
+                border-bottom: none !important; 
+                margin-right: .25rem !important;
+                border-radius: 12px 12px 0 0 !important;
+            }
+            .glass-tab-container .ui-tabview-nav li.ui-state-active .ui-tabview-title { 
+                color: var(--text-100) !important; 
+                background: rgba(0,225,255,0.1) !important; 
+                border-color: rgba(0,225,255,0.25) !important; 
+                border-bottom: none !important; 
+            }
+            .glass-tab-container .ui-tabview-nav li .ui-tabview-title:hover { 
+                color: var(--text-100) !important; 
+                background: rgba(255,255,255,0.04) !important; 
+            }
+            .glass-tab-container .ui-tabview-panels { 
+                background: transparent !important; 
+                border: none !important; 
+                padding: 1.5rem 0 !important; 
+            }
+            .glass-tab-container .ui-tabview-panel { 
+                background: transparent !important; 
+            }
+            
+            /* Swiss Bracket Styles */
+            .swiss-bracket-container { display: flex; gap: 1.5rem; overflow-x: auto; padding: 1rem 0; }
+            .swiss-column { min-width: 280px; max-width: 320px; display: flex; flex-direction: column; }
+            .swiss-column-header { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1rem; align-items: center; }
+            .swiss-record-badge { font-size: 1.2rem; font-weight: 800; color: var(--text-100); padding: .5rem 1rem; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; }
+            .swiss-matches { display: flex; flex-direction: column; gap: 1rem; }
+            .swiss-match { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem; transition: all .2s ease; }
+            .swiss-match:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.35); border-color: rgba(0,225,255,0.2); }
+            .swiss-team { display: flex; align-items: center; gap: .75rem; padding: .75rem; border-radius: 8px; transition: all .15s ease; }
+            .swiss-team.winner { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); }
+            .swiss-team-logo { width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 800; color: var(--text-100); flex-shrink: 0; }
+            .team-logo-small { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+            .swiss-team-name { flex: 1; font-weight: 600; color: var(--text-100); font-size: .9rem; }
+            .swiss-score { font-weight: 800; font-size: 1.1rem; color: var(--accent); }
+            .swiss-divider { text-align: center; padding: .5rem 0; position: relative; }
+            .swiss-vs { display: inline-block; background: rgba(0,225,255,0.1); border: 1px solid rgba(0,225,255,0.2); color: var(--accent); padding: .25rem .75rem; border-radius: 20px; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+            .swiss-match-status { text-align: center; margin-top: .75rem; }
+            .status-tag.qualified { background: rgba(34,197,94,0.12); color: var(--success); border: 1px solid rgba(34,197,94,0.25); }
+            .status-tag.eliminated { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+
+            @media (max-width: 768px) {
+                .camp-hero-content { flex-direction: column; }
+                .camp-hero-logo { width: 120px; height: 120px; }
+                .grid-container-modern { grid-template-columns: 1fr; }
+                .stats-grid-modern { grid-template-columns: 1fr; }
+                .swiss-column { min-width: 250px; }
+            }
+        </style>
+    </ui:define>
+</ui:composition>

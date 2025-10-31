@@ -6,18 +6,74 @@
                 template="vercel.xhtml">
 
     <ui:define name="content">
-        <div class="section-header">
-            <div>
-                <p:link outcome="jogadores.xhtml" styleClass="mb-3 d-block">
-                    <i class="pi pi-arrow-left mr-2"></i>Voltar para Jogadores
-                </p:link>
-                <h1 class="section-title">Perfil do Jogador</h1>
+        <h:form id="headerForm">
+            <div class="section-header">
+                <div>
+                    <p:link outcome="jogadores.xhtml" styleClass="mb-3 d-block header-back-link">
+                        <i class="pi pi-arrow-left mr-2"></i>Voltar para Jogadores
+                    </p:link>
+                    <h1 class="section-title">Perfil do Jogador</h1>
+                </div>
+                <div>
+                    <p:button value="Editar" icon="pi pi-pencil" href="criarJogador.xhtml?id=#{managerPlayer.player.id}" rendered="#{managerPlayer.verificarPermissao()}" styleClass="p-button-outlined mr-2" />
+                    <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="p-button-danger p-button-outlined" rendered="#{managerPlayer.verificarPermissao()}"/>
+                </div>
             </div>
-            <div>
-                <p:button value="Editar" icon="pi pi-pencil" href="criarJogador.xhtml?id=#{managerPlayer.player.id}" rendered="#{managerPlayer.verificarPermissao()}" styleClass="p-button-outlined mr-2" />
-                <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="p-button-danger p-button-outlined" rendered="#{managerPlayer.verificarPermissao()}"/>
+
+            <!-- HERO: Cabeçalho do Jogador (perfil Steam) -->
+            <div class="player-hero">
+                <div class="player-hero-left">
+                    <div class="player-hero-avatar">
+                        <p:graphicImage value="image/#{managerPlayer.player.anexo.nome}" styleClass="player-hero-photo" rendered="#{managerPlayer.player.anexo ne null}"/>
+                        <div class="player-hero-photo placeholder" style="#{managerPlayer.player.anexo eq null ? '' : 'display:none'}">
+                            <i class="pi pi-user"></i>
+                        </div>
+                        <span class="status-dot #{managerPlayer.statusConta eq 'Pública' ? 'online' : 'offline'}" title="#{managerPlayer.statusConta}"></span>
+                    </div>
+                    <div class="player-hero-info">
+                        <div class="player-hero-name">#{managerPlayer.player.nome} #{managerPlayer.player.sobreNome}
+                            <span class="player-hero-nick">@#{managerPlayer.player.nick}</span>
+                        </div>
+                        <div class="player-hero-meta">
+                            <span class="meta-item">
+                                <i class="pi pi-id-card"></i>
+                                <span class="ellipsis">#{managerPlayer.player.steamID}</span>
+                                <p:commandButton icon="pi pi-copy" type="button" styleClass="p-button-rounded p-button-text p-button-sm ml-1" title="Copiar Steam ID" onclick="navigator.clipboard.writeText('#{managerPlayer.player.steamID}');return false;"/>
+                            </span>
+                            <span class="meta-sep">•</span>
+                            <span class="meta-item"><i class="pi pi-bolt"></i>Nível #{managerPlayer.steamLevel}</span>
+                            <span class="meta-sep">•</span>
+                            <span class="meta-item"><i class="pi pi-clock"></i>#{managerPlayer.formattedPlaytime}</span>
+                        </div>
+                        <div class="player-hero-actions">
+                            <p:link value="Perfil Steam" href="#{managerPlayer.profileUrl}" target="_blank" styleClass="p-button p-component p-button-sm p-button-outlined neon-link" rendered="#{not empty managerPlayer.profileUrl}">
+                                <i class="pi pi-external-link mr-2"></i>
+                            </p:link>
+                            <p:tag value="#{managerPlayer.statusConta}" severity="#{managerPlayer.statusConta eq 'Pública' ? 'success' : 'warning'}" rounded="true" styleClass="ml-2"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="player-hero-right">
+                    <div class="mini-kpis">
+                        <div class="mini-kpi">
+                            <i class="pi pi-game"></i>
+                            <div class="mini-kpi-value">#{managerPlayer.gameCount}</div>
+                            <div class="mini-kpi-label">Jogos</div>
+                        </div>
+                        <div class="mini-kpi">
+                            <i class="pi pi-users"></i>
+                            <div class="mini-kpi-value">#{managerPlayer.friendCount}</div>
+                            <div class="mini-kpi-label">Amigos</div>
+                        </div>
+                        <div class="mini-kpi">
+                            <i class="pi pi-star"></i>
+                            <div class="mini-kpi-value">#{managerPlayer.steamLevel}</div>
+                            <div class="mini-kpi-label">Nível</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </h:form>
 
         <h:form id="playerForm" enctype="multipart/form-data">
 
@@ -27,18 +83,28 @@
 
 
             <div class="grid">
-                <!-- Informações Básicas com Avatar -->
+                <!-- Informações Básicas (sem avatar - agora no hero) -->
                 <div class="col-12 md:col-4">
-                    <div class="player-photo-container-wrapper">
-                        <div class="player-photo-container">
-                            <p:graphicImage id="playerPhoto" value="image/#{managerPlayer.player.anexo.nome}" styleClass="player-photo" rendered="#{managerPlayer.player.anexo ne null}"/>
-                            <div class="player-photo-placeholder" style="#{managerPlayer.player.anexo eq null ?  '' : 'display: none'}">
-                                <i class="pi pi-user" style="font-size: 5rem; color: #ccc;"></i>
+                    <p:card styleClass="mb-3 glass-card">
+                        <f:facet name="title">
+                            <div class="flex align-items-center">
+                                <i class="pi pi-user mr-2"></i>
+                                <span>Perfil</span>
+                            </div>
+                        </f:facet>
+                        <div class="p-fluid">
+                            <div class="formgrid grid">
+                                <div class="field col-12">
+                                    <p:outputLabel value="Nome" styleClass="block font-medium text-300" />
+                                    <div class="text-field-display">#{managerPlayer.player.nome} #{managerPlayer.player.sobreNome}</div>
+                                </div>
+                                <div class="field col-12">
+                                    <p:outputLabel value="Nickname" styleClass="block font-medium text-300" />
+                                    <div class="text-field-display">#{managerPlayer.player.nick}</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <h2 class="player-name">#{managerPlayer.player.nome} - #{managerPlayer.player.sobreNome}</h2>
-                    <p class="player-nickname">#{managerPlayer.player.nick}</p>
+                    </p:card>
                     <div class="player-badges mt-2 text-center">
                         <p:badge value="Capitão" severity="info" styleClass="mr-2" />
                         <p:badge value="CS:GO" severity="success" styleClass="mr-2" />
@@ -48,10 +114,10 @@
 
                 <!-- Detalhes do Jogador -->
                 <div class="col-12 md:col-8">
-                    <p:card styleClass="mb-3">
+                    <p:card styleClass="mb-3 glass-card info-card">
                         <f:facet name="title">
                             <div class="flex align-items-center">
-                                <i class="pi pi-user mr-2"></i>
+                                <i class="pi pi-id-card mr-2 card-icon"></i>
                                 <span>Informações Pessoais</span>
                             </div>
                         </f:facet>
@@ -59,40 +125,63 @@
                         <div class="p-fluid">
                             <div class="formgrid grid">
                                 <div class="field col-12 md:col-6">
-                                    <p:outputLabel value="Nome Completo" styleClass="block font-medium text-900" />
-                                    <div class="text-field-display">#{managerPlayer.player.nome}</div>
-                                </div>
-
-                                <div class="field col-12 md:col-6">
-                                    <p:outputLabel value="Nickname" styleClass="block font-medium text-900" />
-                                    <div class="text-field-display">#{managerPlayer.player.nick}</div>
-                                </div>
-
-                                <div class="field col-12 md:col-6">
-                                    <p:outputLabel value="E-mail" styleClass="block font-medium text-900" />
-                                    <div class="text-field-display">#{managerPlayer.player.email}</div>
-                                </div>
-
-                                <div class="field col-12 md:col-6">
-                                    <p:outputLabel value="Função" styleClass="block font-medium text-900" />
-                                    <div class="text-field-display">
-                                        <p:chip label="Capitão" styleClass="mr-2" />
+                                    <div class="info-field">
+                                        <i class="pi pi-user field-icon"></i>
+                                        <div class="info-field-content">
+                                            <p:outputLabel value="Nome Completo" styleClass="info-label" />
+                                            <div class="info-value">#{managerPlayer.player.nome} #{managerPlayer.player.sobreNome}</div>
+                                        </div>
                                     </div>
                                 </div>
 
-
+                                <div class="field col-12 md:col-6">
+                                    <div class="info-field">
+                                        <i class="pi pi-at field-icon"></i>
+                                        <div class="info-field-content">
+                                            <p:outputLabel value="Nickname" styleClass="info-label" />
+                                            <div class="info-value">#{managerPlayer.player.nick}</div>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div class="field col-12 md:col-6">
-                                    <p:outputLabel value="Data de Nascimento" styleClass="block font-medium text-900" />
-                                    <p:outputLabel class="text-field-display" value="#{managerPlayer.player.dataNascimento}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy"/>
-                                    </p:outputLabel>
+                                    <div class="info-field">
+                                        <i class="pi pi-envelope field-icon"></i>
+                                        <div class="info-field-content">
+                                            <p:outputLabel value="E-mail" styleClass="info-label" />
+                                            <div class="info-value">#{managerPlayer.player.email}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="field col-12 md:col-6">
+                                    <div class="info-field">
+                                        <i class="pi pi-star field-icon"></i>
+                                        <div class="info-field-content">
+                                            <p:outputLabel value="Função" styleClass="info-label" />
+                                            <div class="info-value">
+                                                <p:chip label="Capitão" styleClass="role-chip" icon="pi pi-shield"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="field col-12 md:col-6">
+                                    <div class="info-field">
+                                        <i class="pi pi-calendar field-icon"></i>
+                                        <div class="info-field-content">
+                                            <p:outputLabel value="Data de Nascimento" styleClass="info-label" />
+                                            <p:outputLabel styleClass="info-value" value="#{managerPlayer.player.dataNascimento}">
+                                                <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                            </p:outputLabel>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </p:card>
 
-                    <p:card styleClass="mb-3">
+                    <p:card styleClass="mb-3 glass-card">
                         <f:facet name="title">
                             <div class="flex align-items-center">
                                 <i class="pi pi-desktop mr-2"></i>
@@ -247,7 +336,7 @@
                     </p:card>
                 </div>
                 <div class="col-12">
-                    <p:card styleClass="mb-3">
+                    <p:card styleClass="mb-3 glass-card">
                         <f:facet name="title">
                             <div class="flex align-items-center">
                                 <i class="pi pi-chart-bar mr-2"></i>
@@ -258,21 +347,24 @@
                         <div class="grid">
                             <div class="col-12 md:col-3">
                                 <div class="stats-summary-box">
+                                    <i class="pi pi-chart-bar stats-icon"></i>
                                     <div class="stats-summary-value">42</div>
                                     <div class="stats-summary-label">Partidas Totais</div>
                                 </div>
                             </div>
 
                             <div class="col-12 md:col-3">
-                                <div class="stats-summary-box">
-                                    <div class="stats-summary-value text-success">28</div>
+                                <div class="stats-summary-box win-box">
+                                    <i class="pi pi-check-circle stats-icon"></i>
+                                    <div class="stats-summary-value">28</div>
                                     <div class="stats-summary-label">Vitórias</div>
                                 </div>
                             </div>
 
                             <div class="col-12 md:col-3">
-                                <div class="stats-summary-box">
-                                    <div class="stats-summary-value text-danger">14</div>
+                                <div class="stats-summary-box loss-box">
+                                    <i class="pi pi-times-circle stats-icon"></i>
+                                    <div class="stats-summary-value">14</div>
                                     <div class="stats-summary-label">Derrotas</div>
                                 </div>
                             </div>
@@ -280,7 +372,7 @@
                             <div class="col-12 md:col-3">
                                 <div class="stats-summary-box stats-summary-action">
                                     <p:button value="Ver estatísticas completas" icon="pi pi-chart-line" 
-                                               styleClass="p-button-outlined">
+                                               styleClass="p-button-outlined full-stats-btn">
                                         <f:param name="id" value="#{jogador.id}" />
                                     </p:button>
                                 </div>
@@ -289,9 +381,51 @@
                     </p:card>
                 </div>
 
+                <!-- Estatísticas de Desempenho (somente atributos existentes em ManagerPlayer) -->
+                <div class="col-12">
+                    <p:card styleClass="mb-3 glass-card">
+                        <f:facet name="title">
+                            <div class="flex align-items-center">
+                                <i class="pi pi-sliders-h mr-2"></i>
+                                <span>Estatísticas de Desempenho</span>
+                            </div>
+                        </f:facet>
+                        <div class="grid">
+                            <div class="col-12 md:col-3">
+                                <div class="stats-summary-box">
+                                    <div class="stats-summary-label">Jogos</div>
+                                    <div class="stats-summary-value">#{managerPlayer.gameCount}</div>
+                                    <p:progressBar value="#{managerPlayer.gameCount gt 500 ? 100 : (managerPlayer.gameCount * 100) / 500}" displayOnly="true" styleClass="steam-level-progress"/>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-3">
+                                <div class="stats-summary-box">
+                                    <div class="stats-summary-label">Amigos</div>
+                                    <div class="stats-summary-value">#{managerPlayer.friendCount}</div>
+                                    <p:progressBar value="#{managerPlayer.friendCount gt 200 ? 100 : (managerPlayer.friendCount * 100) / 200}" displayOnly="true" styleClass="steam-level-progress"/>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-3">
+                                <div class="stats-summary-box">
+                                    <div class="stats-summary-label">Nível Steam</div>
+                                    <div class="stats-summary-value">#{managerPlayer.steamLevel}</div>
+                                    <p:progressBar value="#{managerPlayer.steamLevel gt 100 ? 100 : managerPlayer.steamLevel}" displayOnly="true" styleClass="steam-level-progress"/>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-3">
+                                <div class="stats-summary-box">
+                                    <div class="stats-summary-label">Tempo de Jogo</div>
+                                    <div class="stats-summary-value">#{managerPlayer.formattedPlaytime}</div>
+                                    <p:progressBar value="#{managerPlayer.totalPlaytime gt 1000 ? 100 : (managerPlayer.totalPlaytime * 100) / 1000}" displayOnly="true" styleClass="steam-level-progress"/>
+                                </div>
+                            </div>
+                        </div>
+                    </p:card>
+                </div>
+
                 <!-- NOVO: Card de Últimas Partidas (Colapsável) -->
                 <div class="col-12">
-                    <p:panel header="Últimas Partidas" toggleable="true" collapsed="false" toggleSpeed="500" styleClass="mb-3">
+                    <p:panel header="Últimas Partidas" toggleable="true" collapsed="false" toggleSpeed="500" styleClass="mb-3 glass-panel">
                         <f:facet name="header">
                             <div class="flex align-items-center">
                                 <i class="pi pi-history mr-2"></i>
@@ -299,154 +433,452 @@
                             </div>
                         </f:facet>
 
-                        <p:dataTable var="partida" value="#{null}" styleClass="border-none"
+                        <p:dataTable var="partida" value="#{null}" styleClass="elegant-table" lazy="false"
                                      emptyMessage="Nenhuma partida registrada" rows="5" paginator="true"
                                      paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                                      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} partidas"
                                      rowsPerPageTemplate="5,10,20">
 
-                            <p:column headerText="Data" style="width: 120px">
-                                <h:outputText value="10/04/2023" />
+                            <p:column headerText="Data" style="width: 140px">
+                                <div class="table-cell-content">
+                                    <i class="pi pi-calendar cell-icon"></i>
+                                    <h:outputText value="10/04/2023" />
+                                </div>
                             </p:column>
 
                             <p:column headerText="Campeonato">
-                                <h:outputText value="Copa de eSports 2023" />
+                                <div class="table-cell-content">
+                                    <i class="pi pi-trophy cell-icon"></i>
+                                    <h:outputText value="Copa de eSports 2023" />
+                                </div>
                             </p:column>
 
-                            <p:column headerText="Jogo">
-                                <h:outputText value="CS:GO" />
+                            <p:column headerText="Jogo" style="width: 120px">
+                                <div class="table-cell-content">
+                                    <i class="pi pi-desktop cell-icon"></i>
+                                    <h:outputText value="CS:GO" />
+                                </div>
                             </p:column>
 
                             <p:column headerText="Time">
-                                <div class="flex align-items-center">
-                                    <div class="team-logo-small mr-2">
-                                        <p:graphicImage value="/resources/images/teams/team-alpha.png" styleClass="team-logo-img" />
+                                <div class="table-team">
+                                    <div class="team-logo-small">
+                                        <i class="pi pi-users"></i>
                                     </div>
                                     <span>Team Alpha</span>
                                 </div>
                             </p:column>
 
                             <p:column headerText="Adversário">
-                                <div class="flex align-items-center">
-                                    <div class="team-logo-small mr-2">
-                                        <p:graphicImage value="/resources/images/teams/team-beta.png" styleClass="team-logo-img" />
+                                <div class="table-team">
+                                    <div class="team-logo-small">
+                                        <i class="pi pi-users"></i>
                                     </div>
                                     <span>Team Beta</span>
                                 </div>
                             </p:column>
 
-                            <p:column headerText="Placar" style="width: 120px">
-                                <div class="match-score">
-                                    <span class="team-score">16</span>
-                                    <span class="score-separator">:</span>
-                                    <span class="team-score">10</span>
+                            <p:column headerText="Placar" style="width: 140px">
+                                <div class="match-score-wrapper">
+                                    <div class="match-score">
+                                        <span class="team-score winner">16</span>
+                                        <span class="score-separator">:</span>
+                                        <span class="team-score">10</span>
+                                    </div>
+                                    <span class="match-result win">
+                                        <i class="pi pi-check-circle"></i>
+                                        Vitória
+                                    </span>
                                 </div>
-                                <span class="match-result win">Vitória</span>
                             </p:column>
 
-                            <p:column headerText="Ações" style="width: 80px">
-                                <p:button icon="pi pi-eye" styleClass="p-button-text p-button-sm" outcome="partida.xhtml">
+                            <p:column headerText="Ações" style="width: 100px">
+                                <p:button icon="pi pi-eye" styleClass="p-button-rounded p-button-text p-button-sm action-btn" outcome="partida.xhtml" title="Ver detalhes">
                                     <f:param name="id" value="1" />
                                 </p:button>
                             </p:column>
                         </p:dataTable>
+                        <p:tooltip globalSelector=".match-result" position="top" showEffect="fade"/>
                     </p:panel>
+                </div>
+
+                <!-- Área de Insights (somente atributos existentes em ManagerPlayer) -->
+                <div class="col-12">
+                    <p:card styleClass="mb-3 glass-card">
+                        <f:facet name="title">
+                            <div class="flex align-items-center">
+                                <i class="pi pi-lightbulb mr-2"></i>
+                                <span>Insights</span>
+                            </div>
+                        </f:facet>
+                        <div class="grid">
+                            <div class="col-12 md:col-4">
+                                <div class="steam-stat-box">
+                                    <div class="steam-stat-value">
+                                        <i class="pi pi-user mr-2" style="color: var(--accent)"></i>
+                                        #{managerPlayer.statusConta}
+                                    </div>
+                                    <div class="steam-stat-label">Visibilidade do perfil</div>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-4">
+                                <div class="steam-stat-box">
+                                    <div class="steam-stat-value">
+                                        <i class="pi pi-external-link mr-2" style="color: var(--accent)"></i>
+                                        <h:panelGroup rendered="#{not empty managerPlayer.profileUrl}">
+                                            <p:link value="Abrir Perfil" href="#{managerPlayer.profileUrl}" target="_blank"/>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{empty managerPlayer.profileUrl}">—</h:panelGroup>
+                                    </div>
+                                    <div class="steam-stat-label">Perfil Steam</div>
+                                </div>
+                            </div>
+                            <div class="col-12 md:col-4">
+                                <div class="steam-stat-box">
+                                    <div class="steam-stat-value">
+                                        <i class="pi pi-chart-line mr-2" style="color: var(--accent)"></i>
+                                        #{managerPlayer.gameCount}
+                                    </div>
+                                    <div class="steam-stat-label">Jogos cadastrados</div>
+                                </div>
+                            </div>
+                        </div>
+                    </p:card>
                 </div>
 
 
             </div>
         </h:form>
 
-        <!-- Estilos específicos para a visualização do jogador -->
+        <!-- Estilos específicos para a visualização do jogador (tema dark gamer) -->
         <style type="text/css">
-            .player-photo-container-wrapper {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                padding-top: 0; /* Remove o padding superior */
-                margin-top: 0; /* Alinha com o topo do card */
+            :root {
+                --bg-900: #0f1217;
+                --bg-800: #141923;
+                --bg-700: #1a2030;
+                --text-100: #e6ebf2;
+                --text-300: #b7c1d1;
+                --muted: #8b93a6;
+                --accent: #00e1ff; /* azul elétrico */
+                --accent-2: #ff8a3d; /* laranja queimado */
+                --success: #22c55e;
+                --danger: #ef4444;
+                --warning: #f59e0b;
+                --surface-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+                --ring: 0 0 0 1px rgba(0, 225, 255, 0.12), 0 0 20px rgba(0, 225, 255, 0.06);
+                --radius: 14px;
             }
 
-            .player-photo-container {
-                width: 200px;
-                height: 200px;
-                border-radius: 50%;
+            body, .ui-widget, .ui-widget .ui-widget {
+                color: var(--text-100);
+            }
+
+            .section-header {
+                margin-bottom: 1rem;
+            }
+
+            .header-back-link {
+                color: var(--text-300) !important;
+                transition: color .2s ease, transform .2s ease;
+            }
+            .header-back-link:hover { color: var(--accent) !important; transform: translateX(-2px); }
+
+            .player-hero {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: space-between;
+                background: radial-gradient(1200px 400px at 0% 0%, rgba(0, 225, 255, 0.08), transparent),
+                            radial-gradient(1000px 400px at 100% 0%, rgba(255, 138, 61, 0.06), transparent),
+                            linear-gradient(180deg, var(--bg-800), var(--bg-900));
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: var(--radius);
+                padding: 1.25rem 1.5rem;
+                margin-bottom: 1.5rem;
+                box-shadow: var(--surface-shadow);
+            }
+
+            .player-hero-left { display: flex; align-items: center; gap: 1rem; }
+
+            .player-hero-avatar { position: relative; width: 96px; height: 96px; }
+            .player-hero-photo { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.08); box-shadow: var(--ring); }
+            .player-hero-photo.placeholder { display: flex; align-items: center; justify-content: center; background: var(--bg-700); border-radius: 50%; color: var(--muted); font-size: 2rem; }
+            .status-dot { position: absolute; right: 4px; bottom: 4px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--bg-800); box-shadow: 0 0 0 2px rgba(0,0,0,0.2); }
+            .status-dot.online { background: var(--success); box-shadow: 0 0 12px rgba(34,197,94,0.6); }
+            .status-dot.offline { background: #64748b; }
+
+            .player-hero-info { display: flex; flex-direction: column; gap: .35rem; }
+            .player-hero-name { font-size: 1.35rem; font-weight: 700; letter-spacing: 0.2px; }
+            .player-hero-nick { color: var(--muted); font-weight: 500; margin-left: .5rem; font-size: .95rem; }
+            .player-hero-meta { color: var(--text-300); display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+            .player-hero-meta .meta-item { display: inline-flex; align-items: center; gap: .4rem; }
+            .player-hero-meta .meta-sep { opacity: .4; }
+            .ellipsis { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: bottom; }
+
+            .player-hero-actions .neon-link { border-color: rgba(0,225,255,0.35) !important; color: var(--text-100) !important; }
+            .player-hero-actions .neon-link:hover { box-shadow: var(--ring); border-color: rgba(0,225,255,0.6) !important; }
+
+            .player-hero-right { display: flex; align-items: center; }
+            .mini-kpis { display: grid; grid-template-columns: repeat(3, minmax(92px, 1fr)); gap: .75rem; }
+            .mini-kpi { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: .6rem .75rem; text-align: center; transition: transform .2s ease, box-shadow .2s ease; }
+            .mini-kpi:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.35); }
+            .mini-kpi i { color: var(--accent); display: block; margin-bottom: .25rem; }
+            .mini-kpi-value { font-weight: 800; font-size: 1.1rem; }
+            .mini-kpi-label { color: var(--muted); font-size: .8rem; }
+
+            /* Cards e painéis */
+            .glass-card, .glass-panel .ui-panel-content, .p-card { background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important; border: 1px solid rgba(255,255,255,0.06) !important; border-radius: var(--radius) !important; box-shadow: var(--surface-shadow) !important; }
+            .p-card .p-card-title, .ui-panel-titlebar { color: var(--text-100) !important; }
+            .p-card .p-card-body { padding-top: .75rem; }
+
+            /* Campos de exibição */
+            .text-field-display { color: var(--text-100); background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: .5rem .75rem; border-radius: 10px; }
+            .font-medium.text-300 { color: var(--text-300) !important; }
+            
+            /* Info Card melhorado */
+            .info-card .card-icon { color: var(--accent); font-size: 1.1rem; }
+            .info-field { 
+                display: flex; gap: .75rem; align-items: flex-start; 
+                padding: .85rem 1rem; border-radius: 12px; 
+                background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+                border: 1px solid rgba(255,255,255,0.04);
+                transition: all .2s ease;
+            }
+            .info-field:hover { 
+                background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+                border-color: rgba(0,225,255,0.15);
+                transform: translateY(-1px);
+            }
+            .info-field .field-icon { 
+                color: var(--accent); font-size: 1.15rem; 
+                margin-top: .15rem; min-width: 20px;
+            }
+            .info-field-content { flex: 1; }
+            .info-label { 
+                font-size: .8rem; color: var(--text-300) !important; 
+                text-transform: uppercase; letter-spacing: .5px; font-weight: 600;
+                display: block; margin-bottom: .25rem;
+            }
+            .info-value { 
+                color: var(--text-100); font-size: 1rem; font-weight: 500; 
+            }
+            .role-chip { 
+                background: linear-gradient(135deg, rgba(0,225,255,0.15), rgba(0,225,255,0.08)) !important;
+                border: 1px solid rgba(0,225,255,0.25) !important;
+                color: var(--accent) !important;
+                font-weight: 600;
+            }
+
+            /* Tabela elegante */
+            .elegant-table .ui-datatable-tablewrapper table { border-collapse: separate; border-spacing: 0 10px; }
+            .elegant-table thead tr th { 
+                background: rgba(255,255,255,0.02) !important; 
+                color: var(--text-300) !important;
+                text-transform: uppercase; font-size: .75rem; letter-spacing: .8px;
+                font-weight: 700; border: none !important;
+                padding: .75rem 1rem !important;
+            }
+            .elegant-table .ui-datatable-data > tr { 
+                background: linear-gradient(135deg, var(--bg-800), var(--bg-900));
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 10px;
+                transition: all .2s ease;
+            }
+            .elegant-table .ui-datatable-data > tr:hover { 
+                transform: translateY(-3px); 
+                box-shadow: 0 12px 28px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,225,255,0.1);
+                background: linear-gradient(135deg, var(--bg-700), var(--bg-800));
+            }
+            .elegant-table .ui-datatable-data > tr td { 
+                border: none !important; 
+                padding: 1rem !important; 
+                vertical-align: middle;
+            }
+            .elegant-table .ui-paginator { 
+                background: transparent; border: none; 
+                color: var(--text-300); margin-top: 1rem;
+            }
+            
+            /* Células da tabela */
+            .table-cell-content { display: flex; align-items: center; gap: .5rem; }
+            .table-cell-content .cell-icon { color: var(--accent); font-size: .9rem; opacity: .7; }
+            
+            .table-team { display: flex; align-items: center; gap: .65rem; }
+            .team-logo-small { 
+                width: 32px; height: 32px; border-radius: 8px;
+                background: linear-gradient(135deg, rgba(0,225,255,0.1), rgba(0,225,255,0.05));
+                border: 1px solid rgba(0,225,255,0.2);
+                display: flex; align-items: center; justify-content: center;
+                color: var(--accent); font-size: .9rem;
+            }
+            
+            /* Placar e resultado */
+            .match-score-wrapper { display: flex; flex-direction: column; gap: .35rem; }
+            .match-score { 
+                display: flex; align-items: center; gap: .5rem; 
+                font-weight: 800; font-size: 1.15rem;
+            }
+            .team-score { color: var(--text-100); }
+            .team-score.winner { color: var(--success); }
+            .score-separator { color: var(--muted); font-weight: 400; }
+            
+            .match-result { 
+                display: inline-flex; align-items: center; gap: .35rem;
+                font-weight: 600; font-size: .8rem;
+                padding: .35rem .65rem; border-radius: 999px; 
+                letter-spacing: .3px; width: fit-content;
+            }
+            .match-result.win { 
+                background: rgba(34,197,94,0.12); 
+                color: var(--success);
+                border: 1px solid rgba(34,197,94,0.25);
+            }
+            .match-result.loss { 
+                background: rgba(239,68,68,0.12); 
+                color: var(--danger);
+                border: 1px solid rgba(239,68,68,0.25);
+            }
+            .match-result.draw { 
+                background: rgba(245,158,11,0.12); 
+                color: var(--warning);
+                border: 1px solid rgba(245,158,11,0.25);
+            }
+            .match-result i { font-size: .75rem; }
+            
+            /* Botão de ação */
+            .action-btn { 
+                background: rgba(0,225,255,0.08) !important;
+                border: 1px solid rgba(0,225,255,0.2) !important;
+                color: var(--accent) !important;
+            }
+            .action-btn:hover { 
+                background: rgba(0,225,255,0.15) !important;
+                box-shadow: 0 0 0 1px rgba(0,225,255,0.3), 0 0 18px rgba(0,225,255,0.12) !important;
+            }
+
+            /* Stats Summary Boxes */
+            .stats-summary-box {
+                background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 12px;
+                padding: 1.25rem 1rem;
+                text-align: center;
+                transition: all .25s ease;
+                position: relative;
                 overflow: hidden;
-                background-color: #f8f9fa;
+            }
+            .stats-summary-box::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, var(--accent), var(--accent-2));
+                opacity: 0;
+                transition: opacity .25s ease;
+            }
+            .stats-summary-box:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 28px rgba(0,0,0,0.4);
+                border-color: rgba(0,225,255,0.2);
+            }
+            .stats-summary-box:hover::before { opacity: 1; }
+            
+            .stats-summary-box .stats-icon {
+                font-size: 1.75rem;
+                color: var(--accent);
+                margin-bottom: .5rem;
+                display: block;
+            }
+            .stats-summary-value {
+                font-size: 2rem;
+                font-weight: 800;
+                color: var(--text-100);
+                margin-bottom: .25rem;
+            }
+            .stats-summary-label {
+                font-size: .85rem;
+                color: var(--text-300);
+                text-transform: uppercase;
+                letter-spacing: .5px;
+                font-weight: 600;
+            }
+            
+            .stats-summary-box.win-box .stats-icon { color: var(--success); }
+            .stats-summary-box.win-box .stats-summary-value { color: var(--success); }
+            .stats-summary-box.win-box::before { background: var(--success); }
+            
+            .stats-summary-box.loss-box .stats-icon { color: var(--danger); }
+            .stats-summary-box.loss-box .stats-summary-value { color: var(--danger); }
+            .stats-summary-box.loss-box::before { background: var(--danger); }
+            
+            .stats-summary-action {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                border: 1px solid #dee2e6;
-                margin-bottom: 1rem;
+                background: linear-gradient(135deg, rgba(0,225,255,0.05), rgba(0,225,255,0.02));
+                border-color: rgba(0,225,255,0.15);
             }
-
-            .player-photo {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                border-radius: 50%; /* Garantir que a imagem mantenha o formato circular */
+            .full-stats-btn {
+                border-color: rgba(0,225,255,0.35) !important;
+                color: var(--accent) !important;
             }
-
-            .player-photo-placeholder {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-                height: 100%;
-                background-color: #f8f9fa;
-                border-radius: 50%;
+            .full-stats-btn:hover {
+                background: rgba(0,225,255,0.1) !important;
+                box-shadow: 0 0 0 1px rgba(0,225,255,0.3), 0 0 20px rgba(0,225,255,0.1) !important;
             }
+            
+            /* Badges */
+            .player-badges .p-badge { background: rgba(255,255,255,0.06); border-radius: 999px; padding: .35rem .6rem; }
 
-            .player-name {
-                font-size: 1.5rem;
-                font-weight: 700;
-                margin: 1rem 0 0.25rem;
+            /* Steam stats e progress */
+            .steam-stat-box {
+                background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 12px;
+                padding: 1rem;
                 text-align: center;
+                transition: all .2s ease;
             }
-
-            .player-nickname {
-                font-size: 1.1rem;
-                color: #6c757d;
-                margin: 0 0 0.5rem;
-                text-align: center;
+            .steam-stat-box:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+                border-color: rgba(0,225,255,0.15);
             }
-            .section-subtitle {
+            .steam-stat-value {
                 font-size: 1.5rem;
+                font-weight: 800;
+                color: var(--text-100);
+                margin-bottom: .35rem;
+            }
+            .steam-stat-label {
+                font-size: .8rem;
+                color: var(--text-300);
+                text-transform: uppercase;
+                letter-spacing: .5px;
                 font-weight: 600;
-                margin-top: 2rem;
-                color: #343a40;
             }
-
-            .stats-subtitle {
-                font-size: 1.1rem;
-                font-weight: 600;
-                margin-bottom: 1rem;
-                color: #495057;
+            .steam-level-progress { 
+                height: 10px !important; 
+                border-radius: 999px !important; 
+                box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+                background: rgba(255,255,255,0.03) !important;
             }
-
-            .stats-card {
-                height: 100%;
+            .steam-level-progress .p-progressbar-value {
+                background: linear-gradient(90deg, var(--accent), var(--accent-2)) !important;
             }
+            .steam-level-text { margin-left: .5rem; color: var(--text-300); font-weight: 600; }
 
-            .match-result {
-                font-weight: 500;
-                padding: 0.25rem 0.5rem;
-                border-radius: 0.25rem;
-            }
+            /* Microinterações */
+            .p-button, .ui-button { transition: transform .15s ease, box-shadow .15s ease; }
+            .p-button:hover, .ui-button:hover { transform: translateY(-1px); box-shadow: var(--surface-shadow); }
 
-            .match-result.win {
-                background-color: rgba(40, 167, 69, 0.1);
-                color: #28a745;
-            }
-
-            .match-result.loss {
-                background-color: rgba(220, 53, 69, 0.1);
-                color: #dc3545;
-            }
-
-            .match-result.draw {
-                background-color: rgba(108, 117, 125, 0.1);
-                color: #6c757d;
+            /* Responsividade */
+            @media (max-width: 768px) {
+                .player-hero { gap: 1rem; }
+                .player-hero-right { width: 100%; margin-top: .5rem; }
+                .mini-kpis { width: 100%; grid-template-columns: repeat(3, 1fr); }
             }
         </style>
 

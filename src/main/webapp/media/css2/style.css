@@ -333,6 +333,53 @@ a {
     border: 1px solid #212529 !important;
 }
 
+/* Override para TabView - garantir tema dark quando houver variáveis CSS definidas */
+:root {
+    --bg-800: #141923;
+    --bg-900: #0f1217;
+    --text-100: #e6ebf2;
+    --text-300: #b7c1d1;
+    --border: rgba(255,255,255,0.06);
+    --accent: #00e1ff;
+}
+
+/* TabView dark theme - sobrescrever qualquer estilo claro */
+.glass-tab-container .ui-tabview,
+.glass-tab-container .p-tabview,
+.ui-tabview .glass-tab-container {
+    background: linear-gradient(180deg, var(--bg-800, #141923), var(--bg-900, #0f1217)) !important;
+    color: var(--text-100, #e6ebf2) !important;
+}
+
+.glass-tab-container .ui-tabview-nav,
+.glass-tab-container .ui-tabview-panels,
+.glass-tab-container .ui-tabview-panel {
+    background: linear-gradient(180deg, var(--bg-800, #141923), var(--bg-900, #0f1217)) !important;
+    color: var(--text-100, #e6ebf2) !important;
+}
+
+.glass-tab-container .ui-tabview-nav li a,
+.glass-tab-container .ui-tabview-nav li .ui-tabview-title,
+.glass-tab-container .ui-tabview-nav li span,
+.glass-tab-container .ui-tabview-nav li a *,
+.glass-tab-container .ui-tabview-nav li .ui-tabview-title * {
+    color: var(--text-300, #b7c1d1) !important;
+}
+
+.glass-tab-container .ui-tabview-nav li.ui-state-active a,
+.glass-tab-container .ui-tabview-nav li.ui-state-active .ui-tabview-title,
+.glass-tab-container .ui-tabview-nav li.ui-state-active a *,
+.glass-tab-container .ui-tabview-nav li.ui-state-active .ui-tabview-title *,
+.glass-tab-container .ui-tabview-nav li.ui-state-active span {
+    color: var(--text-100, #e6ebf2) !important;
+}
+
+/* Se o body tiver tema dark definido (fallback) */
+body[style*="background"] .ui-tabview,
+body[style*="--bg"] .ui-tabview {
+    background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
     .header {
