@@ -4,19 +4,17 @@
  */
 package br.com.champ.Manager;
 
-import br.com.champ.Enums.Cs2ConsoleCommand;
 import br.com.champ.Servico.RconService;
 import jakarta.annotation.PostConstruct;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import java.io.Serializable;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -24,7 +22,7 @@ import java.util.stream.Collectors;
  */
 @Named
 @ViewScoped
-public class ManagerRcon implements Serializable {
+public class ManagerRcon extends ManagerBase {
 
     @Inject
     private RconService rconService;
@@ -36,11 +34,21 @@ public class ManagerRcon implements Serializable {
 
     @PostConstruct
     public void init() {
-        historico = new ArrayList<>();
-        testarConexao();
-        adicionarLog("=== Console RCON CS2 ===");
-        adicionarLog("Digite 'help' para ver comandos disponíveis");
-        adicionarLog("---");
+        try {
+            // Verifica se usuário é admin
+            if (!isAdmin()) {
+                FacesContext.getCurrentInstance().getExternalContext().redirect("login.xhtml");
+                return;
+            }
+
+            historico = new ArrayList<>();
+            testarConexao();
+            adicionarLog("=== Console RCON CS2 ===");
+            adicionarLog("Digite 'help' para ver comandos disponíveis");
+            adicionarLog("---");
+        } catch (IOException ex) {
+            System.err.println("Erro ao redirecionar: " + ex.getMessage());
+        }
     }
 
     public void testarConexao() {

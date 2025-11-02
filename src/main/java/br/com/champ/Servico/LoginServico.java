@@ -85,6 +85,7 @@ public class LoginServico {
 
                     String token = RequisicaoUtils.requisicaoPost(pathToAPI() + "/api/login/steam", json);
                     if (token != null) {
+                        System.err.println("tem token...");
                         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("token", token);
                         return token;
                     }

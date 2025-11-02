@@ -23,7 +23,7 @@
                             <i class="pi pi-users"></i>
                         </div>
                         <div class="dashboard-stat-content">
-                            <div class="dashboard-stat-value">#{managerIndex.playersAtivos.size()}</div>
+                            <div class="dashboard-stat-value">#{managerIndex.playersAtivos != null ? managerIndex.playersAtivos.size() : 0}</div>
                             <div class="dashboard-stat-label">Jogadores</div>
                         </div>
                     </div>
@@ -37,7 +37,7 @@
                             <i class="pi pi-shield"></i>
                         </div>
                         <div class="dashboard-stat-content">
-                            <div class="dashboard-stat-value">#{managerIndex.times.size()}</div>
+                            <div class="dashboard-stat-value">#{managerIndex.times != null ? managerIndex.times.size() : 0}</div>
                             <div class="dashboard-stat-label">Times</div>
                         </div>
                     </div>
@@ -51,7 +51,7 @@
                             <i class="pi pi-trophy"></i>
                         </div>
                         <div class="dashboard-stat-content">
-                            <div class="dashboard-stat-value">#{managerIndex.camps.size()}</div>
+                            <div class="dashboard-stat-value">#{managerIndex.camps != null ? managerIndex.camps.size() : 0}</div>
                             <div class="dashboard-stat-label">Campeonatos</div>
                         </div>
                     </div>
@@ -65,7 +65,7 @@
                             <i class="pi pi-flag-fill"></i>
                         </div>
                         <div class="dashboard-stat-content">
-                            <div class="dashboard-stat-value">#{managerIndex.partidas.size()}</div>
+                            <div class="dashboard-stat-value">#{managerIndex.partidas != null ? managerIndex.partidas.size() : 0}</div>
                             <div class="dashboard-stat-label">Partidas</div>
                         </div>
                     </div>
@@ -90,7 +90,7 @@
                                 <i class="pi pi-trophy"></i>
                             </div>
                             <div class="championship-status">
-                                <p:badge value="#{camp.status.nome}" severity="success" />
+                                <p:badge value="#{camp.status != null ? camp.status.nome : 'Sem Status'}" severity="success" />
                             </div>
                         </div>
 
@@ -99,19 +99,19 @@
                             <div class="championship-info">
                                 <div class="info-item">
                                     <span class="info-label">Jogo</span>
-                                    <span class="info-value">#{camp.jogo.nome}</span>
+                                    <span class="info-value">#{camp.jogo != null ? camp.jogo.nome : 'N/A'}</span>
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">Times</span>
-                                    <span class="info-value">#{camp.teams.size()}</span>
+                                    <span class="info-value">#{camp.teams != null ? camp.teams.size() : 0}</span>
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">Início</span>
-                                    <span class="info-value">#{camp.dataCriacao}</span>
+                                    <span class="info-value">#{camp.dataCriacao != null ? camp.dataCriacao : 'N/A'}</span>
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">Término</span>
-                                    <span class="info-value">#{camp.dataCamp}</span>
+                                    <span class="info-value">#{camp.dataCamp != null ? camp.dataCamp : 'N/A'}</span>
                                 </div>
                             </div>
                         </div>
@@ -148,36 +148,40 @@
                             </div>
                         </div>
 
-                        <div class="match-body">
-                            <div class="match-team">
-                                <div class="team-logo">
-                                    <p:graphicImage value="image/#{partida.itemPartida.get(0).team1.anexo.nome}" rendered="#{partida.itemPartida.get(0).team1.anexo ne null}" styleClass="team-logo-img" />
-                                    <div class="team-logo" style="#{partida.itemPartida.get(0).team1.anexo eq null ?  '' : 'display: none'}">
-                                        <i class="pi pi-user" style="font-size: 2rem; color: var(--text-300);"></i>
+                        <div class="match-body" rendered="#{not empty partida.itemPartida and partida.itemPartida.size() > 0}">
+                            <ui:repeat value="#{partida.itemPartida}" var="item" varStatus="status">
+                                <div rendered="#{status.index == 0}">
+                                    <div class="match-team">
+                                        <div class="team-logo">
+                                            <p:graphicImage value="image/#{item.team1 != null ? item.team1.anexo.nome : ''}" rendered="#{item.team1 != null and item.team1.anexo != null}" styleClass="team-logo-img" />
+                                            <div class="team-logo" rendered="#{item.team1 == null or item.team1.anexo == null}">
+                                                <i class="pi pi-user" style="font-size: 2rem; color: var(--text-300);"></i>
+                                            </div>
+                                        </div>
+                                        <div class="team-name">#{item.team1 != null ? item.team1.nome : 'N/A'}</div>
+                                        <div class="team-score live">#{item.scoreT1 != null ? item.scoreT1 : 0}</div>
+                                    </div>
+
+                                    <div class="match-vs">VS</div>
+
+                                    <div class="match-team">
+                                        <div class="team-logo">
+                                            <p:graphicImage value="image/#{item.team2 != null ? item.team2.anexo.nome : ''}" rendered="#{item.team2 != null and item.team2.anexo != null}" styleClass="team-logo-img" />
+                                            <div class="team-logo" rendered="#{item.team2 == null or item.team2.anexo == null}">
+                                                <i class="pi pi-user" style="font-size: 2rem; color: var(--text-300);"></i>
+                                            </div>
+                                        </div>
+                                        <div class="team-name">#{item.team2 != null ? item.team2.nome : 'N/A'}</div>
+                                        <div class="team-score live">#{item.scoreT2 != null ? item.scoreT2 : 0}</div>
                                     </div>
                                 </div>
-                                <div class="team-name">#{partida.itemPartida.get(0).team1.nome}</div>
-                                <div class="team-score live">#{partida.itemPartida.get(0).scoreT1}</div>
-                            </div>
-
-                            <div class="match-vs">VS</div>
-
-                            <div class="match-team">
-                                <div class="team-logo">
-                                    <p:graphicImage value="image/#{partida.itemPartida.get(0).team2.anexo.nome}" rendered="#{partida.itemPartida.get(0).team2.anexo ne null}" styleClass="team-logo-img" />
-                                    <div class="team-logo" style="#{partida.itemPartida.get(0).team2.anexo eq null ?  '' : 'display: none'}">
-                                        <i class="pi pi-user" style="font-size: 2rem; color: var(--text-300);"></i>
-                                    </div>
-                                </div>
-                                <div class="team-name">#{partida.itemPartida.get(0).team2.nome}</div>
-                                <div class="team-score live">#{partida.itemPartida.get(0).scoreT2}</div>
-                            </div>
+                            </ui:repeat>
                         </div>
 
                         <div class="match-footer">
                             <div class="match-game">
                                 <i class="pi pi-desktop mr-1"></i>
-                                <span>#{partida.jogo.nome}</span>
+                                <span>#{partida.jogo != null ? partida.jogo.nome : 'N/A'}</span>
                             </div>
                             <p:button value="Ver Detalhes" icon="pi pi-eye" outcome="visualizarPartida.xhtml?id=#{partida.id}" styleClass="elegant-btn-text" />
                         </div>
@@ -207,14 +211,14 @@
                             <div class="col-12 sm:col-6">
                                 <div class="pow-card">
                                     <div class="pow-avatar">
-                                        <p:graphicImage value="image/#{pweek.anexo.nome}" rendered="#{pweek.anexo ne null}" styleClass="pow-img" />
-                                        <div class="pow-placeholder" style="#{pweek.anexo eq null ? '' : 'display:none'}">
+                                        <p:graphicImage value="image/#{pweek.anexo != null ? pweek.anexo.nome : ''}" rendered="#{pweek.anexo != null}" styleClass="pow-img" />
+                                        <div class="pow-placeholder" rendered="#{pweek.anexo == null}">
                                             <i class="pi pi-user"></i>
                                         </div>
                                     </div>
                                     <div class="pow-info">
-                                        <div class="pow-name">#{pweek.nome}</div>
-                                        <div class="pow-nick">@#{pweek.nick}</div>
+                                        <div class="pow-name">#{pweek.nome != null ? pweek.nome : 'N/A'}</div>
+                                        <div class="pow-nick">@#{pweek.nick != null ? pweek.nick : 'N/A'}</div>
                                     </div>
                                 </div>
                             </div>

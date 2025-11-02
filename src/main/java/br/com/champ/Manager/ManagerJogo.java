@@ -13,9 +13,10 @@ import br.com.champ.Utilitario.FacesUtil;
 import br.com.champ.Utilitario.Mensagem;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
-import java.io.Serializable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +26,7 @@ import java.util.List;
  */
 @ViewScoped
 @Named
-public class ManagerJogo implements Serializable {
+public class ManagerJogo extends ManagerBase {
 
     @EJB
     private JogoServico jogoServico;
@@ -37,19 +38,27 @@ public class ManagerJogo implements Serializable {
 
     @PostConstruct
     public void init() {
-        String visualizarJogoId = FacesUtil
-                .getRequestParameter("id");
-
-        if (visualizarJogoId != null && !visualizarJogoId.isEmpty()) {
-            this.jogo = this.jogoServico.pesquisarJogo(Long.parseLong(visualizarJogoId));
-            if (this.jogo.getId() != null) {
-                this.versoes = this.jogo.getVersoes();
+        try {
+            // Verifica se usuário é admin
+            if (!isAdmin()) {
+                FacesContext.getCurrentInstance().getExternalContext().redirect("login.xhtml");
+                return;
             }
 
-        } else {
-            instanciar();
-        }
+            String visualizarJogoId = FacesUtil.getRequestParameter("id");
 
+            if (visualizarJogoId != null && !visualizarJogoId.isEmpty()) {
+                this.jogo = this.jogoServico.pesquisarJogo(Long.parseLong(visualizarJogoId));
+                if (this.jogo.getId() != null) {
+                    this.versoes = this.jogo.getVersoes();
+                }
+
+            } else {
+                instanciar();
+            }
+        } catch (IOException ex) {
+            System.err.println("Erro ao redirecionar: " + ex.getMessage());
+        }
     }
 
     public void instanciar() {
@@ -116,9 +125,8 @@ public class ManagerJogo implements Serializable {
 
     public void excluir() {
         try {
-            Jogo j = new Jogo();
             this.jogo.setActive(Boolean.FALSE);
-            j = jogoServico.save(this.jogo, null, Url.ATUALIZAR_JOGO.getNome());
+            jogoServico.save(this.jogo, null, Url.ATUALIZAR_JOGO.getNome());
         } catch (Exception ex) {
             System.err.println(ex);
         }

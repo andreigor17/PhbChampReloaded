@@ -58,11 +58,57 @@ public class ManagerIndex implements Serializable {
     public void init() {
         try {
             instanciar();
-            this.partidas = partidaServico.pesquisarPartidasGeral();
-            this.camps = campeonatoServico.pesquisarIndex(null);
-            this.campsAtuais = campeonatoServico.pesquisarIndex(3);
-            this.playersAtivos = playerServico.buscaPlayers();
-            this.times = teamServico.buscaTimes();
+            
+            // Inicializações com verificação de null
+            try {
+                this.partidas = partidaServico.pesquisarPartidasGeral();
+                if (this.partidas == null) {
+                    this.partidas = new ArrayList<>();
+                }
+            } catch (Exception e) {
+                this.partidas = new ArrayList<>();
+                Logger.getLogger(ManagerIndex.class.getName()).log(Level.WARNING, "Erro ao buscar partidas: " + e.getMessage());
+            }
+            
+            try {
+                this.camps = campeonatoServico.pesquisarIndex(null);
+                if (this.camps == null) {
+                    this.camps = new ArrayList<>();
+                }
+            } catch (Exception e) {
+                this.camps = new ArrayList<>();
+                Logger.getLogger(ManagerIndex.class.getName()).log(Level.WARNING, "Erro ao buscar campeonatos: " + e.getMessage());
+            }
+            
+            try {
+                this.campsAtuais = campeonatoServico.pesquisarIndex(3);
+                if (this.campsAtuais == null) {
+                    this.campsAtuais = new ArrayList<>();
+                }
+            } catch (Exception e) {
+                this.campsAtuais = new ArrayList<>();
+                Logger.getLogger(ManagerIndex.class.getName()).log(Level.WARNING, "Erro ao buscar campeonatos atuais: " + e.getMessage());
+            }
+            
+            try {
+                this.playersAtivos = playerServico.buscaPlayers();
+                if (this.playersAtivos == null) {
+                    this.playersAtivos = new ArrayList<>();
+                }
+            } catch (Exception e) {
+                this.playersAtivos = new ArrayList<>();
+                Logger.getLogger(ManagerIndex.class.getName()).log(Level.WARNING, "Erro ao buscar players: " + e.getMessage());
+            }
+            
+            try {
+                this.times = teamServico.buscaTimes();
+                if (this.times == null) {
+                    this.times = new ArrayList<>();
+                }
+            } catch (Exception e) {
+                this.times = new ArrayList<>();
+                Logger.getLogger(ManagerIndex.class.getName()).log(Level.WARNING, "Erro ao buscar times: " + e.getMessage());
+            }
 
             // Inicializações seguras para novos blocos (sem dependência externa):
             // Players of the Week: seleciona até 3 jogadores ativos (se disponíveis)
@@ -83,6 +129,8 @@ public class ManagerIndex implements Serializable {
             }
         } catch (Exception ex) {
             Logger.getLogger(ManagerIndex.class.getName()).log(Level.SEVERE, null, ex);
+            // Garantir que listas não sejam null em caso de erro
+            instanciar();
         }
 
     }

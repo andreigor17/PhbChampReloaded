@@ -23,7 +23,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -39,7 +38,7 @@ import org.primefaces.event.FlowEvent;
  */
 @ViewScoped
 @Named
-public class ManagerCriarCampeonato implements Serializable {
+public class ManagerCriarCampeonato extends ManagerBase {
 
     @EJB
     TeamServico teamServico;

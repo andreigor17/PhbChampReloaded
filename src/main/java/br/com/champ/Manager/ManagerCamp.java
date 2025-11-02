@@ -8,7 +8,6 @@ import br.com.champ.Modelo.Player;
 import br.com.champ.Modelo.Team;
 import br.com.champ.Servico.CampeonatoServico;
 import br.com.champ.Servico.EstatisticaServico;
-import br.com.champ.Servico.LoginServico;
 import br.com.champ.Servico.PartidaServico;
 import br.com.champ.Servico.PlayerServico;
 import br.com.champ.Servico.TeamServico;
@@ -20,17 +19,13 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -38,7 +33,7 @@ import java.util.stream.Collectors;
  */
 @ViewScoped
 @Named
-public class ManagerCamp implements Serializable {
+public class ManagerCamp extends ManagerBase {
 
     @EJB
     TeamServico teamServico;
@@ -50,8 +45,6 @@ public class ManagerCamp implements Serializable {
     EstatisticaServico estatisticaServico;
     @EJB
     PartidaServico partidaServico;
-    @EJB
-    LoginServico loginServico;
 
     private Campeonato camp;
     private Campeonato preCamp;
@@ -67,7 +60,6 @@ public class ManagerCamp implements Serializable {
     private int s1;
     private int s2;
     private Estatisticas mvp;
-    private Player playerLogado;
     private List<Partida> oitavas;
     private List<Partida> quartas;
     private List<Partida> semis;
@@ -78,7 +70,8 @@ public class ManagerCamp implements Serializable {
     public void init() {
         instanciar();
 
-        this.playerLogado = loginServico.obterPlayerId();
+        // Carrega o player logado através do ManagerBase
+        getPlayerLogado();
         String visualizarCampId = FacesUtil
                 .getRequestParameter("id");
 
@@ -124,7 +117,6 @@ public class ManagerCamp implements Serializable {
         this.ests = new ArrayList<>();
         this.partida = new Partida();
         this.mvp = new Estatisticas();
-        this.playerLogado = null;
         this.oitavas = new ArrayList<>();
         this.quartas = new ArrayList<>();
         this.semis = new ArrayList<>();
@@ -455,18 +447,13 @@ public class ManagerCamp implements Serializable {
         }
     }
 
-    public Player getPlayerLogado() {
-        return playerLogado;
-    }
-
-    public void setPlayerLogado(Player playerLogado) {
-        this.playerLogado = playerLogado;
-    }
-
     public void inscrever() {
         try {
-            this.camp.getPlayers().add(this.playerLogado);
-            this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
+            Player player = getPlayerLogado();
+            if (player != null) {
+                this.camp.getPlayers().add(player);
+                this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }

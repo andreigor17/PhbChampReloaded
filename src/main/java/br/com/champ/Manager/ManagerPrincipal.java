@@ -5,7 +5,6 @@
 package br.com.champ.Manager;
 
 import br.com.champ.Modelo.Player;
-import br.com.champ.Servico.LoginServico;
 import br.com.champ.Servico.PlayerServico;
 import br.com.champ.Utilitario.FacesUtil;
 import br.com.champ.Utilitario.Mensagem;
@@ -19,11 +18,11 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.primefaces.PrimeFaces;
 
 /**
  *
@@ -31,24 +30,20 @@ import java.util.logging.Logger;
  */
 @Named
 @ViewScoped
-public class ManagerPrincipal implements Serializable {
+public class ManagerPrincipal extends ManagerBase {
 
     private final String STEAM_LOGIN_URL = "https://steamcommunity.com/openid/login";
-    private final String RETURN_URL = "http://localhost:8080/PhbChampReloaded/criarJogador.xhtml?redirectSteamLogin=true";
 
     @Inject
     private HttpServletRequest request;
     @Inject
     private ExternalContext externalContext;
     @EJB
-    LoginServico loginServico;
-    @EJB
     PlayerServico playerServico;
     private Player player;
     private String token;
     private String tokenReset;
     private LoginVo usuario;
-    private Player playerLogado;
 
     @PostConstruct
     public void init() {
@@ -56,18 +51,16 @@ public class ManagerPrincipal implements Serializable {
 
             instanciar();
             HttpServletRequest uri = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-            String redirectSteam = FacesUtil
-                    .getRequestParameter("redirectSteamLogin");
-
-            String deslogar = FacesUtil
-                    .getRequestParameter("lougout");
+            String deslogar = FacesUtil.getRequestParameter("lougout");
 
             if (deslogar != null) {
                 loginServico.deslogar();
-                Mensagem.successAndRedirect("Logout realizado com sucesso!", "index.xhtml");
-
+                // Usa JavaScript para redirecionar pois estamos no @PostConstruct
+                PrimeFaces.current().executeScript("setTimeout(function(){ window.location.href='index.xhtml'; }, 100);");
             }
-            this.playerLogado = loginServico.obterPlayerId();
+            
+            // Carrega o player logado através do ManagerBase
+            getPlayerLogado();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -80,22 +73,28 @@ public class ManagerPrincipal implements Serializable {
 
             this.player = new Player();
             this.usuario = new LoginVo();
-            this.playerLogado = new Player();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public boolean usuarioEstaLogado() {
-        try {
+    /**
+     * Verifica se há um usuário logado
+     * Método exposto para o JSF
+     * @return true se há usuário logado, false caso contrário
+     */
+    public boolean isUsuarioLogado() {
+        return super.isUsuarioLogado();
+    }
 
-            return loginServico.usuarioEstaLogado();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    /**
+     * Verifica se o usuário logado é administrador
+     * Método exposto para o JSF
+     * @return true se o usuário logado é admin, false caso contrário
+     */
+    public boolean isAdmin() {
+        return super.isAdmin();
     }
         
     public void login() {
@@ -157,14 +156,6 @@ public class ManagerPrincipal implements Serializable {
         this.usuario = usuario;
     }
 
-    public Player getPlayerLogado() {
-        return playerLogado;
-    }
-
-    public void setPlayerLogado(Player playerLogado) {
-        this.playerLogado = playerLogado;
-    }
-
     public String buildSteamLoginUrl() {
         return buildSteamLoginUrlWithParams();
     }
@@ -203,7 +194,7 @@ public class ManagerPrincipal implements Serializable {
             baseUrl += ":" + serverPort;
         }
 
-        String fixedPath = "/PhbChampReloaded/criarJogador.xhtml?redirectSteamLogin=true";
+        String fixedPath = "/PhbChampReloaded/steamCallback.xhtml";
 
         return baseUrl + fixedPath;
     }

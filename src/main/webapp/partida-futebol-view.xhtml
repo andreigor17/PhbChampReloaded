@@ -26,7 +26,7 @@
                                      id="checkinButton" />
 
                     <p:button value="Editar" icon="pi pi-pencil" outcome="partida-futebol.xhtml" 
-                              rendered="#{managerPartida.playerLogado ne null and managerPartida.playerLogado.adminastror eq true}"
+                              rendered="#{managerPartida.isAdmin()}"
                               styleClass="p-button-outlined mr-2">
 
                         <f:param name="id" value="#{managerPartida.partida.id}" />
@@ -34,7 +34,7 @@
 
                     <p:commandButton value="Excluir" icon="pi pi-trash" 
                                      styleClass="p-button-danger p-button-outlined"
-                                     rendered="#{managerPartida.playerLogado ne null and managerPartida.playerLogado.adminastror eq true}"
+                                     rendered="#{managerPartida.isAdmin()}"
                                      actionListener="#{managerPartida.excluir()}" 
                                      update=":deleteDialog" 
                                      oncomplete="PF('deleteDialogWidget').show()" />

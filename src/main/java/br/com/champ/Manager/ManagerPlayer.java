@@ -15,7 +15,6 @@ import br.com.champ.Servico.AnexoServico;
 import br.com.champ.Servico.CampeonatoServico;
 import br.com.champ.Servico.EstatisticaServico;
 import br.com.champ.Servico.ItemPartidaServico;
-import br.com.champ.Servico.LoginServico;
 import br.com.champ.Servico.PartidaServico;
 import br.com.champ.Servico.PlayerServico;
 import br.com.champ.Servico.SteamAPIServico;
@@ -29,7 +28,6 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -45,7 +43,7 @@ import org.primefaces.model.DualListModel;
  */
 @ViewScoped
 @Named
-public class ManagerPlayer implements Serializable {
+public class ManagerPlayer extends ManagerBase {
 
     @EJB
     PlayerServico playerServico;
@@ -61,8 +59,6 @@ public class ManagerPlayer implements Serializable {
     ItemPartidaServico itemPartidaServico;
     @EJB
     EstatisticaServico estatisticaServico;
-    @EJB
-    LoginServico loginServico;
     @EJB
     SteamAPIServico steamApiService;
     private Player player;
@@ -82,7 +78,6 @@ public class ManagerPlayer implements Serializable {
     private List<Estatisticas> estsTotais;
     private List<Estatisticas> estsPlayer;
     private Jogo jogo;
-    private Player playerLogado;
     private String steamId64;
     private JSONObject profileData;
     private int steamLevel;
@@ -104,7 +99,8 @@ public class ManagerPlayer implements Serializable {
     public void init() {
         try {
             instanciar();
-            this.playerLogado = loginServico.obterPlayerId();
+            // Carrega o player logado através do ManagerBase
+            getPlayerLogado();
             HttpServletRequest uri = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 
             String visualizarPlayerId = FacesUtil
@@ -362,15 +358,13 @@ public class ManagerPlayer implements Serializable {
         init();
     }
 
+    /**
+     * Verifica se o usuário logado tem permissão para editar/excluir este player
+     * Permite se for admin ou se for o próprio dono do perfil
+     */
     public boolean verificarPermissao() {
-        if (this.playerLogado == null) {
-            return false;
-        }
-        if (this.playerLogado != null && this.playerLogado.getId() != null && ((this.playerLogado.getId() == this.player.getId()) || this.playerLogado.isAdminastror())) {
-            return true;
-        } else {
-            return false;
-        }
+        return this.player != null && this.player.getId() != null 
+                && podeEditar(this.player.getId());
     }
 
     public void carregarDadosRemote() {
@@ -430,14 +424,6 @@ public class ManagerPlayer implements Serializable {
 
     public void setJogo(Jogo jogo) {
         this.jogo = jogo;
-    }
-
-    public Player getPlayerLogado() {
-        return playerLogado;
-    }
-
-    public void setPlayerLogado(Player playerLogado) {
-        this.playerLogado = playerLogado;
     }
 
     public String getSteamId64() {

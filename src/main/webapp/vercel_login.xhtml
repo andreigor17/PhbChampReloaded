@@ -11,14 +11,193 @@
     <title>PhbChamp</title>
     
     
-    <link rel="stylesheet" href="media/css2/style.css"/>     
     <link rel="stylesheet" href="https://unpkg.com/primeflex@latest/primeflex.css"/>
+    
+    <style>
+        /* Reset básico */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+        }
+        
+        :root{
+            --bg-900:#0f1217; --bg-850:#121722; --bg-800:#141923; --bg-700:#1a2030;
+            --text-100:#e6ebf2; --text-200:#d1d9e6; --text-300:#b7c1d1; --muted:#8b93a6;
+            --accent:#00e1ff; --accent-2:#ff8a3d; --success:#22c55e;
+            --border:rgba(255,255,255,0.06); --shadow:0 12px 28px rgba(0,0,0,.45);
+            --radius:14px;
+        }
+        html, body { 
+            height: 100%; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        body{
+            background:
+                radial-gradient(1200px 500px at -10% -10%, rgba(0,225,255,.06), transparent),
+                radial-gradient(1000px 500px at 110% -10%, rgba(255,138,61,.05), transparent),
+                linear-gradient(180deg, var(--bg-850), var(--bg-900));
+            color: var(--text-100);
+            -webkit-font-smoothing: antialiased; 
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .container{
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 1.25rem 1rem 2rem;
+        }
+        /* Main */
+        main.container{ 
+            margin-top: 1rem; 
+        }
+        /* PrimeFaces common overrides */
+        .p-card, .ui-panel{ 
+            background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important; 
+            border:1px solid var(--border) !important; 
+            border-radius: var(--radius) !important; 
+            box-shadow: var(--shadow) !important; 
+        }
+        .glass-card, .glass-panel .ui-panel-content{ 
+            background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important; 
+            border:1px solid var(--border) !important; 
+            border-radius: var(--radius) !important; 
+            box-shadow: var(--shadow) !important; 
+        }
+        .p-button, .ui-button{ 
+            transition: transform .15s ease, box-shadow .15s ease; 
+        }
+        .p-button:hover, .ui-button:hover{ 
+            transform: translateY(-1px); 
+            box-shadow: var(--shadow); 
+        }
+        .ui-widget{ 
+            color: var(--text-100); 
+        }
+        .ui-widget input, .ui-widget select, .ui-widget textarea{ 
+            background: var(--bg-700); 
+            border:1px solid var(--border); 
+            color: var(--text-100); 
+            border-radius:10px; 
+        }
+        .ui-widget .ui-state-highlight{ 
+            background: rgba(0,225,255,.12); 
+            border-color: rgba(0,225,255,.25); 
+        }
+        
+        /* InputIcon, Password, etc */
+        .p-inputgroup-addon, .ui-inputgroup-addon{ 
+            background: rgba(255,255,255,0.04); 
+            border:1px solid var(--border); 
+            color: var(--text-300); 
+        }
+        .p-inputtext, .ui-inputtext, 
+        .p-password, .ui-password,
+        .p-password input{ 
+            background: rgba(255,255,255,0.03); 
+            border:1px solid var(--border); 
+            color: var(--text-100); 
+        }
+        .p-password-panel, .ui-password-panel { 
+            background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important; 
+            border: 1px solid var(--border) !important; 
+        }
+        .p-input-icon-left i, .ui-input-icon-left i { 
+            color: var(--text-300) !important; 
+        }
+        
+        /* Checkbox e Radio */
+        .ui-chkbox, .p-checkbox,
+        .ui-radiobutton, .p-radiobutton { 
+            background: transparent !important; 
+        }
+        .ui-chkbox-box, .p-checkbox-box,
+        .ui-radiobutton-box, .p-radiobutton-box { 
+            background: var(--bg-700) !important; 
+            border: 1px solid var(--border) !important; 
+            color: var(--text-100) !important; 
+        }
+        .ui-chkbox-box:hover, .p-checkbox-box:hover,
+        .ui-radiobutton-box:hover, .p-radiobutton-box:hover { 
+            background: var(--bg-700) !important; 
+            border-color: var(--accent) !important; 
+        }
+        .ui-chkbox-checked .ui-chkbox-box, 
+        .p-checkbox-checked .p-checkbox-box,
+        .ui-radiobutton-checked .ui-radiobutton-box, 
+        .p-radiobutton-checked .p-radiobutton-box { 
+            background: var(--accent) !important; 
+            border-color: var(--accent) !important; 
+        }
+        
+        /* Messages */
+        .ui-messages, .p-messages{
+            background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-100) !important;
+            border-radius: var(--radius) !important;
+            box-shadow: var(--shadow) !important;
+        }
+        .ui-messages .ui-messages-info, .p-message-info{ border-left: 3px solid var(--accent) !important; }
+        .ui-messages .ui-messages-error, .p-message-error{ border-left: 3px solid #ef4444 !important; }
+        .ui-messages > div, .p-message{ background: transparent !important; border: none !important; color: var(--text-100) !important; }
+        
+        /* Link */
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Divider */
+        .p-divider, .ui-divider {
+            background: transparent !important;
+        }
+        .p-divider.p-divider-horizontal::before, 
+        .ui-divider.ui-divider-horizontal::before { 
+            border-top-color: var(--border) !important; 
+        }
+        
+        /* OutputLabel */
+        .p-outputlabel, .ui-outputlabel {
+            color: var(--text-100) !important;
+        }
+        
+        /* CommandButton e Link globais */
+        .p-commandbutton, .ui-commandbutton,
+        .p-button, .ui-button {
+            background: var(--bg-700) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-100) !important;
+        }
+        .p-commandbutton:hover, .ui-commandbutton:hover,
+        .p-button:hover, .ui-button:hover {
+            background: var(--bg-800) !important;
+            border-color: var(--accent) !important;
+        }
+        .p-button-text {
+            background: transparent !important;
+            color: var(--accent) !important;
+            border: none !important;
+        }
+        .p-button-text:hover {
+            background: rgba(255,255,255,0.06) !important;
+            color: var(--text-100) !important;
+        }
+        
+        /* Image/link globais */
+        img {
+            display: block;
+            max-width: 100%;
+        }
+    </style>
 </h:head>
 
 <h:body>
-    <!-- Header com navegação -->
-   
-
     <!-- Conteúdo principal -->
     <main class="container">
         <ui:insert name="content">

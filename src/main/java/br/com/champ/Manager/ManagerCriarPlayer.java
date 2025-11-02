@@ -5,7 +5,6 @@
  */
 package br.com.champ.Manager;
 
-import br.com.champ.Enums.Funcoes;
 import br.com.champ.Enums.Url;
 import br.com.champ.Modelo.Anexo;
 import br.com.champ.Modelo.Configuracao;
@@ -14,13 +13,11 @@ import br.com.champ.Modelo.Player;
 import br.com.champ.Servico.AnexoServico;
 import br.com.champ.Servico.ConfiguracaoServico;
 import br.com.champ.Servico.JogoServico;
-import br.com.champ.Servico.LoginServico;
 import br.com.champ.Servico.PlayerServico;
 import br.com.champ.Utilitario.FacesUtil;
 import br.com.champ.Utilitario.Mensagem;
 import br.com.champ.vo.LoginVo;
 import br.com.champ.vo.PlayerSteamVo;
-import br.com.champ.vo.UsuarioVo;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.faces.context.FacesContext;
@@ -32,7 +29,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -57,7 +53,7 @@ import org.primefaces.model.file.UploadedFile;
  */
 @ViewScoped
 @Named
-public class ManagerCriarPlayer implements Serializable {
+public class ManagerCriarPlayer extends ManagerBase {
 
     @EJB
     PlayerServico playerServico;
@@ -67,8 +63,6 @@ public class ManagerCriarPlayer implements Serializable {
     ConfiguracaoServico configuracaoServico;
     @EJB
     private JogoServico jogoServico;
-    @EJB
-    LoginServico loginServico;
     private Player player;
     private Player playerApagar;
     private Player playerPesquisar;
@@ -297,101 +291,143 @@ public class ManagerCriarPlayer implements Serializable {
     }
 
     private void processSteamReturn() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        HttpServletRequest request = (HttpServletRequest) facesContext.getExternalContext().getRequest();
+        try {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            HttpServletRequest request = (HttpServletRequest) facesContext.getExternalContext().getRequest();
+            Map<String, String[]> parameters = request.getParameterMap();
 
-        Map<String, String[]> parameters = request.getParameterMap();
-        String steamId = parameters.get("openid.claimed_id")[0];
-
-        if (steamId != null && !steamId.isEmpty()) {
-            try {
-
-                String decodedSteamId = URLDecoder.decode(steamId, StandardCharsets.UTF_8.name());
-
-                String steamId64 = decodedSteamId.substring(decodedSteamId.lastIndexOf("/") + 1);
-                System.err.println("steamId64 " + steamId64);
-                this.player.setSteamId64(steamId64);
-
-                PlayerSteamVo playerVo = new PlayerSteamVo();
-                playerVo = playerServico.getPlayerInfo(steamId64, "F10A919CE16995E066B463C9005AF4D3");
-
-                if (playerVo.getSteamid() != null) {
-                    LoginVo login = new LoginVo();
-                    login.setSteamId(playerVo.getSteamid());
-                    if (loginServico.autenticarSteam(login) != null) {
-
-                        Mensagem.successAndRedirect("Login realizado com sucesso!", "index.xhtml");
-                    }
-
-                }
-
-                if (playerVo.getPersonaname() != null) {
-                    this.player.setNick(playerVo.getPersonaname());
-                }
-
-                if (playerVo.getRealname() != null) {
-                    this.player.setNome(playerVo.getRealname());
-                }
-
-                if (playerVo.getSteamid() != null) {
-                    this.player.setSteamID(playerVo.getSteamid());
-                }
-
-                if (playerVo.getProfileurl() != null) {
-                    this.player.setUrlSteam(playerVo.getProfileurl());
-                }
-
-                if (playerVo.getAvatarfull() != null) {
-                    try {
-                        String imagemUrl = playerVo.getAvatarfull();
-                        String destino = "/tmp";
-                        String nomeArquivo = "steam_avatar_" + System.currentTimeMillis() + ".jpg";
-
-                        Files.createDirectories(Paths.get(destino));
-
-                        File arquivoDestino = new File(destino, nomeArquivo);
-                        desabilitaVerificacaoSSL();
-
-                        try (InputStream in = new URL(imagemUrl).openStream(); OutputStream out = new FileOutputStream(arquivoDestino)) {
-
-                            byte[] buffer = new byte[8192];
-                            int bytesLidos;
-                            while ((bytesLidos = in.read(buffer)) != -1) {
-                                out.write(buffer, 0, bytesLidos);
-                            }
-
-                            String caminhoFinal = arquivoDestino.getAbsolutePath();
-
-                            System.err.println("caminho final imagem steam " + caminhoFinal);
-                            this.fileTemp = caminhoFinal;
-                            if (this.fileTemp != null) {
-                                PrimeFaces.current().executeScript("atualizarImagem();");
-
-                            }
-                            Anexo anexo = new Anexo();
-                            anexo.setNomeExibicao(nomeArquivo);
-                            anexo.setNome(caminhoFinal);
-
-                            this.player.setAnexo(anexo);
-
-                        } catch (IOException e) {
-                            System.err.println("Erro ao baixar imagem: " + e.getMessage());
-                        }
-
-                    } catch (Exception ex) {
-                        System.err.println("Erro geral ao processar avatar: " + ex.getMessage());
-                    }
-
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                Mensagem.error("Erro ao processar o retorno da Steam.");
+            // Validação de parâmetros da Steam
+            if (!parameters.containsKey("openid.claimed_id") || parameters.get("openid.claimed_id") == null 
+                    || parameters.get("openid.claimed_id").length == 0) {
+                System.err.println("Erro: parâmetro openid.claimed_id não encontrado");
+                Mensagem.error("Erro ao processar o retorno da Steam. Parâmetros inválidos.");
+                return;
             }
-        } else {
-            Mensagem.error("Erro ao processar o retorno da Steam.");
-        }
 
+            String steamId = parameters.get("openid.claimed_id")[0];
+            if (steamId == null || steamId.trim().isEmpty()) {
+                System.err.println("Erro: steamId vazio");
+                Mensagem.error("Erro ao processar o retorno da Steam. ID inválido.");
+                return;
+            }
+
+            // Processa o Steam ID
+            String decodedSteamId = URLDecoder.decode(steamId, StandardCharsets.UTF_8.name());
+            String steamId64 = decodedSteamId.substring(decodedSteamId.lastIndexOf("/") + 1);
+            
+            // Valida o formato do Steam ID (deve ser numérico)
+            if (!steamId64.matches("\\d+")) {
+                System.err.println("Erro: Steam ID inválido - " + steamId64);
+                Mensagem.error("Erro ao processar o retorno da Steam. ID inválido.");
+                return;
+            }
+
+            System.err.println("Processando Steam ID: " + steamId64);
+            this.player.setSteamId64(steamId64);
+
+            // Busca informações do player na Steam
+            PlayerSteamVo playerVo = playerServico.getPlayerInfo(steamId64, "F10A919CE16995E066B463C9005AF4D3");
+
+            if (playerVo == null || playerVo.getSteamid() == null) {
+                System.err.println("Erro: não foi possível obter dados da Steam para ID: " + steamId64);
+                Mensagem.error("Não foi possível obter informações da Steam. Tente novamente.");
+                return;
+            }
+
+            // TENTA FAZER LOGIN primeiro - se já tem conta, redireciona
+            LoginVo login = new LoginVo();
+            login.setSteamId(playerVo.getSteamid());
+            String tokenResult = loginServico.autenticarSteam(login);
+            
+            if (tokenResult != null && !tokenResult.trim().isEmpty()) {
+                // Login bem-sucedido - já tem conta
+                System.err.println("Login Steam bem-sucedido. Redirecionando para index...");
+                // Usa JavaScript para redirecionar pois estamos no @PostConstruct
+                PrimeFaces.current().executeScript("setTimeout(function(){ window.location.href='index.xhtml'; }, 100);");
+                return;
+            }
+
+            // SE NÃO CONSEGUIU LOGAR - é um novo usuário
+            // Preenche os dados do formulário com informações da Steam
+            System.err.println("Novo usuário Steam. Preparando dados para cadastro...");
+            
+            if (playerVo.getPersonaname() != null && !playerVo.getPersonaname().trim().isEmpty()) {
+                this.player.setNick(playerVo.getPersonaname());
+            }
+
+            if (playerVo.getRealname() != null && !playerVo.getRealname().trim().isEmpty()) {
+                String[] nomeCompleto = playerVo.getRealname().trim().split(" ", 2);
+                if (nomeCompleto.length > 0) {
+                    this.player.setNome(nomeCompleto[0]);
+                }
+                if (nomeCompleto.length > 1) {
+                    this.player.setSobreNome(nomeCompleto[1]);
+                }
+            }
+
+            if (playerVo.getSteamid() != null && !playerVo.getSteamid().trim().isEmpty()) {
+                this.player.setSteamID(playerVo.getSteamid());
+            }
+
+            if (playerVo.getProfileurl() != null && !playerVo.getProfileurl().trim().isEmpty()) {
+                this.player.setUrlSteam(playerVo.getProfileurl());
+            }
+
+            // Baixa e processa o avatar
+            if (playerVo.getAvatarfull() != null && !playerVo.getAvatarfull().trim().isEmpty()) {
+                baixarAvatarSteam(playerVo.getAvatarfull());
+            }
+
+            System.err.println("Dados da Steam carregados com sucesso para novo cadastro.");
+
+        } catch (Exception e) {
+            System.err.println("Erro ao processar retorno da Steam: " + e.getMessage());
+            e.printStackTrace();
+            Mensagem.error("Erro ao processar o retorno da Steam. Tente novamente.");
+        }
+    }
+
+    private void baixarAvatarSteam(String imagemUrl) {
+        try {
+            String destino = "/tmp";
+            String nomeArquivo = "steam_avatar_" + System.currentTimeMillis() + ".jpg";
+
+            Files.createDirectories(Paths.get(destino));
+            File arquivoDestino = new File(destino, nomeArquivo);
+
+            desabilitaVerificacaoSSL();
+
+            try (InputStream in = new URL(imagemUrl).openStream(); 
+                 OutputStream out = new FileOutputStream(arquivoDestino)) {
+
+                byte[] buffer = new byte[8192];
+                int bytesLidos;
+                while ((bytesLidos = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, bytesLidos);
+                }
+
+                String caminhoFinal = arquivoDestino.getAbsolutePath();
+                System.err.println("Avatar baixado com sucesso: " + caminhoFinal);
+                
+                this.fileTemp = caminhoFinal;
+                if (this.fileTemp != null) {
+                    PrimeFaces.current().executeScript("atualizarImagem();");
+                }
+
+                Anexo anexo = new Anexo();
+                anexo.setNomeExibicao(nomeArquivo);
+                anexo.setNome(caminhoFinal);
+                this.player.setAnexo(anexo);
+
+            } catch (IOException e) {
+                System.err.println("Erro ao baixar avatar da Steam: " + e.getMessage());
+                // Não interrompe o fluxo se falhar o download do avatar
+            }
+
+        } catch (Exception ex) {
+            System.err.println("Erro ao processar avatar da Steam: " + ex.getMessage());
+            // Não interrompe o fluxo se falhar o download do avatar
+        }
     }
 
     public static void desabilitaVerificacaoSSL() throws Exception {

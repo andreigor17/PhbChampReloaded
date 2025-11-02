@@ -1,0 +1,235 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="vercel.xhtml">
+
+    <ui:define name="content">
+        <!-- Header -->
+        <div class="section-header">
+            <div>
+                <p:link outcome="index.xhtml" styleClass="mb-3 d-block header-back-link">
+                    <i class="pi pi-arrow-left mr-2"></i>Voltar para Início
+                </p:link>
+                <h1 class="section-title">
+                    <i class="pi pi-shield mr-2"></i>
+                    Painel de Administração
+                </h1>
+                <p class="section-description">Gerencie jogos, mapas e servidor RCON</p>
+            </div>
+        </div>
+
+        <!-- Módulos de Administração -->
+        <div class="grid">
+            <!-- Módulo de Jogos -->
+            <div class="col-12 md:col-6 lg:col-4">
+                <p:card styleClass="admin-module-card">
+                    <div class="module-header">
+                        <div class="module-icon games">
+                            <i class="pi pi-desktop"></i>
+                        </div>
+                        <div class="module-info">
+                            <h3 class="module-title">Gerenciar Jogos</h3>
+                            <p class="module-description">Criar e editar jogos cadastrados</p>
+                        </div>
+                    </div>
+                    <div class="module-actions">
+                        <p:button value="Criar Jogo" 
+                                  icon="pi pi-plus" 
+                                  outcome="criarJogo.xhtml"
+                                  styleClass="module-btn" />
+                        <p:link value="Ver Jogos" 
+                                outcome="pesquisarJogos.xhtml"
+                                styleClass="module-link" />
+                    </div>
+                </p:card>
+            </div>
+
+            <!-- Módulo de Mapas -->
+            <div class="col-12 md:col-6 lg:col-4">
+                <p:card styleClass="admin-module-card">
+                    <div class="module-header">
+                        <div class="module-icon maps">
+                            <i class="pi pi-map"></i>
+                        </div>
+                        <div class="module-info">
+                            <h3 class="module-title">Gerenciar Mapas</h3>
+                            <p class="module-description">Adicionar e editar mapas disponíveis</p>
+                        </div>
+                    </div>
+                    <div class="module-actions">
+                        <p:button value="Criar Mapa" 
+                                  icon="pi pi-plus" 
+                                  outcome="criarMapa.xhtml"
+                                  styleClass="module-btn" />
+                        <p:link value="Ver Mapas" 
+                                outcome="pesquisarMapas.xhtml"
+                                styleClass="module-link" />
+                    </div>
+                </p:card>
+            </div>
+
+            <!-- Módulo RCON -->
+            <div class="col-12 md:col-6 lg:col-4">
+                <p:card styleClass="admin-module-card">
+                    <div class="module-header">
+                        <div class="module-icon rcon">
+                            <i class="pi pi-terminal"></i>
+                        </div>
+                        <div class="module-info">
+                            <h3 class="module-title">Console RCON</h3>
+                            <p class="module-description">Controle remoto do servidor CS2</p>
+                        </div>
+                    </div>
+                    <div class="module-actions">
+                        <p:button value="Abrir Console" 
+                                  icon="pi pi-external-link" 
+                                  outcome="rcon-server.xhtml"
+                                  styleClass="module-btn" />
+                    </div>
+                </p:card>
+            </div>
+        </div>
+
+        <!-- Estilos específicos da página de administração -->
+        <style type="text/css">
+            .section-description {
+                color: var(--text-300);
+                margin: 0.5rem 0 0 0;
+                font-size: 0.95rem;
+            }
+
+            .admin-module-card {
+                height: 100%;
+                transition: all 0.3s ease;
+                cursor: pointer;
+                background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important;
+                border: 1px solid var(--border) !important;
+            }
+
+            .admin-module-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+                border-color: rgba(0,225,255,0.2) !important;
+            }
+
+            .module-header {
+                display: flex;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .module-icon {
+                width: 60px;
+                height: 60px;
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.75rem;
+                flex-shrink: 0;
+                background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+                border: 1px solid rgba(255,255,255,0.12);
+            }
+
+            .module-icon i {
+                color: var(--accent);
+            }
+
+            .module-icon.games i {
+                color: var(--accent);
+            }
+
+            .module-icon.maps i {
+                color: var(--accent-2);
+            }
+
+            .module-icon.rcon i {
+                color: var(--success);
+            }
+
+            .module-info {
+                flex: 1;
+            }
+
+            .module-title {
+                color: var(--text-100);
+                font-size: 1.25rem;
+                font-weight: 700;
+                margin: 0 0 0.25rem 0;
+            }
+
+            .module-description {
+                color: var(--text-300);
+                font-size: 0.875rem;
+                margin: 0;
+                line-height: 1.4;
+            }
+
+            .module-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .module-btn {
+                width: 100%;
+                background: linear-gradient(135deg, rgba(0,225,255,0.12), rgba(0,225,255,0.06)) !important;
+                border: 1px solid rgba(0,225,255,0.25) !important;
+                color: var(--text-100) !important;
+                font-weight: 600 !important;
+                transition: all 0.2s ease !important;
+            }
+
+            .module-btn:hover {
+                background: linear-gradient(135deg, rgba(0,225,255,0.18), rgba(0,225,255,0.10)) !important;
+                border-color: rgba(0,225,255,0.4) !important;
+                transform: translateX(2px);
+            }
+
+            .module-link {
+                display: block;
+                text-align: center;
+                color: var(--accent);
+                text-decoration: none;
+                font-size: 0.875rem;
+                font-weight: 500;
+                padding: 0.5rem;
+                border-radius: 8px;
+                transition: all 0.2s ease;
+            }
+
+            .module-link:hover {
+                background: rgba(0,225,255,0.08);
+                text-decoration: underline;
+            }
+
+            .header-back-link {
+                display: inline-flex;
+                align-items: center;
+                color: var(--text-300) !important;
+                text-decoration: none;
+                font-size: 0.875rem;
+                transition: all 0.2s ease;
+            }
+
+            .header-back-link:hover {
+                color: var(--accent) !important;
+            }
+
+            @media (max-width: 768px) {
+                .module-header {
+                    flex-direction: column;
+                    align-items: center;
+                    text-align: center;
+                }
+
+                .module-icon {
+                    margin-bottom: 0.5rem;
+                }
+            }
+        </style>
+    </ui:define>
+</ui:composition>
+

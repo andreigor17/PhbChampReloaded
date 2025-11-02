@@ -6,82 +6,315 @@
                 xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
 
     <ui:define name="content">
-        <div class="login-container">
-            <div class="login-card-wrapper">
-                <p:card styleClass="login-card">
-                    <div class="login-header">
-                        <div class="login-logo">
-                            <img src="#{request.contextPath}/img/phbchamp-logo.png" alt="PHBCHAMP ESPORTS" class="phbchamp-logo" />
-                        </div>
-                        <p class="login-subtitle">Faça login para acessar o sistema</p>
+        <div class="modern-login-container">
+            <!-- Card de Login -->
+            <div class="modern-login-card">
+                <!-- Header com Logo -->
+                <div class="login-brand">
+                    <div class="brand-logo-wrapper">
+                        <img src="#{request.contextPath}/img/phbchamp-logo.png" alt="PHBCHAMP ESPORTS" class="brand-logo" />
+                    </div>
+                    <h1 class="brand-title">Bem-vindo de volta</h1>
+                    <p class="brand-subtitle">Entre para acessar sua conta</p>
+                </div>
+
+                <!-- Formulário -->
+                <h:form id="loginForm" styleClass="login-form">
+                    <!-- Campo de Usuário -->
+                    <div class="form-group">
+                        <label for="username" class="form-label">
+                            <i class="pi pi-user"></i>
+                            Usuário
+                        </label>
+                        <p:inputText id="username" 
+                                     placeholder="Digite seu usuário" 
+                                     required="true" 
+                                     value="#{managerPrincipal.usuario.login}"
+                                     styleClass="modern-input" />
+                        <p:message for="username" />
                     </div>
 
-                    <h:form id="loginForm">
-                        <div class="p-fluid text-center">
-                            <div class="field login-field">
-                                <p:outputLabel for="username" value="Usuário" />
-                                <div class="p-input-icon-left">
-                                    <i class="pi pi-user" />
-                                    <p:inputText id="username" placeholder="Digite seu usuário" required="true" value="#{managerPrincipal.usuario.login}"/>
-                                </div>
-                                <p:message for="username" />
-                            </div>
+                    <!-- Campo de Senha -->
+                    <div class="form-group">
+                        <label for="password" class="form-label">
+                            <i class="pi pi-lock"></i>
+                            Senha
+                        </label>
+                        <p:password id="password" 
+                                    placeholder="Digite sua senha" 
+                                    required="true" 
+                                    toggleMask="true" 
+                                    value="#{managerPrincipal.usuario.senha}"
+                                    styleClass="modern-input"
+                                    feedback="false" />
+                        <p:message for="password" />
+                    </div>
 
-                            <div class="field login-field">
-                                <p:outputLabel for="password" value="Senha" />
-                                <div class="p-input-icon-left">
-                                    <i class="pi pi-lock" />
-                                    <p:password id="password" placeholder="Digite sua senha" required="true" toggleMask="true" value="#{managerPrincipal.usuario.senha}" />
-                                </div>
-                                <p:message for="password" />
-                                <div class="text-right mt-1">
-                                    <p:link value="Esqueceu a senha?" styleClass="forgot-password" />
-                                </div>
-                            </div>
-
-                            <div class="field-checkbox login-field">
-                                <p:selectBooleanCheckbox id="remember" itemLabel="Lembrar-me" />
-                            </div>
-
-                            <div class="field login-field">
-                                <p:commandButton value="Entrar" icon="pi pi-sign-in" styleClass="login-button"  actionListener="#{managerPrincipal.login()}" />
-                            </div>
-
-                            <div class="login-divider">
-                                <p:divider align="center">
-                                    <span class="login-divider-text">ou continue com</span>
-                                </p:divider>
-                            </div>
-
-                            <div class="field login-field">
-<!--                                <p:commandButton value="Google" 
-                                                 icon="pi pi-google"
-                                                 immediate="true"
-                                                 styleClass="google-button w-full mb-2"
-                                                 type="button"
-                                                 onclick="window.location.href = 'http://localhost:9090/oauth2/authorization/google'; return false;" />-->
-
-                                <p:commandButton value="Steam" immediate="true"  icon="custom-steam-icon" styleClass="steam-button w-full"  ajax="false" type="submit" action="#{managerPrincipal.redirecionarSteam()}"/>
-                            </div>
-
-                            <div class="login-footer">
-                                <p:link value="Não tem uma conta? Cadastre-se" styleClass="register-link" href="criarJogador.xhtml" />
-                            </div>
+                    <!-- Lembrar-me e Esqueceu senha -->
+                    <div class="form-options">
+                        <div class="remember-me">
+                            <p:selectBooleanCheckbox id="remember" styleClass="modern-checkbox" />
+                            <label for="remember" class="remember-label">Lembrar-me</label>
                         </div>
-                    </h:form>
-                </p:card>
+                        <p:link value="Esqueceu a senha?" styleClass="forgot-link" />
+                    </div>
+
+                    <!-- Botão Principal de Login -->
+                    <div class="form-group">
+                        <p:commandButton value="Entrar" 
+                                         icon="pi pi-sign-in" 
+                                         styleClass="btn-primary-login"  
+                                         actionListener="#{managerPrincipal.login()}" />
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="divider-section">
+                        <div class="divider-line"></div>
+                        <span class="divider-text">ou</span>
+                        <div class="divider-line"></div>
+                    </div>
+
+                    <!-- Botão Steam -->
+                    <div class="form-group">
+                        <p:commandButton value="Entrar com Steam" 
+                                         immediate="true"  
+                                         icon="custom-steam-icon" 
+                                         styleClass="btn-steam"  
+                                         ajax="false" 
+                                         type="submit" 
+                                         action="#{managerPrincipal.redirecionarSteam()}"/>
+                    </div>
+
+                    <!-- Link de Cadastro -->
+                    <div class="register-section">
+                        <span class="register-text">Não tem uma conta?</span>
+                        <p:link value="Cadastre-se" styleClass="register-link" href="criarJogador.xhtml" />
+                    </div>
+                </h:form>
+            </div>
+
+            <!-- Painel Lateral Decorativo (opcional) -->
+            <div class="login-decoration">
+                <div class="decoration-content">
+                    <i class="pi pi-trophy decoration-icon"></i>
+                    <h2 class="decoration-title">PhbChamp</h2>
+                    <p class="decoration-text">Seu sistema completo de gerenciamento de campeonatos e equipes esportivas</p>
+                    <div class="decoration-features">
+                        <div class="feature-item">
+                            <i class="pi pi-check-circle"></i>
+                            <span>Gerenciamento de Jogadores</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="pi pi-check-circle"></i>
+                            <span>Campeonatos Organizados</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="pi pi-check-circle"></i>
+                            <span>Estatísticas Detalhadas</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Estilos específicos para a tela de login -->
+        <!-- Estilos Modernos da Tela de Login -->
         <style type="text/css">
-            .login-container {
-                display: flex;
-                justify-content: center;
-                align-items: flex-start;  /* Alterado de center para flex-start */
-                min-height: calc(100vh - 180px);
+            /* Container Principal */
+            .modern-login-container {
+                display: grid;
+                grid-template-columns: 1fr 1.2fr;
+                min-height: 100vh;
+                gap: 0;
+                margin: -1.25rem -1rem -2rem;
+                padding: 0;
+            }
 
-                background-color: #f8f9fa;
+            /* Card de Login */
+            .modern-login-card {
+                background: linear-gradient(180deg, var(--bg-800), var(--bg-900));
+                padding: 3rem 2.5rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                border-right: 1px solid var(--border);
+                overflow-y: auto;
+            }
+
+            /* Branding */
+            .login-brand {
+                text-align: center;
+                margin-bottom: 2.5rem;
+            }
+
+            .brand-logo-wrapper {
+                margin: 0 auto 1.5rem;
+                width: 180px;
+                height: 180px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(135deg, rgba(0,225,255,0.08), rgba(255,138,61,0.06));
+                border-radius: 50%;
+                border: 2px solid rgba(0,225,255,0.2);
+                padding: 1.5rem;
+                box-shadow: 0 8px 24px rgba(0,225,255,0.15);
+            }
+
+            .brand-logo {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+                filter: drop-shadow(0 4px 12px rgba(0,225,255,0.3));
+            }
+
+            .brand-title {
+                font-size: 1.875rem;
+                font-weight: 800;
+                color: var(--text-100);
+                margin: 0 0 0.5rem 0;
+                letter-spacing: -0.5px;
+            }
+
+            .brand-subtitle {
+                font-size: 0.95rem;
+                color: var(--text-300);
+                margin: 0;
+            }
+
+            /* Formulário */
+            .login-form {
+                max-width: 420px;
+                margin: 0 auto;
+                width: 100%;
+            }
+
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+
+            .form-label {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: var(--text-200) !important;
+                margin-bottom: 0.5rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .form-label i {
+                color: var(--accent);
+                font-size: 0.875rem;
+            }
+
+            /* Inputs Modernos */
+            .modern-input,
+            .modern-input input {
+                width: 100%;
+                padding: 0.875rem 1rem !important;
+                background: rgba(255,255,255,0.04) !important;
+                border: 1.5px solid rgba(255,255,255,0.08) !important;
+                border-radius: 12px !important;
+                color: var(--text-100) !important;
+                font-size: 0.95rem !important;
+                transition: all 0.2s ease !important;
+            }
+
+            .modern-input::placeholder,
+            .modern-input input::placeholder {
+                color: var(--text-300) !important;
+                opacity: 0.6;
+            }
+
+            .modern-input:focus,
+            .modern-input input:focus {
+                background: rgba(255,255,255,0.06) !important;
+                border-color: var(--accent) !important;
+                box-shadow: 0 0 0 3px rgba(0,225,255,0.1) !important;
+                outline: none !important;
+            }
+
+            /* Opções do Formulário */
+            .form-options {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 1.5rem;
+            }
+
+            .remember-me {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .remember-label {
+                font-size: 0.875rem;
+                color: var(--text-300) !important;
+                cursor: pointer;
+                user-select: none;
+            }
+
+            .forgot-link {
+                font-size: 0.875rem;
+                color: var(--accent) !important;
+                text-decoration: none;
+                font-weight: 500;
+                transition: all 0.2s ease;
+            }
+
+            .forgot-link:hover {
+                color: var(--text-100) !important;
+                text-decoration: underline;
+            }
+
+            /* Botões */
+            .btn-primary-login {
+                width: 100%;
+                padding: 1rem 1.5rem !important;
+                background: linear-gradient(135deg, var(--accent), #0099cc) !important;
+                border: none !important;
+                border-radius: 12px !important;
+                color: white !important;
+                font-size: 1rem !important;
+                font-weight: 700 !important;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                box-shadow: 0 4px 16px rgba(0,225,255,0.3) !important;
+                transition: all 0.3s ease !important;
+                cursor: pointer;
+            }
+
+            .btn-primary-login:hover {
+                background: linear-gradient(135deg, #0099cc, var(--accent)) !important;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 24px rgba(0,225,255,0.4) !important;
+            }
+
+            .btn-primary-login:active {
+                transform: translateY(0);
+            }
+
+            .btn-steam {
+                width: 100%;
+                padding: 0.875rem 1.5rem !important;
+                background: linear-gradient(135deg, rgba(23,26,33,0.9), rgba(30,34,42,0.9)) !important;
+                border: 1.5px solid rgba(255,255,255,0.12) !important;
+                border-radius: 12px !important;
+                color: var(--text-100) !important;
+                font-size: 0.95rem !important;
+                font-weight: 600 !important;
+                transition: all 0.3s ease !important;
+                cursor: pointer;
+            }
+
+            .btn-steam:hover {
+                background: linear-gradient(135deg, rgba(30,34,42,0.95), rgba(23,26,33,0.95)) !important;
+                border-color: rgba(255,255,255,0.2) !important;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(0,0,0,0.4) !important;
             }
 
             .custom-steam-icon::before {
@@ -89,176 +322,200 @@
                 display: inline-block;
                 background: url('#{request.contextPath}/img/steam-icon.png') no-repeat center center;
                 background-size: contain;
-                width: 1.1em;
-                height: 1.1em;
+                width: 1.2em;
+                height: 1.2em;
+                margin-right: 0.5rem;
+                vertical-align: middle;
             }
 
-            .btn-com-imagem {
-                background: url('#{request.contextPath}/img/steam-logo.png') no-repeat center center;
-                background-size: 24px 24px;
-                width: 40px;
-                height: 40px;
-                border: none;
-                text-indent: -9999px; /* Esconde o texto */
-            }
-
-            .login-card-wrapper {
-                width: 100%;
-                max-width: 400px;
-            }
-
-            .login-card {
-                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1) !important;
-                border-radius: 12px !important;
-                padding: 1rem;
-            }
-
-            .login-header {
-                text-align: center;
-                margin-bottom: 2rem;
-            }
-
-            .login-logo {
-                margin: 0 auto 1.5rem;
-                max-width: 180px;
-            }
-
-            .phbchamp-logo {
-                width: 100%;
-                height: auto;
-            }
-
-            .login-subtitle {
-                color: #6c757d;
-                margin-bottom: 1rem;
-                font-size: 1rem;
-            }
-
-            .login-field {
-                max-width: 320px;
-                margin-left: auto;
-                margin-right: auto;
-                margin-bottom: 1.25rem;
-            }
-
-            .login-field label {
-                text-align: left;
-                display: block;
-                margin-bottom: 0.5rem;
-            }
-
-            .forgot-password {
-                font-size: 0.875rem;
-                text-decoration: none;
-            }
-
-            .text-right {
-                text-align: right;
-            }
-
-            .mt-1 {
-                margin-top: 0.25rem;
-            }
-
-            .login-button {
-                width: 320px;
-                background-color: #171a21 !important;
-                border-color: #171a21 !important;
-            }
-
-            .login-button:hover {
-                background-color: #2a475e !important;
-                border-color: #2a475e !important;
-            }
-
-            .login-divider {
-                margin: 1.5rem auto;
-                max-width: 320px;
-            }
-
-            .login-divider-text {
-                background-color: white;
-                padding: 0 0.5rem;
-                color: #6c757d;
-                font-size: 0.875rem;
-            }
-
-            .login-social-buttons {
-                margin-bottom: 1.5rem;
-            }
-
-            .login-social-buttons .p-button {
-                width: 320px;
+            /* Divider */
+            .divider-section {
                 display: flex;
                 align-items: center;
-                justify-content: center;
-                padding: 0.5rem 1rem;
-                cursor: pointer;
+                gap: 1rem;
+                margin: 1.5rem 0;
             }
 
-            .social-icon {
-                display: inline-block;
-                width: 24px;
-                height: 24px;
-                background-size: contain;
-                background-repeat: no-repeat;
-                background-position: center;
-                margin-right: 8px;
+            .divider-line {
+                flex: 1;
+                height: 1px;
+                background: linear-gradient(90deg, transparent, var(--border), transparent);
             }
 
-            .google-icon {
-                background-image: url("#{request.contextPath}/img/google-icon.png");
+            .divider-text {
+                font-size: 0.8rem;
+                color: var(--text-300);
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-weight: 600;
             }
 
-
-
-            .google-button {
-                background-color: #4285F4 !important;
-                border-color: #4285F4 !important;
-                color: white !important;
-            }
-
-            .google-button:hover {
-                background-color: #3367D6 !important;
-                border-color: #3367D6 !important;
-            }
-
-            .steam-button {
-                background-color: #171a21 !important;
-                border-color: #171a21 !important;
-                color: white !important;
-            }
-
-            .steam-button:hover {
-                background-color: #2a475e !important;
-                border-color: #2a475e !important;
-            }
-
-            .login-footer {
+            /* Seção de Cadastro */
+            .register-section {
                 text-align: center;
-                margin-top: 1rem;
+                margin-top: 2rem;
+                padding-top: 1.5rem;
+                border-top: 1px solid var(--border);
+            }
+
+            .register-text {
+                font-size: 0.9rem;
+                color: var(--text-300);
+                margin-right: 0.5rem;
             }
 
             .register-link {
-                font-size: 0.875rem;
+                font-size: 0.9rem;
+                color: var(--accent) !important;
+                font-weight: 600;
                 text-decoration: none;
+                transition: all 0.2s ease;
+            }
+
+            .register-link:hover {
+                color: var(--text-100) !important;
+                text-decoration: underline;
+            }
+
+            /* Painel Decorativo */
+            .login-decoration {
+                background: 
+                    radial-gradient(circle at 20% 30%, rgba(0,225,255,0.1), transparent 50%),
+                    radial-gradient(circle at 80% 70%, rgba(255,138,61,0.08), transparent 50%),
+                    linear-gradient(135deg, var(--bg-850), var(--bg-900));
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 3rem;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .login-decoration::before {
+                content: "";
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(circle, rgba(0,225,255,0.05), transparent 70%);
+                animation: pulse 8s ease-in-out infinite;
+            }
+
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); opacity: 0.5; }
+                50% { transform: scale(1.1); opacity: 0.8; }
+            }
+
+            .decoration-content {
+                position: relative;
+                z-index: 1;
+                text-align: center;
+                max-width: 500px;
+            }
+
+            .decoration-icon {
+                font-size: 5rem;
+                color: var(--accent);
+                margin-bottom: 2rem;
+                filter: drop-shadow(0 8px 24px rgba(0,225,255,0.4));
+                animation: float 3s ease-in-out infinite;
+            }
+
+            @keyframes float {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-20px); }
+            }
+
+            .decoration-title {
+                font-size: 3rem;
+                font-weight: 900;
+                color: var(--text-100);
+                margin: 0 0 1rem 0;
+                letter-spacing: -1px;
+                background: linear-gradient(135deg, var(--accent), var(--accent-2));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .decoration-text {
+                font-size: 1.1rem;
+                color: var(--text-300);
+                line-height: 1.6;
+                margin-bottom: 3rem;
+            }
+
+            .decoration-features {
+                display: flex;
+                flex-direction: column;
+                gap: 1.25rem;
+            }
+
+            .feature-item {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 1rem 1.5rem;
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 12px;
+                transition: all 0.3s ease;
+            }
+
+            .feature-item:hover {
+                background: rgba(255,255,255,0.05);
+                border-color: rgba(0,225,255,0.2);
+                transform: translateX(8px);
+            }
+
+            .feature-item i {
+                font-size: 1.5rem;
+                color: var(--accent);
+            }
+
+            .feature-item span {
+                font-size: 1rem;
+                color: var(--text-100);
+                font-weight: 500;
+            }
+
+            /* Mensagens */
+            .ui-messages, .p-messages {
+                margin-bottom: 1rem;
+                border-radius: 10px;
             }
 
             /* Responsividade */
+            @media (max-width: 1024px) {
+                .modern-login-container {
+                    grid-template-columns: 1fr;
+                }
+
+                .login-decoration {
+                    display: none;
+                }
+
+                .modern-login-card {
+                    border-right: none;
+                }
+            }
+
             @media (max-width: 576px) {
-                .login-container {
-                    padding: 3rem 1rem 1rem;  /* Ajustado para manter o card mais acima em mobile */
+                .modern-login-card {
+                    padding: 2rem 1.5rem;
                 }
 
-                .login-card {
-                    box-shadow: none !important;
+                .brand-logo-wrapper {
+                    width: 140px;
+                    height: 140px;
                 }
 
-                .login-field,
-                .login-button,
-                .login-social-buttons .p-button,
-                .login-divider {
-                    width: 100%;
+                .brand-title {
+                    font-size: 1.5rem;
+                }
+
+                .login-form {
                     max-width: 100%;
                 }
             }

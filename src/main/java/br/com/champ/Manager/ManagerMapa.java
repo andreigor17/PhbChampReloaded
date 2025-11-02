@@ -13,9 +13,10 @@ import br.com.champ.Utilitario.FacesUtil;
 import br.com.champ.Utilitario.Mensagem;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
-import java.io.Serializable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.primefaces.PrimeFaces;
@@ -29,7 +30,7 @@ import org.primefaces.model.file.UploadedFile;
  */
 @ViewScoped
 @Named
-public class ManagerMapa implements Serializable {
+public class ManagerMapa extends ManagerBase {
 
     @EJB
     MapaServico mapaServico;
@@ -46,20 +47,27 @@ public class ManagerMapa implements Serializable {
 
     @PostConstruct
     public void init() {
-
-        String visualizarMapaId = FacesUtil
-                .getRequestParameter("id");
-
-        if (visualizarMapaId != null && !visualizarMapaId.isEmpty()) {
-            this.mapa = this.mapaServico.pesquisarMapa(Long.parseLong(visualizarMapaId));
-            if (this.mapa.getId() != null && this.mapa.getAnexo() != null) {
-                this.fileTemp = this.mapa.getAnexo().getNome();
+        try {
+            // Verifica se usuário é admin
+            if (!isAdmin()) {
+                FacesContext.getCurrentInstance().getExternalContext().redirect("login.xhtml");
+                return;
             }
 
-        } else {
-            instanciar();
-        }
+            String visualizarMapaId = FacesUtil.getRequestParameter("id");
 
+            if (visualizarMapaId != null && !visualizarMapaId.isEmpty()) {
+                this.mapa = this.mapaServico.pesquisarMapa(Long.parseLong(visualizarMapaId));
+                if (this.mapa.getId() != null && this.mapa.getAnexo() != null) {
+                    this.fileTemp = this.mapa.getAnexo().getNome();
+                }
+
+            } else {
+                instanciar();
+            }
+        } catch (IOException ex) {
+            System.err.println("Erro ao redirecionar: " + ex.getMessage());
+        }
     }
 
     public void instanciar() {

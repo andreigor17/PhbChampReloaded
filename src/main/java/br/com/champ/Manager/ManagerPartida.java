@@ -14,7 +14,6 @@ import br.com.champ.Modelo.Player;
 import br.com.champ.Modelo.Team;
 import br.com.champ.Servico.EstatisticaServico;
 import br.com.champ.Servico.ItemPartidaServico;
-import br.com.champ.Servico.LoginServico;
 import br.com.champ.Servico.MapaServico;
 import br.com.champ.Servico.PartidaServico;
 import br.com.champ.Servico.PlayerServico;
@@ -31,7 +30,6 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -58,7 +56,7 @@ import org.primefaces.model.charts.radar.RadarChartOptions;
  */
 @ViewScoped
 @Named
-public class ManagerPartida implements Serializable {
+public class ManagerPartida extends ManagerBase {
 
     @EJB
     private PartidaServico partidaServico;
@@ -72,8 +70,6 @@ public class ManagerPartida implements Serializable {
     EstatisticaServico estatisticasServico;
     @EJB
     MapaServico mapaServico;
-    @EJB
-    LoginServico loginServico;
     private Partida partida;
     private Partida partidaPesquisar;
     private List<Player> playersTime1;
@@ -122,7 +118,6 @@ public class ManagerPartida implements Serializable {
     private int percentualParticipantes;
     private String tempoRestante;
     private BigDecimal valorFormatado;
-    private Player playerLogado;
     private Team timeIniciante;
     private List<Partida> historicoTime1;
     private List<Partida> historicoTime2;
@@ -136,8 +131,8 @@ public class ManagerPartida implements Serializable {
             String gerarMapasId = FacesUtil
                     .getRequestParameter("partidaId");
 
-            this.playerLogado = loginServico.obterPlayerId();
-            //System.err.println("Tem player logado... " + this.playerLogado.getId());
+            // Carrega o player logado através do ManagerBase
+            getPlayerLogado();
 
             Map<String, String> parametros = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
             HttpServletRequest uri = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
@@ -211,7 +206,6 @@ public class ManagerPartida implements Serializable {
         this.timesPartida = new ArrayList<>();
         this.teamVencedor = new Team();
         this.radarModel = new RadarChartModel();
-        this.playerLogado = new Player();
         this.nomeTime1 = null;
         this.nomeTime2 = null;
         this.timeIniciante = null;
@@ -1081,8 +1075,9 @@ public class ManagerPartida implements Serializable {
 
         try {
             System.out.println("realizando checkin...");
-            if (this.playerLogado != null && !this.partida.getPlayers().contains(this.playerLogado)) {
-                this.partida.getPlayers().add(this.playerLogado);
+            Player player = getPlayerLogado();
+            if (player != null && !this.partida.getPlayers().contains(player)) {
+                this.partida.getPlayers().add(player);
                 this.partida = partidaServico.salvar(this.partida, this.partida.getId(), Url.ATUALIZAR_PARTIDA.getNome());
                 Mensagem.successAndRedirect("Check-in realizado com sucesso!", "partida-futebol-view.xhtml?id=" + this.partida.getId());
             } else {
@@ -1172,14 +1167,6 @@ public class ManagerPartida implements Serializable {
             return quantidade;
         }
         return quantidade;
-    }
-
-    public Player getPlayerLogado() {
-        return playerLogado;
-    }
-
-    public void setPlayerLogado(Player playerLogado) {
-        this.playerLogado = playerLogado;
     }
 
     public String getDataFormatadaPartida() {

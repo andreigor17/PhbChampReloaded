@@ -11,25 +11,43 @@
     <title>PhbChamp</title>
     
     
-    <link rel="stylesheet" href="media/css2/style.css"/>     
     <link rel="stylesheet" href="https://unpkg.com/primeflex@latest/primeflex.css"/>
     
     <style>
+        /* Reset básico */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+        }
+        
         :root{
             --bg-900:#0f1217; --bg-850:#121722; --bg-800:#141923; --bg-700:#1a2030;
-            --text-100:#e6ebf2; --text-300:#b7c1d1; --muted:#8b93a6;
+            --text-100:#e6ebf2; --text-200:#d1d9e6; --text-300:#b7c1d1; --muted:#8b93a6;
             --accent:#00e1ff; --accent-2:#ff8a3d; --success:#22c55e;
             --border:rgba(255,255,255,0.06); --shadow:0 12px 28px rgba(0,0,0,.45);
             --radius:14px;
         }
-        html, body { height: 100%; }
+        html, body { 
+            height: 100%; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
         body{
             background:
                 radial-gradient(1200px 500px at -10% -10%, rgba(0,225,255,.06), transparent),
                 radial-gradient(1000px 500px at 110% -10%, rgba(255,138,61,.05), transparent),
                 linear-gradient(180deg, var(--bg-850), var(--bg-900));
             color: var(--text-100);
-            -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+            -webkit-font-smoothing: antialiased; 
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
         }
         .container{
             max-width: 1200px; margin: 0 auto; padding: 1.25rem 1rem 2rem;
@@ -47,12 +65,26 @@
         .logo{ display:flex; align-items:center; gap:.5rem; color: var(--text-100) !important; font-weight: 800; letter-spacing:.2px; }
         .logo:hover{ color: var(--accent) !important; }
         /* Menubar */
-        .nav-menu{ background: transparent; border: none; color: var(--text-300); }
+        .nav-menu{ background: transparent !important; border: none !important; color: var(--text-300) !important; }
         .nav-menu .ui-menuitem-link{
             border-radius: 10px; transition: background .2s ease, color .2s ease, transform .15s ease;
+            background: transparent !important;
+            color: var(--text-300) !important;
         }
-        .nav-menu .ui-menuitem-link:hover{ background: rgba(255,255,255,.06); color: var(--text-100); transform: translateY(-1px); }
-        .nav-menu .ui-menuitem-icon{ color: var(--accent); }
+        .nav-menu .ui-menuitem-link:hover{ background: rgba(255,255,255,.06) !important; color: var(--text-100) !important; transform: translateY(-1px); }
+        .nav-menu .ui-menuitem-icon{ color: var(--accent) !important; }
+        .nav-menu .ui-menuitem-text{ color: var(--text-300) !important; }
+        .nav-menu .ui-menuitem-link:hover .ui-menuitem-text{ color: var(--text-100) !important; }
+        /* Menubar global override */
+        .ui-menubar, .p-menubar{ background: transparent !important; border: none !important; color: var(--text-300) !important; }
+        .ui-menubar .ui-menuitem-link, .p-menubar .p-menubar-root-list > .p-menuitem > .p-menuitem-link{ 
+            color: var(--text-300) !important; background: transparent !important; 
+        }
+        .ui-menubar .ui-menuitem-link:hover, .p-menubar .p-menubar-root-list > .p-menuitem > .p-menuitem-link:hover{ 
+            background: rgba(255,255,255,.06) !important; color: var(--text-100) !important; 
+        }
+        .ui-menubar .ui-menuitem-icon, .p-menubar .p-menuitem-icon{ color: var(--accent) !important; }
+        .ui-menubar .ui-menuitem-text, .p-menubar .p-menuitem-text{ color: var(--text-300) !important; }
         /* Buttons */
         .auth-buttons .p-button{ border-color: rgba(0,225,255,.35) !important; color: var(--text-100) !important; }
         .auth-buttons .p-button:hover{ box-shadow: 0 0 0 1px rgba(0,225,255,.2), 0 0 22px rgba(0,225,255,.08); }
@@ -81,8 +113,8 @@
         .elegant-table .ui-datatable-tablewrapper table{ border-collapse: separate; border-spacing: 0 8px; background: transparent !important; }
         .elegant-table thead tr th, .elegant-table thead tr th.ui-state-default{ background: rgba(255,255,255,0.02) !important; color: var(--text-300) !important; text-transform: uppercase; font-size: .75rem; letter-spacing: .8px; font-weight: 700; border: none !important; padding: .6rem .9rem !important; }
         .elegant-table thead .ui-sortable-column-icon{ color: var(--text-300) !important; opacity: .8; }
-        .elegant-table .ui-datatable-data > tr{ background: linear-gradient(135deg, var(--bg-800), var(--bg-900)); border:1px solid var(--border); border-radius: 10px; transition: all .2s ease; }
-        .elegant-table .ui-datatable-data > tr:hover{ transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.4); background: linear-gradient(135deg, var(--bg-700), var(--bg-800)); }
+        .elegant-table .ui-datatable-data > tr{ background: linear-gradient(135deg, var(--bg-800), var(--bg-900)) !important; border:1px solid var(--border) !important; border-radius: 10px; transition: all .2s ease; }
+        .elegant-table .ui-datatable-data > tr:hover{ transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.4); background: linear-gradient(135deg, var(--bg-700), var(--bg-800)) !important; }
         .elegant-table .ui-datatable-data > tr td{ border:none !important; padding: .75rem .9rem !important; vertical-align: middle; color: var(--text-100) !important; background: transparent !important; }
         .elegant-table .ui-datatable-header, .elegant-table .ui-datatable-footer{ background: transparent !important; border:none !important; color: var(--text-300) !important; }
         .elegant-table .ui-paginator{ background: transparent !important; border:none !important; color: var(--text-300) !important; margin-top: .5rem; }
@@ -94,6 +126,32 @@
             background: rgba(255,255,255,0.04) !important; border:1px solid rgba(255,255,255,0.08) !important; color: var(--text-300) !important; border-radius: 8px;
         }
         .elegant-table .ui-paginator .ui-paginator-page.ui-state-active{ background: rgba(0,225,255,0.12) !important; border-color: rgba(0,225,255,0.35) !important; color: var(--text-100) !important; }
+        
+        /* DataTable GLOBAL - sobrescrever TUDO que for branco */
+        .ui-datatable, .p-datatable{ background: transparent !important; border: none !important; }
+        .ui-datatable-tablewrapper, .p-datatable-tablewrapper{ background: transparent !important; }
+        .ui-datatable-tablewrapper table, .p-datatable-tablewrapper table{ background: transparent !important; }
+        .ui-datatable-data tr, .p-datatable-tbody > tr{ 
+            background: linear-gradient(135deg, var(--bg-800), var(--bg-900)) !important; 
+            color: var(--text-100) !important; 
+        }
+        .ui-datatable-data tr td, .p-datatable-tbody > tr > td{ 
+            background: transparent !important; 
+            color: var(--text-100) !important; 
+            border: none !important; 
+        }
+        .ui-datatable-data tr:hover, .p-datatable-tbody > tr:hover{ 
+            background: linear-gradient(135deg, var(--bg-700), var(--bg-800)) !important; 
+        }
+        .ui-datatable-thead tr th, .p-datatable-thead > tr > th{ 
+            background: rgba(255,255,255,0.02) !important; 
+            color: var(--text-300) !important; 
+            border: none !important; 
+        }
+        .ui-datatable-header, .ui-datatable-footer, .p-datatable-header, .p-datatable-footer{ 
+            background: transparent !important; 
+            color: var(--text-300) !important; 
+        }
         
         /* Messages (global glass) */
         .ui-messages, .p-messages{
@@ -192,6 +250,208 @@
             background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important;
             color: var(--text-100) !important;
         }
+        /* SelectOneMenu, Dropdown, etc */
+        .ui-selectonemenu, .p-selectonemenu, 
+        .ui-dropdown, .p-dropdown,
+        .ui-autocomplete, .p-autocomplete,
+        .ui-calendar, .p-calendar,
+        .ui-spinner, .p-spinner,
+        .ui-slider, .p-slider,
+        .ui-chips, .p-chips,
+        .ui-multiselect, .p-multiselect { 
+            background: var(--bg-700) !important; 
+            border: 1px solid var(--border) !important; 
+            color: var(--text-100) !important; 
+            border-radius: 10px !important;
+        }
+        .ui-selectonemenu-panel, .p-selectonemenu-panel,
+        .ui-autocomplete-panel, .p-autocomplete-panel,
+        .ui-multiselect-panel, .p-multiselect-panel { 
+            background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important; 
+            border: 1px solid var(--border) !important; 
+            border-radius: var(--radius) !important;
+        }
+        .ui-selectonemenu-item, .p-selectonemenu-item,
+        .ui-autocomplete-item, .p-autocomplete-item,
+        .ui-multiselect-item, .p-multiselect-item { 
+            color: var(--text-100) !important; 
+        }
+        .ui-selectonemenu-item:hover, .p-selectonemenu-item:hover,
+        .ui-autocomplete-item:hover, .p-autocomplete-item:hover,
+        .ui-multiselect-item:hover, .p-multiselect-item:hover { 
+            background: rgba(255,255,255,0.06) !important; 
+        }
+        
+        /* ProgressBar */
+        .ui-progressbar, .p-progressbar { 
+            background: var(--bg-700) !important; 
+            border: 1px solid var(--border) !important; 
+            border-radius: var(--radius) !important;
+        }
+        .ui-progressbar-value, .p-progressbar-value { 
+            background: linear-gradient(135deg, var(--accent), rgba(0,225,255,0.6)) !important; 
+        }
+        
+        /* Badge */
+        .ui-badge, .p-badge { 
+            background: rgba(255,255,255,0.1) !important; 
+            color: var(--text-100) !important; 
+            border-radius: 8px !important;
+        }
+        
+        /* Panel */
+        .ui-panel-titlebar, .p-panel-titlebar { 
+            background: transparent !important; 
+            color: var(--text-100) !important; 
+            border: none !important; 
+        }
+        .ui-panel-content, .p-panel-content { 
+            background: transparent !important; 
+            color: var(--text-100) !important; 
+        }
+        
+        /* ConfirmDialog */
+        .ui-confirm-dialog, .p-confirm-dialog { 
+            background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important; 
+            border: 1px solid var(--border) !important; 
+        }
+        
+        /* Tooltip */
+        .ui-tooltip, .p-tooltip { 
+            background: var(--bg-800) !important; 
+            border: 1px solid var(--border) !important; 
+            color: var(--text-100) !important; 
+        }
+        
+        /* Checkbox e Radio */
+        .ui-chkbox, .p-checkbox,
+        .ui-radiobutton, .p-radiobutton { 
+            background: transparent !important; 
+        }
+        .ui-chkbox-box, .p-checkbox-box,
+        .ui-radiobutton-box, .p-radiobutton-box { 
+            background: var(--bg-700) !important; 
+            border: 1px solid var(--border) !important; 
+            color: var(--text-100) !important; 
+        }
+        .ui-chkbox-box:hover, .p-checkbox-box:hover,
+        .ui-radiobutton-box:hover, .p-radiobutton-box:hover { 
+            background: var(--bg-700) !important; 
+            border-color: var(--accent) !important; 
+        }
+        .ui-chkbox-checked .ui-chkbox-box, 
+        .p-checkbox-checked .p-checkbox-box,
+        .ui-radiobutton-checked .ui-radiobutton-box, 
+        .p-radiobutton-checked .p-radiobutton-box { 
+            background: var(--accent) !important; 
+            border-color: var(--accent) !important; 
+        }
+        
+        /* ToggleSwitch */
+        .ui-toggleswitch, .p-toggleswitch { 
+            background: var(--bg-700) !important; 
+        }
+        .ui-toggleswitch-checked, .p-toggleswitch-checked { 
+            background: var(--accent) !important; 
+        }
+        
+        /* SplitButton, MenuButton */
+        .ui-splitbutton, .p-splitbutton,
+        .ui-menubutton, .p-menubutton { 
+            background: transparent !important; 
+        }
+        .ui-splitbutton .ui-button, .p-splitbutton .p-button { 
+            background: var(--bg-700) !important; 
+            border: 1px solid var(--border) !important; 
+            color: var(--text-100) !important; 
+        }
+        
+        /* Accordion, Fieldset */
+        .ui-accordion, .p-accordion { 
+            background: transparent !important; 
+            border: 1px solid var(--border) !important; 
+        }
+        .ui-accordion-header, .p-accordion-header,
+        .ui-fieldset-legend, .p-fieldset-legend { 
+            background: transparent !important; 
+            color: var(--text-100) !important; 
+            border: none !important; 
+        }
+        .ui-accordion-content, .p-accordion-content,
+        .ui-fieldset-content, .p-fieldset-content { 
+            background: transparent !important; 
+            color: var(--text-100) !important; 
+            border: none !important; 
+        }
+        
+        /* Calendar */
+        .ui-datepicker, .p-datepicker { 
+            background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important; 
+            border: 1px solid var(--border) !important; 
+        }
+        .ui-datepicker-calendar td, .p-datepicker-calendar td { 
+            background: transparent !important; 
+            color: var(--text-100) !important; 
+        }
+        .ui-datepicker-calendar td:hover, .p-datepicker-calendar td:hover { 
+            background: rgba(255,255,255,0.06) !important; 
+        }
+        .ui-datepicker-today .ui-state-highlight, 
+        .p-datepicker-today .p-highlight { 
+            background: rgba(0,225,255,0.12) !important; 
+            border-color: rgba(0,225,255,0.25) !important; 
+        }
+        
+        /* Carousel */
+        .ui-carousel, .p-carousel { 
+            background: transparent !important; 
+            border: 1px solid var(--border) !important; 
+        }
+        .ui-carousel-header, .p-carousel-header { 
+            background: transparent !important; 
+            color: var(--text-100) !important; 
+        }
+        
+        /* DataList */
+        .ui-datalist, .p-datalist { 
+            background: transparent !important; 
+            border: none !important; 
+        }
+        .ui-datalist-item, .p-datalist-item { 
+            background: linear-gradient(135deg, var(--bg-800), var(--bg-900)) !important; 
+            border: 1px solid var(--border) !important; 
+            color: var(--text-100) !important; 
+        }
+        
+        /* Tree */
+        .ui-tree, .p-tree { 
+            background: transparent !important; 
+            border: none !important; 
+            color: var(--text-100) !important; 
+        }
+        .ui-treenode-label:hover, .p-treenode-label:hover { 
+            background: rgba(255,255,255,0.06) !important; 
+        }
+        
+        /* Section headers globais */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+        .section-title {
+            color: var(--text-100) !important;
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        .section-title i {
+            color: var(--accent);
+        }
+        
         @media (max-width: 768px){
             .header{ border-radius: 12px; }
             .nav-menu{ width: 100%; }
@@ -212,10 +472,11 @@
             <p:menuitem value="Times" outcome="error.xhtml" icon="pi pi-users" />
             <p:menuitem value="Campeonatos" outcome="error.xhtml" icon="pi pi-trophy" />
             <p:menuitem value="Partidas" outcome="indexPartida.xhtml" icon="pi pi-calendar" />
+            <p:menuitem value="Administração" outcome="administracao.xhtml" icon="pi pi-shield" rendered="#{managerPrincipal.isAdmin()}" />
         </p:menubar>
         
         <div class="auth-buttons">
-            <p:button value="Entrar" styleClass="p-button-outlined mr-2" href="login.xhtml" rendered="#{ managerPrincipal.playerLogado eq null}"/>            
+            <p:button value="Entrar" styleClass="p-button-outlined mr-2" href="login.xhtml" rendered="#{not managerPrincipal.isUsuarioLogado()}"/>            
         </div>
     </header>
 
