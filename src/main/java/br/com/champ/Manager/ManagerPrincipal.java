@@ -59,6 +59,12 @@ public class ManagerPrincipal extends ManagerBase {
                 PrimeFaces.current().executeScript("setTimeout(function(){ window.location.href='index.xhtml'; }, 100);");
             }
             
+            // Lê o returnUrl da URL e guarda na sessão (para redirecionamento após login)
+            String returnUrl = FacesUtil.getRequestParameter("returnUrl");
+            if (returnUrl != null && !returnUrl.trim().isEmpty()) {
+                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("returnUrl", returnUrl);
+            }
+            
             // Carrega o player logado através do ManagerBase
             getPlayerLogado();
 
@@ -101,7 +107,17 @@ public class ManagerPrincipal extends ManagerBase {
         try {
 
             if (loginServico.autenticar(this.usuario) != null) {
-                externalContext.redirect("index.xhtml");
+                // Verifica se existe returnUrl na sessão (vindo do botão "Login para se inscrever")
+                String returnUrl = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("returnUrl");
+                if (returnUrl != null && !returnUrl.trim().isEmpty()) {
+                    // Remove o returnUrl da sessão após usar
+                    FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("returnUrl");
+                    // Redireciona para a URL de retorno (tela do campeonato)
+                    externalContext.redirect(returnUrl);
+                } else {
+                    // Redirecionamento padrão
+                    externalContext.redirect("index.xhtml");
+                }
             } else {
                 Mensagem.error("Email ou senha inválidos! Verifique e tente novamente.");
             }
@@ -195,6 +211,12 @@ public class ManagerPrincipal extends ManagerBase {
         }
 
         String fixedPath = "/PhbChampReloaded/steamCallback.xhtml";
+        
+        // Verifica se existe returnUrl na sessão para passar para o callback da Steam
+        String returnUrl = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("returnUrl");
+        if (returnUrl != null && !returnUrl.trim().isEmpty()) {
+            fixedPath += "?returnUrl=" + URLEncoder.encode(returnUrl, StandardCharsets.UTF_8);
+        }
 
         return baseUrl + fixedPath;
     }

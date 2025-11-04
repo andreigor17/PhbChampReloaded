@@ -27,7 +27,7 @@
                                 <i class="pi pi-calendar" style="color: var(--accent)"></i>
                                 <span><strong>Início:</strong> 
                                     <h:outputText value="#{managerCamp.camp.dataCamp}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
                                     </h:outputText>
                                 </span>
                             </div>
@@ -35,7 +35,7 @@
                                 <i class="pi pi-clock" style="color: var(--accent)"></i>
                                 <span><strong>Inscrições até:</strong> 
                                     <h:outputText value="#{managerCamp.camp.dataPrazoCamp}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
                                     </h:outputText>
                                 </span>
                             </div>
@@ -53,13 +53,24 @@
                             </div>
                         </div>
 
+                        <!-- Botão de Inscrição (apenas quando logado e não estiver inscrito) -->
                         <p:commandButton value="Fazer Inscrição" 
                                          icon="pi pi-user-plus"
                                          styleClass="action-btn mt-3"
                                          style="margin-top: 1rem;"
-                                         rendered="#{managerCamp.playerLogado ne null and (managerCamp.camp.categoria eq 'INDIVIDUAL' or managerCamp.camp.categoria eq 'INDIVIDUAL')}"
+                                         rendered="#{managerCamp.isUsuarioLogado() and managerCamp.podeSeInscrever()}"
                                          action="#{managerCamp.inscrever()}"
                                          update="@form" />
+                        
+                        <!-- Botão para Login (quando não logado) -->
+                        <p:button value="Login para se inscrever" 
+                                  icon="pi pi-sign-in"
+                                  styleClass="action-btn mt-3"
+                                  style="margin-top: 1rem; background: linear-gradient(135deg, var(--accent), var(--accent-2));"
+                                  rendered="#{not managerCamp.isUsuarioLogado()}"
+                                  outcome="login.xhtml">
+                            <f:param name="returnUrl" value="visualizarCampeonato.xhtml?id=#{managerCamp.camp.id}" />
+                        </p:button>
                     </div>
 
                     <div class="camp-hero-logo">
@@ -171,6 +182,52 @@
                     </div>
                 </h:panelGroup>
             </p:card>
+
+            <!-- Fieldset de Players Inscritos (apenas para admin, campeonatos de TIME com gerarTimesPorSorteio) -->
+            <p:fieldset legend="Jogadores Inscritos para Sorteio" 
+                        styleClass="glass-card mb-4"
+                        rendered="#{managerCamp.isAdmin() and managerCamp.camp.categoria eq 'TIME' and managerCamp.camp.gerarTimesPorSorteio}">
+                <!-- Botão de Sortear Times (apenas se houver players e ainda não tiver times criados) -->
+                <div class="mb-3" style="text-align: center;">
+                    <p:commandButton value="Sortear Times" 
+                                     icon="pi pi-random"
+                                     styleClass="action-btn"
+                                     style="background: linear-gradient(135deg, var(--accent), var(--accent-2)); margin-bottom: 1rem;"
+                                     rendered="#{not empty managerCamp.camp.players and (empty managerCamp.camp.teams or managerCamp.camp.teams.size() eq 0)}"
+                                     action="#{managerCamp.sortearTimes()}"
+                                     update="@form"
+                                     onclick="return confirm('Tem certeza que deseja sortear os times? Esta ação não pode ser desfeita.');" />
+                </div>
+                <div class="grid-container-modern">
+                    <h:panelGroup rendered="#{empty managerCamp.camp.players}">
+                        <div class="text-center py-5" style="grid-column: 1 / -1;">
+                            <i class="pi pi-users mb-3" style="font-size: 3rem; color: var(--muted)"></i>
+                            <p style="color: #d1d8e6">Nenhum jogador inscrito ainda</p>
+                        </div>
+                    </h:panelGroup>
+                    <ui:repeat value="#{managerCamp.camp.players}" var="player">
+                        <div class="participant-card-modern">
+                            <div class="participant-avatar-modern">
+                                <h:panelGroup rendered="#{player.anexo != null}">
+                                    <p:graphicImage value="image/#{player.anexo.nome}" 
+                                                  styleClass="participant-img" />
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{player.anexo == null}">
+                                    #{player.nome != null and not empty player.nome ? player.nome.substring(0,1).toUpperCase() : '?'}
+                                </h:panelGroup>
+                            </div>
+                            <div class="participant-name-modern">#{player.nome}</div>
+                            <p class="participant-nick-modern" style="color: #98a2b3; font-size: 0.85rem; margin: 0.25rem 0;">#{player.nick}</p>
+                            <p:button icon="pi pi-eye" 
+                                     styleClass="p-button-text p-button-sm mt-2"
+                                     outcome="jogador.xhtml"
+                                     title="Ver perfil">
+                                <f:param name="id" value="#{player.id}" />
+                            </p:button>
+                        </div>
+                    </ui:repeat>
+                </div>
+            </p:fieldset>
 
             <!-- Swiss System Bracket (apenas para formato SUÍÇO) -->
             <h:panelGroup rendered="#{managerCamp.camp.tipoCampeonato.nome eq 'SUÍÇO'}">

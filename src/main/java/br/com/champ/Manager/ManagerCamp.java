@@ -21,6 +21,7 @@ import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -447,17 +448,271 @@ public class ManagerCamp extends ManagerBase {
         }
     }
 
+    /**
+     * Verifica se o usuário logado é administrador
+     * Método exposto para o JSF
+     * @return true se o usuário logado é admin, false caso contrário
+     */
+    public boolean isAdmin() {
+        return super.isAdmin();
+    }
+
+    /**
+     * Verifica se o player logado já está inscrito no campeonato
+     * @return true se o player pode se inscrever (não está inscrito), false caso contrário
+     */
+    public boolean podeSeInscrever() {
+        try {
+            Player player = getPlayerLogado();
+            if (player == null || player.getId() == null) {
+                return false;
+            }
+
+            if (this.camp == null || this.camp.getId() == null) {
+                return false;
+            }
+
+            // Atualiza o campeonato do banco para ter dados frescos
+            this.camp = this.campeonatoServico.buscaCamp(this.camp.getId());
+
+            // Verifica categoria do campeonato
+            if (this.camp.getCategoria() == null) {
+                return false;
+            }
+
+            String categoria = this.camp.getCategoria().getNome();
+
+            // Categoria INDIVIDUAL ou TIME com gerarTimesPorSorteio
+            if ("INDIVIDUAL".equals(categoria) || 
+                ("TIME".equals(categoria) && this.camp.isGerarTimesPorSorteio())) {
+                // Verifica se já está na lista de players
+                if (this.camp.getPlayers() != null && this.camp.getPlayers().stream()
+                        .anyMatch(p -> p.getId() != null && p.getId().equals(player.getId()))) {
+                    return false; // Já está inscrito
+                }
+                return true; // Pode se inscrever
+            }
+            // Categoria TIME sem gerarTimesPorSorteio
+            else if ("TIME".equals(categoria)) {
+                // Verifica se o player é capitão de um time que já está inscrito
+                Team timeCapitao = teamServico.buscaTeamPorCapitao(player.getId());
+                if (timeCapitao != null && timeCapitao.getId() != null) {
+                    if (this.camp.getTeams() != null && this.camp.getTeams().stream()
+                            .anyMatch(t -> t.getId() != null && t.getId().equals(timeCapitao.getId()))) {
+                        return false; // Time já está inscrito
+                    }
+                }
+                return true; // Pode se inscrever
+            }
+
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public void inscrever() {
         try {
             Player player = getPlayerLogado();
-            if (player != null) {
+            if (player == null) {
+                Mensagem.error("Você precisa estar logado para se inscrever!");
+                return;
+            }
+
+            if (this.camp == null || this.camp.getId() == null) {
+                Mensagem.error("Campeonato não encontrado!");
+                return;
+            }
+
+            // Atualiza o campeonato do banco para ter dados frescos
+            this.camp = this.campeonatoServico.buscaCamp(this.camp.getId());
+
+            // Verifica categoria do campeonato
+            if (this.camp.getCategoria() == null) {
+                Mensagem.error("Categoria do campeonato não definida!");
+                return;
+            }
+
+            String categoria = this.camp.getCategoria().getNome();
+
+            // Categoria INDIVIDUAL
+            if ("INDIVIDUAL".equals(categoria)) {
+                // Verifica se já está inscrito
+                if (this.camp.getPlayers() != null && this.camp.getPlayers().stream()
+                        .anyMatch(p -> p.getId() != null && p.getId().equals(player.getId()))) {
+                    Mensagem.error("Você já está inscrito neste campeonato!");
+                    return;
+                }
+
+                // Inicializa a lista se necessário
+                if (this.camp.getPlayers() == null) {
+                    this.camp.setPlayers(new ArrayList<>());
+                }
+
+                // Adiciona o player
                 this.camp.getPlayers().add(player);
                 this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
+                Mensagem.successAndRedirect("Inscrição realizada com sucesso!", "visualizarCampeonato.xhtml?id=" + this.camp.getId());
             }
+            // Categoria TIME
+            else if ("TIME".equals(categoria)) {
+                // Verifica se gera times automaticamente
+                if (this.camp.isGerarTimesPorSorteio()) {
+                    // Inscreve o player na lista de players
+                    // Verifica se já está inscrito
+                    if (this.camp.getPlayers() != null && this.camp.getPlayers().stream()
+                            .anyMatch(p -> p.getId() != null && p.getId().equals(player.getId()))) {
+                        Mensagem.error("Você já está inscrito neste campeonato!");
+                        return;
+                    }
+
+                    // Inicializa a lista se necessário
+                    if (this.camp.getPlayers() == null) {
+                        this.camp.setPlayers(new ArrayList<>());
+                    }
+
+                    // Adiciona o player
+                    this.camp.getPlayers().add(player);
+                    this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
+                    Mensagem.successAndRedirect("Inscrição realizada com sucesso! Você será distribuído em um time quando o campeonato começar.", "visualizarCampeonato.xhtml?id=" + this.camp.getId());
+                } else {
+                    // Não gera times automaticamente - inscreve o time do qual o player é capitão
+                    Team timeCapitao = teamServico.buscaTeamPorCapitao(player.getId());
+                    
+                    if (timeCapitao == null || timeCapitao.getId() == null) {
+                        Mensagem.error("Você precisa ser capitão de um time para se inscrever neste campeonato!");
+                        return;
+                    }
+
+                    // Verifica se o time já está inscrito
+                    if (this.camp.getTeams() != null && this.camp.getTeams().stream()
+                            .anyMatch(t -> t.getId() != null && t.getId().equals(timeCapitao.getId()))) {
+                        Mensagem.error("Seu time já está inscrito neste campeonato!");
+                        return;
+                    }
+
+                    // Inicializa a lista se necessário
+                    if (this.camp.getTeams() == null) {
+                        this.camp.setTeams(new ArrayList<>());
+                    }
+
+                    // Adiciona o time
+                    this.camp.getTeams().add(timeCapitao);
+                    this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
+                    Mensagem.successAndRedirect("Inscrição realizada com sucesso! Seu time foi inscrito no campeonato.", "visualizarCampeonato.xhtml?id=" + this.camp.getId());
+                }
+            } else {
+                Mensagem.error("Categoria de campeonato não suportada!");
+            }
+
         } catch (Exception ex) {
             ex.printStackTrace();
+            Mensagem.error("Erro ao realizar inscrição: " + ex.getMessage());
         }
-        Mensagem.successAndRedirect("Camp salvo", "visualizarCampeonato.xhtml?id=" + this.camp.getId());
+    }
+
+    /**
+     * Sorteia os times automaticamente baseado nos players inscritos
+     * Apenas admin pode executar esta ação
+     * Apenas para campeonatos de TIME com gerarTimesPorSorteio = true
+     */
+    public void sortearTimes() {
+        try {
+            // Verifica se é admin
+            if (!isAdmin()) {
+                Mensagem.error("Apenas administradores podem sortear os times!");
+                return;
+            }
+
+            if (this.camp == null || this.camp.getId() == null) {
+                Mensagem.error("Campeonato não encontrado!");
+                return;
+            }
+
+            // Atualiza o campeonato do banco para ter dados frescos
+            this.camp = this.campeonatoServico.buscaCamp(this.camp.getId());
+
+            // Verifica se é campeonato de TIME com gerarTimesPorSorteio
+            if (this.camp.getCategoria() == null || !"TIME".equals(this.camp.getCategoria().getNome())) {
+                Mensagem.error("Este campeonato não é de times!");
+                return;
+            }
+
+            if (!this.camp.isGerarTimesPorSorteio()) {
+                Mensagem.error("Este campeonato não utiliza sorteio automático de times!");
+                return;
+            }
+
+            // Verifica se há players inscritos
+            if (this.camp.getPlayers() == null || this.camp.getPlayers().isEmpty()) {
+                Mensagem.error("Não há jogadores inscritos para sortear!");
+                return;
+            }
+
+            // Verifica se quantidadePorTime está definido
+            if (this.camp.getQuantidadePorTime() == null || this.camp.getQuantidadePorTime() <= 0) {
+                Mensagem.error("Quantidade de jogadores por time não está definida!");
+                return;
+            }
+
+            // Verifica se já existem times criados (evita duplicação)
+            if (this.camp.getTeams() != null && !this.camp.getTeams().isEmpty()) {
+                Mensagem.error("Os times já foram sorteados anteriormente!");
+                return;
+            }
+
+            // Cria uma cópia da lista de players e embaralha
+            List<Player> playersParaSortear = new ArrayList<>(this.camp.getPlayers());
+            Collections.shuffle(playersParaSortear);
+
+            int quantidadePorTime = this.camp.getQuantidadePorTime();
+            List<Team> timesCriados = new ArrayList<>();
+            int numeroTime = 1;
+
+            // Divide os players em grupos e cria os times
+            for (int i = 0; i < playersParaSortear.size(); i += quantidadePorTime) {
+                int fim = Math.min(i + quantidadePorTime, playersParaSortear.size());
+                List<Player> playersDoTime = new ArrayList<>(playersParaSortear.subList(i, fim));
+
+                // Cria um novo time
+                Team novoTime = new Team();
+                novoTime.setNome("Time " + numeroTime);
+                novoTime.setPlayers(playersDoTime);
+                novoTime.setTimeAmistoso(false);
+                novoTime.setActive(true);
+
+                // Marca o primeiro player como capitão
+                if (!playersDoTime.isEmpty()) {
+                    Player capitao = playersDoTime.get(0);
+                    capitao.setCapitao(true);
+                }
+
+                // Salva o time
+                Team timeSalvo = teamServico.save(novoTime, null, Url.SALVAR_TIME.getNome());
+                timesCriados.add(timeSalvo);
+
+                numeroTime++;
+            }
+
+            // Adiciona os times ao campeonato
+            if (this.camp.getTeams() == null) {
+                this.camp.setTeams(new ArrayList<>());
+            }
+            this.camp.getTeams().addAll(timesCriados);
+
+            // Atualiza o campeonato
+            this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
+
+            Mensagem.successAndRedirect(
+                "Times sorteados com sucesso! " + timesCriados.size() + " times criados.",
+                "visualizarCampeonato.xhtml?id=" + this.camp.getId()
+            );
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Mensagem.error("Erro ao sortear times: " + ex.getMessage());
+        }
     }
 
     
@@ -504,7 +759,7 @@ public class ManagerCamp extends ManagerBase {
 
     public String formataData(Date data) {
         if (data != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
             return sdf.format(data);
         }
         return "—";

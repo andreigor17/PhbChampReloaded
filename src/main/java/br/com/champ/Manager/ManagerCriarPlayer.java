@@ -334,6 +334,13 @@ public class ManagerCriarPlayer extends ManagerBase {
                 return;
             }
 
+            // Lê o returnUrl da URL (vindo do callback da Steam)
+            String returnUrl = FacesUtil.getRequestParameter("returnUrl");
+            if (returnUrl != null && !returnUrl.trim().isEmpty()) {
+                // Guarda na sessão para usar após login
+                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("returnUrl", returnUrl);
+            }
+
             // TENTA FAZER LOGIN primeiro - se já tem conta, redireciona
             LoginVo login = new LoginVo();
             login.setSteamId(playerVo.getSteamid());
@@ -341,9 +348,21 @@ public class ManagerCriarPlayer extends ManagerBase {
             
             if (tokenResult != null && !tokenResult.trim().isEmpty()) {
                 // Login bem-sucedido - já tem conta
-                System.err.println("Login Steam bem-sucedido. Redirecionando para index...");
-                // Usa JavaScript para redirecionar pois estamos no @PostConstruct
-                PrimeFaces.current().executeScript("setTimeout(function(){ window.location.href='index.xhtml'; }, 100);");
+                System.err.println("Login Steam bem-sucedido.");
+                
+                // Verifica se existe returnUrl na sessão (vindo do botão "Login para se inscrever")
+                String returnUrlSession = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("returnUrl");
+                if (returnUrlSession != null && !returnUrlSession.trim().isEmpty()) {
+                    // Remove o returnUrl da sessão após usar
+                    FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("returnUrl");
+                    // Redireciona para a URL de retorno (tela do campeonato)
+                    System.err.println("Redirecionando para: " + returnUrlSession);
+                    PrimeFaces.current().executeScript("setTimeout(function(){ window.location.href='" + returnUrlSession + "'; }, 100);");
+                } else {
+                    // Redirecionamento padrão
+                    System.err.println("Redirecionando para index...");
+                    PrimeFaces.current().executeScript("setTimeout(function(){ window.location.href='index.xhtml'; }, 100);");
+                }
                 return;
             }
 

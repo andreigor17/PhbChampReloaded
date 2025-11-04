@@ -188,6 +188,45 @@ public class TeamServico {
 
     }
 
+    public Team buscaTeamPorCapitao(Long capitaoId) {
+        try {
+            String url = pathToAPI() + "/api/team/team-capitao/" + capitaoId;
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("GET");
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
+            int responseCode = con.getResponseCode();
+            System.out.println("\nSending 'GET' request to URL : " + url);
+            System.out.println("Response Code : " + responseCode);
+            
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(con.getInputStream()));
+                String inputLine;
+                StringBuffer response = new StringBuffer();
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+                
+                Gson gson = new Gson();
+                Team team = gson.fromJson(response.toString(), Team.class);
+                return team;
+            } else {
+                // Time não encontrado (404 ou outro código)
+                return null;
+            }
+        } catch (IOException iOException) {
+            System.err.println(iOException);
+        } catch (JSONException jSONException) {
+            System.err.println(jSONException);
+        } catch (NumberFormatException numberFormatException) {
+            System.err.println(numberFormatException);
+        }
+        return null;
+    }
+
     public Team save(Team team, Long id, String uri) throws Exception {
 
         String url;

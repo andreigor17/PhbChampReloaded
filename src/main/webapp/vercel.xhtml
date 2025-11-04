@@ -85,7 +85,124 @@
         }
         .ui-menubar .ui-menuitem-icon, .p-menubar .p-menuitem-icon{ color: var(--accent) !important; }
         .ui-menubar .ui-menuitem-text, .p-menubar .p-menuitem-text{ color: var(--text-300) !important; }
-        /* Buttons */
+        /* Buttons - TEMA DARK COMPLETO */
+        .p-button, .ui-button,
+        .p-commandbutton, .ui-commandbutton {
+            background: rgba(255,255,255,0.05) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-100) !important;
+            transition: all .2s ease !important;
+        }
+        .p-button:hover, .ui-button:hover,
+        .p-commandbutton:hover, .ui-commandbutton:hover {
+            background: rgba(255,255,255,0.08) !important;
+            border-color: var(--accent) !important;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+        /* Button Variants */
+        .p-button-primary, .ui-button-primary,
+        .p-button-success, .ui-button-success,
+        .p-button-info, .ui-button-info,
+        .p-button-warning, .ui-button-warning,
+        .p-button-danger, .ui-button-danger {
+            background: var(--bg-700) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-100) !important;
+        }
+        .p-button-primary:hover, .ui-button-primary:hover {
+            background: rgba(0,225,255,0.15) !important;
+            border-color: var(--accent) !important;
+        }
+        .p-button-success:hover, .ui-button-success:hover {
+            background: rgba(34,197,94,0.2) !important;
+            border-color: var(--success) !important;
+        }
+        .p-button-danger:hover, .ui-button-danger:hover {
+            background: rgba(239,68,68,0.2) !important;
+            border-color: #ef4444 !important;
+        }
+        .p-button-outlined, .ui-button-outlined {
+            background: transparent !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-100) !important;
+        }
+        .p-button-outlined:hover, .ui-button-outlined:hover {
+            background: rgba(255,255,255,0.06) !important;
+            border-color: var(--accent) !important;
+        }
+        .p-button-text, .ui-button-text {
+            background: transparent !important;
+            border: none !important;
+            color: var(--accent) !important;
+        }
+        .p-button-text:hover, .ui-button-text:hover {
+            background: rgba(255,255,255,0.06) !important;
+            color: var(--text-100) !important;
+        }
+        .p-button-sm, .ui-button-sm {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 0.875rem !important;
+        }
+        /* Classes customizadas de botões */
+        .full-stats-btn,
+        .action-btn {
+            background: linear-gradient(135deg, rgba(0,225,255,0.12), rgba(0,225,255,0.06)) !important;
+            border: 1px solid rgba(0,225,255,0.25) !important;
+            color: var(--text-100) !important;
+            font-weight: 600 !important;
+        }
+        .full-stats-btn:hover,
+        .action-btn:hover {
+            background: linear-gradient(135deg, rgba(0,225,255,0.18), rgba(0,225,255,0.10)) !important;
+            border-color: rgba(0,225,255,0.4) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(0,225,255,0.2) !important;
+        }
+        .action-btn.success {
+            background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.08)) !important;
+            border-color: rgba(34,197,94,0.3) !important;
+        }
+        .action-btn.success:hover {
+            background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(34,197,94,0.15)) !important;
+            border-color: rgba(34,197,94,0.5) !important;
+        }
+        .execute-btn {
+            background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.08)) !important;
+            border: 1px solid rgba(34,197,94,0.3) !important;
+            color: var(--text-100) !important;
+        }
+        .execute-btn:hover {
+            background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(34,197,94,0.15)) !important;
+            border-color: rgba(34,197,94,0.5) !important;
+        }
+        .quick-cmd-btn {
+            background: rgba(255,255,255,0.05) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-100) !important;
+            justify-content: flex-start !important;
+            text-align: left !important;
+        }
+        .quick-cmd-btn:hover {
+            background: rgba(0,225,255,0.15) !important;
+            border-color: var(--accent) !important;
+            color: var(--text-100) !important;
+            transform: translateX(4px);
+        }
+        .map-btn {
+            background: rgba(255,255,255,0.03) !important;
+        }
+        /* Ícones dentro de botões */
+        .p-button i, .ui-button i,
+        .p-commandbutton i, .ui-commandbutton i {
+            color: inherit !important;
+        }
+        .p-button-text i, .ui-button-text i {
+            color: var(--accent) !important;
+        }
+        .p-button-text:hover i, .ui-button-text:hover i {
+            color: var(--text-100) !important;
+        }
         .auth-buttons .p-button{ border-color: rgba(0,225,255,.35) !important; color: var(--text-100) !important; }
         .auth-buttons .p-button:hover{ box-shadow: 0 0 0 1px rgba(0,225,255,.2), 0 0 22px rgba(0,225,255,.08); }
         /* Main */
@@ -93,8 +210,6 @@
         /* PrimeFaces common overrides */
         .p-card, .ui-panel{ background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important; border:1px solid var(--border) !important; border-radius: var(--radius) !important; box-shadow: var(--shadow) !important; }
         .glass-card, .glass-panel .ui-panel-content{ background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important; border:1px solid var(--border) !important; border-radius: var(--radius) !important; box-shadow: var(--shadow) !important; }
-        .p-button, .ui-button{ transition: transform .15s ease, box-shadow .15s ease; }
-        .p-button:hover, .ui-button:hover{ transform: translateY(-1px); box-shadow: var(--shadow); }
         .ui-widget{ color: var(--text-100); }
         .ui-widget input, .ui-widget select, .ui-widget textarea{ background: var(--bg-700); border:1px solid var(--border); color: var(--text-100); border-radius:10px; }
         .ui-widget .ui-state-highlight{ background: rgba(0,225,255,.12); border-color: rgba(0,225,255,.25); }

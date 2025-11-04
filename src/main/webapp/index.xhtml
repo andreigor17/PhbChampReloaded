@@ -81,47 +81,71 @@
 
         <!-- Cards de Campeonatos (3 por linha, tema dark elegante) -->
         <div class="grid">
-            <!-- Campeonato 1 -->
-            <div class="col-12 sm:col-6 lg:col-4">
-                <ui:repeat value="#{managerIndex.campsAtuais}" var="camp">
-                    <p:card styleClass="championship-card glass-card">
-                        <div class="championship-header">
-                            <div class="championship-logo glass-logo">
+            <ui:repeat value="#{managerIndex.campsAtuais}" var="camp">
+                <div class="col-12 sm:col-6 lg:col-4">
+                    <p:card styleClass="modern-championship-card">
+                        <div class="champ-header-modern">
+                            <div class="champ-icon-wrapper">
                                 <i class="pi pi-trophy"></i>
                             </div>
-                            <div class="championship-status">
-                                <p:badge value="#{camp.status != null ? camp.status.nome : 'Sem Status'}" severity="success" />
+                            <div class="champ-status-modern">
+                                <span class="status-badge-modern #{camp.status != null and camp.status.nome == 'Em Andamento' ? 'status-active' : (camp.status != null and camp.status.nome == 'Finalizado' ? 'status-completed' : 'status-scheduled')}">
+                                    #{camp.status != null ? camp.status.nome : 'Sem Status'}
+                                </span>
                             </div>
                         </div>
 
-                        <div class="championship-body">
-                            <h3 class="championship-title">#{camp.nome}</h3>
-                            <div class="championship-info">
-                                <div class="info-item">
-                                    <span class="info-label">Jogo</span>
-                                    <span class="info-value">#{camp.jogo != null ? camp.jogo.nome : 'N/A'}</span>
+                        <div class="champ-content-modern">
+                            <h3 class="champ-title-modern">#{camp.nome}</h3>
+                            
+                            <div class="champ-meta-modern">
+                                <div class="meta-item-modern">
+                                    <i class="pi pi-desktop meta-icon"></i>
+                                    <div>
+                                        <span class="meta-label">Jogo</span>
+                                        <span class="meta-value">#{camp.jogo != null ? camp.jogo.nome : 'N/A'}</span>
+                                    </div>
                                 </div>
-                                <div class="info-item">
-                                    <span class="info-label">Times</span>
-                                    <span class="info-value">#{camp.teams != null ? camp.teams.size() : 0}</span>
+                                <div class="meta-item-modern">
+                                    <i class="pi pi-users meta-icon"></i>
+                                    <div>
+                                        <span class="meta-label">Times</span>
+                                        <span class="meta-value">#{camp.teams != null ? camp.teams.size() : 0}</span>
+                                    </div>
                                 </div>
-                                <div class="info-item">
-                                    <span class="info-label">Início</span>
-                                    <span class="info-value">#{camp.dataCriacao != null ? camp.dataCriacao : 'N/A'}</span>
+                            </div>
+
+                            <div class="champ-dates-modern">
+                                <div class="date-item-modern">
+                                    <i class="pi pi-calendar"></i>
+                                    <span>Início: 
+                                        <h:outputText value="#{camp.dataCriacao}" rendered="#{camp.dataCriacao != null}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                                        </h:outputText>
+                                        <h:outputText value="N/A" rendered="#{camp.dataCriacao == null}" />
+                                    </span>
                                 </div>
-                                <div class="info-item">
-                                    <span class="info-label">Término</span>
-                                    <span class="info-value">#{camp.dataCamp != null ? camp.dataCamp : 'N/A'}</span>
+                                <div class="date-item-modern">
+                                    <i class="pi pi-clock"></i>
+                                    <span>Término: 
+                                        <h:outputText value="#{camp.dataCamp}" rendered="#{camp.dataCamp != null}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                                        </h:outputText>
+                                        <h:outputText value="N/A" rendered="#{camp.dataCamp == null}" />
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="championship-footer">
-                            <p:button value="Detalhes" icon="pi pi-eye" outcome="visualizarCampeonato.xhtml?id=#{camp.id}" styleClass="elegant-btn-outlined" />
+                        <div class="champ-footer-modern">
+                            <p:button value="Ver Detalhes" 
+                                     icon="pi pi-arrow-right" 
+                                     outcome="visualizarCampeonato.xhtml?id=#{camp.id}" 
+                                     styleClass="champ-btn-modern" />
                         </div>
                     </p:card>
-                </ui:repeat>
-            </div>                       
+                </div>
+            </ui:repeat>                       
         </div>
 
         <!-- NOVO: Seção de Últimas Partidas -->
@@ -132,61 +156,59 @@
 
         <!-- Cards de Partidas -->
         <div class="grid">
-            <!-- Partida 1: Em Andamento -->
             <ui:repeat value="#{managerIndex.partidas}" var="partida">
-                <div class="col-12 md:col-6 xl:col-4"> 
+                <div class="col-12 md:col-6 xl:col-4">
+                    <p:card styleClass="modern-match-card" rendered="#{not empty partida.itemPartida and partida.itemPartida.size() > 0}">
+                        <!-- Status e Tipo -->
+                        <div class="match-top-modern">
+                            <span class="match-type-modern">
+                                <i class="pi pi-#{partida.itemPartida.get(0).camp != null ? 'trophy' : 'users'}"></i>
+                                #{partida.itemPartida.get(0).camp != null ? 'Campeonato' : 'Amistoso'}
+                            </span>
+                            <span class="match-status-modern #{partida.finalizada ? 'status-finished' : 'status-live'}">
+                                #{partida.finalizada ? 'Finalizada' : 'Ao Vivo'}
+                            </span>
+                        </div>
 
-                    <p:card styleClass="match-card glass-card">
-                        <div class="match-header">
-                            <div class="match-info">
-                                <p:badge value="Em Andamento" severity="warning" styleClass="match-status" />
-                                <span class="match-championship">Amistoso</span>
-                            </div>
-                            <div class="match-date">
-                                <i class="pi pi-calendar mr-1"></i>
-                                <span>Hoje, 15:30</span>
+                        <!-- Times Principal -->
+                        <div class="match-teams-simple" rendered="#{not empty partida.itemPartida and partida.itemPartida.size() > 0}">
+                            <div class="teams-simple-display">
+                                <span class="team-name-simple">#{partida.itemPartida.get(0).team1 != null ? partida.itemPartida.get(0).team1.nome : (partida.itemPartida.get(0).player1 != null ? partida.itemPartida.get(0).player1.nome : 'N/A')}</span>
+                                <span class="vs-simple">×</span>
+                                <span class="team-name-simple">#{partida.itemPartida.get(0).team2 != null ? partida.itemPartida.get(0).team2.nome : (partida.itemPartida.get(0).player2 != null ? partida.itemPartida.get(0).player2.nome : 'N/A')}</span>
                             </div>
                         </div>
 
-                        <div class="match-body" rendered="#{not empty partida.itemPartida and partida.itemPartida.size() > 0}">
-                            <ui:repeat value="#{partida.itemPartida}" var="item" varStatus="status">
-                                <div rendered="#{status.index == 0}">
-                                    <div class="match-team">
-                                        <div class="team-logo">
-                                            <p:graphicImage value="image/#{item.team1 != null ? item.team1.anexo.nome : ''}" rendered="#{item.team1 != null and item.team1.anexo != null}" styleClass="team-logo-img" />
-                                            <div class="team-logo" rendered="#{item.team1 == null or item.team1.anexo == null}">
-                                                <i class="pi pi-user" style="font-size: 2rem; color: var(--text-300);"></i>
-                                            </div>
-                                        </div>
-                                        <div class="team-name">#{item.team1 != null ? item.team1.nome : 'N/A'}</div>
-                                        <div class="team-score live">#{item.scoreT1 != null ? item.scoreT1 : 0}</div>
+                        <!-- Mapas Minimalistas -->
+                        <div class="match-maps-modern">
+                            <div class="maps-label-modern">
+                                <i class="pi pi-map"></i>
+                                <span>Mapas</span>
+                            </div>
+                            <div class="maps-list-modern">
+                                <ui:repeat value="#{partida.itemPartida}" var="item">
+                                    <div class="map-item-modern">
+                                        <span class="map-name-modern">#{item.mapas != null and item.mapas.nome != null ? item.mapas.nome : 'TBD'}</span>
+                                        <span class="map-score-modern">
+                                            #{item.scoreT1 != null ? item.scoreT1 : 0} : #{item.scoreT2 != null ? item.scoreT2 : 0}
+                                        </span>
                                     </div>
-
-                                    <div class="match-vs">VS</div>
-
-                                    <div class="match-team">
-                                        <div class="team-logo">
-                                            <p:graphicImage value="image/#{item.team2 != null ? item.team2.anexo.nome : ''}" rendered="#{item.team2 != null and item.team2.anexo != null}" styleClass="team-logo-img" />
-                                            <div class="team-logo" rendered="#{item.team2 == null or item.team2.anexo == null}">
-                                                <i class="pi pi-user" style="font-size: 2rem; color: var(--text-300);"></i>
-                                            </div>
-                                        </div>
-                                        <div class="team-name">#{item.team2 != null ? item.team2.nome : 'N/A'}</div>
-                                        <div class="team-score live">#{item.scoreT2 != null ? item.scoreT2 : 0}</div>
-                                    </div>
-                                </div>
-                            </ui:repeat>
+                                </ui:repeat>
+                            </div>
                         </div>
 
-                        <div class="match-footer">
-                            <div class="match-game">
-                                <i class="pi pi-desktop mr-1"></i>
+                        <!-- Footer -->
+                        <div class="match-footer-modern">
+                            <div class="match-game-modern">
+                                <i class="pi pi-desktop"></i>
                                 <span>#{partida.jogo != null ? partida.jogo.nome : 'N/A'}</span>
                             </div>
-                            <p:button value="Ver Detalhes" icon="pi pi-eye" outcome="visualizarPartida.xhtml?id=#{partida.id}" styleClass="elegant-btn-text" />
+                            <p:button value="Ver Detalhes" 
+                                     icon="pi pi-arrow-right" 
+                                     outcome="visualizarPartida.xhtml?id=#{partida.id}" 
+                                     styleClass="match-btn-modern" />
                         </div>
                     </p:card>
-
                 </div>
             </ui:repeat>
         </div>
@@ -199,58 +221,68 @@
         <div class="grid">
             <!-- Players of the Week -->
             <div class="col-12 md:col-6">
-                <p:card styleClass="glass-card">
-                    <f:facet name="title">
-                        <div class="flex align-items-center" style="color: var(--text-100);">
-                            <i class="pi pi-users mr-2" style="color: var(--accent);"></i>
-                            <span>Players of the Week</span>
+                <p:card styleClass="highlights-card-modern">
+                    <div class="highlights-header-modern">
+                        <div class="highlights-icon-wrapper">
+                            <i class="pi pi-users"></i>
                         </div>
-                    </f:facet>
-                    <div class="grid">
-                        <ui:repeat value="#{managerIndex.playersOfTheWeek}" var="pweek">
-                            <div class="col-12 sm:col-6">
-                                <div class="pow-card">
-                                    <div class="pow-avatar">
-                                        <p:graphicImage value="image/#{pweek.anexo != null ? pweek.anexo.nome : ''}" rendered="#{pweek.anexo != null}" styleClass="pow-img" />
-                                        <div class="pow-placeholder" rendered="#{pweek.anexo == null}">
-                                            <i class="pi pi-user"></i>
+                        <div class="highlights-title-wrapper">
+                            <h3 class="highlights-title-modern">Players of the Week</h3>
+                            <p class="highlights-subtitle-modern">Destaques da semana</p>
+                        </div>
+                    </div>
+                    <div class="highlights-content-modern">
+                        <div class="grid">
+                            <ui:repeat value="#{managerIndex.playersOfTheWeek}" var="pweek">
+                                <div class="col-12 sm:col-6">
+                                    <div class="pow-card-modern">
+                                        <div class="pow-avatar-modern">
+                                            <p:graphicImage value="image/#{pweek.anexo != null ? pweek.anexo.nome : ''}" rendered="#{pweek.anexo != null}" styleClass="pow-img-modern" />
+                                            <div class="pow-placeholder-modern" rendered="#{pweek.anexo == null}">
+                                                <i class="pi pi-user"></i>
+                                            </div>
+                                        </div>
+                                        <div class="pow-info-modern">
+                                            <div class="pow-name-modern">#{pweek.nome != null ? pweek.nome : 'N/A'}</div>
+                                            <div class="pow-nick-modern">@#{pweek.nick != null ? pweek.nick : 'N/A'}</div>
                                         </div>
                                     </div>
-                                    <div class="pow-info">
-                                        <div class="pow-name">#{pweek.nome != null ? pweek.nome : 'N/A'}</div>
-                                        <div class="pow-nick">@#{pweek.nick != null ? pweek.nick : 'N/A'}</div>
-                                    </div>
                                 </div>
-                            </div>
-                        </ui:repeat>
-                        <h:panelGroup rendered="#{empty managerIndex.playersOfTheWeek}">
-                            <div class="col-12">
-                                <div class="empty-state">Sem destaques nesta semana.</div>
-                            </div>
-                        </h:panelGroup>
+                            </ui:repeat>
+                            <h:panelGroup rendered="#{empty managerIndex.playersOfTheWeek}">
+                                <div class="col-12">
+                                    <div class="empty-state-modern">Sem destaques nesta semana.</div>
+                                </div>
+                            </h:panelGroup>
+                        </div>
                     </div>
                 </p:card>
             </div>
 
             <!-- Jogadas da Week -->
             <div class="col-12 md:col-6">
-                <p:card styleClass="glass-card">
-                    <f:facet name="title">
-                        <div class="flex align-items-center" style="color: var(--text-100);">
-                            <i class="pi pi-bolt mr-2" style="color: var(--accent);"></i>
-                            <span>Jogadas da Week</span>
+                <p:card styleClass="highlights-card-modern">
+                    <div class="highlights-header-modern">
+                        <div class="highlights-icon-wrapper plays">
+                            <i class="pi pi-bolt"></i>
                         </div>
-                    </f:facet>
-                    <div class="plays-list">
-                        <ui:repeat value="#{managerIndex.playsOfTheWeek}" var="play">
-                            <div class="play-item">
-                                <i class="pi pi-star-fill play-icon"></i>
-                                <span class="play-text">#{play}</span>
-                            </div>
-                        </ui:repeat>
-                        <h:panelGroup rendered="#{empty managerIndex.playsOfTheWeek}">
-                            <div class="empty-state">Sem jogadas registradas nesta semana.</div>
-                        </h:panelGroup>
+                        <div class="highlights-title-wrapper">
+                            <h3 class="highlights-title-modern">Jogadas da Week</h3>
+                            <p class="highlights-subtitle-modern">Melhores momentos</p>
+                        </div>
+                    </div>
+                    <div class="highlights-content-modern">
+                        <div class="plays-list-modern">
+                            <ui:repeat value="#{managerIndex.playsOfTheWeek}" var="play">
+                                <div class="play-item-modern">
+                                    <i class="pi pi-star-fill play-icon-modern"></i>
+                                    <span class="play-text-modern">#{play}</span>
+                                </div>
+                            </ui:repeat>
+                            <h:panelGroup rendered="#{empty managerIndex.playsOfTheWeek}">
+                                <div class="empty-state-modern">Sem jogadas registradas nesta semana.</div>
+                            </h:panelGroup>
+                        </div>
                     </div>
                 </p:card>
             </div>
@@ -369,177 +401,538 @@
 
             .section-subheader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
 
-            /* Cards de campeonatos */
-            .championship-card { height: 100%; display: flex; flex-direction: column; margin-bottom: 1rem; }
-
-            .championship-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 1rem;
-            }
-
-            .championship-logo { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
-            .glass-logo { background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); border: 1px solid rgba(255,255,255,0.12); color: var(--warning); }
-
-            .championship-body {
-                flex: 1;
-            }
-
-            .championship-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-100); }
-
-            .championship-info {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 0.5rem;
-            }
-
-            .info-item {
-                display: flex;
-                flex-direction: column;
-            }
-
-            .info-label { font-size: 0.75rem; color: var(--text-300); text-transform: uppercase; letter-spacing: .4px; font-weight: 600; }
-
-            .info-value { font-weight: 600; color: var(--text-100) !important; font-size: 0.875rem; }
-            
-            /* Garantir textos claros em todos os cards */
-            .championship-card *,
-            .championship-body *,
-            .championship-info *,
-            .championship-card span,
-            .championship-card div,
-            .championship-card h3 {
-                color: var(--text-100) !important;
-            }
-            
-            .championship-card .info-label {
-                color: var(--text-300) !important;
-            }
-            
-            .match-card *,
-            .match-card span,
-            .match-card div {
-                color: var(--text-100) !important;
-            }
-            
-            .match-card .match-championship,
-            .match-card .match-date,
-            .match-card .match-game {
-                color: var(--text-300) !important;
-            }
-
-            .championship-footer {
-                margin-top: 1rem;
-                display: flex;
-                justify-content: flex-end;
-            }
-
-            /* Cards de partidas */
-            .match-card { height: 100%; display: flex; flex-direction: column; margin-bottom: 1rem; }
-
-            .match-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 1rem;
-                font-size: 0.875rem;
-            }
-
-            .match-info {
-                display: flex;
-                align-items: center;
-            }
-
-            .match-status {
-                margin-right: 0.5rem;
-            }
-
-            .match-championship { color: var(--text-300); }
-
-            .match-date { color: var(--text-300); }
-
-            .match-body {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 1rem 0;
-                flex: 1;
-            }
-
-            .match-team {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                width: 40%;
-                text-align: center;
-            }
-
-            .team-logo { width: 64px; height: 64px; border-radius: 50%; overflow: hidden; background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); border: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem; }
-
-            .team-logo-img {
-                width: 100%;
+            /* Cards de Campeonatos Modernos */
+            .modern-championship-card {
                 height: 100%;
-                object-fit: cover;
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 1rem;
+                background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important;
+                border: 1px solid var(--border) !important;
+                border-radius: 16px !important;
+                padding: 1.5rem !important;
+                transition: all 0.3s ease;
             }
 
-            .team-name {
-                font-weight: 600;
-                margin-bottom: 0.5rem;
-                color: var(--text-100);
+            .modern-championship-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+                border-color: rgba(0,225,255,0.3) !important;
             }
 
-            .team-score { font-size: 1.5rem; font-weight: 800; min-width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: rgba(255,255,255,0.06); color: var(--text-100); }
-
-            .team-score.winner { background: rgba(34,197,94,0.12); color: var(--success); border: 1px solid rgba(34,197,94,0.25); }
-
-            .team-score.live { background: rgba(245,158,11,0.12); color: var(--warning); position: relative; border: 1px solid rgba(245,158,11,0.25); }
-
-            .team-score.live::after {
-                content: "";
-                position: absolute;
-                top: 5px;
-                right: 5px;
-                width: 6px;
-                height: 6px;
-                border-radius: 50%;
-                background-color: #dc3545;
-                animation: pulse 1.5s infinite;
+            .champ-header-modern {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 1.25rem;
             }
 
-            .team-score.upcoming {
+            .champ-icon-wrapper {
+                width: 56px;
+                height: 56px;
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.08));
+                border: 1px solid rgba(245,158,11,0.3);
+                color: #f59e0b;
+            }
+
+            .status-badge-modern {
+                display: inline-flex;
+                align-items: center;
+                padding: 0.35rem 0.75rem;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .status-badge-modern.status-active {
+                background: rgba(34,197,94,0.15);
+                border: 1px solid rgba(34,197,94,0.3);
+                color: var(--success);
+            }
+
+            .status-badge-modern.status-completed {
+                background: rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.15);
                 color: var(--text-300);
             }
 
-            .match-vs { font-weight: 800; color: var(--text-300); font-size: 1.25rem; }
+            .status-badge-modern.status-scheduled {
+                background: rgba(59,130,246,0.15);
+                border: 1px solid rgba(59,130,246,0.3);
+                color: #60a5fa;
+            }
 
-            .match-footer {
+            .champ-content-modern {
+                flex: 1;
+            }
+
+            .champ-title-modern {
+                font-size: 1.25rem;
+                font-weight: 800;
+                margin: 0 0 1.25rem 0;
+                color: var(--text-100);
+                line-height: 1.4;
+            }
+
+            .champ-meta-modern {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                margin-bottom: 1rem;
+            }
+
+            .meta-item-modern {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .meta-icon {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.875rem;
+                background: rgba(255,255,255,0.04);
+                border: 1px solid rgba(255,255,255,0.08);
+                color: var(--accent);
+                flex-shrink: 0;
+            }
+
+            .meta-label {
+                font-size: 0.75rem;
+                color: var(--text-300);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                font-weight: 600;
+                display: block;
+                margin-bottom: 0.125rem;
+            }
+
+            .meta-value {
+                font-size: 0.9rem;
+                font-weight: 600;
+                color: var(--text-100);
+                display: block;
+            }
+
+            .champ-dates-modern {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                padding-top: 1rem;
+                border-top: 1px solid var(--border);
+            }
+
+            .date-item-modern {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.8rem;
+                color: var(--text-300);
+            }
+
+            .date-item-modern i {
+                font-size: 0.875rem;
+                color: var(--accent);
+            }
+
+            .champ-footer-modern {
+                margin-top: 1.25rem;
+                padding-top: 1rem;
+                border-top: 1px solid var(--border);
+            }
+
+            .champ-btn-modern {
+                width: 100%;
+                background: transparent !important;
+                border: 1px solid rgba(255,255,255,0.15) !important;
+                color: var(--text-100) !important;
+                padding: 0.625rem 1rem !important;
+                font-weight: 600 !important;
+                font-size: 0.875rem !important;
+                border-radius: 10px !important;
+                transition: all 0.2s ease !important;
+            }
+
+            .champ-btn-modern:hover {
+                background: rgba(0,225,255,0.1) !important;
+                border-color: var(--accent) !important;
+                color: var(--accent) !important;
+                transform: translateX(4px);
+            }
+
+            /* Cards de Partidas Modernos */
+            .modern-match-card {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 1rem;
+                background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important;
+                border: 1px solid var(--border) !important;
+                border-radius: 16px !important;
+                padding: 1.5rem !important;
+                transition: all 0.3s ease;
+            }
+
+            .modern-match-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+                border-color: rgba(0,225,255,0.3) !important;
+            }
+
+            .match-top-modern {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-top: 1rem;
-                font-size: 0.875rem;
+                margin-bottom: 1.25rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid var(--border);
             }
 
-            .match-game { color: var(--text-300); }
+            .match-type-modern {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: var(--text-300);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
 
-            /* Players of the Week */
-            .pow-card { display: flex; align-items: center; gap: .75rem; padding: .75rem; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); transition: all .2s ease; }
-            .pow-card:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.4); border-color: rgba(0,225,255,0.15); }
-            .pow-avatar { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; position: relative; }
-            .pow-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-            .pow-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.06); color: var(--muted); }
-            .pow-info { display: flex; flex-direction: column; }
-            .pow-name { font-weight: 700; color: var(--text-100); }
-            .pow-nick { color: var(--text-300); font-size: .85rem; }
-            .empty-state { color: var(--text-300); padding: .75rem 0; }
+            .match-type-modern i {
+                font-size: 0.875rem;
+                color: var(--accent);
+            }
 
-            /* Jogadas da Week */
-            .plays-list { display: flex; flex-direction: column; gap: .5rem; }
-            .play-item { display: flex; align-items: center; gap: .5rem; padding: .65rem .75rem; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); transition: all .2s ease; }
-            .play-item:hover { transform: translateX(2px); border-color: rgba(0,225,255,0.2); }
-            .play-icon { color: var(--accent); font-size: .9rem; }
-            .play-text { color: var(--text-100); }
+            .match-status-modern {
+                display: inline-flex;
+                align-items: center;
+                padding: 0.35rem 0.75rem;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .match-status-modern.status-live {
+                background: rgba(239,68,68,0.15);
+                border: 1px solid rgba(239,68,68,0.3);
+                color: #ef4444;
+                animation: pulse 2s infinite;
+            }
+
+            .match-status-modern.status-finished {
+                background: rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.15);
+                color: var(--text-300);
+            }
+
+            /* Times Principal - Simplificado */
+            .match-teams-simple {
+                margin-bottom: 1.5rem;
+                padding: 1.25rem 0;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .teams-simple-display {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .team-name-simple {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: var(--text-100);
+                text-align: center;
+                word-break: break-word;
+            }
+
+            .vs-simple {
+                font-size: 1.25rem;
+                font-weight: 800;
+                color: var(--text-300);
+                flex-shrink: 0;
+            }
+
+            /* Mapas Minimalistas */
+            .match-maps-modern {
+                margin-bottom: 1.25rem;
+                padding-top: 1rem;
+                border-top: 1px solid var(--border);
+            }
+
+            .maps-label-modern {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: var(--text-300);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 0.75rem;
+            }
+
+            .maps-label-modern i {
+                font-size: 0.875rem;
+                color: var(--accent);
+            }
+
+            .maps-list-modern {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .map-item-modern {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.5rem 0.75rem;
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 8px;
+                transition: all 0.2s ease;
+            }
+
+            .map-item-modern:hover {
+                background: rgba(255,255,255,0.05);
+                border-color: rgba(255,255,255,0.1);
+            }
+
+            .map-name-modern {
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: var(--text-100);
+            }
+
+            .map-score-modern {
+                font-size: 0.8rem;
+                font-weight: 700;
+                color: var(--text-300);
+                font-family: 'Courier New', monospace;
+            }
+
+            /* Footer */
+            .match-footer-modern {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding-top: 1rem;
+                border-top: 1px solid var(--border);
+            }
+
+            .match-game-modern {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.8rem;
+                color: var(--text-300);
+            }
+
+            .match-game-modern i {
+                font-size: 0.875rem;
+                color: var(--accent);
+            }
+
+            .match-btn-modern {
+                background: transparent !important;
+                border: none !important;
+                color: var(--accent) !important;
+                padding: 0.5rem 0.75rem !important;
+                font-weight: 600 !important;
+                font-size: 0.875rem !important;
+                border-radius: 8px !important;
+                transition: all 0.2s ease !important;
+            }
+
+            .match-btn-modern:hover {
+                background: rgba(0,225,255,0.1) !important;
+                color: var(--text-100) !important;
+                transform: translateX(4px);
+            }
+
+            /* Cards de Destaques Modernos */
+            .highlights-card-modern {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important;
+                border: 1px solid var(--border) !important;
+                border-radius: 16px !important;
+                padding: 0 !important;
+                transition: all 0.3s ease;
+            }
+
+            .highlights-card-modern:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+                border-color: rgba(0,225,255,0.3) !important;
+            }
+
+            .highlights-header-modern {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 1.5rem 1.5rem 1rem 1.5rem;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .highlights-icon-wrapper {
+                width: 56px;
+                height: 56px;
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                background: linear-gradient(135deg, rgba(0,225,255,0.15), rgba(0,225,255,0.08));
+                border: 1px solid rgba(0,225,255,0.3);
+                color: var(--accent);
+                flex-shrink: 0;
+            }
+
+            .highlights-icon-wrapper.plays {
+                background: linear-gradient(135deg, rgba(255,138,61,0.15), rgba(255,138,61,0.08));
+                border-color: rgba(255,138,61,0.3);
+                color: var(--accent-2);
+            }
+
+            .highlights-title-wrapper {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .highlights-title-modern {
+                font-size: 1.25rem;
+                font-weight: 800;
+                margin: 0 0 0.25rem 0;
+                color: var(--text-100);
+                line-height: 1.3;
+                word-wrap: break-word;
+            }
+
+            .highlights-subtitle-modern {
+                font-size: 0.875rem;
+                margin: 0;
+                color: var(--text-300);
+                font-weight: 500;
+            }
+
+            .highlights-content-modern {
+                padding: 1.5rem;
+                flex: 1;
+            }
+
+            /* Players of the Week - Modernizado */
+            .pow-card-modern { 
+                display: flex; 
+                align-items: center; 
+                gap: 0.75rem; 
+                padding: 1rem; 
+                border: 1px solid rgba(255,255,255,0.06); 
+                border-radius: 12px; 
+                background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); 
+                transition: all 0.2s ease; 
+            }
+            .pow-card-modern:hover { 
+                transform: translateY(-2px); 
+                box-shadow: 0 10px 22px rgba(0,0,0,0.4); 
+                border-color: rgba(0,225,255,0.2); 
+            }
+            .pow-avatar-modern { 
+                width: 48px; 
+                height: 48px; 
+                border-radius: 50%; 
+                overflow: hidden; 
+                position: relative; 
+                flex-shrink: 0;
+            }
+            .pow-img-modern { 
+                width: 100%; 
+                height: 100%; 
+                object-fit: cover; 
+                display: block; 
+            }
+            .pow-placeholder-modern { 
+                width: 100%; 
+                height: 100%; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+                background: rgba(255,255,255,0.06); 
+                color: var(--muted); 
+            }
+            .pow-info-modern { 
+                display: flex; 
+                flex-direction: column; 
+                min-width: 0;
+                flex: 1;
+            }
+            .pow-name-modern { 
+                font-weight: 700; 
+                color: var(--text-100);
+                font-size: 0.95rem;
+                margin-bottom: 0.25rem;
+                word-wrap: break-word;
+            }
+            .pow-nick-modern { 
+                color: var(--text-300); 
+                font-size: 0.85rem; 
+            }
+            .empty-state-modern { 
+                color: var(--text-300); 
+                padding: 1.5rem 0;
+                text-align: center;
+                font-size: 0.9rem;
+            }
+
+            /* Jogadas da Week - Modernizado */
+            .plays-list-modern { 
+                display: flex; 
+                flex-direction: column; 
+                gap: 0.75rem; 
+            }
+            .play-item-modern { 
+                display: flex; 
+                align-items: center; 
+                gap: 0.75rem; 
+                padding: 0.875rem 1rem; 
+                border-radius: 12px; 
+                background: rgba(255,255,255,0.03); 
+                border: 1px solid rgba(255,255,255,0.06); 
+                transition: all 0.2s ease; 
+            }
+            .play-item-modern:hover { 
+                transform: translateX(4px); 
+                border-color: rgba(0,225,255,0.2); 
+                background: rgba(255,255,255,0.05);
+            }
+            .play-icon-modern { 
+                color: var(--accent-2); 
+                font-size: 1rem;
+                flex-shrink: 0;
+            }
+            .play-text-modern { 
+                color: var(--text-100); 
+                font-size: 0.9rem;
+                flex: 1;
+            }
             
             /* Garantir que títulos dos cards fiquem claros */
             .glass-card .p-card-title,
@@ -580,27 +973,6 @@
                 color: var(--text-300) !important;
             }
             
-            /* Melhorar legibilidade dos cards */
-            .championship-card {
-                transition: all 0.3s ease;
-            }
-            
-            .championship-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 12px 28px rgba(0,0,0,0.5);
-                border-color: rgba(0,225,255,0.2) !important;
-            }
-            
-            .match-card {
-                transition: all 0.3s ease;
-            }
-            
-            .match-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 12px 28px rgba(0,0,0,0.5);
-                border-color: rgba(0,225,255,0.2) !important;
-            }
-
             @keyframes pulse {
                 0% {
                     opacity: 1;
@@ -626,6 +998,15 @@
                 .hero-subtitle {
                     font-size: 1rem;
                 }
+
+                .teams-simple-display {
+                    flex-direction: column;
+                    gap: 0.5rem;
+                }
+
+                .vs-simple {
+                    transform: rotate(90deg);
+                }
             }
             
             @media (max-width: 576px) {
@@ -640,22 +1021,18 @@
                 .hero-subtitle {
                     font-size: 0.9rem;
                 }
-                
-                .championship-info {
-                    grid-template-columns: 1fr;
+
+                .champ-meta-modern {
+                    gap: 0.5rem;
                 }
 
-                .match-body {
-                    flex-direction: column;
-                    gap: 1rem;
+                .modern-championship-card,
+                .modern-match-card {
+                    padding: 1.25rem !important;
                 }
 
-                .match-team {
-                    width: 100%;
-                }
-
-                .match-vs {
-                    margin: 0.5rem 0;
+                .team-name-simple {
+                    font-size: 1rem;
                 }
             }
         </style>

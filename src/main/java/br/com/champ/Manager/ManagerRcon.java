@@ -35,6 +35,11 @@ public class ManagerRcon extends ManagerBase {
     @PostConstruct
     public void init() {
         try {
+            // Se não estiver logado, redireciona imediatamente para página de erro
+            if (!isUsuarioLogado()) {
+                FacesContext.getCurrentInstance().getExternalContext().redirect("error.xhtml");
+                return;
+            }
             // Verifica se usuário é admin
             if (!isAdmin()) {
                 FacesContext.getCurrentInstance().getExternalContext().redirect("login.xhtml");
