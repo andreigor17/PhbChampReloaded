@@ -97,6 +97,13 @@ public class ManagerCriarPlayer extends ManagerBase {
                 cadastrar = true;
                 processSteamReturn();
             }
+            
+            // Verifica se veio da Steam através do ManagerSteamCallback
+            String fromSteam = FacesUtil.getRequestParameter("fromSteam");
+            if (fromSteam != null && !fromSteam.isEmpty()) {
+                cadastrar = true;
+                carregarDadosSteamDaSessao();
+            }
 
 //            if (visualizarPlayerId == null && cadastrarParam == null && redirectSteam == null) {
 //                Mensagem.errorAndRedirect("Você não tem permissão para acessar essa página!", "index.xhtml");
@@ -220,6 +227,18 @@ public class ManagerCriarPlayer extends ManagerBase {
 
     public void salvarPlayer() throws Exception {
 
+        // Validação de campos obrigatórios para novo cadastro
+        if (this.player.getId() == null && cadastrar) {
+            if (this.player.getLogin() == null || this.player.getLogin().trim().isEmpty()) {
+                Mensagem.error("O campo Login é obrigatório para criar uma conta.");
+                return;
+            }
+            if (this.player.getSenha() == null || this.player.getSenha().trim().isEmpty()) {
+                Mensagem.error("O campo Senha é obrigatório para criar uma conta.");
+                return;
+            }
+        }
+
         if ((this.jogos == null || this.jogos.isEmpty()) && jogoServico != null) {
             try {
                 this.jogos = jogoServico.pesquisar();
@@ -239,32 +258,83 @@ public class ManagerCriarPlayer extends ManagerBase {
             }
         }
         this.player.setJogos(selecionados);
+        
         if (this.player.getAnexo() != null && this.player.getAnexo().getId() == null) {
             this.player.setAnexo(anexoServico.salvarAnexo(this.player.getAnexo()));
         }
+        
         if (this.player.getId() == null) {
+            // Novo player - salva senha antes de criptografar
             senhaVo = this.player.getSenha();
-            this.player = playerServico.registrarPlayer(this.player, null, Url.REGISTRAR_PLAYER.getNome());
-            if (cadastrar) {
-                LoginVo loginVo = new LoginVo();
-                loginVo.setLogin(this.player.getLogin());
-                loginVo.setSenha(senhaVo);
-                loginServico.autenticar(loginVo);
-
+            
+            System.err.println("=== DEBUG: Salvando novo player ===");
+            System.err.println("Login: " + this.player.getLogin());
+            System.err.println("Senha preenchida: " + (senhaVo != null && !senhaVo.isEmpty() ? "SIM" : "NÃO"));
+            System.err.println("Nome: " + this.player.getNome());
+            System.err.println("Steam ID: " + this.player.getSteamID());
+            System.err.println("Cadastrar flag: " + cadastrar);
+            
+            try {
+                this.player = playerServico.registrarPlayer(this.player, null, Url.REGISTRAR_PLAYER.getNome());
+                
+                if (this.player != null && this.player.getId() != null) {
+                    if (cadastrar) {
+                        // Faz login automático após cadastro
+                        LoginVo loginVo = new LoginVo();
+                        loginVo.setLogin(this.player.getLogin());
+                        loginVo.setSenha(senhaVo); // Senha em texto plano
+                        
+                        String token = loginServico.autenticar(loginVo);
+                        
+                        if (token != null && !token.trim().isEmpty()) {
+                            System.err.println("Login automático realizado com sucesso!");
+                            Mensagem.successAndRedirect("Conta criada com sucesso! Você já está logado.", "index.xhtml");
+                        } else {
+                            System.err.println("Falha no login automático. Redirecionando para tela de login.");
+                            Mensagem.successAndRedirect("Player salvo com sucesso! Faça login para continuar.", "login.xhtml");
+                        }
+                    } else {
+                        Mensagem.successAndRedirect("Player salvo com sucesso", "jogador.xhtml?id=" + this.player.getId());
+                    }
+                } else {
+                    Mensagem.error("Erro ao salvar o jogador. Tente novamente.");
+                }
+            } catch (Exception e) {
+                System.err.println("Erro ao registrar player: " + e.getMessage());
+                Mensagem.error(e.getMessage());
+                return;
             }
-            Mensagem.successAndRedirect("Player salvo com sucesso", "jogador.xhtml?id=" + this.player.getId());
         } else if (this.player.getId() != null && cadastrar) {
+            // Player já existe, finalizando cadastro (Google/Steam)
             senhaVo = this.player.getSenha();
+            
+            System.err.println("=== DEBUG: Finalizando cadastro de player existente ===");
+            System.err.println("Player ID: " + this.player.getId());
+            System.err.println("Login: " + this.player.getLogin());
+            System.err.println("Senha preenchida: " + (senhaVo != null && !senhaVo.isEmpty() ? "SIM" : "NÃO"));
+            
             this.player = playerServico.registrarPlayer(this.player, null, Url.REGISTRAR_PLAYER_GOOGLE.getNome());
-            if (cadastrar) {
+            
+            if (this.player != null && this.player.getId() != null) {
+                // Faz login automático após finalizar cadastro
                 LoginVo loginVo = new LoginVo();
                 loginVo.setLogin(this.player.getLogin());
-                loginVo.setSenha(senhaVo);
-                loginServico.autenticar(loginVo);
-                Mensagem.successAndRedirect("Player atualizado com sucesso", "jogador.xhtml?id=" + this.player.getId());
-
+                loginVo.setSenha(senhaVo); // Senha em texto plano
+                
+                String token = loginServico.autenticar(loginVo);
+                
+                if (token != null && !token.trim().isEmpty()) {
+                    System.err.println("Login automático realizado com sucesso após finalizar cadastro!");
+                    Mensagem.successAndRedirect("Cadastro finalizado com sucesso! Você já está logado.", "index.xhtml");
+                } else {
+                    System.err.println("Falha no login automático. Redirecionando para tela de login.");
+                    Mensagem.successAndRedirect("Cadastro finalizado com sucesso! Faça login para continuar.", "login.xhtml");
+                }
+            } else {
+                Mensagem.error("Erro ao finalizar o cadastro. Tente novamente.");
             }
         } else {
+            // Atualização de player existente
             this.player = playerServico.save(this.player, this.player.getId(), Url.ATUALIZAR_PLAYER.getNome());
             Mensagem.successAndRedirect("Player atualizado com sucesso", "jogador.xhtml?id=" + this.player.getId());
         }
@@ -498,6 +568,74 @@ public class ManagerCriarPlayer extends ManagerBase {
 
     public void setCadastrar(boolean cadastrar) {
         this.cadastrar = cadastrar;
+    }
+    
+    /**
+     * Carrega os dados da Steam salvos na sessão pelo ManagerSteamCallback
+     */
+    private void carregarDadosSteamDaSessao() {
+        try {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            
+            // Recupera os dados da Steam da sessão
+            PlayerSteamVo playerVo = (PlayerSteamVo) facesContext.getExternalContext()
+                    .getSessionMap().get("steamPlayerData");
+            String steamId64 = (String) facesContext.getExternalContext()
+                    .getSessionMap().get("steamId64");
+            
+            if (playerVo == null || steamId64 == null) {
+                System.err.println("Dados da Steam não encontrados na sessão");
+                return;
+            }
+            
+            System.err.println("Carregando dados da Steam da sessão...");
+            
+            // Preenche os dados do player com as informações da Steam
+            if (playerVo.getPersonaname() != null && !playerVo.getPersonaname().trim().isEmpty()) {
+                this.player.setNick(playerVo.getPersonaname());
+                System.err.println("Nick definido: " + playerVo.getPersonaname());
+            }
+
+            if (playerVo.getRealname() != null && !playerVo.getRealname().trim().isEmpty()) {
+                String[] nomeCompleto = playerVo.getRealname().trim().split(" ", 2);
+                if (nomeCompleto.length > 0) {
+                    this.player.setNome(nomeCompleto[0]);
+                    System.err.println("Nome definido: " + nomeCompleto[0]);
+                }
+                if (nomeCompleto.length > 1) {
+                    this.player.setSobreNome(nomeCompleto[1]);
+                    System.err.println("Sobrenome definido: " + nomeCompleto[1]);
+                }
+            }
+
+            if (playerVo.getSteamid() != null && !playerVo.getSteamid().trim().isEmpty()) {
+                this.player.setSteamID(playerVo.getSteamid());
+                this.player.setSteamId64(steamId64);
+                System.err.println("SteamID definido: " + playerVo.getSteamid());
+            }
+
+            if (playerVo.getProfileurl() != null && !playerVo.getProfileurl().trim().isEmpty()) {
+                this.player.setUrlSteam(playerVo.getProfileurl());
+                System.err.println("URL Steam definida: " + playerVo.getProfileurl());
+            }
+
+            // Baixa e processa o avatar
+            if (playerVo.getAvatarfull() != null && !playerVo.getAvatarfull().trim().isEmpty()) {
+                System.err.println("Baixando avatar da Steam: " + playerVo.getAvatarfull());
+                baixarAvatarSteam(playerVo.getAvatarfull());
+            }
+            
+            // Remove os dados da sessão após usar
+            facesContext.getExternalContext().getSessionMap().remove("steamPlayerData");
+            facesContext.getExternalContext().getSessionMap().remove("steamId64");
+            
+            System.err.println("Dados da Steam carregados com sucesso!");
+            Mensagem.success("Dados da Steam carregados! Complete o cadastro com login e senha.");
+            
+        } catch (Exception e) {
+            System.err.println("Erro ao carregar dados da Steam da sessão: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
 }

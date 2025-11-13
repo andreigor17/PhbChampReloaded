@@ -99,6 +99,11 @@ public class ManagerSteamCallback implements Serializable{
 
             // SE NÃO CONSEGUIU LOGAR - é um novo usuário, redireciona para cadastro
             System.err.println("Novo usuário Steam. Redirecionando para cadastro...");
+            
+            // Salva os dados da Steam na sessão para uso posterior
+            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("steamPlayerData", playerVo);
+            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("steamId64", steamId64);
+            
             redirectToCadastro();
             
         } catch (Exception e) {
@@ -123,7 +128,7 @@ public class ManagerSteamCallback implements Serializable{
     private void redirectToCadastro() {
         try {
             System.err.println("Redirecionando para criarJogador.xhtml...");
-            externalContext.redirect("criarJogador.xhtml?cadastrar=true");
+            externalContext.redirect("criarJogador.xhtml?cadastrar=true&fromSteam=true");
             FacesContext.getCurrentInstance().responseComplete();
         } catch (IOException e) {
             System.err.println("Erro ao redirecionar para cadastro: " + e.getMessage());

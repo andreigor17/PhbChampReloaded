@@ -16,7 +16,11 @@
                 </div>
                 <div class="header-actions">
                     <p:button value="Editar" icon="pi pi-pencil" href="criarJogador.xhtml?id=#{managerPlayer.player.id}" rendered="#{managerPlayer.verificarPermissao()}" styleClass="header-action-btn header-action-btn--primary" />
-                    <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="header-action-btn header-action-btn--danger" rendered="#{managerPlayer.verificarPermissao()}"/>
+                    <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="header-action-btn header-action-btn--danger" 
+                                     rendered="#{managerPlayer.isUsuarioLogado() and managerPlayer.isAdmin()}"
+                                     action="#{managerPlayer.removerPlayer()}"
+                                     onclick="if(confirm('Tem certeza que deseja excluir este jogador?')) { return true; } else { return false; }"
+                                     update="@form"/>
                 </div>
             </div>
 

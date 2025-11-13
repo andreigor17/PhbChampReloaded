@@ -6,23 +6,24 @@
                 template="vercel.xhtml">
 
     <ui:define name="content">
-        <div class="section-header">
-            <div>
-                <p:link outcome="/jogadores" styleClass="mb-3 d-block header-back-link">
-                    <i class="pi pi-arrow-left mr-2"></i>Voltar para Jogadores
-                </p:link>
-                <h1 class="section-title">Cadastrar Jogador</h1>
-                <p class="section-description">Preencha as informações para criar ou atualizar um perfil de jogador.</p>
+        <h:form id="headerForm">
+            <div class="section-header">
+                <div>
+                    <p:link outcome="/jogadores" styleClass="mb-3 d-block header-back-link">
+                        <i class="pi pi-arrow-left mr-2"></i>Voltar para Jogadores
+                    </p:link>
+                    <h1 class="section-title">Cadastrar Jogador</h1>
+                    <p class="section-description">Preencha as informações para criar ou atualizar um perfil de jogador.</p>
+                </div>
             </div>
-        </div>
+        </h:form>
 
-        <p:card styleClass="glass-card player-card">
-            <h:form id="playerForm" enctype="multipart/form-data">
-                <p:growl id="messages" showDetail="false"/>
+        <h:form id="playerForm" enctype="multipart/form-data">
+            <p:card styleClass="glass-card player-card">
                 <p:remoteCommand name="atualizarImagem" update="playerPhotoPanel uploadPanel"/>
 
                 <div class="grid player-grid">
-                    <div class="col-12 md:col-4">
+                    <div class="col-12 lg:col-3">
                         <p:panel styleClass="glass-panel mb-3">
                             <f:facet name="header">
                                 <div class="section-card-title">
@@ -64,7 +65,7 @@
                         </p:panel>
                     </div>
 
-                    <div class="col-12 md:col-8">
+                    <div class="col-12 lg:col-9">
                         <p:panel styleClass="glass-panel mb-3">
                             <f:facet name="header">
                                 <div class="section-card-title">
@@ -76,22 +77,22 @@
                                 <div class="field col-12 md:col-6">
                                     <p:outputLabel for="nome" value="Nome"/>
                                     <p:inputText id="nome" value="#{managerCriarPlayer.p.nome}" />
-                                    <p:message for="nome"/>
+                                    
                                 </div>
                                 <div class="field col-12 md:col-6">
                                     <p:outputLabel for="sobrenome" value="Sobrenome"/>
                                     <p:inputText id="sobrenome" value="#{managerCriarPlayer.p.sobreNome}"/>
-                                    <p:message for="sobrenome"/>
+                                   
                                 </div>
                                 <div class="field col-12 md:col-6">
                                     <p:outputLabel for="nick" value="Nickname"/>
                                     <p:inputText id="nick" value="#{managerCriarPlayer.p.nick}"/>
-                                    <p:message for="nick"/>
+                                    
                                 </div>
                                 <div class="field col-12 md:col-6">
                                     <p:outputLabel for="email" value="E-mail"/>
                                     <p:inputText id="email" value="#{managerCriarPlayer.p.email}"/>
-                                    <p:message for="email"/>
+                                    
                                 </div>
                             </div>
                         </p:panel>
@@ -106,16 +107,29 @@
                                     <span class="title-text">Informações de conta</span>
                                 </div>
                             </f:facet>
+                            
+                            <div class="info-box" rendered="#{managerCriarPlayer.cadastrar}">
+                                <i class="pi pi-info-circle"></i>
+                                <span>Após criar sua conta, você será automaticamente conectado ao sistema.</span>
+                            </div>
+                            
                             <div class="formgrid grid">
                                 <div class="field col-12 md:col-6">
-                                    <p:outputLabel for="login" value="Login"/>
-                                    <p:inputText id="login" value="#{managerCriarPlayer.p.login}"/>
+                                    <p:outputLabel for="login" value="Login *"/>
+                                    <p:inputText id="login" 
+                                                 value="#{managerCriarPlayer.p.login}"
+                                                 required="#{managerCriarPlayer.cadastrar}"
+                                                 requiredMessage="O campo Login é obrigatório"/>
                                     <p:message for="login"/>
                                 </div>
                                 <div class="field col-12 md:col-6">
-                                    <p:outputLabel for="senha" value="Senha"/>
-                                    <p:password id="senha" value="#{managerCriarPlayer.p.senha}"
-                                                feedback="true" toggleMask="true"/>
+                                    <p:outputLabel for="senha" value="Senha *"/>
+                                    <p:password id="senha" 
+                                                value="#{managerCriarPlayer.p.senha}"
+                                                required="#{managerCriarPlayer.cadastrar}"
+                                                requiredMessage="O campo Senha é obrigatório"
+                                                feedback="true" 
+                                                toggleMask="true"/>
                                     <p:message for="senha"/>
                                 </div>
                             </div>
@@ -134,19 +148,19 @@
                                 <div class="field col-12">
                                     <p:outputLabel for="steamID" value="Steam ID"/>
                                     <p:inputText id="steamID" value="#{managerCriarPlayer.p.steamID}"/>
-                                    <p:message for="steamID"/>
+                                    
                                 </div>
                                 <div class="field col-12">
                                     <p:outputLabel for="urlSteam" value="URL do perfil Steam"/>
                                     <p:inputText id="urlSteam" value="#{managerCriarPlayer.p.urlSteam}"/>
-                                    <p:message for="urlSteam"/>
+                                    
                                 </div>
                             </div>
                         </p:panel>
                     </div>
 
                     <div class="col-12 md:col-6">
-                        <p:panel styleClass="glass-panel mb-3">
+                        <p:panel styleClass="glass-panel glass-panel-games mb-3">
                             <f:facet name="header">
                                 <div class="section-card-title">
                                     <i class="pi pi-gamepad"></i>
@@ -154,44 +168,18 @@
                                 </div>
                             </f:facet>
                             <div class="field">
-                                <p:outputLabel for="jogosMenu" value="Selecione os jogos"/>
-                                <p:selectCheckboxMenu id="jogosMenu"
-                                                      value="#{managerCriarPlayer.jogosSelecionadosIds}"
-                                                      label="Escolher jogos"
-                                                      filter="true"
-                                                      filterMatchMode="contains"
-                                                      scrollHeight="200"
-                                                      styleClass="game-select"
-                                                      panelStyleClass="game-select-panel">
-                                    <f:selectItems value="#{managerCriarPlayer.jogos}"
-                                                   var="jogo"
-                                                   itemLabel="#{jogo.nome}"
-                                                   itemValue="#{jogo.id}"/>
-                                </p:selectCheckboxMenu>
-                            </div>
-                        </p:panel>
-                    </div>
-
-                    <div class="col-12" rendered="#{managerCriarPlayer.p.urlSteam eq null}">
-                        <p:panel styleClass="glass-panel mb-3" toggleable="true" toggleSpeed="400" collapsed="true">
-                            <f:facet name="header">
-                                <div class="section-card-title">
-                                    <i class="pi pi-cloud-download"></i>
-                                    <span class="title-text">Importar dados</span>
-                                </div>
-                            </f:facet>
-                            <div class="formgrid grid">
-                                <div class="col-12 md:col-6">
-                                    <p:commandButton value="Importar da Steam"
-                                                     icon="pi pi-steam"
-                                                     styleClass="action-btn action-btn--outline"
-                                                     type="button" />
-                                </div>
-                                <div class="col-12 md:col-6">
-                                    <p:commandButton value="Importar do Google"
-                                                     icon="pi pi-google"
-                                                     styleClass="action-btn action-btn--outline"
-                                                     type="button" />
+                                <p:outputLabel for="jogosCheckbox" value="Selecione os jogos" styleClass="mb-3"/>
+                                <div class="games-checkbox-container">
+                                    <p:selectManyCheckbox id="jogosCheckbox"
+                                                          value="#{managerCriarPlayer.jogosSelecionadosIds}"
+                                                          layout="grid"
+                                                          columns="1"
+                                                          styleClass="games-checkbox-list">
+                                        <f:selectItems value="#{managerCriarPlayer.jogos}"
+                                                       var="jogo"
+                                                       itemLabel="#{jogo.nome}"
+                                                       itemValue="#{jogo.id}"/>
+                                    </p:selectManyCheckbox>
                                 </div>
                             </div>
                         </p:panel>
@@ -210,8 +198,8 @@
                                      styleClass="action-btn action-btn--primary"
                                      actionListener="#{managerCriarPlayer.salvarPlayer}"/>
                 </div>
-            </h:form>
-        </p:card>
+            </p:card>
+        </h:form>
 
         <style type="text/css">
             .section-description {
@@ -233,12 +221,29 @@
                 border-radius: 16px !important;
                 box-shadow: var(--surface-shadow) !important;
             }
+            
+            /* Títulos dos painéis */
+            .glass-panel .section-card-title {
+                display: flex;
+                align-items: center;
+                gap: 0.6rem;
+            }
+            
+            .glass-panel .section-card-title .title-text {
+                font-size: 1rem;
+                font-weight: 600;
+                letter-spacing: 0.3px;
+            }
+            
+            .glass-panel .section-card-title i {
+                font-size: 1.1rem;
+            }
 
             .player-photo-container {
                 position: relative;
                 width: 100%;
-                padding-top: 100%;
-                border-radius: 18px;
+                padding-top: 75%;
+                border-radius: 16px;
                 overflow: hidden;
                 border: 1px dashed rgba(255,255,255,0.12);
                 background: rgba(255,255,255,0.03);
@@ -267,8 +272,13 @@
             }
 
             .player-photo-placeholder i {
-                font-size: 2.6rem;
+                font-size: 2.2rem;
                 color: var(--accent);
+            }
+            
+            .player-photo-placeholder span {
+                font-size: 0.85rem;
+                line-height: 1.4;
             }
 
             .photo-actions {
@@ -297,26 +307,96 @@
 
             .glass-panel .field label {
                 display: block;
-                margin-bottom: .35rem;
-                font-size: .82rem;
+                margin-bottom: .6rem;
+                font-size: .875rem;
                 text-transform: uppercase;
                 letter-spacing: .5px;
                 color: var(--text-300);
                 font-weight: 600;
             }
 
+            /* Todos os campos de input */
             .glass-panel .p-inputtext,
-            .glass-panel .p-password input {
+            .glass-panel .p-password input,
+            .glass-panel input[type="text"],
+            .glass-panel input[type="email"],
+            .glass-panel input[type="password"] {
                 background: rgba(255,255,255,0.03) !important;
                 border: 1px solid rgba(255,255,255,0.08) !important;
                 color: var(--text-100) !important;
                 border-radius: 12px !important;
+                font-size: 1rem !important;
+                padding: 0.85rem 1.1rem !important;
+                line-height: 1.5 !important;
+                min-height: 46px !important;
+                width: 100% !important;
+            }
+
+            /* Placeholder dos inputs */
+            .glass-panel .p-inputtext::placeholder,
+            .glass-panel input::placeholder {
+                color: var(--text-300) !important;
+                opacity: 0.6;
+                font-size: 1rem !important;
             }
 
             .glass-panel .p-inputtext:focus,
-            .glass-panel .p-password input:focus {
+            .glass-panel .p-password input:focus,
+            .glass-panel input:focus {
                 border-color: rgba(0,225,255,0.35) !important;
-                box-shadow: 0 0 0 1px rgba(0,225,255,0.18), 0 0 12px rgba(0,225,255,0.08);
+                box-shadow: 0 0 0 1px rgba(0,225,255,0.18), 0 0 12px rgba(0,225,255,0.08) !important;
+                outline: none !important;
+            }
+            
+            .glass-panel .p-password {
+                width: 100%;
+            }
+            
+            /* Container do campo de senha */
+            .glass-panel .p-password {
+                display: flex;
+                align-items: center;
+            }
+            
+            .glass-panel .p-password input {
+                flex: 1;
+            }
+            
+            .glass-panel .p-password .p-password-toggle-icon,
+            .glass-panel .p-password button {
+                color: var(--text-300) !important;
+                background: transparent !important;
+                border: none !important;
+                padding: 0 0.5rem !important;
+                cursor: pointer;
+            }
+            
+            .glass-panel .p-password button:hover {
+                color: var(--accent) !important;
+            }
+            
+            /* Campos específicos da Steam com fonte mono */
+            .glass-panel .p-inputtext[id*="steamID"],
+            .glass-panel .p-inputtext[id*="urlSteam"],
+            .glass-panel input[id*="steamID"],
+            .glass-panel input[id*="urlSteam"] {
+                font-family: 'Courier New', 'Consolas', monospace !important;
+                letter-spacing: 0.3px !important;
+            }
+            
+            .glass-panel .section-card-title .pi-steam,
+            .glass-panel .section-card-title .pi-gamepad {
+                background: linear-gradient(135deg, rgba(0,225,255,0.15), rgba(0,225,255,0.08));
+                padding: 0.4rem;
+                border-radius: 8px;
+                margin-right: 0.5rem;
+            }
+            
+            .glass-panel .section-card-title .pi-lock {
+                background: linear-gradient(135deg, rgba(255,138,61,0.15), rgba(255,138,61,0.08));
+                padding: 0.4rem;
+                border-radius: 8px;
+                margin-right: 0.5rem;
             }
 
             .color-picker-wrapper {
@@ -364,23 +444,155 @@
                 font-size: .75rem;
             }
 
-            .game-select .p-selectcheckboxmenu {
-                width: 100%;
+            /* Container da lista de jogos */
+            .glass-panel-games {
+                max-height: 520px;
+                display: flex;
+                flex-direction: column;
             }
-
-            .game-select .p-selectcheckboxmenu-label {
-                background: rgba(255,255,255,0.03);
-                border: 1px solid rgba(255,255,255,0.08);
+            
+            .glass-panel-games .ui-panel-content {
+                max-height: 420px;
+                overflow-y: auto;
+            }
+            
+            .games-checkbox-container {
+                background: rgba(255,255,255,0.02);
+                border: 1px solid rgba(255,255,255,0.06);
                 border-radius: 12px;
-                padding: .65rem 1rem;
-                color: var(--text-100);
-                font-weight: 600;
-                letter-spacing: .3px;
+                padding: 0.5rem;
+                max-height: 380px;
+                overflow-y: auto;
+            }
+            
+            /* Scrollbar customizada */
+            .games-checkbox-container::-webkit-scrollbar {
+                width: 8px;
+            }
+            
+            .games-checkbox-container::-webkit-scrollbar-track {
+                background: rgba(255,255,255,0.03);
+                border-radius: 8px;
+            }
+            
+            .games-checkbox-container::-webkit-scrollbar-thumb {
+                background: rgba(0,225,255,0.2);
+                border-radius: 8px;
+            }
+            
+            .games-checkbox-container::-webkit-scrollbar-thumb:hover {
+                background: rgba(0,225,255,0.35);
             }
 
-            .game-select-panel {
-                background: linear-gradient(180deg, var(--bg-800), var(--bg-900));
-                border: 1px solid rgba(255,255,255,0.08);
+            /* Lista de checkboxes */
+            .games-checkbox-list {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0.35rem !important;
+            }
+            
+            .games-checkbox-list .ui-grid-row,
+            .games-checkbox-list .p-grid > div {
+                display: flex !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            .games-checkbox-list .ui-grid-col-12,
+            .games-checkbox-list .p-col-12 {
+                width: 100% !important;
+                padding: 0 !important;
+            }
+
+            /* Item da lista - compatível com ui-* e p-* */
+            .games-checkbox-list .ui-chkbox,
+            .games-checkbox-list .p-checkbox {
+                display: flex !important;
+                align-items: center !important;
+                width: 100% !important;
+                padding: 0.7rem 0.85rem !important;
+                background: rgba(255,255,255,0.03) !important;
+                border: 1px solid rgba(255,255,255,0.06) !important;
+                border-radius: 10px !important;
+                transition: all 0.25s ease !important;
+                cursor: pointer !important;
+            }
+            
+            .games-checkbox-list .ui-chkbox:hover,
+            .games-checkbox-list .p-checkbox:hover {
+                background: rgba(0,225,255,0.06) !important;
+                border-color: rgba(0,225,255,0.15) !important;
+                transform: translateX(4px);
+            }
+
+            /* Checkbox box */
+            .games-checkbox-list .ui-chkbox-box,
+            .games-checkbox-list .p-checkbox-box {
+                width: 22px !important;
+                height: 22px !important;
+                background: rgba(255,255,255,0.05) !important;
+                border: 2px solid rgba(255,255,255,0.15) !important;
+                border-radius: 7px !important;
+                margin-right: 0.75rem !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                transition: all 0.25s ease !important;
+                flex-shrink: 0 !important;
+            }
+            
+            .games-checkbox-list .ui-chkbox:hover .ui-chkbox-box,
+            .games-checkbox-list .p-checkbox:hover .p-checkbox-box {
+                border-color: rgba(0,225,255,0.4) !important;
+                background: rgba(0,225,255,0.08) !important;
+            }
+
+            /* Checkbox marcado */
+            .games-checkbox-list .ui-chkbox-box.ui-state-active,
+            .games-checkbox-list .p-checkbox-box.p-highlight {
+                background: linear-gradient(135deg, var(--accent), #0099cc) !important;
+                border-color: var(--accent) !important;
+                box-shadow: 0 0 0 3px rgba(0,225,255,0.15),
+                            0 4px 12px rgba(0,225,255,0.25) !important;
+            }
+            
+            .games-checkbox-list .ui-chkbox:hover .ui-chkbox-box.ui-state-active,
+            .games-checkbox-list .p-checkbox:hover .p-checkbox-box.p-highlight {
+                background: linear-gradient(135deg, #00d4ff, var(--accent)) !important;
+                box-shadow: 0 0 0 3px rgba(0,225,255,0.2),
+                            0 6px 16px rgba(0,225,255,0.35) !important;
+            }
+
+            /* Ícone do check */
+            .games-checkbox-list .ui-chkbox-icon,
+            .games-checkbox-list .p-checkbox-icon {
+                color: white !important;
+                font-size: 0.85rem !important;
+                font-weight: 900 !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            }
+
+            /* Label do checkbox */
+            .games-checkbox-list .ui-chkbox-label,
+            .games-checkbox-list label {
+                color: var(--text-200) !important;
+                font-size: 0.95rem !important;
+                font-weight: 500 !important;
+                letter-spacing: 0.3px;
+                transition: all 0.25s ease !important;
+                cursor: pointer !important;
+            }
+            
+            .games-checkbox-list .ui-chkbox:hover .ui-chkbox-label,
+            .games-checkbox-list .p-checkbox:hover label {
+                color: var(--text-100) !important;
+            }
+            
+            .games-checkbox-list .ui-chkbox-box.ui-state-active ~ .ui-chkbox-label,
+            .games-checkbox-list .p-checkbox-box.p-highlight ~ label {
+                color: var(--accent) !important;
+                font-weight: 600 !important;
             }
 
             .selected-games {
@@ -414,9 +626,11 @@
                 align-items: center;
                 gap: .5rem;
                 border-radius: 12px !important;
-                padding: .65rem 1.5rem !important;
+                padding: 0.75rem 1.8rem !important;
                 font-weight: 600 !important;
+                font-size: 0.95rem !important;
                 letter-spacing: .4px;
+                min-height: 46px;
             }
 
             .action-btn--primary {
@@ -438,6 +652,50 @@
 
             .action-btn--outline:hover {
                 background: rgba(255,255,255,0.06) !important;
+            }
+            
+            /* Mensagens inline dos campos */
+            .ui-message,
+            .p-message {
+                margin-top: 0.4rem !important;
+                font-size: 0.85rem !important;
+                color: #fca5a5 !important;
+            }
+            
+            .ui-message-error-detail,
+            .p-message-detail {
+                font-weight: 500 !important;
+            }
+            
+            /* Label com asterisco obrigatório */
+            .glass-panel .field label:has(+ *[required])::after,
+            .glass-panel .field label:contains("*") {
+                color: #ef4444;
+            }
+            
+            /* Info box - mensagem informativa */
+            .info-box {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 1rem 1.25rem;
+                background: linear-gradient(135deg, rgba(0,225,255,0.12), rgba(0,225,255,0.06)) !important;
+                border: 1px solid rgba(0,225,255,0.25) !important;
+                border-radius: 12px;
+                margin-bottom: 1.5rem;
+                color: var(--text-100);
+                font-size: 0.95rem;
+                line-height: 1.5;
+            }
+            
+            .info-box i {
+                font-size: 1.3rem;
+                color: var(--accent);
+                flex-shrink: 0;
+            }
+            
+            .info-box span {
+                flex: 1;
             }
 
             @media (max-width: 768px) {

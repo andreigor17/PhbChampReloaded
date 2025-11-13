@@ -361,8 +361,14 @@ public class ManagerPlayer extends ManagerBase {
     }
 
     public void removerPlayer() throws Exception {
+        // Validação de segurança: apenas admin pode excluir
+        if (!isUsuarioLogado() || !isAdmin()) {
+            Mensagem.warn("Apenas administradores podem excluir jogadores.");
+            return;
+        }
+        
         this.playerServico.delete(this.player, Url.APAGAR_PLAYER.getNome());
-        Mensagem.successAndRedirect("pesquisarPlayer.xhtml");
+        Mensagem.successAndRedirect("Jogador excluído com sucesso!", "jogadores.xhtml");
         init();
     }
 

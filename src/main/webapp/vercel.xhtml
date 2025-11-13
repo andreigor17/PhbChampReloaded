@@ -642,7 +642,9 @@
             <p:button value="Meu Perfil" icon="pi pi-id-card" styleClass="nav-action-btn nav-action-btn--primary" outcome="jogador.xhtml" rendered="#{managerPrincipal.isUsuarioLogado()}">
                 <f:param name="id" value="#{managerPrincipal.playerLogado.id}" />
             </p:button>
-            <p:commandButton value="Deslogar" icon="pi pi-sign-out" styleClass="nav-action-btn nav-action-btn--danger" rendered="#{managerPrincipal.isUsuarioLogado()}" action="#{managerPrincipal.sair}" />
+            <h:form rendered="#{managerPrincipal.isUsuarioLogado()}" style="display: inline-block; margin: 0;">
+                <p:commandButton value="Deslogar" icon="pi pi-sign-out" styleClass="nav-action-btn nav-action-btn--danger" action="#{managerPrincipal.sair}" process="@this" update="@none" />
+            </h:form>
         </div>
     </header>
 
