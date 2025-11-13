@@ -8,149 +8,691 @@
     <ui:define name="content">
         <div class="section-header">
             <h1 class="section-title">Campeonatos</h1>
-            <p:commandButton value="Novo Campeonato" icon="pi pi-plus" styleClass="p-button-primary" />
+            <h:link outcome="criarCampeonato.xhtml" 
+                    styleClass="btn-primary nav-action-btn" 
+                    rendered="#{managerPrincipal.isUsuarioLogado() and managerPrincipal.isAdmin()}">
+                <i class="pi pi-plus"></i>
+                <span>Novo Campeonato</span>
+            </h:link>
         </div>
 
-        <!-- Filtros -->
-        <p:panel styleClass="filters" header="Filtros">
-            <h:form id="filterForm">
-                <div class="filters-form">
-                    <div class="form-group">
-                        <p:inputText placeholder="Buscar campeonato..." styleClass="w-100" />
+        <p:card styleClass="glass-card">
+            <h:form id="campeonatosForm">
+                <!-- Filtros em linha -->
+                <div class="filter-grid">
+                    <!-- Busca por nome -->
+                    <div class="filter-field">
+                        <label class="filter-label">
+                            <i class="pi pi-search"></i>
+                            <span>Nome do Campeonato</span>
+                        </label>
+                        <p:inputText id="filtroNome"
+                                     placeholder="Digite o nome..."
+                                     styleClass="filter-input"
+                                     value="#{managerCamp.camp.nome}">
+                            <p:ajax event="keyup"
+                                    listener="#{managerCamp.pesquisarCamp()}"
+                                    update="campeonatosGrid"
+                                    delay="500"
+                                    global="false" />
+                        </p:inputText>
                     </div>
-                    <div class="form-group">
-                        <p:selectOneMenu styleClass="w-100">
-                            <f:selectItem itemLabel="Filtrar por esporte" itemValue="" />
-                            <f:selectItem itemLabel="Futebol" itemValue="futebol" />
-                            <f:selectItem itemLabel="Basquete" itemValue="basquete" />
-                            <f:selectItem itemLabel="Vôlei" itemValue="volei" />
-                            <f:selectItem itemLabel="League of Legends" itemValue="lol" />
-                        </p:selectOneMenu>
+
+                    <!-- Filtro por data -->
+                    <div class="filter-field">
+                        <label class="filter-label">
+                            <i class="pi pi-calendar"></i>
+                            <span>Data de Início</span>
+                        </label>
+                        <p:calendar id="filtroData"
+                                    value="#{managerCamp.camp.dataCamp}"
+                                    pattern="dd/MM/yyyy"
+                                    placeholder="Selecione a data"
+                                    inputStyleClass="filter-input"
+                                    showIcon="false"
+                                    locale="pt_BR">
+                            <p:ajax event="dateSelect"
+                                    listener="#{managerCamp.pesquisarCamp()}"
+                                    update="campeonatosGrid"
+                                    global="false" />
+                        </p:calendar>
                     </div>
-                    <div class="form-group">
-                        <p:selectOneMenu styleClass="w-100">
-                            <f:selectItem itemLabel="Status" itemValue="" />
-                            <f:selectItem itemLabel="Em andamento" itemValue="em_andamento" />
-                            <f:selectItem itemLabel="Inscrições abertas" itemValue="inscricoes_abertas" />
-                            <f:selectItem itemLabel="Concluído" itemValue="concluido" />
-                        </p:selectOneMenu>
+
+                    <!-- Filtro por jogo -->
+                    <div class="filter-field filter-field-checkbox">
+                        <label class="filter-label">
+                            <i class="pi pi-gamepad"></i>
+                            <span>Jogos</span>
+                        </label>
+                        <div class="filter-checkbox-container">
+                            <p:selectManyCheckbox id="filtroJogos"
+                                                  value="#{managerCamp.jogosSelecionados}"
+                                                  layout="grid"
+                                                  columns="3">
+                                <f:selectItems value="#{managerCamp.jogos}"
+                                               var="jogo"
+                                               itemLabel="#{jogo.nome}"
+                                               itemValue="#{jogo.id}" />
+                                <p:ajax event="change"
+                                        listener="#{managerCamp.pesquisarCamp()}"
+                                        update="campeonatosGrid"
+                                        global="false"
+                                        process="@this" />
+                            </p:selectManyCheckbox>
+                        </div>
+                    </div>
+
+                    <!-- Botão limpar -->
+                    <div class="filter-field">
+                        <label class="filter-label filter-label-empty">
+                            <span></span>
+                        </label>
+                        <p:commandButton value="Limpar Filtros"
+                                         icon="pi pi-times"
+                                         styleClass="clear-btn"
+                                         action="#{managerCamp.limpar()}"
+                                         update="@form"
+                                         process="@this" />
                     </div>
                 </div>
+
+                <!-- Lista de campeonatos -->
+                <h:panelGroup id="campeonatosGrid">
+                    <div class="tournaments-grid">
+                        <ui:repeat value="#{managerCamp.camps}" var="campeonato">
+                            <div class="tournament-card">
+                                <div class="tournament-header">
+                                    <div>
+                                        <h3 class="tournament-title">#{campeonato.nome}</h3>
+                                    </div>
+                                    <span class="tournament-status #{campeonato.status.nome eq 'EM_ANDAMENTO' ? 'in-progress' : (campeonato.status.nome eq 'INSCRICOES_ABERTAS' ? 'open' : 'completed')}">
+                                        <h:outputText value="Em andamento" rendered="#{campeonato.status.nome eq 'EM_ANDAMENTO'}" />
+                                        <h:outputText value="Inscrições abertas" rendered="#{campeonato.status.nome eq 'INSCRICOES_ABERTAS'}" />
+                                        <h:outputText value="Concluído" rendered="#{campeonato.status.nome eq 'CONCLUIDO'}" />
+                                        <h:outputText value="Aguardando" rendered="#{campeonato.status.nome eq 'AGUARDANDO'}" />
+                                    </span>
+                                </div>
+                                <div class="tournament-body">
+                                    <div class="tournament-info">
+                                        <div class="info-item">
+                                            <span class="info-label">Jogo:</span>
+                                            <span class="info-value">#{campeonato.jogo != null ? campeonato.jogo.nome : 'Não definido'}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Tipo:</span>
+                                            <span class="info-value">#{campeonato.tipoCampeonato != null ? campeonato.tipoCampeonato.nome : 'Não definido'}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Categoria:</span>
+                                            <span class="info-value">#{campeonato.categoria != null ? campeonato.categoria.nome : 'Não definido'}</span>
+                                        </div>
+                                    </div>
+                                    <div class="tournament-info">
+                                        <div class="info-item">
+                                            <i class="pi pi-users mr-2"></i>
+                                            <span class="info-value">#{managerCamp.getTimesConfirmados(campeonato)} times</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <i class="pi pi-calendar mr-2"></i>
+                                            <span class="info-value">#{managerCamp.formataData(campeonato.dataCamp)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tournament-footer">
+                                    <div class="tournament-actions">
+                                        <h:link outcome="visualizarCampeonato.xhtml" styleClass="btn-outlined">
+                                            <f:param name="id" value="#{campeonato.id}" />
+                                            <i class="pi pi-eye"></i>
+                                            <span>Ver detalhes</span>
+                                        </h:link>
+                                        <h:link outcome="editarCampeonato.xhtml" 
+                                                styleClass="btn-outlined"
+                                                rendered="#{managerPrincipal.isUsuarioLogado() and managerPrincipal.isAdmin()}">
+                                            <f:param name="id" value="#{campeonato.id}" />
+                                            <i class="pi pi-pencil"></i>
+                                            <span>Gerenciar</span>
+                                        </h:link>
+                                    </div>
+                                </div>
+                            </div>
+                        </ui:repeat>
+                        
+                        <!-- Mensagem quando não houver campeonatos -->
+                        <h:panelGroup rendered="#{empty managerCamp.camps}">
+                            <div class="empty-state">
+                                <i class="pi pi-trophy"></i>
+                                <h3>Nenhum campeonato encontrado</h3>
+                                <p>Não há campeonatos cadastrados no momento.</p>
+                                <h:link outcome="criarCampeonato.xhtml" 
+                                        styleClass="btn-primary"
+                                        rendered="#{managerPrincipal.isUsuarioLogado() and managerPrincipal.isAdmin()}">
+                                    <i class="pi pi-plus"></i>
+                                    <span>Criar Primeiro Campeonato</span>
+                                </h:link>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                </h:panelGroup>
             </h:form>
-        </p:panel>
+        </p:card>
 
-        <!-- Lista de campeonatos -->
-        <div class="tournaments-grid">
-            <p:card styleClass="tournament-card">
-                <f:facet name="header">
-                    <div class="tournament-header">
-                        <div>
-                            <h3 class="tournament-title">Copa de Futebol 2023</h3>
-                        </div>
-                        <span class="tournament-status in-progress">Em andamento</span>
-                    </div>
-                </f:facet>
-                <div class="tournament-info">
-                    <div class="info-item">
-                        <span>Esporte:</span>
-                        <span>Futebol</span>
-                    </div>
-                    <div class="info-item">
-                        <span>Formato:</span>
-                        <span>Eliminatórias</span>
-                    </div>
-                </div>
-                <div class="tournament-info">
-                    <div class="info-item">
-                        <i class="pi pi-users mr-2"></i>
-                        <span>16 times</span>
-                    </div>
-                    <div class="info-item">
-                        <i class="pi pi-calendar mr-2"></i>
-                        <span>10/03/2023</span>
-                    </div>
-                </div>
-                <f:facet name="footer">
-                    <div class="tournament-actions">
-                        <p:button value="Ver detalhes" styleClass="p-button-outlined" />
-                        <p:button value="Gerenciar" styleClass="p-button-outlined" />
-                    </div>
-                </f:facet>
-            </p:card>
+        <style type="text/css">
+            /* Section Header */
+            .section-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.5rem;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
             
-            <p:card styleClass="tournament-card">
-                <f:facet name="header">
-                    <div class="tournament-header">
-                        <div>
-                            <h3 class="tournament-title">Torneio de Basquete</h3>
-                        </div>
-                        <span class="tournament-status open">Inscrições abertas</span>
-                    </div>
-                </f:facet>
-                <div class="tournament-info">
-                    <div class="info-item">
-                        <span>Esporte:</span>
-                        <span>Basquete</span>
-                    </div>
-                    <div class="info-item">
-                        <span>Formato:</span>
-                        <span>Grupos + Eliminatórias</span>
-                    </div>
-                </div>
-                <div class="tournament-info">
-                    <div class="info-item">
-                        <i class="pi pi-users mr-2"></i>
-                        <span>8 times</span>
-                    </div>
-                    <div class="info-item">
-                        <i class="pi pi-calendar mr-2"></i>
-                        <span>05/05/2023</span>
-                    </div>
-                </div>
-                <f:facet name="footer">
-                    <div class="tournament-actions">
-                        <p:button value="Ver detalhes" styleClass="p-button-outlined" />
-                        <p:button value="Gerenciar" styleClass="p-button-outlined" />
-                    </div>
-                </f:facet>
-            </p:card>
+            .section-title {
+                margin: 0;
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: var(--text-100);
+                letter-spacing: 0.3px;
+            }
             
-            <p:card styleClass="tournament-card">
-                <f:facet name="header">
-                    <div class="tournament-header">
-                        <div>
-                            <h3 class="tournament-title">Liga de eSports</h3>
-                        </div>
-                        <span class="tournament-status in-progress">Em andamento</span>
-                    </div>
-                </f:facet>
-                <div class="tournament-info">
-                    <div class="info-item">
-                        <span>Esporte:</span>
-                        <span>League of Legends</span>
-                    </div>
-                    <div class="info-item">
-                        <span>Formato:</span>
-                        <span>Liga (pontos corridos)</span>
-                    </div>
-                </div>
-                <div class="tournament-info">
-                    <div class="info-item">
-                        <i class="pi pi-users mr-2"></i>
-                        <span>12 times</span>
-                    </div>
-                    <div class="info-item">
-                        <i class="pi pi-calendar mr-2"></i>
-                        <span>01/02/2023</span>
-                    </div>
-                </div>
-                <f:facet name="footer">
-                    <div class="tournament-actions">
-                        <p:button value="Ver detalhes" styleClass="p-button-outlined" />
-                        <p:button value="Gerenciar" styleClass="p-button-outlined" />
-                    </div>
-                </f:facet>
-            </p:card>
-        </div>
+            /* Card padding - mais espaço no topo */
+            .glass-card .ui-card-body,
+            .glass-card .p-card-body {
+                padding: 1.75rem 1.5rem !important;
+            }
+            
+            /* Filter Grid - seguindo padrão das outras telas */
+            .filter-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr) 1.5fr auto;
+                gap: 1.5rem 1rem;
+                margin-bottom: 1.5rem;
+                margin-top: 0.5rem;
+            }
+            
+            /* Filter Field Container */
+            .filter-field {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            /* Filter Labels - seguindo padrão do sistema */
+            .filter-label {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: var(--text-200) !important;
+                margin: 0;
+                padding: 0;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                line-height: 1.2;
+            }
+            
+            .filter-label i {
+                color: var(--accent);
+                font-size: 0.875rem;
+                flex-shrink: 0;
+            }
+            
+            .filter-label span {
+                color: inherit;
+            }
+            
+            .filter-label-empty {
+                visibility: hidden;
+                height: 1.2rem;
+            }
+            
+            /* Input Fields - sem ícones dentro, apenas na label */
+            .filter-input,
+            .filter-input.ui-inputfield,
+            .ui-inputfield.filter-input {
+                width: 100% !important;
+                background: rgba(255,255,255,0.05) !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                color: var(--text-100) !important;
+                font-size: 0.95rem !important;
+                padding: 0.75rem 1rem !important;
+                transition: all 0.2s ease !important;
+                min-height: 46px;
+                box-sizing: border-box;
+                border-radius: 10px !important;
+            }
+            
+            .filter-input:hover,
+            .filter-input:focus,
+            .ui-inputfield.filter-input:hover,
+            .ui-inputfield.filter-input:focus {
+                background: rgba(255,255,255,0.08) !important;
+                border-color: rgba(255,255,255,0.2) !important;
+            }
+            
+            .filter-input:focus,
+            .ui-inputfield.filter-input:focus {
+                border-color: var(--accent) !important;
+                box-shadow: 0 0 0 3px rgba(0,225,255,0.15) !important;
+                outline: none !important;
+            }
+            
+            .filter-input::placeholder,
+            .ui-inputfield.filter-input::placeholder {
+                color: var(--text-300) !important;
+                opacity: 0.6 !important;
+            }
+            
+            /* Calendar - ajustes específicos */
+            .ui-calendar .filter-input {
+                width: 100% !important;
+            }
+            
+            /* Filter Checkbox Container */
+            .filter-field-checkbox {
+                grid-column: span 1;
+            }
+            
+            .filter-checkbox-container {
+                background: rgba(255,255,255,0.05) !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                border-radius: 10px !important;
+                padding: 0.75rem 1rem !important;
+                max-height: 200px;
+                overflow-y: auto;
+                transition: all 0.2s ease !important;
+            }
+            
+            .filter-checkbox-container:hover {
+                background: rgba(255,255,255,0.08) !important;
+                border-color: rgba(255,255,255,0.2) !important;
+            }
+            
+            /* Scrollbar customizado */
+            .filter-checkbox-container::-webkit-scrollbar {
+                width: 6px;
+            }
+            
+            .filter-checkbox-container::-webkit-scrollbar-track {
+                background: rgba(255,255,255,0.05);
+                border-radius: 10px;
+            }
+            
+            .filter-checkbox-container::-webkit-scrollbar-thumb {
+                background: rgba(0,225,255,0.3);
+                border-radius: 10px;
+            }
+            
+            .filter-checkbox-container::-webkit-scrollbar-thumb:hover {
+                background: rgba(0,225,255,0.5);
+            }
+            
+            /* Checkboxes personalizados */
+            .filter-checkbox-container .ui-selectmanycheckbox,
+            .filter-checkbox-container .p-selectmanycheckbox {
+                width: 100%;
+            }
+            
+            /* Layout horizontal dos checkboxes */
+            .filter-checkbox-container table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+            }
+            
+            .filter-checkbox-container td {
+                padding: 0.5rem 0.75rem !important;
+                vertical-align: middle !important;
+            }
+            
+            .filter-checkbox-container tr {
+                display: table-row;
+            }
+            
+            /* Checkbox box styling */
+            .filter-checkbox-container .ui-chkbox-box,
+            .filter-checkbox-container .p-checkbox-box {
+                width: 20px !important;
+                height: 20px !important;
+                background: rgba(255,255,255,0.05) !important;
+                border: 2px solid rgba(255,255,255,0.2) !important;
+                border-radius: 6px !important;
+                transition: all 0.2s ease !important;
+                flex-shrink: 0;
+            }
+            
+            .filter-checkbox-container .ui-chkbox-box:hover,
+            .filter-checkbox-container .p-checkbox-box:hover {
+                background: rgba(255,255,255,0.08) !important;
+                border-color: var(--accent) !important;
+            }
+            
+            .filter-checkbox-container .ui-chkbox-box.ui-state-active,
+            .filter-checkbox-container .p-checkbox-box.p-highlight {
+                background: linear-gradient(135deg, var(--accent), var(--accent-dark)) !important;
+                border-color: var(--accent) !important;
+            }
+            
+            .filter-checkbox-container .ui-chkbox-icon,
+            .filter-checkbox-container .p-checkbox-icon {
+                color: #0a0e27 !important;
+                font-size: 14px !important;
+                font-weight: bold !important;
+            }
+            
+            /* Label dos checkboxes */
+            .filter-checkbox-container label {
+                color: var(--text-200) !important;
+                font-size: 0.9rem !important;
+                margin-left: 0.5rem !important;
+                cursor: pointer !important;
+                user-select: none;
+                white-space: nowrap;
+                display: inline-flex;
+                align-items: center;
+            }
+            
+            /* Container do checkbox + label */
+            .filter-checkbox-container .ui-chkbox,
+            .filter-checkbox-container .p-checkbox {
+                display: inline-flex;
+                align-items: center;
+                vertical-align: middle;
+            }
+            
+            /* Clear button - melhorado seguindo padrão do sistema */
+            .clear-btn,
+            .clear-btn.p-button,
+            .clear-btn.ui-button {
+                min-height: 46px !important;
+                padding: 0.75rem 1.5rem !important;
+                font-weight: 600 !important;
+                font-size: 0.9rem !important;
+                white-space: nowrap !important;
+                background: transparent !important;
+                border: 1px solid var(--border) !important;
+                color: var(--text-200) !important;
+                border-radius: 10px !important;
+                transition: all 0.2s ease !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 0.5rem !important;
+            }
+            
+            .clear-btn:hover,
+            .clear-btn.p-button:hover,
+            .clear-btn.ui-button:hover {
+                background: rgba(255,255,255,0.06) !important;
+                border-color: var(--accent) !important;
+                color: var(--text-100) !important;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0,225,255,0.15) !important;
+            }
+            
+            .clear-btn i,
+            .clear-btn .pi {
+                color: inherit !important;
+                font-size: 0.9rem !important;
+            }
+            
+            /* Buttons */
+            .btn-primary,
+            .btn-outlined {
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                padding: 0.75rem 1.5rem !important;
+                border-radius: 10px !important;
+                font-size: 0.95rem !important;
+                font-weight: 600 !important;
+                text-decoration: none !important;
+                transition: all 0.25s ease !important;
+                border: none;
+                cursor: pointer;
+                min-height: 44px;
+            }
+            
+            .btn-primary {
+                background: linear-gradient(135deg, var(--accent), var(--accent-dark)) !important;
+                color: #0a0e27 !important;
+                box-shadow: 0 4px 12px rgba(0,225,255,0.25);
+            }
+            
+            .btn-primary:hover {
+                background: linear-gradient(135deg, var(--accent-light), var(--accent)) !important;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0,225,255,0.35);
+            }
+            
+            .btn-outlined {
+                background: transparent !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                color: var(--text-100) !important;
+                padding: 0.65rem 1.25rem !important;
+            }
+
+            .btn-outlined:hover {
+                background: rgba(255,255,255,0.06) !important;
+                border-color: var(--accent) !important;
+                color: var(--accent) !important;
+                transform: translateY(-2px);
+            }
+            
+            .btn-outlined i {
+                color: var(--accent);
+            }
+
+            /* Tournament Grid */
+            .tournaments-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+                gap: 1.5rem;
+                margin-top: 1.5rem;
+            }
+
+            .tournament-card {
+                background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important;
+                border: 1px solid rgba(255,255,255,0.06) !important;
+                border-radius: var(--radius) !important;
+                box-shadow: var(--surface-shadow) !important;
+                display: flex;
+                flex-direction: column;
+                transition: all 0.3s ease;
+            }
+
+            .tournament-card:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+                border-color: rgba(0,225,255,0.3) !important;
+            }
+
+            .tournament-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                padding: 1.25rem 1.5rem;
+                border-bottom: 1px solid rgba(255,255,255,0.06);
+                background: rgba(255,255,255,0.02);
+                border-radius: var(--radius) var(--radius) 0 0;
+                gap: 1rem;
+            }
+
+            .tournament-title {
+                margin: 0;
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: var(--text-100);
+                letter-spacing: 0.3px;
+                line-height: 1.3;
+            }
+
+            .tournament-status {
+                padding: 0.4rem 0.85rem;
+                border-radius: 999px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .tournament-status.in-progress {
+                background: rgba(34,197,94,0.15);
+                color: var(--success);
+                border: 1px solid rgba(34,197,94,0.3);
+            }
+
+            .tournament-status.open {
+                background: rgba(0,225,255,0.15);
+                color: var(--accent);
+                border: 1px solid rgba(0,225,255,0.3);
+            }
+            
+            .tournament-status.completed {
+                background: rgba(100,100,120,0.15);
+                color: var(--text-300);
+                border: 1px solid rgba(100,100,120,0.3);
+            }
+
+            .tournament-body {
+                padding: 1.25rem 1.5rem;
+                flex: 1;
+            }
+
+            .tournament-info {
+                display: flex;
+                flex-direction: column;
+                gap: 0.85rem;
+                margin-bottom: 1rem;
+            }
+
+            .tournament-info:last-child {
+                margin-bottom: 0;
+            }
+
+            .tournament-info .info-item {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: var(--text-300);
+                font-size: 0.9rem;
+            }
+            
+            .tournament-info .info-label {
+                font-weight: 600;
+                color: var(--text-200);
+                min-width: 80px;
+            }
+            
+            .tournament-info .info-value {
+                color: var(--text-300);
+            }
+
+            .tournament-info .info-item i {
+                color: var(--accent);
+                font-size: 0.95rem;
+            }
+
+            .tournament-footer {
+                padding: 1rem 1.5rem;
+                border-top: 1px solid rgba(255,255,255,0.06);
+                background: rgba(255,255,255,0.01);
+                border-radius: 0 0 var(--radius) var(--radius);
+            }
+            
+            .tournament-actions {
+                display: flex;
+                gap: 0.75rem;
+                justify-content: flex-end;
+                flex-wrap: wrap;
+            }
+
+            /* Empty State */
+            .empty-state {
+                grid-column: 1 / -1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 4rem 2rem;
+                text-align: center;
+                background: linear-gradient(180deg, var(--bg-800), var(--bg-900));
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: var(--radius);
+            }
+            
+            .empty-state i {
+                font-size: 4rem;
+                color: var(--accent);
+                opacity: 0.5;
+                margin-bottom: 1.5rem;
+            }
+            
+            .empty-state h3 {
+                margin: 0 0 0.75rem 0;
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: var(--text-100);
+            }
+            
+            .empty-state p {
+                margin: 0 0 1.5rem 0;
+                color: var(--text-300);
+                font-size: 1rem;
+            }
+            
+            /* Responsividade */
+            @media (max-width: 1200px) {
+                .filter-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                
+                .filter-field:last-child {
+                    grid-column: span 2;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .section-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                
+                .filter-grid {
+                    grid-template-columns: 1fr;
+                    gap: 1rem;
+                }
+                
+                .filter-field:last-child {
+                    grid-column: 1;
+                }
+                
+                .filter-label-empty {
+                    display: none;
+                }
+                
+                .tournaments-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .tournament-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                
+                .tournament-actions {
+                    width: 100%;
+                }
+                
+                .tournament-actions a {
+                    flex: 1;
+                }
+            }
+        </style>
+        
     </ui:define>
 </ui:composition>

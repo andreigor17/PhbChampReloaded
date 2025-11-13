@@ -64,8 +64,42 @@
         }
         .logo{ display:flex; align-items:center; gap:.5rem; color: var(--text-100) !important; font-weight: 800; letter-spacing:.2px; }
         .logo:hover{ color: var(--accent) !important; }
-        /* Menubar */
-        .nav-menu{ background: transparent !important; border: none !important; color: var(--text-300) !important; }
+        /* Menubar - navegação HTML simples */
+        .nav-menu{ 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+            background: transparent !important; 
+            border: none !important; 
+        }
+        .nav-menu-item{ 
+            display: inline-flex !important;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1rem !important;
+            border-radius: 10px;
+            transition: background .2s ease, color .2s ease, transform .15s ease;
+            background: transparent !important;
+            color: var(--text-300) !important;
+            text-decoration: none !important;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .nav-menu-item:hover{ 
+            background: rgba(255,255,255,.06) !important; 
+            color: var(--text-100) !important; 
+            transform: translateY(-1px);
+        }
+        .nav-menu-item i{ 
+            color: var(--accent) !important; 
+            font-size: 1rem;
+        }
+        .nav-menu-item span{
+            color: inherit;
+        }
+        /* Menubar PrimeFaces (para compatibilidade) */
+        .nav-menu.ui-menubar,
+        .nav-menu.p-menubar{ background: transparent !important; border: none !important; color: var(--text-300) !important; }
         .nav-menu .ui-menuitem-link{
             border-radius: 10px; transition: background .2s ease, color .2s ease, transform .15s ease;
             background: transparent !important;
@@ -204,7 +238,10 @@
             color: var(--text-100) !important;
         }
         .auth-buttons{ display:flex; gap:.75rem; align-items:center; }
-        .auth-buttons .nav-action-btn{
+        .auth-buttons h:form{ display: inline-block !important; margin: 0 !important; }
+        .header h:form{ display: inline-block !important; }
+        .auth-buttons .nav-action-btn,
+        .auth-buttons a.nav-action-btn{
             display: inline-flex !important;
             align-items: center;
             gap: .5rem;
@@ -217,30 +254,40 @@
             letter-spacing: .4px;
             text-transform: uppercase;
             transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+            text-decoration: none !important;
+            cursor: pointer;
         }
-        .auth-buttons .nav-action-btn .pi{
+        .auth-buttons .nav-action-btn .pi,
+        .auth-buttons a.nav-action-btn .pi,
+        .auth-buttons .nav-action-btn i{
             font-size: 1rem;
             color: inherit !important;
         }
-        .auth-buttons .nav-action-btn:hover{
+        .auth-buttons .nav-action-btn:hover,
+        .auth-buttons a.nav-action-btn:hover{
             transform: translateY(-1px);
             box-shadow: 0 10px 24px rgba(0,225,255,0.18);
             border-color: rgba(0,225,255,0.45) !important;
             background: linear-gradient(135deg, rgba(0,225,255,0.22), rgba(0,225,255,0.10)) !important;
+            color: var(--text-100) !important;
         }
-        .auth-buttons .nav-action-btn--outline{
+        .auth-buttons .nav-action-btn--outline,
+        .auth-buttons a.nav-action-btn--outline{
             background: transparent !important;
             border: 1px solid rgba(0,225,255,0.35) !important;
         }
-        .auth-buttons .nav-action-btn--outline:hover{
+        .auth-buttons .nav-action-btn--outline:hover,
+        .auth-buttons a.nav-action-btn--outline:hover{
             background: linear-gradient(135deg, rgba(0,225,255,0.18), rgba(0,225,255,0.08)) !important;
             box-shadow: 0 10px 20px rgba(0,225,255,0.16);
         }
-        .auth-buttons .nav-action-btn--primary{
+        .auth-buttons .nav-action-btn--primary,
+        .auth-buttons a.nav-action-btn--primary{
             background: linear-gradient(135deg, rgba(0,225,255,0.2), rgba(0,225,255,0.08)) !important;
             border-color: rgba(0,225,255,0.45) !important;
         }
-        .auth-buttons .nav-action-btn--primary:hover{
+        .auth-buttons .nav-action-btn--primary:hover,
+        .auth-buttons a.nav-action-btn--primary:hover{
             box-shadow: 0 12px 26px rgba(0,225,255,0.22);
         }
         .auth-buttons .nav-action-btn--danger{
@@ -251,6 +298,9 @@
             box-shadow: 0 12px 26px rgba(239,68,68,0.22);
             border-color: rgba(239,68,68,0.55) !important;
             background: linear-gradient(135deg, rgba(239,68,68,0.28), rgba(239,68,68,0.12)) !important;
+        }
+        .auth-buttons .nav-action-btn span{
+            display: inline-block;
         }
         /* Main */
         main.container{ margin-top: 1rem; }
@@ -629,20 +679,40 @@
             <span>PhbChamp</span>
         </h:link>
         
-        <p:menubar styleClass="nav-menu">
-            <p:menuitem value="Jogadores" outcome="jogadores.xhtml" icon="pi pi-users" />
-            <p:menuitem value="Times" outcome="error.xhtml" icon="pi pi-users" />
-            <p:menuitem value="Campeonatos" outcome="error.xhtml" icon="pi pi-trophy" />
-            <p:menuitem value="Partidas" outcome="indexPartida.xhtml" icon="pi pi-calendar" />
-            <p:menuitem value="Administração" outcome="administracao.xhtml" icon="pi pi-shield" rendered="#{managerPrincipal.isAdmin()}" />
-        </p:menubar>
+        <nav class="nav-menu">
+            <h:link outcome="jogadores.xhtml" styleClass="nav-menu-item">
+                <i class="pi pi-users"></i>
+                <span>Jogadores</span>
+            </h:link>
+            <h:link outcome="error.xhtml" styleClass="nav-menu-item">
+                <i class="pi pi-users"></i>
+                <span>Times</span>
+            </h:link>
+            <h:link outcome="campeonatos.xhtml" styleClass="nav-menu-item">
+                <i class="pi pi-trophy"></i>
+                <span>Campeonatos</span>
+            </h:link>
+            <h:link outcome="indexPartida.xhtml" styleClass="nav-menu-item">
+                <i class="pi pi-calendar"></i>
+                <span>Partidas</span>
+            </h:link>
+            <h:link outcome="administracao.xhtml" styleClass="nav-menu-item" rendered="#{managerPrincipal.isAdmin()}">
+                <i class="pi pi-shield"></i>
+                <span>Administração</span>
+            </h:link>
+        </nav>
         
         <div class="auth-buttons">
-            <p:button value="Entrar" icon="pi pi-sign-in" styleClass="nav-action-btn nav-action-btn--outline" href="login.xhtml" rendered="#{not managerPrincipal.isUsuarioLogado()}"/>
-            <p:button value="Meu Perfil" icon="pi pi-id-card" styleClass="nav-action-btn nav-action-btn--primary" outcome="jogador.xhtml" rendered="#{managerPrincipal.isUsuarioLogado()}">
+            <h:link outcome="login.xhtml" styleClass="nav-action-btn nav-action-btn--outline" rendered="#{not managerPrincipal.isUsuarioLogado()}">
+                <i class="pi pi-sign-in"></i>
+                <span>Entrar</span>
+            </h:link>
+            <h:link outcome="jogador.xhtml" styleClass="nav-action-btn nav-action-btn--primary" rendered="#{managerPrincipal.isUsuarioLogado()}">
                 <f:param name="id" value="#{managerPrincipal.playerLogado.id}" />
-            </p:button>
-            <h:form rendered="#{managerPrincipal.isUsuarioLogado()}" style="display: inline-block; margin: 0;">
+                <i class="pi pi-id-card"></i>
+                <span>Meu Perfil</span>
+            </h:link>
+            <h:form id="logoutForm" rendered="#{managerPrincipal.isUsuarioLogado()}" style="display: inline-block; margin: 0;">
                 <p:commandButton value="Deslogar" icon="pi pi-sign-out" styleClass="nav-action-btn nav-action-btn--danger" action="#{managerPrincipal.sair}" process="@this" update="@none" />
             </h:form>
         </div>

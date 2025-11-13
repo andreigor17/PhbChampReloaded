@@ -4,12 +4,14 @@ import br.com.champ.Enums.Url;
 import br.com.champ.Modelo.Campeonato;
 import br.com.champ.Modelo.Estatisticas;
 import br.com.champ.Modelo.ItemPartida;
+import br.com.champ.Modelo.Jogo;
 import br.com.champ.Modelo.Partida;
 import br.com.champ.Modelo.Player;
 import br.com.champ.Modelo.Team;
 import br.com.champ.Servico.CampeonatoServico;
 import br.com.champ.Servico.EstatisticaServico;
 import br.com.champ.Servico.ItemPartidaServico;
+import br.com.champ.Servico.JogoServico;
 import br.com.champ.Servico.PartidaServico;
 import br.com.champ.Servico.PlayerServico;
 import br.com.champ.Servico.TeamServico;
@@ -55,6 +57,8 @@ public class ManagerCamp extends ManagerBase {
     PartidaServico partidaServico;
     @EJB
     ItemPartidaServico itemPartidaServico;
+    @EJB
+    JogoServico jogoServico;
 
     private Campeonato camp;
     private Campeonato preCamp;
@@ -80,6 +84,10 @@ public class ManagerCamp extends ManagerBase {
     private List<Partida> partidasCache;
     private Long campIdCache;
     private boolean partidasCarregadas = false;
+    
+    // Filtro de jogos por checkbox
+    private List<Long> jogosSelecionados;
+    private List<Jogo> jogos;
 
     @PostConstruct
     public void init() {
@@ -109,9 +117,11 @@ public class ManagerCamp extends ManagerBase {
 
         HttpServletRequest uri = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 
-        if (uri.getRequestURI().contains("indexCampeonato.xhtml")) {
+        if (uri.getRequestURI().contains("indexCampeonato.xhtml") || uri.getRequestURI().contains("campeonatos.xhtml")) {
             try {
                 this.camps = campeonatoServico.pesquisar();
+                // Carregar jogos para os filtros (sem necessidade de autenticação)
+                this.jogos = jogoServico.autoCompleteJogos();
             } catch (Exception ex) {
                 Logger.getLogger(ManagerCamp.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -206,6 +216,8 @@ public class ManagerCamp extends ManagerBase {
         this.semis = new ArrayList<>();
         this.finais = new ArrayList<>();
         this.terceiroLugar = new ArrayList<>();
+        this.jogosSelecionados = new ArrayList<>();
+        this.jogos = new ArrayList<>();
 
     }
 
@@ -333,6 +345,22 @@ public class ManagerCamp extends ManagerBase {
 
     public void limpar() {
         instanciar();
+    }
+    
+    public List<Long> getJogosSelecionados() {
+        return jogosSelecionados;
+    }
+
+    public void setJogosSelecionados(List<Long> jogosSelecionados) {
+        this.jogosSelecionados = jogosSelecionados;
+    }
+    
+    public List<Jogo> getJogos() {
+        return jogos;
+    }
+
+    public void setJogos(List<Jogo> jogos) {
+        this.jogos = jogos;
     }
 
     public void removeCamp() {

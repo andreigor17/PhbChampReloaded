@@ -177,5 +177,36 @@ public class ManagerJogo extends ManagerBase {
         }
         Mensagem.successAndRedirect("Jogo excluído com sucesso!", "pesquisarJogos.xhtml");
     }
+    
+    /**
+     * Método para autocomplete de jogos
+     * Usado em filtros e seleções de jogos
+     */
+    public List<Jogo> autoCompletarJogo(String query) {
+        try {
+            List<Jogo> todosJogos = jogoServico.autoCompleteJogos();
+            if (todosJogos == null) {
+                return new ArrayList<>();
+            }
+            
+            // Se não houver query, retorna todos os jogos
+            if (query == null || query.trim().isEmpty()) {
+                return todosJogos;
+            }
+            
+            // Filtra por nome (case insensitive)
+            String queryLower = query.toLowerCase();
+            List<Jogo> jogosFiltrados = new ArrayList<>();
+            for (Jogo j : todosJogos) {
+                if (j.getNome() != null && j.getNome().toLowerCase().contains(queryLower)) {
+                    jogosFiltrados.add(j);
+                }
+            }
+            return jogosFiltrados;
+        } catch (Exception ex) {
+            System.err.println("Erro ao buscar jogos para autocomplete: " + ex);
+            return new ArrayList<>();
+        }
+    }
 
 }
