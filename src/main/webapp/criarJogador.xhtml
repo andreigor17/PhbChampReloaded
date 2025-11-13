@@ -8,161 +8,250 @@
     <ui:define name="content">
         <div class="section-header">
             <div>
-                <p:link outcome="/jogadores" styleClass="mb-3 d-block">
+                <p:link outcome="/jogadores" styleClass="mb-3 d-block header-back-link">
                     <i class="pi pi-arrow-left mr-2"></i>Voltar para Jogadores
                 </p:link>
                 <h1 class="section-title">Cadastrar Jogador</h1>
+                <p class="section-description">Preencha as informações para criar ou atualizar um perfil de jogador.</p>
             </div>
         </div>
 
-        <p:card>
+        <p:card styleClass="glass-card player-card">
             <h:form id="playerForm" enctype="multipart/form-data">
-                <p:remoteCommand name="atualizarImagem" update="playerPhotoPanel, uploadPanel" />
-                <div class="grid">
-                    <!-- Foto do Jogador -->
-                    <div class="col-12 md:col-4 flex align-items-center justify-content-center flex-column">
-                        <div class="mb-3">
-                            <h:panelGroup id="playerPhotoPanel" >
-                                <div class="player-photo-container">
-                                    <p:graphicImage id="playerPhoto" value="image/#{managerCriarPlayer.fileTemp}" styleClass="player-photo" rendered="#{managerCriarPlayer.fileTemp ne null}" />
+                <p:growl id="messages" showDetail="false"/>
+                <p:remoteCommand name="atualizarImagem" update="playerPhotoPanel uploadPanel"/>
+
+                <div class="grid player-grid">
+                    <div class="col-12 md:col-4">
+                        <p:panel styleClass="glass-panel mb-3">
+                            <f:facet name="header">
+                                <div class="section-card-title">
+                                    <i class="pi pi-user"></i>
+                                    <span class="title-text">Avatar do jogador</span>
+                                </div>
+                            </f:facet>
+                            <h:panelGroup id="playerPhotoPanel">
+                                <div class="player-photo-container #{managerCriarPlayer.fileTemp eq null ? 'placeholder' : ''}">
+                                    <p:graphicImage id="playerPhoto"
+                                                    value="image/#{managerCriarPlayer.fileTemp}"
+                                                    styleClass="player-photo"
+                                                    rendered="#{managerCriarPlayer.fileTemp ne null}"/>
                                     <div class="player-photo-placeholder" rendered="#{managerCriarPlayer.fileTemp eq null}">
-                                        <i class="pi pi-user" style="font-size: 5rem; color: #ccc;"></i>
+                                        <i class="pi pi-user"></i>
+                                        <span>Adicione uma imagem para destacar o jogador</span>
                                     </div>
                                 </div>
                             </h:panelGroup>
-                        </div>
-                        <h:panelGroup id="uploadPanel" >
-                            <div class="mb-3">
-                                <p:fileUpload id="photoUpload"  mode="simple" skinSimple="true" label="Escolher Foto"  auto="true" listener="#{managerCriarPlayer.doUpload}"
-                                              value="#{managerCriarPlayer.file}" rendered="#{managerCriarPlayer.fileTemp eq null}"/>
-                            </div>
-                            <div class="text-center">
-                                <p:commandButton id="removerFoto"  value="Remover Foto" actionListener="#{managerCriarPlayer.removerFoto()}" icon="pi pi-trash"   
-                                                 rendered="#{managerCriarPlayer.fileTemp ne null}"/>
-                            </div>
-                        </h:panelGroup>
+                            <h:panelGroup id="uploadPanel" layout="block" styleClass="photo-actions">
+                                <p:fileUpload id="photoUpload"
+                                              value="#{managerCriarPlayer.file}"
+                                              mode="advanced"
+                                              dragDropSupport="false"
+                                              auto="true"
+                                              skinSimple="true"
+                                              chooseIcon="pi pi-upload"
+                                              label="Enviar foto"
+                                              styleClass="photo-upload"
+                                              listener="#{managerCriarPlayer.doUpload}"
+                                              rendered="#{managerCriarPlayer.fileTemp eq null}"/>
+                                <p:commandButton id="removerFoto"
+                                                 value="Remover foto"
+                                                 icon="pi pi-trash"
+                                                 styleClass="remove-photo-btn"
+                                                 rendered="#{managerCriarPlayer.fileTemp ne null}"
+                                                 actionListener="#{managerCriarPlayer.removerFoto()}"/>
+                            </h:panelGroup>
+                        </p:panel>
                     </div>
 
-                    <!-- Informações Básicas -->
                     <div class="col-12 md:col-8">
-                        <p:fieldset legend="Informações Básicas" toggleable="true" toggleSpeed="500" styleClass="mb-3">
-                            <div class="p-fluid">
-                                <div class="grid">
-                                    <div class="col-12 md:col-6 field">
-                                        <p:outputLabel for="nome" value="Nome" />
-                                        <p:inputText id="nome"   value="#{managerCriarPlayer.p.nome}" />
-                                        <p:message for="nome" />
-                                    </div>
-
-                                    <div class="col-12 md:col-6 field">
-                                        <p:outputLabel for="sobrenome" value="Sobrenome" />
-                                        <p:inputText id="sobrenome"  value="#{managerCriarPlayer.p.sobreNome}"/>
-                                        <p:message for="sobrenome" />
-                                    </div>
+                        <p:panel styleClass="glass-panel mb-3">
+                            <f:facet name="header">
+                                <div class="section-card-title">
+                                    <i class="pi pi-id-card"></i>
+                                    <span class="title-text">Informações básicas</span>
                                 </div>
-
-                                <div class="field">
-                                    <p:outputLabel for="nick" value="Nickname" />
-                                    <p:inputText id="nick"  value="#{managerCriarPlayer.p.nick}"/>
-                                    <p:message for="nick" />
+                            </f:facet>
+                            <div class="formgrid grid">
+                                <div class="field col-12 md:col-6">
+                                    <p:outputLabel for="nome" value="Nome"/>
+                                    <p:inputText id="nome" value="#{managerCriarPlayer.p.nome}" />
+                                    <p:message for="nome"/>
                                 </div>
-
-
-
+                                <div class="field col-12 md:col-6">
+                                    <p:outputLabel for="sobrenome" value="Sobrenome"/>
+                                    <p:inputText id="sobrenome" value="#{managerCriarPlayer.p.sobreNome}"/>
+                                    <p:message for="sobrenome"/>
+                                </div>
+                                <div class="field col-12 md:col-6">
+                                    <p:outputLabel for="nick" value="Nickname"/>
+                                    <p:inputText id="nick" value="#{managerCriarPlayer.p.nick}"/>
+                                    <p:message for="nick"/>
+                                </div>
+                                <div class="field col-12 md:col-6">
+                                    <p:outputLabel for="email" value="E-mail"/>
+                                    <p:inputText id="email" value="#{managerCriarPlayer.p.email}"/>
+                                    <p:message for="email"/>
+                                </div>
                             </div>
-                        </p:fieldset>
+                        </p:panel>
                     </div>
 
-                    <!-- Informações de Conta -->
-                    <div class="col-12" style="#{managerCriarPlayer.cadastrar or (managerCriarPlayer.p.id eq null and not managerCriarPlayer.cadastrar) ? 'display:block;' : 'display:none;'}">
-                        <p:fieldset legend="Informações de Conta" toggleable="true" toggleSpeed="500" styleClass="mb-3">
-                            <div class="p-fluid">
-                                <div class="grid">
-                                    <div class="col-12 md:col-6 field">
-                                        <p:outputLabel for="login" value="Login" />
-                                        <p:inputText id="login"  value="#{managerCriarPlayer.p.login}"/>
-                                        <p:message for="login" />
-                                    </div>
-
-                                    <div class="col-12 md:col-6 field">
-                                        <p:outputLabel for="senha" value="Senha" />
-                                        <p:password id="senha" feedback="true" toggleMask="true"
-                                                    value="#{managerCriarPlayer.p.senha}" />
-                                        <p:message for="senha" />
-                                    </div>
-
+                    <div class="col-12"
+                         style="#{managerCriarPlayer.cadastrar or (managerCriarPlayer.p.id eq null and not managerCriarPlayer.cadastrar) ? 'display:block;' : 'display:none;'}">
+                        <p:panel styleClass="glass-panel mb-3" toggleable="true" toggleSpeed="400">
+                            <f:facet name="header">
+                                <div class="section-card-title">
+                                    <i class="pi pi-lock"></i>
+                                    <span class="title-text">Informações de conta</span>
                                 </div>
-
-
+                            </f:facet>
+                            <div class="formgrid grid">
+                                <div class="field col-12 md:col-6">
+                                    <p:outputLabel for="login" value="Login"/>
+                                    <p:inputText id="login" value="#{managerCriarPlayer.p.login}"/>
+                                    <p:message for="login"/>
+                                </div>
+                                <div class="field col-12 md:col-6">
+                                    <p:outputLabel for="senha" value="Senha"/>
+                                    <p:password id="senha" value="#{managerCriarPlayer.p.senha}"
+                                                feedback="true" toggleMask="true"/>
+                                    <p:message for="senha"/>
+                                </div>
                             </div>
-                        </p:fieldset>
+                        </p:panel>
                     </div>
 
-                    <!-- Informações da Steam -->
-                    <div class="col-12">
-                        <p:fieldset legend="Informações da Steam" toggleable="true" toggleSpeed="500" styleClass="mb-3">
-                            <div class="p-fluid">
-                                <div class="grid">
-                                    <div class="col-12 md:col-6 field">
-                                        <p:outputLabel for="steamID" value="Steam ID" />
-                                        <p:inputText id="steamID" value="#{managerCriarPlayer.p.steamID}"/>
-                                        <p:message for="steamID" />
-                                    </div>
-
-                                    <div class="col-12 md:col-6 field">
-                                        <p:outputLabel for="urlSteam" value="URL do Perfil Steam" />
-                                        <p:inputText id="urlSteam" value="#{managerCriarPlayer.p.urlSteam}"/>
-                                        <p:message for="urlSteam" />
-                                    </div>
+                    <div class="col-12 md:col-6">
+                        <p:panel styleClass="glass-panel mb-3" toggleable="true" toggleSpeed="400">
+                            <f:facet name="header">
+                                <div class="section-card-title">
+                                    <i class="pi pi-steam"></i>
+                                    <span class="title-text">Informações da Steam</span>
                                 </div>
-
-
+                            </f:facet>
+                            <div class="formgrid grid">
+                                <div class="field col-12">
+                                    <p:outputLabel for="steamID" value="Steam ID"/>
+                                    <p:inputText id="steamID" value="#{managerCriarPlayer.p.steamID}"/>
+                                    <p:message for="steamID"/>
+                                </div>
+                                <div class="field col-12">
+                                    <p:outputLabel for="urlSteam" value="URL do perfil Steam"/>
+                                    <p:inputText id="urlSteam" value="#{managerCriarPlayer.p.urlSteam}"/>
+                                    <p:message for="urlSteam"/>
+                                </div>
                             </div>
-                        </p:fieldset>
+                        </p:panel>
                     </div>
 
-                    <!-- Opções de Importação -->
-                    <div class="col-12">
-                        <p:fieldset legend="Importar Dados" toggleable="true" toggleSpeed="500" collapsed="true" styleClass="mb-3" rendered="#{managerCriarPlayer.p.urlSteam eq null}">
-                            <div class="p-fluid">
-                                <div class="grid">
-                                    <div class="col-12 md:col-6">
-                                        <p:commandButton value="Importar da Steam" icon="pi pi-steam" styleClass="p-button-outlined w-full" type="button" />
-                                    </div>
+                    <div class="col-12 md:col-6">
+                        <p:panel styleClass="glass-panel mb-3">
+                            <f:facet name="header">
+                                <div class="section-card-title">
+                                    <i class="pi pi-gamepad"></i>
+                                    <span class="title-text">Jogos do jogador</span>
+                                </div>
+                            </f:facet>
+                            <div class="field">
+                                <p:outputLabel for="jogosMenu" value="Selecione os jogos"/>
+                                <p:selectCheckboxMenu id="jogosMenu"
+                                                      value="#{managerCriarPlayer.jogosSelecionadosIds}"
+                                                      label="Escolher jogos"
+                                                      filter="true"
+                                                      filterMatchMode="contains"
+                                                      scrollHeight="200"
+                                                      styleClass="game-select"
+                                                      panelStyleClass="game-select-panel">
+                                    <f:selectItems value="#{managerCriarPlayer.jogos}"
+                                                   var="jogo"
+                                                   itemLabel="#{jogo.nome}"
+                                                   itemValue="#{jogo.id}"/>
+                                </p:selectCheckboxMenu>
+                            </div>
+                        </p:panel>
+                    </div>
 
-                                    <div class="col-12 md:col-6">
-                                        <p:commandButton value="Importar do Google" icon="pi pi-google" styleClass="p-button-outlined w-full" type="button" />
-                                    </div>
+                    <div class="col-12" rendered="#{managerCriarPlayer.p.urlSteam eq null}">
+                        <p:panel styleClass="glass-panel mb-3" toggleable="true" toggleSpeed="400" collapsed="true">
+                            <f:facet name="header">
+                                <div class="section-card-title">
+                                    <i class="pi pi-cloud-download"></i>
+                                    <span class="title-text">Importar dados</span>
+                                </div>
+                            </f:facet>
+                            <div class="formgrid grid">
+                                <div class="col-12 md:col-6">
+                                    <p:commandButton value="Importar da Steam"
+                                                     icon="pi pi-steam"
+                                                     styleClass="action-btn action-btn--outline"
+                                                     type="button" />
+                                </div>
+                                <div class="col-12 md:col-6">
+                                    <p:commandButton value="Importar do Google"
+                                                     icon="pi pi-google"
+                                                     styleClass="action-btn action-btn--outline"
+                                                     type="button" />
                                 </div>
                             </div>
-                        </p:fieldset>
+                        </p:panel>
                     </div>
                 </div>
 
-                <div class="flex justify-content-end mt-4">
-                    <p:button value="Cancelar" outcome="/jogadores" styleClass="p-button-outlined mr-2" />
-                    <p:commandButton value="Salvar" icon="pi pi-check" process="@form"
-                                     update="@form"  actionListener="#{managerCriarPlayer.salvarPlayer()}"/>
+                <div class="form-actions">
+                    <p:button value="Cancelar"
+                              outcome="/jogadores"
+                              icon="pi pi-arrow-left"
+                              styleClass="action-btn action-btn--outline"/>
+                    <p:commandButton value="Salvar jogador"
+                                     icon="pi pi-check"
+                                     process="@form"
+                                     update="@form"
+                                     styleClass="action-btn action-btn--primary"
+                                     actionListener="#{managerCriarPlayer.salvarPlayer}"/>
                 </div>
             </h:form>
         </p:card>
 
-        <!-- Estilos específicos para a foto do jogador -->
         <style type="text/css">
+            .section-description {
+                color: var(--text-300);
+                margin-top: .35rem;
+            }
+
+            .player-card {
+                border: 1px solid var(--border) !important;
+            }
+
+            .player-grid {
+                gap: 1.5rem;
+            }
+
+            .glass-panel {
+                background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important;
+                border: 1px solid rgba(255,255,255,0.08) !important;
+                border-radius: 16px !important;
+                box-shadow: var(--surface-shadow) !important;
+            }
+
             .player-photo-container {
-                width: 200px;
-                height: 200px;
-                border-radius: 50%;
+                position: relative;
+                width: 100%;
+                padding-top: 100%;
+                border-radius: 18px;
                 overflow: hidden;
-                background-color: #f8f9fa;
+                border: 1px dashed rgba(255,255,255,0.12);
+                background: rgba(255,255,255,0.03);
+                display: flex;
                 align-items: center;
                 justify-content: center;
-                border: 1px solid #dee2e6;
             }
 
             .player-photo {
-                width: 100% !important;
-                height: 100% !important;
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
                 object-fit: cover;
             }
 
@@ -170,28 +259,196 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 100%;
-                height: 100%;
-                background-color: #f8f9fa;
+                flex-direction: column;
+                gap: .45rem;
+                color: var(--text-300);
+                text-align: center;
+                padding: 1rem;
             }
 
-            /* Ajustes para alinhamento consistente */
-            .p-fluid .field {
+            .player-photo-placeholder i {
+                font-size: 2.6rem;
+                color: var(--accent);
+            }
+
+            .photo-actions {
+                margin-top: 1rem;
+                display: flex;
+                flex-direction: column;
+                gap: .5rem;
+            }
+
+            .remove-photo-btn {
+                align-self: flex-start;
+                background: rgba(255,255,255,0.05) !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                color: var(--danger) !important;
+            }
+
+            .remove-photo-btn:hover {
+                border-color: rgba(239,68,68,0.45) !important;
+                color: var(--danger) !important;
+                transform: translateY(-1px);
+            }
+
+            .glass-panel .field {
                 margin-bottom: 1rem;
             }
 
-            .p-fluid .field label {
+            .glass-panel .field label {
                 display: block;
-                margin-bottom: 0.5rem;
+                margin-bottom: .35rem;
+                font-size: .82rem;
+                text-transform: uppercase;
+                letter-spacing: .5px;
+                color: var(--text-300);
+                font-weight: 600;
             }
 
-            .p-fluid .field .p-checkbox {
-                vertical-align: middle;
+            .glass-panel .p-inputtext,
+            .glass-panel .p-password input {
+                background: rgba(255,255,255,0.03) !important;
+                border: 1px solid rgba(255,255,255,0.08) !important;
+                color: var(--text-100) !important;
+                border-radius: 12px !important;
             }
 
-            .p-fluid .field .p-checkbox-label {
-                vertical-align: middle;
-                margin-left: 0.5rem;
+            .glass-panel .p-inputtext:focus,
+            .glass-panel .p-password input:focus {
+                border-color: rgba(0,225,255,0.35) !important;
+                box-shadow: 0 0 0 1px rgba(0,225,255,0.18), 0 0 12px rgba(0,225,255,0.08);
+            }
+
+            .color-picker-wrapper {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .color-hex-input {
+                width: 120px;
+                background: rgba(255,255,255,0.02) !important;
+                border: 1px solid rgba(255,255,255,0.1) !important;
+                border-radius: 12px !important;
+                color: var(--text-100) !important;
+                text-transform: uppercase;
+                font-weight: 600;
+                letter-spacing: .3px;
+                padding-left: .75rem !important;
+                padding-right: .75rem !important;
+            }
+
+            .color-hex-input:focus {
+                border-color: rgba(0,225,255,0.35) !important;
+                box-shadow: 0 0 0 1px rgba(0,225,255,0.18);
+            }
+
+            .color-picker-input .p-colorpicker-preview {
+                width: 3rem;
+                height: 3rem;
+                border-radius: 12px;
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+
+            .color-preview {
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                border: 1px solid rgba(255,255,255,0.12);
+                box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+            }
+
+            .field-hint {
+                color: var(--muted);
+                font-size: .75rem;
+            }
+
+            .game-select .p-selectcheckboxmenu {
+                width: 100%;
+            }
+
+            .game-select .p-selectcheckboxmenu-label {
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 12px;
+                padding: .65rem 1rem;
+                color: var(--text-100);
+                font-weight: 600;
+                letter-spacing: .3px;
+            }
+
+            .game-select-panel {
+                background: linear-gradient(180deg, var(--bg-800), var(--bg-900));
+                border: 1px solid rgba(255,255,255,0.08);
+            }
+
+            .selected-games {
+                margin-top: .75rem;
+                display: flex;
+                flex-wrap: wrap;
+                gap: .45rem;
+            }
+
+            .game-chip {
+                background: linear-gradient(135deg, rgba(0,225,255,0.16), rgba(0,225,255,0.08));
+                border: 1px solid rgba(0,225,255,0.25);
+                color: var(--text-100);
+                padding: .35rem .8rem;
+                border-radius: 999px;
+                font-size: .78rem;
+                font-weight: 600;
+                letter-spacing: .3px;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+            }
+
+            .form-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 0.75rem;
+                margin-top: 1.5rem;
+            }
+
+            .action-btn {
+                display: inline-flex !important;
+                align-items: center;
+                gap: .5rem;
+                border-radius: 12px !important;
+                padding: .65rem 1.5rem !important;
+                font-weight: 600 !important;
+                letter-spacing: .4px;
+            }
+
+            .action-btn--primary {
+                background: linear-gradient(135deg, rgba(0,225,255,0.2), rgba(0,225,255,0.1)) !important;
+                border: 1px solid rgba(0,225,255,0.35) !important;
+                color: var(--text-100) !important;
+            }
+
+            .action-btn--primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 26px rgba(0,225,255,0.2);
+            }
+
+            .action-btn--outline {
+                background: transparent !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                color: var(--text-100) !important;
+            }
+
+            .action-btn--outline:hover {
+                background: rgba(255,255,255,0.06) !important;
+            }
+
+            @media (max-width: 768px) {
+                .form-actions {
+                    flex-direction: column;
+                }
+
+                .action-btn {
+                    width: 100%;
+                    justify-content: center;
+                }
             }
         </style>
     </ui:define>

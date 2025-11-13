@@ -17,6 +17,7 @@ public class Jogo extends ModeloGenerico{
     private Anexo anexo;
     private List<VersaoJogo> versoes;
     private boolean futebol;
+    private String corHex;
 
     public String getNome() {
         return nome;
@@ -24,6 +25,14 @@ public class Jogo extends ModeloGenerico{
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getCorHex() {
+        return corHex;
+    }
+
+    public void setCorHex(String corHex) {
+        this.corHex = corHex;
     }
 
     public Anexo getAnexo() {

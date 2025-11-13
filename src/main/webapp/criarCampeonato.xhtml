@@ -33,23 +33,31 @@
                 <div class="formgrid grid">
                     <!-- Nome -->
                     <div class="field col-12 md:col-8">
-                        <label for="campNome" class="block mb-2 font-medium" style="color: #cbd5e1">Nome do Campeonato *</label>
+                        <label for="campNome" class="block mb-2 font-semibold label-modern" style="color: #cbd5e1; font-size: 0.95rem;">
+                            <i class="pi pi-tag mr-2" style="color: var(--accent); font-size: 1rem;"></i>
+                            Nome do Campeonato *
+                        </label>
                         <p:inputText id="campNome" 
                                      value="#{managerCriarCampeonato.camp.nome}"
                                      placeholder="Ex: Campeonato Brasileiro 2024"
                                      required="true"
                                      requiredMessage="Nome é obrigatório"
-                                     styleClass="glass-input w-full" />
+                                     styleClass="glass-input"
+                                     style="width:100%" />
                     </div>
 
                     <!-- Status -->
                     <div class="field col-12 md:col-4">
-                        <label for="campStatus" class="block mb-2 font-medium" style="color: #cbd5e1">Status *</label>
+                        <label for="campStatus" class="block mb-2 font-semibold label-modern" style="color: #cbd5e1; font-size: 0.95rem;">
+                            <i class="pi pi-flag mr-2" style="color: var(--accent); font-size: 1rem;"></i>
+                            Status *
+                        </label>
                         <p:selectOneMenu id="campStatus" 
                                          value="#{managerCriarCampeonato.camp.status}"
                                          required="true"
                                          requiredMessage="Status é obrigatório"
-                                         styleClass="w-full">
+                                         style="width:100%"
+                                         styleClass="glass-input">
                             <f:selectItem itemLabel="Selecione" itemValue="" noSelectionOption="true" />
                             <f:selectItems value="#{enums.statusCamp()}" />
                         </p:selectOneMenu>
@@ -57,31 +65,42 @@
 
                     <!-- Data Início -->
                     <div class="field col-12 md:col-4">
-                        <label for="campDataInicio" class="block mb-2 font-medium" style="color: #cbd5e1">Data de Início *</label>
+                        <label for="campDataInicio" class="block mb-2 font-semibold label-modern" style="color: #cbd5e1; font-size: 0.95rem;">
+                            <i class="pi pi-calendar-plus mr-2" style="color: var(--accent); font-size: 1rem;"></i>
+                            Data de Início *
+                        </label>
                         <p:datePicker id="campDataInicio" 
                                       value="#{managerCriarCampeonato.camp.dataCamp}" 
                                       pattern="dd/MM/yyyy HH:mm" 
                                       hourFormat="24" 
                                       showIcon="true" 
-                                      showTime="true" 
-                                      styleClass="w-full" />
+                                      showTime="true"
+                                      style="width:100%"
+                                      inputStyleClass="glass-input" />
                     </div>
 
                     <!-- Data Final -->
                     <div class="field col-12 md:col-4">
-                        <label for="campDataFinal" class="block mb-2 font-medium" style="color: #cbd5e1">Término das Inscrições *</label>
+                        <label for="campDataFinal" class="block mb-2 font-semibold label-modern" style="color: #cbd5e1; font-size: 0.95rem;">
+                            <i class="pi pi-calendar-times mr-2" style="color: var(--accent); font-size: 1rem;"></i>
+                            Término das Inscrições *
+                        </label>
                         <p:datePicker id="campDataFinal" 
                                       value="#{managerCriarCampeonato.camp.dataPrazoCamp}" 
                                       pattern="dd/MM/yyyy HH:mm" 
                                       hourFormat="24" 
                                       showIcon="true" 
-                                      showTime="true" 
-                                      styleClass="w-full" />
+                                      showTime="true"
+                                      style="width:100%"
+                                      inputStyleClass="glass-input" />
                     </div>
 
                     <!-- Jogo -->
                     <div class="field col-12 md:col-4">
-                        <label for="campJogo" class="block mb-2 font-medium" style="color: #cbd5e1">Jogo *</label>
+                        <label for="campJogo" class="block mb-2 font-semibold label-modern" style="color: #cbd5e1; font-size: 0.95rem;">
+                            <i class="pi pi-box mr-2" style="color: var(--accent); font-size: 1rem;"></i>
+                            Jogo *
+                        </label>
                         <p:autoComplete id="campJogo" 
                                         value="#{managerCriarCampeonato.camp.jogo}"
                                         forceSelection="true" 
@@ -92,7 +111,8 @@
                                         itemLabel="#{jogo.nome}" 
                                         completeMethod="#{managerAutoCompletes.autoCompletaJogos()}"
                                         converter="jogo_converter"
-                                        styleClass="w-full" />
+                                        style="width:100%"
+                                        inputStyleClass="glass-input" />
                     </div>
                 </div>
             </p:card>
@@ -110,16 +130,21 @@
 
                         <!-- Categoria -->
                         <div class="field mb-4">
-                            <label for="campCategoria" class="block mb-3 font-medium" style="color: #cbd5e1">Categoria *</label>
+                            <label for="campCategoria" class="block mb-3 font-semibold" style="color: #cbd5e1; font-size: 1rem;">
+                                <i class="pi pi-users mr-2" style="color: var(--accent); font-size: 1.1rem;"></i>
+                                Categoria *
+                            </label>
                             <p:selectOneButton id="campCategoria" 
                                                value="#{managerCriarCampeonato.camp.categoria}"
                                                required="true"
-                                               requiredMessage="Categoria é obrigatória">
+                                               requiredMessage="Categoria é obrigatória"
+                                               styleClass="custom-select-button">
                                 <f:selectItem itemLabel="Individual" itemValue="INDIVIDUAL" />
                                 <f:selectItem itemLabel="Times" itemValue="TIME" />
                                 <p:ajax update="configTimesPanel" />
                             </p:selectOneButton>
-                            <small class="block mt-2" style="color: #98a2b3">
+                            <small class="block mt-2" style="color: #98a2b3; font-size: 0.875rem;">
+                                <i class="pi pi-info-circle mr-1"></i>
                                 Defina se será individual ou por times
                             </small>
                         </div>
@@ -131,7 +156,10 @@
                                 
                                 <!-- Geração de Times por Sorteio -->
                                 <div class="field mb-4">
-                                    <label class="block mb-3 font-medium" style="color: #cbd5e1">Geração de Times</label>
+                                    <label class="block mb-3 font-semibold" style="color: #cbd5e1; font-size: 1rem;">
+                                        <i class="pi pi-random mr-2" style="color: var(--accent); font-size: 1.1rem;"></i>
+                                        Geração de Times
+                                    </label>
                                     
                                     <div class="config-box mb-3">
                                         <div class="flex align-items-center gap-2 mb-3">
@@ -139,12 +167,12 @@
                                                                      value="#{managerCriarCampeonato.camp.gerarTimesPorSorteio}">
                                                 
                                             </p:selectBooleanCheckbox>
-                                            <label for="sorteioTimes" class="font-medium cursor-pointer" style="color: var(--text-100)">
+                                            <label for="sorteioTimes" class="font-semibold cursor-pointer" style="color: var(--text-100); font-size: 0.95rem;">
                                                 Gerar times automaticamente por sorteio
                                             </label>
                                         </div>
                                         
-                                        <small class="block" style="color: #98a2b3">
+                                        <small class="block" style="color: #98a2b3; font-size: 0.875rem; line-height: 1.5;">
                                             <i class="pi pi-info-circle mr-1"></i>
                                             Quando ativado, os jogadores inscritos serão distribuídos automaticamente entre os times através de sorteio
                                         </small>
@@ -155,15 +183,19 @@
                                 
                                 <!-- Quantidade de Jogadores por Time -->
                                 <div class="field mb-4">
-                                    <label for="qtdJogadoresTime" class="block mb-3 font-medium" style="color: #cbd5e1">
-                                        <i class="pi pi-users mr-2"></i>Jogadores por Time
+                                    <label for="qtdJogadoresTime" class="block mb-3 font-semibold" style="color: #cbd5e1; font-size: 1rem;">
+                                        <i class="pi pi-users mr-2" style="color: var(--accent); font-size: 1.1rem;"></i>
+                                        Jogadores por Time
                                     </label>
                                     <p:inputNumber id="qtdJogadoresTime" 
                                                    value="#{managerCriarCampeonato.camp.quantidadePorTime}"                                                   
                                                    placeholder="Ex: 5"                                                   
-                                                   styleClass="w-full">
-                                       
-                                    </p:inputNumber>
+                                                   style="width:100%"
+                                                   inputStyleClass="glass-input" />
+                                    <small class="block mt-2" style="color: #98a2b3; font-size: 0.875rem;">
+                                        <i class="pi pi-info-circle mr-1"></i>
+                                        Número de jogadores em cada time
+                                    </small>
                                 </div>
 
                             </h:panelGroup>
@@ -173,28 +205,47 @@
 
                         <!-- Formato -->
                         <div class="field">
-                            <label for="campTipo" class="block mb-3 font-medium" style="color: #cbd5e1">Formato *</label>
-                            <div class="flex flex-column gap-3">
+                            <label for="campTipo" class="block mb-3 font-semibold" style="color: #cbd5e1; font-size: 1rem;">
+                                <i class="pi pi-sitemap mr-2" style="color: var(--accent); font-size: 1.1rem;"></i>
+                                Formato do Campeonato *
+                            </label>
+                            <div class="formato-options">
                                 <p:selectOneRadio id="campTipo" 
                                                   value="#{managerCriarCampeonato.camp.tipoCampeonato}"
                                                   required="true"
-                                                  requiredMessage="Formato é obrigatório">
+                                                  requiredMessage="Formato é obrigatório"
+                                                  styleClass="custom-radio-list">
                                     <f:selectItems value="#{enums.tipoCampeonato()}" />
                                 </p:selectOneRadio>
                             </div>
+                            <small class="block mt-2" style="color: #98a2b3; font-size: 0.875rem;">
+                                <i class="pi pi-info-circle mr-1"></i>
+                                Escolha o formato de disputa do campeonato
+                            </small>
                         </div>
 
                         <!-- Info Box -->
                         <div class="info-box mt-4">
-                            <div class="flex gap-2">
-                                <i class="pi pi-info-circle" style="color: var(--accent)"></i>
-                                <div>
-                                    <p class="font-semibold mt-0 mb-2" style="color: var(--text-100)">Sobre os formatos:</p>
-                                    <ul class="mt-0 mb-0 pl-3" style="color: #d1d8e6">
-                                        <li><strong>Suíço:</strong> Pontuações semelhantes se enfrentam</li>
-                                        <li><strong>Mata-Mata:</strong> Eliminação direta</li>
-                                        <li><strong>Pontos Corridos:</strong> Todos contra todos</li>
-                                    </ul>
+                            <div class="flex gap-3">
+                                <i class="pi pi-lightbulb" style="color: var(--accent); font-size: 1.5rem; margin-top: 0.2rem;"></i>
+                                <div class="flex-1">
+                                    <p class="font-bold mt-0 mb-3" style="color: var(--text-100); font-size: 1rem;">
+                                        Sobre os formatos:
+                                    </p>
+                                    <div class="formato-info-list">
+                                        <div class="formato-info-item">
+                                            <i class="pi pi-check-circle mr-2" style="color: var(--accent); font-size: 0.9rem;"></i>
+                                            <span><strong style="color: var(--text-100);">Suíço:</strong> <span style="color: #cbd5e1;">Pontuações semelhantes se enfrentam</span></span>
+                                        </div>
+                                        <div class="formato-info-item">
+                                            <i class="pi pi-check-circle mr-2" style="color: var(--accent); font-size: 0.9rem;"></i>
+                                            <span><strong style="color: var(--text-100);">Mata-Mata:</strong> <span style="color: #cbd5e1;">Eliminação direta</span></span>
+                                        </div>
+                                        <div class="formato-info-item">
+                                            <i class="pi pi-check-circle mr-2" style="color: var(--accent); font-size: 0.9rem;"></i>
+                                            <span><strong style="color: var(--text-100);">Pontos Corridos:</strong> <span style="color: #cbd5e1;">Todos contra todos</span></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -213,7 +264,10 @@
 
                         <!-- Preview -->
                         <div class="field mb-4">
-                            <label class="block mb-3 font-medium" style="color: #cbd5e1">Logo/Banner</label>
+                            <label class="block mb-3 font-semibold label-modern" style="color: #cbd5e1; font-size: 1rem;">
+                                <i class="pi pi-image mr-2" style="color: var(--accent); font-size: 1.1rem;"></i>
+                                Logo/Banner
+                            </label>
                             
                             <p:outputPanel id="previewImagem" styleClass="block text-center mb-3">
                                 <h:panelGroup rendered="#{managerCriarCampeonato.camp.anexo != null}">
@@ -243,7 +297,7 @@
                                           accept="image/*"
                                           invalidFileMessage="Formato inválido"
                                           invalidSizeMessage="Máximo 5MB"
-                                          styleClass="w-full" />
+                                          style="width:100%" />
 
                             <small class="block mt-2 text-center" style="color: #98a2b3">
                                 JPG, PNG, GIF (máx. 5MB)
@@ -254,14 +308,17 @@
 
                         <!-- Descrição -->
                         <div class="field">
-                            <label for="campDescricao" class="block mb-2 font-medium" style="color: #cbd5e1">Descrição</label>
+                            <label for="campDescricao" class="block mb-2 font-semibold label-modern" style="color: #cbd5e1; font-size: 1rem;">
+                                <i class="pi pi-align-left mr-2" style="color: var(--accent); font-size: 1.1rem;"></i>
+                                Descrição
+                            </label>
                             <p:inputTextarea id="campDescricao" 
                                              value="#{managerCriarCampeonato.camp.observacao}"
                                              rows="5" 
                                              placeholder="Informações adicionais sobre o campeonato..."
                                              autoResize="true"
                                              maxlength="500"
-                                             styleClass="w-full" />
+                                             styleClass="glass-input glass-textarea" />
                             <small class="block mt-2" style="color: #98a2b3">Máximo 500 caracteres</small>
                         </div>
                     </p:card>
@@ -289,72 +346,763 @@
         </h:form>
 
         <style>
-            /* Inputs glass */
-            .glass-input { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.08) !important; color: var(--text-100) !important; }
-            .glass-input::placeholder { color: #98a2b3; }
-            .glass-input:focus { box-shadow: 0 0 0 1px rgba(0,225,255,0.18), 0 0 16px rgba(0,225,255,0.08) !important; border-color: rgba(0,225,255,0.35) !important; }
+            /* Altura padrão para todos os inputs */
+            :root {
+                --input-height: 3rem;
+                --input-padding-v: 0.75rem;
+                --input-padding-h: 1rem;
+            }
+
+            /* Glass Input Base - Altura fixa para consistência */
+            .glass-input,
+            .ui-inputtext.glass-input {
+                background: rgba(255,255,255,0.03) !important;
+                border: 1px solid rgba(255,255,255,0.08) !important;
+                color: var(--text-100) !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                padding: var(--input-padding-v) var(--input-padding-h) !important;
+                border-radius: 10px !important;
+                height: var(--input-height) !important;
+                line-height: 1.5 !important;
+                display: flex !important;
+                align-items: center !important;
+            }
             
-            /* Config box */
-            .config-box { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1rem; }
+            .glass-input::placeholder { 
+                color: #98a2b3 !important; 
+            }
             
-            /* Info box */
-            .info-box { background: rgba(0,225,255,0.05); border: 1px solid rgba(0,225,255,0.15); border-radius: 10px; padding: 1rem; }
+            .glass-input:focus { 
+                box-shadow: 0 0 0 1px rgba(0,225,255,0.18), 0 0 16px rgba(0,225,255,0.08) !important; 
+                border-color: rgba(0,225,255,0.35) !important;
+                outline: none !important;
+            }
+
+            /* TextArea - altura ajustável mas consistente */
+            .glass-textarea { 
+                min-height: 150px !important; 
+                height: auto !important;
+                resize: vertical !important;
+                padding: var(--input-padding-v) var(--input-padding-h) !important;
+            }
+
+            /* SelectOneMenu - uniformizar altura */
+            .ui-selectonemenu.glass-input {
+                height: var(--input-height) !important;
+                display: inline-flex !important;
+                align-items: center !important;
+            }
             
+            .ui-selectonemenu.glass-input .ui-selectonemenu-label {
+                padding: var(--input-padding-v) var(--input-padding-h) !important;
+                color: var(--text-100) !important;
+                line-height: 1.5 !important;
+                display: flex !important;
+                align-items: center !important;
+            }
+            
+            .ui-selectonemenu.glass-input .ui-selectonemenu-trigger {
+                background: transparent !important;
+                border: none !important;
+                width: 2.5rem !important;
+                height: 100% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            
+            .ui-selectonemenu.glass-input .ui-selectonemenu-trigger .ui-icon {
+                color: var(--text-300) !important;
+            }
+            
+            .ui-selectonemenu-panel {
+                background: var(--bg-800) !important;
+                border-color: rgba(255,255,255,0.08) !important;
+            }
+
+            /* DatePicker - uniformizar altura */
+            .ui-calendar {
+                background: rgba(255,255,255,0.03) !important;
+                border-color: rgba(255,255,255,0.08) !important;
+                width: 100% !important;
+                height: var(--input-height) !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                border-radius: 10px !important;
+            }
+            
+            .ui-calendar .ui-inputtext.glass-input {
+                border: none !important;
+                background: transparent !important;
+                height: 100% !important;
+                padding: 0 var(--input-padding-h) !important;
+            }
+            
+            .ui-calendar .ui-datepicker-trigger {
+                height: 100% !important;
+                background: transparent !important;
+                border: none !important;
+                color: var(--text-300) !important;
+                width: 2.5rem !important;
+            }
+            
+            .ui-calendar-panel {
+                background: var(--bg-800) !important;
+                border-color: rgba(255,255,255,0.08) !important;
+            }
+
+            /* AutoComplete - uniformizar altura */
+            .ui-autocomplete {
+                background: rgba(255,255,255,0.03) !important;
+                border-color: rgba(255,255,255,0.08) !important;
+                width: 100% !important;
+                height: var(--input-height) !important;
+                border-radius: 10px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+            }
+            
+            .ui-autocomplete .ui-autocomplete-input.glass-input {
+                border: none !important;
+                background: transparent !important;
+                height: 100% !important;
+                padding: 0 var(--input-padding-h) !important;
+            }
+            
+            .ui-autocomplete .ui-autocomplete-dropdown {
+                height: 100% !important;
+                background: transparent !important;
+                border: none !important;
+                color: var(--text-300) !important;
+                width: 2.5rem !important;
+            }
+            
+            .ui-autocomplete-panel {
+                background: var(--bg-800) !important;
+                border-color: rgba(255,255,255,0.08) !important;
+            }
+
+            /* InputNumber - uniformizar altura */
+            .ui-inputnumber {
+                background: rgba(255,255,255,0.03) !important;
+                border-color: rgba(255,255,255,0.08) !important;
+                width: 100% !important;
+                height: var(--input-height) !important;
+                border-radius: 10px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+            }
+            
+            .ui-inputnumber .ui-inputnumber-input.glass-input {
+                border: none !important;
+                background: transparent !important;
+                height: 100% !important;
+                padding: 0 2.5rem 0 var(--input-padding-h) !important;
+            }
+            
+            .ui-inputnumber .ui-inputnumber-button-group {
+                height: 100% !important;
+            }
+            
+            .ui-inputnumber .ui-button {
+                background: transparent !important;
+                border: none !important;
+                color: var(--text-300) !important;
+            }
+
+            /* TextArea separado */
+            .ui-inputtextarea {
+                background: rgba(255,255,255,0.03) !important;
+                border-color: rgba(255,255,255,0.08) !important;
+                color: var(--text-100) !important;
+                border-radius: 10px !important;
+            }
+
+            /* SelectOneButton - Estilo moderno com hover suave */
+            .ui-selectonebutton,
+            .ui-selectonebutton.custom-select-button {
+                background: transparent !important;
+                display: flex !important;
+                gap: 0.75rem !important;
+                width: 100% !important;
+            }
+            
+            .ui-selectonebutton .ui-button {
+                background: rgba(255,255,255,0.03) !important;
+                border: 2px solid rgba(255,255,255,0.1) !important;
+                color: var(--text-300) !important;
+                padding: 0.875rem 2rem !important;
+                border-radius: 12px !important;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                font-weight: 600 !important;
+                font-size: 0.95rem !important;
+                letter-spacing: 0.3px !important;
+                flex: 1 !important;
+                position: relative !important;
+                overflow: hidden !important;
+            }
+            
+            .ui-selectonebutton .ui-button::before {
+                content: '' !important;
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                width: 0 !important;
+                height: 0 !important;
+                border-radius: 50% !important;
+                background: rgba(0,225,255,0.1) !important;
+                transform: translate(-50%, -50%) !important;
+                transition: width 0.5s ease, height 0.5s ease !important;
+            }
+            
+            .ui-selectonebutton .ui-button:hover {
+                background: rgba(255,255,255,0.08) !important;
+                border-color: rgba(0,225,255,0.4) !important;
+                color: var(--accent) !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 4px 12px rgba(0,225,255,0.15), 0 0 20px rgba(0,225,255,0.1) !important;
+            }
+            
+            .ui-selectonebutton .ui-button:hover::before {
+                width: 300px !important;
+                height: 300px !important;
+            }
+            
+            .ui-selectonebutton .ui-state-active {
+                background: linear-gradient(135deg, rgba(0,225,255,0.15), rgba(0,225,255,0.08)) !important;
+                border-color: rgba(0,225,255,0.5) !important;
+                color: var(--accent) !important;
+                box-shadow: 0 0 20px rgba(0,225,255,0.2), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+                font-weight: 700 !important;
+            }
+            
+            .ui-selectonebutton .ui-state-active:hover {
+                transform: translateY(-2px) !important;
+                box-shadow: 0 6px 16px rgba(0,225,255,0.25), 0 0 30px rgba(0,225,255,0.15), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+            }
+
+            /* SelectOneRadio - Estilo moderno com cards */
+            .ui-selectoneradio,
+            .ui-selectoneradio.custom-radio-list {
+                background: transparent !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+                width: 100% !important;
+            }
+            
+            .ui-selectoneradio table {
+                width: 100% !important;
+                border-collapse: separate !important;
+                border-spacing: 0 0.75rem !important;
+            }
+            
+            .ui-selectoneradio tbody {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+            }
+            
+            .ui-selectoneradio .ui-radiobutton {
+                width: 24px !important;
+                height: 24px !important;
+                margin-right: 1rem !important;
+                flex-shrink: 0 !important;
+            }
+            
+            .ui-selectoneradio .ui-radiobutton .ui-radiobutton-box {
+                width: 24px !important;
+                height: 24px !important;
+                background: rgba(255,255,255,0.05) !important;
+                border: 2px solid rgba(255,255,255,0.2) !important;
+                border-radius: 50% !important;
+                transition: all 0.3s ease !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            
+            .ui-selectoneradio .ui-radiobutton .ui-radiobutton-box:hover {
+                border-color: rgba(0,225,255,0.5) !important;
+                background: rgba(255,255,255,0.08) !important;
+                box-shadow: 0 0 12px rgba(0,225,255,0.2) !important;
+                transform: scale(1.1) !important;
+            }
+            
+            .ui-selectoneradio .ui-radiobutton .ui-radiobutton-box.ui-state-active {
+                background: linear-gradient(135deg, rgba(0,225,255,0.25), rgba(0,225,255,0.15)) !important;
+                border-color: rgba(0,225,255,0.7) !important;
+                box-shadow: 0 0 20px rgba(0,225,255,0.4), inset 0 0 10px rgba(0,225,255,0.3) !important;
+            }
+            
+            .ui-selectoneradio .ui-radiobutton .ui-radiobutton-icon {
+                width: 12px !important;
+                height: 12px !important;
+                background-color: var(--accent) !important;
+                border-radius: 50% !important;
+                box-shadow: 0 0 8px rgba(0,225,255,0.6) !important;
+            }
+            
+            .ui-selectoneradio tr {
+                background: rgba(255,255,255,0.02) !important;
+                border: 2px solid rgba(255,255,255,0.1) !important;
+                border-radius: 12px !important;
+                padding: 1rem 1.25rem !important;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                cursor: pointer !important;
+                display: flex !important;
+                align-items: center !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            
+            .ui-selectoneradio tr:hover {
+                background: rgba(255,255,255,0.05) !important;
+                border-color: rgba(0,225,255,0.35) !important;
+                transform: translateX(6px) !important;
+                box-shadow: -3px 0 0 0 rgba(0,225,255,0.5), 0 3px 12px rgba(0,225,255,0.15) !important;
+            }
+            
+            /* Estilo especial para o item SELECIONADO */
+            .ui-selectoneradio tr.ui-state-active,
+            .ui-selectoneradio tr:has(.ui-radiobutton-box.ui-state-active) {
+                background: linear-gradient(135deg, rgba(0,225,255,0.12), rgba(0,225,255,0.05)) !important;
+                border-color: rgba(0,225,255,0.6) !important;
+                box-shadow: -4px 0 0 0 var(--accent), 0 4px 16px rgba(0,225,255,0.25), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+                transform: translateX(8px) !important;
+            }
+            
+            .ui-selectoneradio tr.ui-state-active:hover,
+            .ui-selectoneradio tr:has(.ui-radiobutton-box.ui-state-active):hover {
+                background: linear-gradient(135deg, rgba(0,225,255,0.18), rgba(0,225,255,0.08)) !important;
+                box-shadow: -4px 0 0 0 var(--accent), 0 6px 20px rgba(0,225,255,0.35), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+            }
+            
+            .ui-selectoneradio tr td {
+                padding: 0 !important;
+                border: none !important;
+                display: flex !important;
+                align-items: center !important;
+            }
+            
+            .ui-selectoneradio .ui-radiobutton-label {
+                color: #cbd5e1 !important;
+                font-weight: 500 !important;
+                font-size: 1rem !important;
+                letter-spacing: 0.4px !important;
+                transition: all 0.3s ease !important;
+                flex: 1 !important;
+            }
+            
+            .ui-selectoneradio tr:hover .ui-radiobutton-label {
+                color: var(--text-100) !important;
+                font-weight: 600 !important;
+            }
+            
+            .ui-selectoneradio tr.ui-state-active .ui-radiobutton-label,
+            .ui-selectoneradio tr:has(.ui-radiobutton-box.ui-state-active) .ui-radiobutton-label {
+                color: var(--accent) !important;
+                font-weight: 700 !important;
+                text-shadow: 0 0 10px rgba(0,225,255,0.3) !important;
+            }
+
+            /* Checkbox - Estilo moderno com animação */
+            .ui-chkbox {
+                display: inline-flex !important;
+                align-items: center !important;
+            }
+            
+            .ui-chkbox .ui-chkbox-box {
+                background: rgba(255,255,255,0.05) !important;
+                border: 2px solid rgba(255,255,255,0.2) !important;
+                width: 22px !important;
+                height: 22px !important;
+                border-radius: 7px !important;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                cursor: pointer !important;
+                position: relative !important;
+            }
+            
+            .ui-chkbox .ui-chkbox-box::after {
+                content: '' !important;
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                width: 0 !important;
+                height: 0 !important;
+                border-radius: 50% !important;
+                background: rgba(0,225,255,0.3) !important;
+                transform: translate(-50%, -50%) !important;
+                transition: width 0.4s ease, height 0.4s ease !important;
+            }
+            
+            .ui-chkbox .ui-chkbox-box.ui-state-hover {
+                border-color: rgba(0,225,255,0.5) !important;
+                background: rgba(255,255,255,0.08) !important;
+                box-shadow: 0 0 12px rgba(0,225,255,0.2) !important;
+                transform: scale(1.05) !important;
+            }
+            
+            .ui-chkbox .ui-chkbox-box.ui-state-hover::after {
+                width: 40px !important;
+                height: 40px !important;
+            }
+            
+            .ui-chkbox .ui-chkbox-box.ui-state-active {
+                background: linear-gradient(135deg, rgba(0,225,255,0.25), rgba(0,225,255,0.15)) !important;
+                border-color: rgba(0,225,255,0.6) !important;
+                box-shadow: 0 0 16px rgba(0,225,255,0.3), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+            }
+            
+            .ui-chkbox .ui-chkbox-icon {
+                color: var(--accent) !important;
+                font-size: 1.1rem !important;
+                font-weight: bold !important;
+                text-shadow: 0 0 8px rgba(0,225,255,0.5) !important;
+            }
+            
+            .ui-chkbox-label {
+                color: var(--text-100) !important;
+                margin-left: 0.75rem !important;
+                font-weight: 500 !important;
+                cursor: pointer !important;
+                transition: color 0.3s ease !important;
+            }
+            
+            .ui-chkbox:hover .ui-chkbox-label {
+                color: var(--accent) !important;
+            }
+
+            /* FileUpload - Simple mode */
+            .ui-fileupload-simple {
+                background: rgba(255,255,255,0.03) !important;
+                border: 1px solid rgba(255,255,255,0.08) !important;
+                border-radius: 10px !important;
+                padding: 0.75rem !important;
+                transition: all 0.2s ease !important;
+            }
+            
+            .ui-fileupload-simple:hover {
+                background: rgba(255,255,255,0.06) !important;
+                border-color: rgba(0,225,255,0.3) !important;
+            }
+            
+            .ui-fileupload-simple input[type="file"] {
+                background: transparent !important;
+                color: var(--text-100) !important;
+                border: none !important;
+                padding: 0.5rem !important;
+            }
+            
+            .ui-fileupload-simple .ui-button {
+                background: transparent !important;
+                border: none !important;
+                color: var(--text-100) !important;
+            }
+            
+            .ui-fileupload-simple .ui-button-text {
+                color: var(--text-100) !important;
+            }
+            
+            .ui-fileupload-simple .ui-button:hover {
+                color: var(--accent) !important;
+            }
+            
+            .ui-fileupload-simple .ui-icon-upload {
+                color: var(--accent) !important;
+            }
+
+            /* FileUpload - Basic mode fallback */
+            .ui-fileupload {
+                background: rgba(255,255,255,0.03) !important;
+                border: 1px solid rgba(255,255,255,0.08) !important;
+                color: var(--text-100) !important;
+                border-radius: 10px !important;
+            }
+            
+            .ui-fileupload-buttonbar {
+                background: transparent !important;
+                border: none !important;
+            }
+            
+            .ui-fileupload-choose {
+                background: rgba(0,225,255,0.08) !important;
+                border: 1px solid rgba(0,225,255,0.2) !important;
+                color: var(--accent) !important;
+                border-radius: 8px !important;
+            }
+            
+            .ui-fileupload-choose:hover {
+                background: rgba(0,225,255,0.15) !important;
+                border-color: rgba(0,225,255,0.3) !important;
+            }
+            
+            .ui-fileupload-choose .ui-button-icon-left {
+                color: var(--accent) !important;
+            }
+            
+            .ui-fileupload-content {
+                background: transparent !important;
+            }
+            
+            .ui-fileupload-row {
+                background: transparent !important;
+                border-color: rgba(255,255,255,0.08) !important;
+            }
+            
+            .ui-fileupload-filename {
+                color: var(--text-100) !important;
+            }
+            
+            .ui-fileupload-buttonbar .ui-button {
+                background: transparent !important;
+                border: none !important;
+                color: var(--text-100) !important;
+            }
+            
+            .ui-fileupload-buttonbar .ui-button:hover {
+                color: var(--accent) !important;
+            }
+
+            /* Config box - Estilo moderno */
+            .config-box {
+                background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)) !important;
+                border: 1px solid rgba(255,255,255,0.1) !important;
+                border-radius: 12px !important;
+                padding: 1.25rem !important;
+                transition: all 0.3s ease !important;
+            }
+            
+            .config-box:hover {
+                background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)) !important;
+                border-color: rgba(255,255,255,0.15) !important;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.1) !important;
+            }
+
+            /* Info box - Estilo moderno com gradient */
+            .info-box {
+                background: linear-gradient(135deg, rgba(0,225,255,0.08), rgba(0,225,255,0.03)) !important;
+                border: 1px solid rgba(0,225,255,0.2) !important;
+                border-radius: 12px !important;
+                padding: 1.25rem !important;
+                transition: all 0.3s ease !important;
+                position: relative !important;
+                overflow: hidden !important;
+            }
+            
+            .info-box::before {
+                content: '' !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                height: 2px !important;
+                background: linear-gradient(90deg, transparent, var(--accent), transparent) !important;
+                opacity: 0.5 !important;
+            }
+            
+            .info-box:hover {
+                background: linear-gradient(135deg, rgba(0,225,255,0.12), rgba(0,225,255,0.05)) !important;
+                border-color: rgba(0,225,255,0.3) !important;
+                box-shadow: 0 4px 16px rgba(0,225,255,0.15) !important;
+            }
+            
+            /* Formato info list */
+            .formato-info-list {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0.875rem !important;
+            }
+            
+            .formato-info-item {
+                display: flex !important;
+                align-items: flex-start !important;
+                gap: 0.5rem !important;
+                padding: 0.5rem !important;
+                border-radius: 8px !important;
+                transition: all 0.3s ease !important;
+            }
+            
+            .formato-info-item:hover {
+                background: rgba(255,255,255,0.03) !important;
+                padding-left: 0.75rem !important;
+            }
+            
+            .formato-info-item i {
+                margin-top: 0.25rem !important;
+                flex-shrink: 0 !important;
+            }
+            
+            .formato-info-item span {
+                line-height: 1.6 !important;
+                font-size: 0.9rem !important;
+            }
+            
+            /* Formato options container */
+            .formato-options {
+                margin: 0.5rem 0 !important;
+            }
+
             /* Upload placeholder */
-            .upload-placeholder { background: rgba(255,255,255,0.02); border: 2px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 2rem; height: 300px; display: flex; align-items: center; justify-content: center; }
-            .upload-placeholder i { font-size: 3rem; color: var(--muted); }
-
-            /* SelectOneRadio dark */
-            .ui-selectoneradio { background: transparent !important; }
-            .ui-selectoneradio .ui-radiobutton-label { color: var(--text-100) !important; }
-
-            /* SelectOneButton dark */
-            .ui-selectonebutton { background: transparent !important; }
-            .ui-selectonebutton .ui-button { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.08) !important; color: var(--text-300) !important; }
-            .ui-selectonebutton .ui-state-active { background: rgba(0,225,255,0.12) !important; border-color: rgba(0,225,255,0.35) !important; color: var(--accent) !important; }
-
-            /* SelectOneMenu dark */
-            .ui-selectonemenu { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.08) !important; color: var(--text-100) !important; }
-            .ui-selectonemenu-panel { background: var(--bg-800) !important; border-color: rgba(255,255,255,0.08) !important; }
-
-            /* InputNumber dark */
-            .ui-inputnumber { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.08) !important; }
-
-            /* DatePicker dark */
-            .ui-calendar { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.08) !important; }
-            .ui-calendar-panel { background: var(--bg-800) !important; border-color: rgba(255,255,255,0.08) !important; }
-
-            /* AutoComplete dark */
-            .ui-autocomplete { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.08) !important; }
-            .ui-autocomplete-panel { background: var(--bg-800) !important; border-color: rgba(255,255,255,0.08) !important; }
-
-            /* TextArea dark */
-            .ui-inputtextarea { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.08) !important; color: var(--text-100) !important; }
-
-            /* Checkbox dark */
-            .ui-chkbox { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.08) !important; }
-            .ui-chkbox .ui-chkbox-label { color: var(--text-100) !important; }
-
-            /* FileUpload dark - Simple mode */
-            .ui-fileupload-simple { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 10px !important; }
-            .ui-fileupload-simple:hover { background: rgba(255,255,255,0.06) !important; border-color: rgba(0,225,255,0.3) !important; }
-            .ui-fileupload-simple input[type="file"] { background: transparent !important; color: var(--text-100) !important; border: none !important; padding: .5rem; }
-            .ui-fileupload-simple .ui-button { background: transparent !important; border: none !important; color: var(--text-100) !important; }
-            .ui-fileupload-simple .ui-button-text { color: var(--text-100) !important; }
-            .ui-fileupload-simple .ui-button:hover { color: var(--accent) !important; }
-            .ui-fileupload-simple .ui-icon-upload { color: var(--accent) !important; }
+            .upload-placeholder {
+                background: rgba(255,255,255,0.02) !important;
+                border: 2px dashed rgba(255,255,255,0.15) !important;
+                border-radius: 10px !important;
+                padding: 2rem !important;
+                height: 300px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
             
-            /* Basic mode fallback */
-            .ui-fileupload { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.08) !important; color: var(--text-100) !important; border-radius: 10px !important; }
-            .ui-fileupload-buttonbar { background: transparent !important; border: none !important; }
-            .ui-fileupload-choose { background: rgba(0,225,255,0.08) !important; border: 1px solid rgba(0,225,255,0.2) !important; color: var(--accent) !important; border-radius: 8px; }
-            .ui-fileupload-choose:hover { background: rgba(0,225,255,0.15) !important; border-color: rgba(0,225,255,0.3) !important; }
-            .ui-fileupload-choose .ui-button-icon-left { color: var(--accent) !important; }
-            .ui-fileupload-content { background: transparent !important; }
-            .ui-fileupload-row { background: transparent !important; border-color: rgba(255,255,255,0.08) !important; }
-            .ui-fileupload-filename { color: var(--text-100) !important; }
-            .ui-fileupload-buttonbar .ui-button { background: transparent !important; border: none !important; color: var(--text-100) !important; }
-            .ui-fileupload-buttonbar .ui-button:hover { color: var(--accent) !important; }
+            .upload-placeholder i {
+                font-size: 3rem !important;
+                color: var(--muted) !important;
+            }
+
+            /* Field spacing consistency */
+            .field {
+                margin-bottom: 1.25rem !important;
+            }
+            
+            .field label {
+                display: block !important;
+                margin-bottom: 0.5rem !important;
+            }
+            
+            /* Label moderno */
+            .label-modern {
+                display: flex !important;
+                align-items: center !important;
+                letter-spacing: 0.3px !important;
+                transition: all 0.3s ease !important;
+            }
+            
+            .label-modern i {
+                transition: transform 0.3s ease !important;
+            }
+            
+            .label-modern:hover i {
+                transform: scale(1.1) rotate(5deg) !important;
+            }
+            
+            /* Dividers com estilo */
+            .ui-divider {
+                border-color: rgba(255,255,255,0.08) !important;
+                margin: 1.5rem 0 !important;
+            }
+            
+            /* Card titles com destaque */
+            .ui-card .ui-card-title {
+                color: var(--text-100) !important;
+                font-weight: 700 !important;
+                font-size: 1.1rem !important;
+                letter-spacing: 0.5px !important;
+            }
+            
+            /* Botões de ação com estilo moderno */
+            .p-button-outlined {
+                background: rgba(255,255,255,0.03) !important;
+                border: 2px solid rgba(255,255,255,0.15) !important;
+                color: var(--text-100) !important;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+            
+            .p-button-outlined:hover {
+                background: rgba(255,255,255,0.08) !important;
+                border-color: rgba(255,100,100,0.4) !important;
+                color: #ff6464 !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 4px 12px rgba(255,100,100,0.2) !important;
+            }
+            
+            .full-stats-btn {
+                background: linear-gradient(135deg, rgba(0,225,255,0.15), rgba(0,225,255,0.08)) !important;
+                border: 2px solid rgba(0,225,255,0.4) !important;
+                color: var(--accent) !important;
+                font-weight: 700 !important;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                position: relative !important;
+                overflow: hidden !important;
+            }
+            
+            .full-stats-btn::before {
+                content: '' !important;
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                width: 0 !important;
+                height: 0 !important;
+                border-radius: 50% !important;
+                background: rgba(0,225,255,0.2) !important;
+                transform: translate(-50%, -50%) !important;
+                transition: width 0.5s ease, height 0.5s ease !important;
+            }
+            
+            .full-stats-btn:hover {
+                background: linear-gradient(135deg, rgba(0,225,255,0.25), rgba(0,225,255,0.15)) !important;
+                border-color: rgba(0,225,255,0.6) !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 6px 20px rgba(0,225,255,0.3), 0 0 40px rgba(0,225,255,0.2) !important;
+            }
+            
+            .full-stats-btn:hover::before {
+                width: 300px !important;
+                height: 300px !important;
+            }
+            
+            /* Smooth scrolling */
+            * {
+                scroll-behavior: smooth !important;
+            }
         </style>
+
+        <script>
+            // Script para garantir que o estado ativo seja aplicado corretamente nos radio buttons
+            document.addEventListener('DOMContentLoaded', function() {
+                // Função para atualizar estado visual dos radio buttons
+                function updateRadioStates() {
+                    const radioGroups = document.querySelectorAll('.ui-selectoneradio');
+                    
+                    radioGroups.forEach(function(group) {
+                        const rows = group.querySelectorAll('tr');
+                        
+                        rows.forEach(function(row) {
+                            const radioBox = row.querySelector('.ui-radiobutton-box');
+                            
+                            if (radioBox) {
+                                // Remove classe ativa de todas as linhas
+                                row.classList.remove('ui-state-active');
+                                
+                                // Adiciona classe ativa apenas na linha com radio button selecionado
+                                if (radioBox.classList.contains('ui-state-active')) {
+                                    row.classList.add('ui-state-active');
+                                }
+                            }
+                        });
+                        
+                        // Adiciona listener de clique para atualizar estados
+                        rows.forEach(function(row) {
+                            row.addEventListener('click', function() {
+                                setTimeout(function() {
+                                    updateRadioStates();
+                                }, 50);
+                            });
+                        });
+                    });
+                }
+                
+                // Executa ao carregar
+                updateRadioStates();
+                
+                // Executa após AJAX updates
+                if (typeof PrimeFaces !== 'undefined') {
+                    PrimeFaces.ajax.addOnCompleteCallback(function() {
+                        setTimeout(updateRadioStates, 100);
+                    });
+                }
+            });
+        </script>
     </ui:define>
 </ui:composition>

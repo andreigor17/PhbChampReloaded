@@ -1,10 +1,8 @@
-<ui:composition template="layout.xhtml"
+<ui:composition template="vercel.xhtml"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-                xmlns:fox="http://java.sun.com/jsf/composite/fox">
+                xmlns:f="http://java.sun.com/jsf/core">
 
     <ui:define name="title">
         Visualizar Jogo
@@ -12,60 +10,242 @@
 
     <ui:define name="content">
 
-        <h:form id="formVisualizarjogo"
-                >
+        <h:form id="formVisualizarjogo">
+            <p:growl id="messages" showDetail="false"/>
 
-            <p:growl id="messages"
-                     showDetail="false"/>
-
-            <div  class="actions">
-
-                <p:commandButton id="menuButton" value="Opções" type="button" icon="pi pi-bars"/>
-                <p:menu overlay="true" trigger="menuButton" my="left top" at="left bottom">
-                    <p:submenu label="Geral">
-                        <p:menuitem value="Pesquisar" outcome="pesquisarJogos.xhtml" icon="ui-icon-search"/>
-                        <p:menuitem value="Editar" 
-                                    icon="pi pi-pencil" outcome="criarJogo.xhtml" >
-                            <f:param value="#{ managerJogo.jogo.id }" name="id"/>
-                        </p:menuitem>
-                        <p:menuitem value="Excluir"  update="messages" icon="pi pi-refresh" actionListener="#{managerJogo.excluir()}"/>                        
-                    </p:submenu>                    
-                </p:menu>                                             
-
+            <div class="section-header">
+                <div>
+                    <p:link outcome="pesquisarJogos.xhtml" styleClass="mb-3 d-block header-back-link">
+                        <i class="pi pi-arrow-left mr-2"></i>Voltar para Jogos
+                    </p:link>
+                    <h1 class="section-title">
+                        <i class="pi pi-desktop mr-2"></i>
+                        #{managerJogo.jogo.nome}
+                    </h1>
+                    <p class="section-description">Resumo visual do jogo e suas versões cadastradas.</p>
+                </div>
+                <div class="header-actions">
+                    <p:button value="Editar"
+                              icon="pi pi-pencil"
+                              outcome="criarJogo.xhtml"
+                              styleClass="header-action-btn header-action-btn--primary">
+                        <f:param name="id" value="#{managerJogo.jogo.id}"/>
+                    </p:button>
+                    <p:commandButton value="Excluir"
+                                     icon="pi pi-trash"
+                                     styleClass="header-action-btn header-action-btn--danger"
+                                     update="messages"
+                                     actionListener="#{managerJogo.excluir}"
+                                     onclick="return confirm('Tem certeza que deseja excluir este jogo?');"/>
+                </div>
             </div>
-            <p:fieldset legend="Dados">
 
-                <div class="row">
-                    <div class="column2 bold" >
-                        <p:outputLabel value="Nome:" for="nomeJogo"/>
+            <p:card styleClass="glass-card jogo-view-card">
+                <div class="game-overview">
+                    <div class="game-logo-container #{managerJogo.jogo.anexo eq null ? 'placeholder' : ''}">
+                        <p:graphicImage value="image/#{managerJogo.jogo.anexo.nome}"
+                                        rendered="#{managerJogo.jogo.anexo ne null}"
+                                        styleClass="game-logo-img"/>
+                        <div class="game-logo-placeholder" rendered="#{managerJogo.jogo.anexo eq null}">
+                            <i class="pi pi-image"></i>
+                            <span>Sem logo cadastrada</span>
+                        </div>
                     </div>
-                    <div class="column4 text" >
-                        <p:outputLabel id="nomeJogo"
-                                       value="#{managerJogo.jogo.nome}"/>
-                    </div>                    
+
+                    <div class="game-meta">
+                        <div class="game-color">
+                            <span class="game-color-chip"
+                                  style="background: #{empty managerJogo.jogo.corHex ? '#00e1ff' : managerJogo.jogo.corHex};"></span>
+                            <span class="game-color-text">
+                                #{empty managerJogo.jogo.corHex ? '#00E1FF' : managerJogo.jogo.corHex}
+                            </span>
+                        </div>
+                        <p class="game-description">
+                            A cor definida será utilizada como destaque nas badges exibidas junto aos jogadores associados a este jogo.
+                        </p>
+                    </div>
                 </div>
 
-                <div class="row">
-
-                    <p:dataTable id="playersDataTable" value="#{ managerJogo.versoes }" var="versao"
-                                 rows="10" paginator="true" paginatorPosition="bottom" emptyMessage="Nenhuma versão adicionado">
-
-                        <f:facet name="header">
-                            <p:outputLabel value="Versões Cadastrados" />
-                        </f:facet>
-
-                        <p:column headerText="Nome" width="50%">
-                            <h:outputText value="#{ versao.nome }" />
+                <div class="game-section">
+                    <div class="section-subheader">
+                        <h2><i class="pi pi-layers mr-2"></i>Versões cadastradas</h2>
+                    </div>
+                    <p:dataTable id="playersDataTable"
+                                 value="#{managerJogo.versoes}"
+                                 var="versao"
+                                 rows="10"
+                                 paginator="true"
+                                 paginatorPosition="bottom"
+                                 emptyMessage="Nenhuma versão adicionada"
+                                 styleClass="elegant-table">
+                        <p:column headerText="Nome" sortBy="#{versao.nome}">
+                            <h:outputText value="#{versao.nome}"/>
                         </p:column>
-
-
                     </p:dataTable>
                 </div>
-
-            </p:fieldset>           
-
+            </p:card>
         </h:form>
 
+        <style type="text/css">
+            .section-description {
+                color: var(--text-300);
+                margin-top: .35rem;
+            }
+
+            .header-actions {
+                display: flex;
+                gap: .75rem;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+
+            .header-action-btn {
+                display: inline-flex !important;
+                align-items: center;
+                gap: .45rem;
+                padding: .55rem 1.2rem !important;
+                border-radius: 999px !important;
+                font-weight: 600 !important;
+                letter-spacing: .4px;
+                transition: all .18s ease;
+            }
+
+            .header-action-btn--primary {
+                background: linear-gradient(135deg, rgba(0,225,255,0.18), rgba(0,225,255,0.1)) !important;
+                border: 1px solid rgba(0,225,255,0.3) !important;
+                color: var(--text-100) !important;
+            }
+
+            .header-action-btn--primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 24px rgba(0,225,255,0.2);
+            }
+
+            .header-action-btn--danger {
+                background: rgba(239,68,68,0.15) !important;
+                border: 1px solid rgba(239,68,68,0.35) !important;
+                color: var(--danger) !important;
+            }
+
+            .header-action-btn--danger:hover {
+                background: rgba(239,68,68,0.22) !important;
+                box-shadow: 0 10px 20px rgba(239,68,68,0.25);
+            }
+
+            .jogo-view-card {
+                border: 1px solid var(--border) !important;
+                margin-top: 1rem;
+            }
+
+            .game-overview {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1.5rem;
+                align-items: center;
+                margin-bottom: 2rem;
+            }
+
+            .game-logo-container {
+                width: 180px;
+                height: 180px;
+                border-radius: 22px;
+                overflow: hidden;
+                border: 1px solid rgba(255,255,255,0.08);
+                background: rgba(255,255,255,0.03);
+                position: relative;
+                flex-shrink: 0;
+            }
+
+            .game-logo-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .game-logo-placeholder {
+                position: absolute;
+                inset: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: .5rem;
+                color: var(--text-300);
+                font-size: .85rem;
+            }
+
+            .game-logo-placeholder i {
+                font-size: 1.75rem;
+                color: var(--accent);
+            }
+
+            .game-meta {
+                flex: 1;
+                min-width: 220px;
+            }
+
+            .game-color {
+                display: inline-flex;
+                align-items: center;
+                gap: .65rem;
+                padding: .5rem .9rem;
+                border-radius: 999px;
+                border: 1px solid rgba(255,255,255,0.06);
+                background: rgba(255,255,255,0.03);
+                margin-bottom: 1rem;
+            }
+
+            .game-color-chip {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                border: 2px solid rgba(255,255,255,0.2);
+                box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+            }
+
+            .game-color-text {
+                font-weight: 600;
+                color: var(--text-100);
+                letter-spacing: .4px;
+            }
+
+            .game-description {
+                color: var(--text-300);
+                max-width: 520px;
+                margin: 0;
+            }
+
+            .game-section {
+                margin-top: 1.5rem;
+            }
+
+            .section-subheader h2 {
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+                margin-bottom: 1rem;
+                font-size: 1.1rem;
+                color: var(--text-100);
+            }
+
+            @media (max-width: 768px) {
+                .header-actions {
+                    width: 100%;
+                    justify-content: flex-start;
+                    margin-top: 1rem;
+                }
+
+                .game-overview {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+
+                .game-logo-container {
+                    width: 150px;
+                    height: 150px;
+                }
+            }
+        </style>
     </ui:define>
 
 </ui:composition>

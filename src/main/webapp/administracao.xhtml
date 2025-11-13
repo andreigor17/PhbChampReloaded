@@ -38,10 +38,11 @@
                         <p:button value="Criar Jogo" 
                                   icon="pi pi-plus" 
                                   outcome="criarJogo.xhtml"
-                                  styleClass="module-btn" />
-                        <p:link value="Ver Jogos" 
-                                outcome="pesquisarJogos.xhtml"
-                                styleClass="module-link" />
+                                  styleClass="module-btn module-btn--primary" />
+                        <p:button value="Ver Jogos" 
+                                  icon="pi pi-list" 
+                                  outcome="pesquisarJogos.xhtml"
+                                  styleClass="module-btn module-btn--secondary" />
                     </div>
                 </p:card>
             </div>
@@ -62,10 +63,11 @@
                         <p:button value="Criar Mapa" 
                                   icon="pi pi-plus" 
                                   outcome="criarMapa.xhtml"
-                                  styleClass="module-btn" />
-                        <p:link value="Ver Mapas" 
-                                outcome="pesquisarMapas.xhtml"
-                                styleClass="module-link" />
+                                  styleClass="module-btn module-btn--primary" />
+                        <p:button value="Ver Mapas" 
+                                  icon="pi pi-table" 
+                                  outcome="pesquisarMapas.xhtml"
+                                  styleClass="module-btn module-btn--secondary" />
                     </div>
                 </p:card>
             </div>
@@ -86,7 +88,7 @@
                         <p:button value="Abrir Console" 
                                   icon="pi pi-external-link" 
                                   outcome="rcon-server.xhtml"
-                                  styleClass="module-btn" />
+                                  styleClass="module-btn module-btn--primary" />
                     </div>
                 </p:card>
             </div>
@@ -169,40 +171,52 @@
 
             .module-actions {
                 display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
+                flex-wrap: wrap;
+                gap: .75rem;
             }
 
             .module-btn {
-                width: 100%;
-                background: linear-gradient(135deg, rgba(0,225,255,0.12), rgba(0,225,255,0.06)) !important;
-                border: 1px solid rgba(0,225,255,0.25) !important;
-                color: var(--text-100) !important;
+                flex: 1 1 48%;
+                min-width: 150px;
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                gap: .5rem;
+                padding: .65rem 1rem !important;
+                border-radius: 12px !important;
                 font-weight: 600 !important;
-                transition: all 0.2s ease !important;
+                letter-spacing: .4px;
+                transition: all 0.22s ease !important;
             }
 
-            .module-btn:hover {
-                background: linear-gradient(135deg, rgba(0,225,255,0.18), rgba(0,225,255,0.10)) !important;
-                border-color: rgba(0,225,255,0.4) !important;
-                transform: translateX(2px);
+            .module-btn .pi {
+                font-size: 1rem;
             }
 
-            .module-link {
-                display: block;
-                text-align: center;
-                color: var(--accent);
-                text-decoration: none;
-                font-size: 0.875rem;
-                font-weight: 500;
-                padding: 0.5rem;
-                border-radius: 8px;
-                transition: all 0.2s ease;
+            .module-btn--primary {
+                background: linear-gradient(135deg, rgba(0,225,255,0.14), rgba(0,225,255,0.08)) !important;
+                border: 1px solid rgba(0,225,255,0.35) !important;
+                color: var(--text-100) !important;
             }
 
-            .module-link:hover {
-                background: rgba(0,225,255,0.08);
-                text-decoration: underline;
+            .module-btn--primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 24px rgba(0,225,255,0.16);
+                border-color: rgba(0,225,255,0.5) !important;
+                background: linear-gradient(135deg, rgba(0,225,255,0.18), rgba(0,225,255,0.12)) !important;
+            }
+
+            .module-btn--secondary {
+                background: rgba(255,255,255,0.04) !important;
+                border: 1px solid rgba(255,255,255,0.08) !important;
+                color: var(--text-100) !important;
+            }
+
+            .module-btn--secondary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 22px rgba(0,0,0,0.35);
+                border-color: rgba(0,225,255,0.3) !important;
+                color: var(--accent) !important;
             }
 
             .header-back-link {
@@ -227,6 +241,15 @@
 
                 .module-icon {
                     margin-bottom: 0.5rem;
+                }
+
+                .module-actions {
+                    flex-direction: column;
+                }
+
+                .module-btn {
+                    flex-basis: 100%;
+                    width: 100%;
                 }
             }
         </style>

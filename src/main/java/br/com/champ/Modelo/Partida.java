@@ -21,6 +21,7 @@ public class Partida extends ModeloGenerico implements Serializable {
     private List<ItemPartida> itemPartida;
     private Jogo jogo;
     private Team timeVencedor;
+    private Team timePerdedor;
     private int contador;
     private int contadorEsperado;
     private boolean finalizada;
@@ -61,6 +62,14 @@ public class Partida extends ModeloGenerico implements Serializable {
 
     public void setTimeVencedor(Team timeVencedor) {
         this.timeVencedor = timeVencedor;
+    }
+
+    public Team getTimePerdedor() {
+        return timePerdedor;
+    }
+
+    public void setTimePerdedor(Team timePerdedor) {
+        this.timePerdedor = timePerdedor;
     }
 
     public int getContador() {

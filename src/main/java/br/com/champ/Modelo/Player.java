@@ -35,6 +35,7 @@ public class Player extends ModeloGenerico implements Serializable {
     private String steamId64;
     private Date dataNascimento;
     private String posicao;
+    private Double rating;
 
     public String getNome() {
         return nome;
@@ -198,6 +199,14 @@ public class Player extends ModeloGenerico implements Serializable {
 
     public void setPosicao(String posicao) {
         this.posicao = posicao;
+    }
+
+    public Double getRating() {
+        return rating;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
     }
 
 }

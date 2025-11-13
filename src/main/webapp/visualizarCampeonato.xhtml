@@ -191,8 +191,7 @@
                 <div class="mb-3" style="text-align: center;">
                     <p:commandButton value="Sortear Times" 
                                      icon="pi pi-random"
-                                     styleClass="action-btn"
-                                     style="background: linear-gradient(135deg, var(--accent), var(--accent-2)); margin-bottom: 1rem;"
+                                     styleClass="btn-sortear-times"
                                      rendered="#{not empty managerCamp.camp.players and (empty managerCamp.camp.teams or managerCamp.camp.teams.size() eq 0)}"
                                      action="#{managerCamp.sortearTimes()}"
                                      update="@form"
@@ -233,92 +232,120 @@
             <h:panelGroup rendered="#{managerCamp.camp.tipoCampeonato.nome eq 'SUÍÇO'}">
                 <p:card styleClass="glass-card mb-4">
                     <f:facet name="title">
-                        <div class="flex align-items-center justify-content-between">
-                            <span class="flex align-items-center">
-                                <i class="pi pi-sitemap mr-2" style="color: var(--accent)"></i>
-                                <span>Rodadas (Formato Suíço)</span>
-                            </span>
+                        <div class="swiss-header-wrapper">
+                            <div class="swiss-header-left">
+                                <div class="swiss-title-group">
+                                    <i class="pi pi-sitemap" style="color: var(--accent); font-size: 1.5rem;"></i>
+                                    <h3 class="swiss-title">Rodadas (Formato Suíço)</h3>
+                                </div>
+                                <div class="swiss-status-indicator #{managerCamp.isRodadaAtualEmAndamento() ? 'in-progress' : 'waiting'}">
+                                    <i class="pi pi-#{managerCamp.isRodadaAtualEmAndamento() ? 'spin pi-spinner' : 'clock'}"></i>
+                                    <span>#{managerCamp.getRodadaAtualDescricao()}</span>
+                                </div>
+                            </div>
                             <p:commandButton value="Gerar Próxima Rodada" 
                                            icon="pi pi-refresh"
-                                           styleClass="action-btn"
-                                           rendered="#{managerCamp.podeMostrarProximaRodada()}"
+                                           styleClass="btn-gerar-rodada"
+                                           rendered="#{managerCamp.isAdmin() and managerCamp.camp.tipoCampeonato.nome eq 'SUÍÇO' and not empty managerCamp.camp.teams and (empty managerCamp.getRodadasSuicas() or managerCamp.podeMostrarProximaRodada())}"
                                            action="#{managerCamp.gerarProximaRodada()}"
-                                           update="@form" />
+                                           update="@form"
+                                           onclick="return confirm('Tem certeza que deseja gerar a próxima rodada? Esta ação criará as partidas da rodada.');" />
                         </div>
                     </f:facet>
 
                     <!-- Container de Rodadas Suíças -->
                     <div class="swiss-bracket-container">
-                        <ui:repeat value="#{managerCamp.getRodadasSuicas()}" var="rodada">
-                            <div class="swiss-column">
+                        <ui:repeat value="#{managerCamp.getRodadasSuicas()}" var="rodada" varStatus="status">
+                            <div class="swiss-column #{status.last and managerCamp.isRodadaAtualEmAndamento() ? 'current-round' : ''}">
                                 <div class="swiss-column-header">
-                                    <span class="swiss-record-badge">#{rodada.record}</span>
-                                    <h:panelGroup rendered="#{rodada.record eq '3:0' or rodada.record eq '3:1' or rodada.record eq '3:2'}">
-                                        <span class="status-tag qualified">Qualificado</span>
-                                    </h:panelGroup>
-                                    <h:panelGroup rendered="#{rodada.record eq '0:3' or rodada.record eq '1:3' or rodada.record eq '2:3'}">
-                                        <span class="status-tag eliminated">Eliminado</span>
+                                    <div class="flex align-items-center gap-2 mb-2">
+                                        <span class="swiss-round-badge">#{rodada.nome}</span>
+                                        <h:panelGroup rendered="#{status.last and managerCamp.isRodadaAtualEmAndamento()}">
+                                            <span class="status-tag live" style="background: rgba(34,197,94,0.15); color: var(--success); border: 1px solid rgba(34,197,94,0.3); display: inline-flex; align-items: center; gap: 0.4rem;">
+                                                <i class="pi pi-circle-fill" style="font-size: 0.6rem; animation: blink 1.5s ease-in-out infinite;"></i>
+                                                <span>Em Andamento</span>
+                                            </span>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{rodada.finalizada}">
+                                            <span class="status-tag" style="background: rgba(255,255,255,0.08); color: var(--text-200); border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center; gap: 0.4rem;">
+                                                <i class="pi pi-check-circle" style="font-size: 0.9rem;"></i>
+                                                <span>Finalizada</span>
+                                            </span>
+                                        </h:panelGroup>
+                                    </div>
+                                    
+                                    <!-- Distribuição de Records após a rodada -->
+                                    <h:panelGroup rendered="#{rodada.finalizada and not empty rodada.recordsNaRodada}">
+                                        <div class="swiss-records-distribution">
+                                            <ui:repeat value="#{rodada.recordsNaRodada.entrySet().toArray()}" var="entry">
+                                                <span class="record-chip">
+                                                    <span class="record-label">#{entry.key}</span>
+                                                    <span class="record-count">#{entry.value} #{entry.value eq 1 ? 'time' : 'times'}</span>
+                                                </span>
+                                            </ui:repeat>
+                                        </div>
                                     </h:panelGroup>
                                 </div>
 
-                                <div class="swiss-matches">
-                                    <ui:repeat value="#{rodada.partidas}" var="partida">
-                                        <div class="swiss-match">
-                                            <h:panelGroup rendered="#{partida.itemPartida ne null and partida.itemPartida.size() gt 0}">
-                                                <div class="swiss-team #{partida.isFinalizada() and partida.itemPartida.get(0).team1.id eq partida.timeVencedor.id ? 'winner' : ''}">
-                                                    <div class="swiss-team-logo">
-                                                        <h:panelGroup rendered="#{partida.itemPartida.get(0).team1.anexo != null}">
-                                                            <p:graphicImage value="image/#{partida.itemPartida.get(0).team1.anexo.nome}" 
-                                                                          styleClass="team-logo-small" />
-                                                        </h:panelGroup>
-                                                        <h:panelGroup rendered="#{partida.itemPartida.get(0).team1.anexo == null}">
-                                                            #{partida.itemPartida.get(0).team1.nome.substring(0,1).toUpperCase()}
-                                                        </h:panelGroup>
-                                                    </div>
-                                                    <span class="swiss-team-name">#{partida.itemPartida.get(0).team1.nome}</span>
-                                                    <h:panelGroup rendered="#{partida.isFinalizada()}">
-                                                        <span class="swiss-score">#{partida.itemPartida.get(0).scoreT1}</span>
-                                                    </h:panelGroup>
-                                                </div>
-
-                                                <div class="swiss-divider">
-                                                    <span class="swiss-vs">vs</span>
-                                                </div>
-
-                                                <div class="swiss-team #{partida.isFinalizada() and partida.itemPartida.get(0).team2.id eq partida.timeVencedor.id ? 'winner' : ''}">
-                                                    <div class="swiss-team-logo">
-                                                        <h:panelGroup rendered="#{partida.itemPartida.get(0).team2.anexo != null}">
-                                                            <p:graphicImage value="image/#{partida.itemPartida.get(0).team2.anexo.nome}" 
-                                                                          styleClass="team-logo-small" />
-                                                        </h:panelGroup>
-                                                        <h:panelGroup rendered="#{partida.itemPartida.get(0).team2.anexo == null}">
-                                                            #{partida.itemPartida.get(0).team2.nome.substring(0,1).toUpperCase()}
-                                                        </h:panelGroup>
-                                                    </div>
-                                                    <span class="swiss-team-name">#{partida.itemPartida.get(0).team2.nome}</span>
-                                                    <h:panelGroup rendered="#{partida.isFinalizada()}">
-                                                        <span class="swiss-score">#{partida.itemPartida.get(0).scoreT2}</span>
-                                                    </h:panelGroup>
-                                                </div>
-                                            </h:panelGroup>
-
-                                            <div class="swiss-match-status">
-                                                <h:panelGroup rendered="#{partida.isFinalizada()}">
-                                                    <span class="status-tag finished">Finalizada</span>
+                                <!-- Visualização Compacta das Partidas Agrupadas por Recorde -->
+                                <ui:repeat value="#{managerCamp.getPartidasPorRecorde(rodada).entrySet().toArray()}" var="recordEntry">
+                                    <h:panelGroup rendered="#{not empty recordEntry.value}">
+                                        <div class="swiss-record-group">
+                                            <div class="swiss-record-header">
+                                                <h:panelGroup rendered="#{not recordEntry.value.get(0).isFinalizada()}">
+                                                    <span class="swiss-record-badge">#{recordEntry.key}</span>
                                                 </h:panelGroup>
-                                                <h:panelGroup rendered="#{not partida.isFinalizada()}">
-                                                    <span class="status-tag scheduled">Aguardando</span>
+                                                <h:panelGroup rendered="#{not recordEntry.value.get(0).isFinalizada()}">
+                                                    <span class="swiss-record-count">#{recordEntry.value.size()} #{recordEntry.value.size() eq 1 ? 'partida' : 'partidas'}</span>
+                                                </h:panelGroup>
+                                                <h:panelGroup rendered="#{recordEntry.value.get(0).isFinalizada()}">
+                                                    <span class="swiss-finalized-label">Partidas Finalizadas</span>
                                                 </h:panelGroup>
                                             </div>
-
-                                            <p:commandButton value="Registrar Resultado" 
-                                                           icon="pi pi-pencil"
-                                                           styleClass="action-btn w-full mt-2"
-                                                           rendered="#{not partida.isFinalizada() and managerCamp.playerLogado ne null}"
-                                                           onclick="alert('Funcionalidade em desenvolvimento'); return false;" />
+                                        <div class="swiss-visual-matchups-container">
+                                            <ui:repeat value="#{recordEntry.value}" var="partida" varStatus="partidaStatus">
+                                                <div class="swiss-matchup-mini">
+                                                    <h:panelGroup rendered="#{partida.itemPartida ne null and partida.itemPartida.size() gt 0}">
+                                                        <!-- Time 1 -->
+                                                        <div class="swiss-mini-team #{partida.isFinalizada() and partida.itemPartida.get(0).team1.id eq partida.timeVencedor.id ? 'winner' : (partida.isFinalizada() ? 'loser' : '')}">
+                                                            <span class="swiss-mini-team-initial">#{partida.itemPartida.get(0).team1.nome.substring(0,1).toUpperCase()}</span>
+                                                            <span class="swiss-mini-team-name">#{partida.itemPartida.get(0).team1.nome}</span>
+                                                        </div>
+                                                        
+                                                        <!-- Time 2 -->
+                                                        <div class="swiss-mini-team #{partida.isFinalizada() and partida.itemPartida.get(0).team2.id eq partida.timeVencedor.id ? 'winner' : (partida.isFinalizada() ? 'loser' : '')}">
+                                                            <span class="swiss-mini-team-initial">#{partida.itemPartida.get(0).team2.nome.substring(0,1).toUpperCase()}</span>
+                                                            <span class="swiss-mini-team-name">#{partida.itemPartida.get(0).team2.nome}</span>
+                                                        </div>
+                                                        
+                                                        <!-- Ações da partida -->
+                                                        <div class="swiss-mini-actions">
+                                                            <p:button value="Ver"
+                                                                      icon="pi pi-eye"
+                                                                      styleClass="swiss-action-btn"
+                                                                      outcome="visualizarPartida.xhtml">
+                                                                <f:param name="id" value="#{partida.id}" />
+                                                            </p:button>
+                                                            
+                                                            <h:panelGroup rendered="#{not partida.isFinalizada() and managerCamp.playerLogado ne null}">
+                                                                <p:commandButton value="Finalizar"
+                                                                               icon="pi pi-check-circle"
+                                                                               styleClass="swiss-action-btn swiss-action-btn--accent"
+                                                                               title="Registrar Resultado"
+                                                                               action="#{managerCamp.abrirDialogoResultado(partida)}"
+                                                                               update=":formDialogoResultado"
+                                                                               process="@this"
+                                                                               ajax="true"
+                                                                               oncomplete="PF('dialogoResultado').show();" />
+                                                            </h:panelGroup>
+                                                        </div>
+                                                    </h:panelGroup>
+                                                </div>
+                                            </ui:repeat>
                                         </div>
-                                    </ui:repeat>
-                                </div>
+                                        </div>
+                                    </h:panelGroup>
+                                </ui:repeat>
                             </div>
                         </ui:repeat>
                     </div>
@@ -332,6 +359,74 @@
                 </p:card>
             </h:panelGroup>
 
+            <!-- Tabela de Classificação (apenas para formato SUÍÇO ou quando há times e partidas) -->
+            <h:panelGroup rendered="#{not empty managerCamp.camp.teams and (managerCamp.camp.tipoCampeonato.nome eq 'SUÍÇO' or not empty managerCamp.partidas)}">
+                <p:card styleClass="glass-card mb-4">
+                    <f:facet name="title">
+                        <div class="flex align-items-center">
+                            <i class="pi pi-list mr-2" style="color: var(--accent)"></i>
+                            <span>Classificação</span>
+                        </div>
+                    </f:facet>
+
+                    <div class="classificacao-container">
+                        <h:panelGroup rendered="#{not empty managerCamp.getTabelaClassificacao()}">
+                            <p:dataTable value="#{managerCamp.getTabelaClassificacao()}" 
+                                        var="classificacao"
+                                        styleClass="classificacao-table"
+                                        emptyMessage="Nenhuma classificação disponível ainda">
+                                
+                                <p:column headerText="Pos" styleClass="col-pos">
+                                    <div class="posicao-badge">
+                                        <h:outputText value="#{classificacao.posicao}" />
+                                    </div>
+                                </p:column>
+
+                                <p:column headerText="Time" styleClass="col-team">
+                                    <div class="team-classificacao-row">
+                                        <div class="team-classificacao-logo">
+                                            <h:panelGroup rendered="#{classificacao.team.anexo != null}">
+                                                <p:graphicImage value="image/#{classificacao.team.anexo.nome}" 
+                                                              styleClass="team-logo-mini" />
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{classificacao.team.anexo == null}">
+                                                #{classificacao.team.nome.substring(0,1).toUpperCase()}
+                                            </h:panelGroup>
+                                        </div>
+                                        <span class="team-classificacao-name">#{classificacao.team.nome}</span>
+                                    </div>
+                                </p:column>
+
+                                <p:column headerText="V" styleClass="col-stat">
+                                    <span class="stat-value-wins">#{classificacao.vitorias}</span>
+                                </p:column>
+
+                                <p:column headerText="D" styleClass="col-stat">
+                                    <span class="stat-value-losses">#{classificacao.derrotas}</span>
+                                </p:column>
+
+                                <p:column headerText="Pontos" styleClass="col-stat">
+                                    <span class="stat-value-points">#{classificacao.pontos}</span>
+                                </p:column>
+
+                                <p:column headerText="Record" styleClass="col-record">
+                                    <span class="record-badge">#{classificacao.record}</span>
+                                </p:column>
+
+                            </p:dataTable>
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{empty managerCamp.getTabelaClassificacao()}">
+                            <div class="text-center py-5">
+                                <i class="pi pi-list mb-3" style="font-size: 3rem; color: var(--muted)"></i>
+                                <p style="color: #d1d8e6">Nenhuma classificação disponível ainda</p>
+                                <p style="color: #98a2b3; font-size: 0.9rem;">As posições serão atualizadas conforme as partidas forem finalizadas</p>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                </p:card>
+            </h:panelGroup>
+
             <!-- Partidas e Estatísticas -->
             <div class="glass-tab-container mb-4">
                 <p:tabView>
@@ -342,28 +437,88 @@
                             </h2>
                         </div>
 
-                        <div class="grid-container-modern">
+                        <div class="matches-grid-container">
                             <ui:repeat value="#{managerCamp.partidas}" var="partida">
-                                <div class="match-card-modern">
-                                    <div class="flex justify-content-between align-items-center mb-3">
-                                        <span class="status-tag scheduled">Agendada</span>
-                                        <small style="color: #98a2b3">#{managerCamp.formataData(partida.dataPartida)}</small>
-                                    </div>
-                                    <div class="match-teams">
-                                        <div class="match-team-item">
-                                            <div class="team-mini-avatar">#{partida.itemPartida.get(0).team1.nome.substring(0,1)}</div>
-                                            <span>#{partida.itemPartida.get(0).team1.nome}</span>
+                                <div class="match-card-enhanced">
+                                    <div class="match-card-header">
+                                        <h:panelGroup rendered="#{partida.isFinalizada()}">
+                                            <span class="match-status-badge match-status-finished">
+                                                <i class="pi pi-check-circle"></i>
+                                                <span>Finalizada</span>
+                                            </span>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{not partida.isFinalizada()}">
+                                            <span class="match-status-badge match-status-scheduled">
+                                                <i class="pi pi-clock"></i>
+                                                <span>Agendada</span>
+                                            </span>
+                                        </h:panelGroup>
+                                        <div class="match-date-info">
+                                            <i class="pi pi-calendar"></i>
+                                            <span>#{managerCamp.formataData(partida.dataPartida)}</span>
                                         </div>
-                                        <span class="match-vs-mini">VS</span>
-                                        <div class="match-team-item">
-                                            <div class="team-mini-avatar">#{partida.itemPartida.get(0).team2.nome.substring(0,1)}</div>
-                                            <span>#{partida.itemPartida.get(0).team2.nome}</span>
-                                        </div>
                                     </div>
-                                    <p:button value="Ver Detalhes" 
-                                             icon="pi pi-eye"
-                                             styleClass="action-btn w-full mt-2"
-                                             outcome="error.xhtml" />
+                                    
+                                    <div class="match-content">
+                                        <h:panelGroup rendered="#{partida.itemPartida ne null and partida.itemPartida.size() gt 0}">
+                                            <div class="match-teams-enhanced">
+                                                <div class="match-team-card">
+                                                    <div class="match-team-avatar">
+                                                        <h:panelGroup rendered="#{partida.itemPartida.get(0).team1.anexo != null}">
+                                                            <p:graphicImage value="image/#{partida.itemPartida.get(0).team1.anexo.nome}" 
+                                                                          styleClass="match-team-logo" />
+                                                        </h:panelGroup>
+                                                        <h:panelGroup rendered="#{partida.itemPartida.get(0).team1.anexo == null}">
+                                                            #{partida.itemPartida.get(0).team1.nome.substring(0,1).toUpperCase()}
+                                                        </h:panelGroup>
+                                                    </div>
+                                                    <div class="match-team-info">
+                                                        <span class="match-team-name">#{partida.itemPartida.get(0).team1.nome}</span>
+                                                        <h:panelGroup rendered="#{partida.isFinalizada() and partida.timeVencedor != null and partida.timeVencedor.id eq partida.itemPartida.get(0).team1.id}">
+                                                            <span class="match-winner-badge">
+                                                                <i class="pi pi-trophy"></i>
+                                                                Vencedor
+                                                            </span>
+                                                        </h:panelGroup>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="match-vs-divider">
+                                                    <span class="match-vs-text">VS</span>
+                                                </div>
+                                                
+                                                <div class="match-team-card">
+                                                    <div class="match-team-avatar">
+                                                        <h:panelGroup rendered="#{partida.itemPartida.get(0).team2.anexo != null}">
+                                                            <p:graphicImage value="image/#{partida.itemPartida.get(0).team2.anexo.nome}" 
+                                                                          styleClass="match-team-logo" />
+                                                        </h:panelGroup>
+                                                        <h:panelGroup rendered="#{partida.itemPartida.get(0).team2.anexo == null}">
+                                                            #{partida.itemPartida.get(0).team2.nome.substring(0,1).toUpperCase()}
+                                                        </h:panelGroup>
+                                                    </div>
+                                                    <div class="match-team-info">
+                                                        <span class="match-team-name">#{partida.itemPartida.get(0).team2.nome}</span>
+                                                        <h:panelGroup rendered="#{partida.isFinalizada() and partida.timeVencedor != null and partida.timeVencedor.id eq partida.itemPartida.get(0).team2.id}">
+                                                            <span class="match-winner-badge">
+                                                                <i class="pi pi-trophy"></i>
+                                                                Vencedor
+                                                            </span>
+                                                        </h:panelGroup>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </h:panelGroup>
+                                    </div>
+                                    
+                                    <div class="match-card-footer">
+                                        <p:button value="Ver Detalhes" 
+                                                 icon="pi pi-eye"
+                                                 styleClass="match-view-btn"
+                                                 outcome="visualizarPartida.xhtml">
+                                            <f:param name="id" value="#{partida.id}" />
+                                        </p:button>
+                                    </div>
                                 </div>
                             </ui:repeat>
                         </div>
@@ -422,6 +577,60 @@
 
         </h:form>
 
+        <!-- Diálogo para Registrar Resultado (fora do form para evitar problemas de referência) -->
+        <p:dialog id="dialogoResultado" 
+                 header="Registrar Resultado da Partida" 
+                 widgetVar="dialogoResultado"
+                 modal="true"
+                 resizable="false"
+                 closable="true"
+                 draggable="false"
+                 styleClass="dialogo-resultado"
+                 width="550"
+                 showEffect="fade"
+                 hideEffect="fade">
+            <h:form id="formDialogoResultado">
+                
+
+                <h:panelGroup rendered="#{managerCamp.partidaParaResultado ne null}">
+                    <div class="winner-select-container">
+                        <p:selectOneButton id="winnerSelector"
+                                           value="#{managerCamp.vencedorSelecionadoId}"
+                                           required="true"
+                                           requiredMessage="Selecione o time vencedor"
+                                           styleClass="winner-select">
+                            <f:selectItem itemValue="#{managerCamp.idTime1Partida}" itemLabel="#{managerCamp.nomeTime1Partida}" itemDisabled="#{managerCamp.idTime1Partida eq null}" />
+                            <f:selectItem itemValue="#{managerCamp.idTime2Partida}" itemLabel="#{managerCamp.nomeTime2Partida}" itemDisabled="#{managerCamp.idTime2Partida eq null}" />
+                        </p:selectOneButton>
+                    </div>
+
+                    
+                </h:panelGroup>
+
+                <h:panelGroup rendered="#{managerCamp.partidaParaResultado eq null}">
+                    <div class="text-center py-4">
+                        <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: var(--accent);"></i>
+                        <p style="color: var(--text-300); margin-top: 1rem;">Carregando dados da partida...</p>
+                    </div>
+                </h:panelGroup>
+                
+                <div class="dialog-footer-actions">
+                    <p:commandButton value="Cancelar" 
+                                   icon="pi pi-times"
+                                   styleClass="p-button-secondary p-button-outlined"
+                                   onclick="PF('dialogoResultado').hide();"
+                                   type="button" />
+                    <p:commandButton value="Salvar Resultado" 
+                                   icon="pi pi-check"
+                                   styleClass="p-button-success"
+                                   action="#{managerCamp.salvarResultadoDialogo()}"
+                                   update=":formCampeonato"
+                                   process="@form"
+                                   oncomplete="if (args &amp;&amp; !args.validationFailed) { PF('dialogoResultado').hide(); }" />
+                </div>
+            </h:form>
+        </p:dialog>
+
         <style>
             /* Hero do Campeonato */
             .camp-hero { background: linear-gradient(135deg, var(--bg-800), var(--bg-900)) !important; padding: 2rem 1.5rem; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: var(--radius) !important; box-shadow: var(--shadow) !important; }
@@ -453,13 +662,268 @@
             .participant-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
             .participant-name-modern { font-size: .95rem; font-weight: 700; color: var(--text-100); margin-bottom: .5rem; }
 
-            /* Match cards */
-            .match-card-modern { border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); border-radius: 12px; padding: 1rem; transition: all .2s ease; }
-            .match-card-modern:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(0,0,0,0.4); border-color: rgba(0,225,255,0.2); }
-            .match-teams { display: flex; align-items: center; gap: .75rem; padding: .75rem 0; }
-            .match-team-item { display: flex; align-items: center; gap: .5rem; flex: 1; font-weight: 600; color: var(--text-100); font-size: .9rem; }
-            .team-mini-avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(0,225,255,0.1); border: 1px solid rgba(0,225,255,0.2); display: flex; align-items: center; justify-content: center; font-size: .85rem; font-weight: 800; color: var(--accent); }
-            .match-vs-mini { font-weight: 800; color: var(--text-300); font-size: .85rem; }
+            /* Match Cards Enhanced - Layout Melhorado */
+            .matches-grid-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                gap: 1.5rem;
+                padding: 0.5rem 0;
+            }
+            
+            .match-card-enhanced {
+                background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 16px;
+                padding: 1.5rem;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            
+            .match-card-enhanced::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, var(--accent), var(--accent-2));
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            
+            .match-card-enhanced:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+                border-color: rgba(0,225,255,0.3);
+            }
+            
+            .match-card-enhanced:hover::before {
+                opacity: 1;
+            }
+            
+            .match-card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.25rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+            }
+            
+            .match-status-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.5rem 1rem;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+            }
+            
+            .match-status-badge i {
+                font-size: 0.85rem;
+            }
+            
+            .match-status-scheduled {
+                background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(59,130,246,0.08));
+                border: 1px solid rgba(59,130,246,0.3);
+                color: #60a5fa;
+            }
+            
+            .match-status-finished {
+                background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.08));
+                border: 1px solid rgba(34,197,94,0.3);
+                color: var(--success);
+            }
+            
+            .match-date-info {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: var(--text-300);
+                font-size: 0.85rem;
+                font-weight: 600;
+            }
+            
+            .match-date-info i {
+                color: var(--accent);
+                font-size: 0.9rem;
+            }
+            
+            .match-content {
+                margin-bottom: 1.25rem;
+            }
+            
+            .match-teams-enhanced {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .match-team-card {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 1rem;
+                background: rgba(255,255,255,0.02);
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 12px;
+                transition: all 0.2s ease;
+            }
+            
+            .match-team-card:hover {
+                background: rgba(255,255,255,0.04);
+                border-color: rgba(0,225,255,0.2);
+                transform: translateX(4px);
+            }
+            
+            .match-team-avatar {
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                background: linear-gradient(135deg, rgba(0,225,255,0.15), rgba(0,225,255,0.08));
+                border: 2px solid rgba(0,225,255,0.25);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.2rem;
+                font-weight: 800;
+                color: var(--accent);
+                flex-shrink: 0;
+                overflow: hidden;
+            }
+            
+            .match-team-logo {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            
+            .match-team-info {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                min-width: 0;
+            }
+            
+            .match-team-name {
+                font-size: 1rem;
+                font-weight: 700;
+                color: var(--text-100);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            
+            .match-winner-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4rem;
+                padding: 0.35rem 0.75rem;
+                background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,215,0,0.1));
+                border: 1px solid rgba(255,215,0,0.4);
+                border-radius: 16px;
+                color: #FFD700;
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            
+            .match-winner-badge i {
+                font-size: 0.8rem;
+            }
+            
+            .match-vs-divider {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.5rem 0;
+                position: relative;
+            }
+            
+            .match-vs-divider::before,
+            .match-vs-divider::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                width: 40%;
+                height: 1px;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            }
+            
+            .match-vs-divider::before {
+                left: 0;
+            }
+            
+            .match-vs-divider::after {
+                right: 0;
+            }
+            
+            .match-vs-text {
+                font-size: 0.9rem;
+                font-weight: 800;
+                color: var(--text-300);
+                background: rgba(255,255,255,0.05);
+                padding: 0.4rem 1rem;
+                border-radius: 20px;
+                border: 1px solid rgba(255,255,255,0.1);
+                letter-spacing: 1px;
+            }
+            
+            .match-card-footer {
+                padding-top: 1rem;
+                border-top: 1px solid rgba(255,255,255,0.08);
+            }
+            
+            .match-view-btn {
+                width: 100% !important;
+                padding: 0.75rem 1.5rem !important;
+                background: linear-gradient(135deg, rgba(0,225,255,0.1), rgba(0,180,255,0.08)) !important;
+                border: 1px solid rgba(0,225,255,0.25) !important;
+                color: var(--accent) !important;
+                font-weight: 700 !important;
+                font-size: 0.9rem !important;
+                border-radius: 10px !important;
+                transition: all 0.25s ease !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 0.5rem !important;
+            }
+            
+            .match-view-btn:hover {
+                background: linear-gradient(135deg, rgba(0,225,255,0.18), rgba(0,180,255,0.15)) !important;
+                border-color: rgba(0,225,255,0.4) !important;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,225,255,0.25) !important;
+            }
+            
+            @media (max-width: 768px) {
+                .matches-grid-container {
+                    grid-template-columns: 1fr;
+                    gap: 1rem;
+                }
+                
+                .match-card-enhanced {
+                    padding: 1.25rem;
+                }
+                
+                .match-team-avatar {
+                    width: 40px;
+                    height: 40px;
+                    font-size: 1rem;
+                }
+                
+                .match-team-name {
+                    font-size: 0.9rem;
+                }
+            }
 
             /* Stats grid */
             .stats-grid-modern { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; }
@@ -515,32 +979,912 @@
                 background: transparent !important; 
             }
             
-            /* Swiss Bracket Styles */
-            .swiss-bracket-container { display: flex; gap: 1.5rem; overflow-x: auto; padding: 1rem 0; }
-            .swiss-column { min-width: 280px; max-width: 320px; display: flex; flex-direction: column; }
-            .swiss-column-header { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1rem; align-items: center; }
-            .swiss-record-badge { font-size: 1.2rem; font-weight: 800; color: var(--text-100); padding: .5rem 1rem; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; }
-            .swiss-matches { display: flex; flex-direction: column; gap: 1rem; }
-            .swiss-match { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem; transition: all .2s ease; }
-            .swiss-match:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.35); border-color: rgba(0,225,255,0.2); }
-            .swiss-team { display: flex; align-items: center; gap: .75rem; padding: .75rem; border-radius: 8px; transition: all .15s ease; }
-            .swiss-team.winner { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); }
-            .swiss-team-logo { width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 800; color: var(--text-100); flex-shrink: 0; }
-            .team-logo-small { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
-            .swiss-team-name { flex: 1; font-weight: 600; color: var(--text-100); font-size: .9rem; }
-            .swiss-score { font-weight: 800; font-size: 1.1rem; color: var(--accent); }
-            .swiss-divider { text-align: center; padding: .5rem 0; position: relative; }
-            .swiss-vs { display: inline-block; background: rgba(0,225,255,0.1); border: 1px solid rgba(0,225,255,0.2); color: var(--accent); padding: .25rem .75rem; border-radius: 20px; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
-            .swiss-match-status { text-align: center; margin-top: .75rem; }
+            /* Swiss Header Wrapper */
+            .swiss-header-wrapper {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 1.5rem;
+                flex-wrap: wrap;
+            }
+            
+            .swiss-header-left {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                flex: 1;
+            }
+            
+            .swiss-title-group {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            
+            .swiss-title {
+                margin: 0 !important;
+                font-size: 1.25rem !important;
+                font-weight: 700 !important;
+                color: var(--text-100) !important;
+                letter-spacing: 0.3px;
+            }
+            
+            /* Swiss Status Indicator - Mais elegante */
+            .swiss-status-indicator {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.6rem;
+                padding: 0.65rem 1.25rem;
+                border-radius: 24px;
+                font-size: 0.9rem;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                backdrop-filter: blur(10px);
+            }
+            
+            .swiss-status-indicator.in-progress {
+                background: linear-gradient(135deg, rgba(34,197,94,0.18), rgba(34,197,94,0.08));
+                border: 2px solid rgba(34,197,94,0.4);
+                color: var(--success);
+                animation: pulse-status 2s ease-in-out infinite;
+                box-shadow: 0 4px 12px rgba(34,197,94,0.2);
+            }
+            
+            .swiss-status-indicator.waiting {
+                background: linear-gradient(135deg, rgba(59,130,246,0.18), rgba(59,130,246,0.08));
+                border: 2px solid rgba(59,130,246,0.4);
+                color: #60a5fa;
+                box-shadow: 0 4px 12px rgba(59,130,246,0.15);
+            }
+            
+            @keyframes pulse-status {
+                0%, 100% { 
+                    box-shadow: 0 4px 12px rgba(34,197,94,0.2), 0 0 0 0 rgba(34,197,94,0.4); 
+                }
+                50% { 
+                    box-shadow: 0 4px 12px rgba(34,197,94,0.2), 0 0 0 10px rgba(34,197,94,0); 
+                }
+            }
+            
+            /* Swiss Bracket Styles - Mais elegante e organizado */
+            .swiss-bracket-container {
+                display: flex;
+                gap: 1.5rem;
+                overflow-x: auto;
+                padding: 1.5rem 0;
+                scroll-behavior: smooth;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .swiss-bracket-container::-webkit-scrollbar {
+                height: 8px;
+            }
+            
+            .swiss-bracket-container::-webkit-scrollbar-track {
+                background: rgba(255,255,255,0.03);
+                border-radius: 10px;
+            }
+            
+            .swiss-bracket-container::-webkit-scrollbar-thumb {
+                background: rgba(0,225,255,0.2);
+                border-radius: 10px;
+            }
+            
+            .swiss-bracket-container::-webkit-scrollbar-thumb:hover {
+                background: rgba(0,225,255,0.3);
+            }
+            
+            .swiss-column {
+                min-width: 320px;
+                max-width: 360px;
+                display: flex;
+                flex-direction: column;
+                background: rgba(255,255,255,0.02);
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 16px;
+                padding: 1.25rem;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            
+            .swiss-column:hover {
+                background: rgba(255,255,255,0.03);
+                border-color: rgba(255,255,255,0.12);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            }
+            
+            .swiss-column.current-round {
+                background: linear-gradient(180deg, rgba(34,197,94,0.12), rgba(34,197,94,0.04));
+                border: 2px solid rgba(34,197,94,0.5);
+                box-shadow: 0 8px 24px rgba(34,197,94,0.25), 0 0 40px rgba(34,197,94,0.1);
+            }
+            
+            .swiss-column.current-round:hover {
+                border-color: rgba(34,197,94,0.6);
+                box-shadow: 0 12px 32px rgba(34,197,94,0.3), 0 0 50px rgba(34,197,94,0.15);
+            }
+            
+            .swiss-column-header {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                margin-bottom: 1.25rem;
+                align-items: center;
+                padding-bottom: 1rem;
+                border-bottom: 2px solid rgba(255,255,255,0.08);
+            }
+            @keyframes blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.3; }
+            }
+            
+            .swiss-round-badge {
+                font-size: 1rem;
+                font-weight: 800;
+                color: var(--accent);
+                padding: 0.75rem 1.5rem;
+                background: linear-gradient(135deg, rgba(0,225,255,0.2), rgba(0,225,255,0.08));
+                border: 2px solid rgba(0,225,255,0.4);
+                border-radius: 12px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                box-shadow: 0 4px 12px rgba(0,225,255,0.2);
+                transition: all 0.3s ease;
+            }
+            
+            .swiss-round-badge:hover {
+                transform: scale(1.05);
+                box-shadow: 0 6px 16px rgba(0,225,255,0.3);
+            }
+            
+            /* Records Distribution */
+            .swiss-records-distribution {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                margin-top: 0.75rem;
+                justify-content: center;
+            }
+            .record-chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4rem;
+                padding: 0.4rem 0.8rem;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 20px;
+                font-size: 0.85rem;
+                transition: all 0.2s ease;
+            }
+            .record-chip:hover {
+                background: rgba(255,255,255,0.08);
+                border-color: rgba(0,225,255,0.3);
+                transform: translateY(-1px);
+            }
+            .record-label {
+                font-weight: 800;
+                color: var(--accent);
+                font-size: 0.9rem;
+            }
+            .record-count {
+                color: var(--text-300);
+                font-weight: 600;
+            }
+            
+            /* Grupos de Recorde - Mais minimalista */
+            .swiss-record-group {
+                margin-bottom: 1rem;
+                background: rgba(255,255,255,0.01);
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 12px;
+                padding: 0.875rem;
+                transition: all 0.3s ease;
+                overflow: hidden;
+            }
+            
+            .swiss-record-group:hover {
+                background: rgba(255,255,255,0.03);
+                border-color: rgba(0,225,255,0.2);
+                transform: translateX(4px);
+                box-shadow: -2px 0 0 0 rgba(0,225,255,0.5);
+            }
+            
+            .swiss-record-group:last-child {
+                margin-bottom: 0;
+            }
+            
+            .swiss-record-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0.75rem;
+                margin-bottom: 0.75rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 1px solid rgba(255,255,255,0.06);
+            }
+            
+            .swiss-record-badge {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.4rem 0.875rem;
+                background: linear-gradient(135deg, rgba(0,225,255,0.18), rgba(0,225,255,0.08));
+                border: 1px solid rgba(0,225,255,0.3);
+                border-radius: 8px;
+                color: var(--accent);
+                font-weight: 800;
+                font-size: 0.95rem;
+                font-family: 'Courier New', monospace;
+                letter-spacing: 1px;
+                min-width: 70px;
+                text-align: center;
+                box-shadow: 0 2px 8px rgba(0,225,255,0.15);
+            }
+            
+            .swiss-record-count {
+                font-size: 0.8rem;
+                color: var(--text-300);
+                font-weight: 600;
+                text-transform: lowercase;
+            }
+            
+            .swiss-finalized-label {
+                font-size: 0.85rem;
+                color: var(--text-300);
+                font-weight: 600;
+                font-style: italic;
+            }
+            
+            /* Visualização Minimalista de Partidas */
+            .swiss-visual-matchups-container {
+                display: flex;
+                flex-direction: column;
+                gap: 0.625rem;
+                padding: 0;
+            }
+            
+            .swiss-matchup-mini {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0.875rem;
+                background: rgba(255,255,255,0.015);
+                border: 1px solid rgba(255,255,255,0.05);
+                border-radius: 10px;
+                transition: all 0.25s ease;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .swiss-matchup-mini::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: rgba(0,225,255,0.3);
+                opacity: 0;
+                transition: opacity 0.25s ease;
+            }
+            
+            .swiss-matchup-mini:hover {
+                background: rgba(255,255,255,0.03);
+                border-color: rgba(255,255,255,0.1);
+                transform: translateX(4px);
+            }
+            
+            .swiss-matchup-mini:hover::before {
+                opacity: 1;
+            }
+            
+            .swiss-mini-team {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.5rem 0.65rem;
+                border-radius: 8px;
+                background: rgba(255,255,255,0.02);
+                border: 1px solid rgba(255,255,255,0.08);
+                transition: all 0.2s ease;
+                position: relative;
+                min-height: 36px;
+            }
+            
+            .swiss-mini-team.winner {
+                background: rgba(34,197,94,0.12);
+                border-color: rgba(34,197,94,0.35);
+                box-shadow: 0 0 10px rgba(34,197,94,0.2);
+            }
+            
+            .swiss-mini-team.winner::after {
+                content: '✓';
+                position: absolute;
+                right: 0.65rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--success);
+                font-weight: 800;
+                font-size: 0.85rem;
+            }
+            
+            .swiss-mini-team.loser {
+                opacity: 0.5;
+                background: rgba(255,255,255,0.01);
+            }
+            
+            .swiss-mini-team-initial {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 28px;
+                height: 28px;
+                border-radius: 6px;
+                background: rgba(0,225,255,0.12);
+                border: 1px solid rgba(0,225,255,0.25);
+                color: var(--accent);
+                font-weight: 800;
+                font-size: 0.85rem;
+                flex-shrink: 0;
+            }
+            
+            .swiss-mini-team.winner .swiss-mini-team-initial {
+                background: rgba(34,197,94,0.2);
+                border-color: rgba(34,197,94,0.4);
+                color: var(--success);
+            }
+            
+            .swiss-mini-team-name {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: var(--text-200);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                flex: 1;
+                min-width: 0;
+                letter-spacing: 0.2px;
+            }
+            
+            .swiss-mini-team.winner .swiss-mini-team-name {
+                color: var(--text-100);
+                font-weight: 700;
+            }
+            
+            .swiss-mini-vs {
+                display: none;
+            }
+            .swiss-mini-actions {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                margin-top: 0.5rem;
+                padding-top: 0.5rem;
+                border-top: 1px solid rgba(255,255,255,0.05);
+                flex-wrap: wrap;
+                width: 100%;
+            }
+            
+            .swiss-action-btn {
+                padding: 0.4rem 0.7rem !important;
+                border-radius: 8px !important;
+                background: rgba(255,255,255,0.05) !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                color: var(--text-200) !important;
+                font-weight: 600 !important;
+                font-size: 0.75rem !important;
+                letter-spacing: 0.2px !important;
+                transition: all 0.25s ease !important;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+                white-space: nowrap !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 0.35rem !important;
+                flex: 0 0 auto !important;
+                min-height: 30px !important;
+            }
+            
+            .swiss-action-btn:hover {
+                background: rgba(255,255,255,0.08) !important;
+                border-color: rgba(255,255,255,0.2) !important;
+                color: var(--text-100) !important;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+                transform: translateY(-1px) !important;
+            }
+            
+            .swiss-action-btn .pi {
+                font-size: 0.8rem !important;
+            }
+            
+            .swiss-action-btn--accent {
+                background: rgba(0,225,255,0.1) !important;
+                border: 1px solid rgba(0,225,255,0.35) !important;
+                color: var(--accent) !important;
+            }
+            
+            .swiss-action-btn--accent:hover {
+                background: rgba(0,225,255,0.18) !important;
+                border-color: rgba(0,225,255,0.4) !important;
+                box-shadow: 0 2px 8px rgba(0,225,255,0.25) !important;
+            }
             .status-tag.qualified { background: rgba(34,197,94,0.12); color: var(--success); border: 1px solid rgba(34,197,94,0.25); }
             .status-tag.eliminated { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+
+            /* Classificação Table Styles - Cabeçalho Melhorado */
+            .classificacao-container { padding: 0.5rem; }
+            .classificacao-table { 
+                width: 100%; 
+                background: transparent !important; 
+                border: none !important;
+            }
+            .classificacao-table .ui-datatable-thead > tr {
+                background: linear-gradient(135deg, rgba(0,225,255,0.12), rgba(0,180,255,0.08)) !important;
+                border-radius: 12px 12px 0 0 !important;
+                overflow: hidden !important;
+            }
+            .classificacao-table .ui-datatable-thead > tr > th {
+                background: transparent !important;
+                border: none !important;
+                border-right: 1px solid rgba(0,225,255,0.2) !important;
+                color: var(--text-100) !important;
+                font-weight: 800 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 1px !important;
+                font-size: 0.8rem !important;
+                padding: 1.25rem 1rem !important;
+                position: relative !important;
+            }
+            .classificacao-table .ui-datatable-thead > tr > th:last-child {
+                border-right: none !important;
+            }
+            .classificacao-table .ui-datatable-thead > tr > th::before {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, var(--accent), transparent);
+                opacity: 0.5;
+            }
+            .classificacao-table .ui-datatable-thead > tr > th:first-child {
+                border-radius: 12px 0 0 0 !important;
+            }
+            .classificacao-table .ui-datatable-thead > tr > th:last-child {
+                border-radius: 0 12px 0 0 !important;
+            }
+            .classificacao-table .ui-datatable-tbody > tr {
+                background: rgba(255,255,255,0.02) !important;
+                border: 1px solid rgba(255,255,255,0.06) !important;
+                transition: all 0.2s ease !important;
+            }
+            .classificacao-table .ui-datatable-tbody > tr:hover {
+                background: rgba(0,225,255,0.05) !important;
+                border-color: rgba(0,225,255,0.2) !important;
+                transform: translateX(4px);
+            }
+            .classificacao-table .ui-datatable-tbody > tr > td {
+                border: none !important;
+                padding: 0.75rem !important;
+                color: var(--text-200) !important;
+            }
+            .classificacao-table .col-pos { width: 80px; text-align: center; }
+            .classificacao-table .col-team { min-width: 200px; }
+            .classificacao-table .col-stat { width: 80px; text-align: center; }
+            .classificacao-table .col-record { width: 120px; text-align: center; }
+            
+            .posicao-badge {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, rgba(0,225,255,0.15), rgba(0,225,255,0.05));
+                border: 2px solid rgba(0,225,255,0.3);
+                color: var(--accent);
+                font-weight: 800;
+                font-size: 0.95rem;
+            }
+            .classificacao-table .ui-datatable-tbody > tr:first-child .posicao-badge {
+                background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,215,0,0.05));
+                border-color: rgba(255,215,0,0.4);
+                color: #FFD700;
+                box-shadow: 0 0 12px rgba(255,215,0,0.3);
+            }
+            .classificacao-table .ui-datatable-tbody > tr:nth-child(2) .posicao-badge {
+                background: linear-gradient(135deg, rgba(192,192,192,0.2), rgba(192,192,192,0.05));
+                border-color: rgba(192,192,192,0.4);
+                color: #C0C0C0;
+            }
+            .classificacao-table .ui-datatable-tbody > tr:nth-child(3) .posicao-badge {
+                background: linear-gradient(135deg, rgba(205,127,50,0.2), rgba(205,127,50,0.05));
+                border-color: rgba(205,127,50,0.4);
+                color: #CD7F32;
+            }
+            
+            .team-classificacao-row {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            .team-classificacao-logo {
+                width: 40px;
+                height: 40px;
+                border-radius: 8px;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1rem;
+                font-weight: 800;
+                color: var(--text-100);
+                flex-shrink: 0;
+            }
+            .team-logo-mini {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 8px;
+            }
+            .team-classificacao-name {
+                font-weight: 600;
+                color: var(--text-100);
+                font-size: 0.95rem;
+            }
+            
+            .stat-value-wins {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 32px;
+                padding: 0.4rem 0.6rem;
+                background: rgba(34,197,94,0.12);
+                border: 1px solid rgba(34,197,94,0.25);
+                border-radius: 6px;
+                color: var(--success);
+                font-weight: 700;
+                font-size: 0.95rem;
+            }
+            .stat-value-losses {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 32px;
+                padding: 0.4rem 0.6rem;
+                background: rgba(239,68,68,0.12);
+                border: 1px solid rgba(239,68,68,0.25);
+                border-radius: 6px;
+                color: #f87171;
+                font-weight: 700;
+                font-size: 0.95rem;
+            }
+            .stat-value-points {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 40px;
+                padding: 0.4rem 0.8rem;
+                background: rgba(0,225,255,0.12);
+                border: 1px solid rgba(0,225,255,0.25);
+                border-radius: 6px;
+                color: var(--accent);
+                font-weight: 800;
+                font-size: 1rem;
+            }
+            .record-badge {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.5rem 1rem;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.12);
+                border-radius: 20px;
+                color: var(--text-100);
+                font-weight: 700;
+                font-size: 0.9rem;
+                letter-spacing: 0.5px;
+                font-family: monospace;
+            }
+
+            /* Diálogo de Resultado */
+            .dialogo-resultado {
+                font-family: inherit !important;
+            }
+            .dialogo-resultado .ui-dialog {
+                background: linear-gradient(135deg, var(--bg-800), var(--bg-900)) !important;
+                border: 1px solid rgba(0,225,255,0.2) !important;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.5) !important;
+            }
+            .dialogo-resultado .ui-dialog-titlebar {
+                background: rgba(0,225,255,0.1) !important;
+                border-bottom: 1px solid rgba(0,225,255,0.2) !important;
+                color: var(--text-100) !important;
+                padding: 1.25rem !important;
+            }
+            .dialogo-resultado .ui-dialog-title {
+                font-weight: 700 !important;
+                font-size: 1.25rem !important;
+            }
+            .dialogo-resultado .ui-dialog-content {
+                padding: 2rem 1.5rem !important;
+                background: transparent !important;
+            }
+            .dialog-messages .ui-messages-info {
+                background: rgba(0,225,255,0.08) !important;
+                border: 1px solid rgba(0,225,255,0.25) !important;
+                color: var(--accent) !important;
+            }
+            .dialog-messages .ui-messages-close {
+                color: var(--accent) !important;
+            }
+            .pi-spin {
+                animation: spin 1s linear infinite;
+            }
+            .winner-select-container {
+                width: 100%;
+                margin-bottom: 1.25rem;
+            }
+            .winner-select.ui-selectonebutton {
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 1rem;
+            }
+            .winner-select .ui-button {
+                border-radius: 12px !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                background: rgba(255,255,255,0.04) !important;
+                padding: 1.25rem !important;
+                color: var(--text-100) !important;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700 !important;
+                text-transform: uppercase;
+                letter-spacing: 0.6px;
+                transition: all 0.2s ease !important;
+                box-shadow: none !important;
+            }
+            .winner-select .ui-button:hover {
+                border-color: rgba(0,225,255,0.3) !important;
+                transform: translateY(-2px);
+                background: rgba(255,255,255,0.06) !important;
+            }
+            .winner-select .ui-state-active {
+                background: linear-gradient(135deg, rgba(0,225,255,0.2), rgba(0,225,255,0.08)) !important;
+                border-color: rgba(0,225,255,0.5) !important;
+                color: var(--accent) !important;
+                box-shadow: 0 12px 28px rgba(0,225,255,0.25) !important;
+            }
+            .winner-select .ui-button-text {
+                width: 100%;
+            }
+            .winner-note {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                background: rgba(255,255,255,0.04);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 10px;
+                padding: 0.85rem 1rem;
+                color: var(--text-300);
+                font-size: 0.9rem;
+            }
+            .winner-note i {
+                color: var(--accent);
+                font-size: 1rem;
+            }
+            .winner-note strong {
+                color: var(--text-100);
+            }
+            .dialog-footer-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 1rem;
+                padding-top: 1.5rem;
+                border-top: 1px solid rgba(255,255,255,0.08);
+                margin-top: 1rem;
+            }
+            .dialog-footer-actions .p-button {
+                padding: 0.75rem 1.5rem !important;
+                font-weight: 600 !important;
+                border-radius: 8px !important;
+                transition: all 0.2s ease !important;
+            }
+            .dialog-footer-actions .p-button-success {
+                background: linear-gradient(135deg, rgba(34,197,94,0.8), rgba(34,197,94,0.6)) !important;
+                border: 1px solid rgba(34,197,94,0.5) !important;
+            }
+            .dialog-footer-actions .p-button-success:hover {
+                background: linear-gradient(135deg, rgba(34,197,94,1), rgba(34,197,94,0.8)) !important;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(34,197,94,0.3) !important;
+            }
+            .dialog-footer-actions .p-button-secondary {
+                background: rgba(255,255,255,0.05) !important;
+                border: 1px solid rgba(255,255,255,0.15) !important;
+                color: var(--text-200) !important;
+            }
+            .dialog-footer-actions .p-button-secondary:hover {
+                background: rgba(255,255,255,0.1) !important;
+                transform: translateY(-2px);
+            }
+
+            /* Botões de Ação - Mais estilosos e arredondados */
+            .btn-gerar-rodada,
+            .btn-sortear-times {
+                padding: 0.875rem 2rem !important;
+                border-radius: 16px !important;
+                font-weight: 700 !important;
+                font-size: 0.95rem !important;
+                letter-spacing: 0.5px !important;
+                text-transform: uppercase;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                position: relative !important;
+                overflow: hidden !important;
+                border: 2px solid transparent !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+            }
+            
+            .btn-gerar-rodada {
+                background: linear-gradient(135deg, rgba(0,225,255,0.9), rgba(0,180,255,0.8)) !important;
+                color: var(--bg-900) !important;
+                border-color: rgba(0,225,255,0.3) !important;
+            }
+            
+            .btn-gerar-rodada::before {
+                content: '' !important;
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                width: 0 !important;
+                height: 0 !important;
+                border-radius: 50% !important;
+                background: rgba(255,255,255,0.3) !important;
+                transform: translate(-50%, -50%) !important;
+                transition: width 0.5s ease, height 0.5s ease !important;
+            }
+            
+            .btn-gerar-rodada:hover {
+                background: linear-gradient(135deg, rgba(0,225,255,1), rgba(0,200,255,0.95)) !important;
+                transform: translateY(-3px) !important;
+                box-shadow: 0 8px 24px rgba(0,225,255,0.4), 0 0 40px rgba(0,225,255,0.2) !important;
+                border-color: rgba(0,225,255,0.5) !important;
+            }
+            
+            .btn-gerar-rodada:hover::before {
+                width: 300px !important;
+                height: 300px !important;
+            }
+            
+            .btn-sortear-times {
+                background: linear-gradient(135deg, rgba(168,85,247,0.9), rgba(147,51,234,0.8)) !important;
+                color: #fff !important;
+                border-color: rgba(168,85,247,0.3) !important;
+            }
+            
+            .btn-sortear-times::before {
+                content: '' !important;
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                width: 0 !important;
+                height: 0 !important;
+                border-radius: 50% !important;
+                background: rgba(255,255,255,0.2) !important;
+                transform: translate(-50%, -50%) !important;
+                transition: width 0.5s ease, height 0.5s ease !important;
+            }
+            
+            .btn-sortear-times:hover {
+                background: linear-gradient(135deg, rgba(168,85,247,1), rgba(147,51,234,0.95)) !important;
+                transform: translateY(-3px) !important;
+                box-shadow: 0 8px 24px rgba(168,85,247,0.4), 0 0 40px rgba(168,85,247,0.2) !important;
+                border-color: rgba(168,85,247,0.5) !important;
+            }
+            
+            .btn-sortear-times:hover::before {
+                width: 300px !important;
+                height: 300px !important;
+            }
+            
+            .btn-gerar-rodada .ui-button-text,
+            .btn-sortear-times .ui-button-text {
+                position: relative !important;
+                z-index: 1 !important;
+            }
+            
+            .btn-gerar-rodada .pi,
+            .btn-sortear-times .pi {
+                position: relative !important;
+                z-index: 1 !important;
+                font-size: 1.1rem !important;
+            }
 
             @media (max-width: 768px) {
                 .camp-hero-content { flex-direction: column; }
                 .camp-hero-logo { width: 120px; height: 120px; }
                 .grid-container-modern { grid-template-columns: 1fr; }
                 .stats-grid-modern { grid-template-columns: 1fr; }
-                .swiss-column { min-width: 250px; }
+                
+                /* Swiss header responsivo */
+                .swiss-header-wrapper {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                
+                .swiss-header-left {
+                    width: 100%;
+                }
+                
+                .btn-gerar-rodada,
+                .btn-sortear-times {
+                    width: 100%;
+                    padding: 0.75rem 1.5rem !important;
+                    font-size: 0.9rem !important;
+                }
+                
+                .swiss-column { 
+                    min-width: 280px;
+                    max-width: 300px;
+                }
+                .swiss-visual-matchups-container {
+                    padding: 0;
+                }
+                
+                .swiss-matchup-mini {
+                    padding: 0.75rem;
+                    gap: 0.45rem;
+                }
+                
+                .swiss-mini-team {
+                    min-height: 32px;
+                    padding: 0.45rem 0.6rem;
+                }
+                
+                .swiss-mini-team-initial {
+                    width: 26px;
+                    height: 26px;
+                    font-size: 0.8rem;
+                }
+                
+                .swiss-mini-team-name {
+                    font-size: 0.8rem;
+                }
+                
+                .swiss-mini-actions {
+                    justify-content: center;
+                    gap: 0.4rem;
+                    padding-top: 0.5rem;
+                    margin-top: 0.4rem;
+                }
+                
+                .swiss-action-btn {
+                    padding: 0.35rem 0.6rem !important;
+                    font-size: 0.7rem !important;
+                    min-height: 28px !important;
+                }
+                
+                .swiss-action-btn .pi {
+                    font-size: 0.75rem !important;
+                }
+                .dialogo-resultado .ui-dialog {
+                    width: 95% !important;
+                    max-width: 95% !important;
+                }
+                .winner-select.ui-selectonebutton {
+                    grid-template-columns: 1fr;
+                }
+                .dialog-footer-actions {
+                    flex-direction: column-reverse;
+                }
+                .dialog-footer-actions .p-button {
+                    width: 100%;
+                }
             }
         </style>
     </ui:define>

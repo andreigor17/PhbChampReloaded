@@ -94,6 +94,7 @@ public class ManagerPlayer extends ManagerBase {
     private boolean buscando;
     private boolean estadoInicial = true;
     private Player playerSelecionado;
+    private Integer ratingTemp;
 
     @PostConstruct
     public void init() {
@@ -119,6 +120,12 @@ public class ManagerPlayer extends ManagerBase {
                 instanciar();
             }
 
+            if (this.player != null && this.player.getRating() != null) {
+                this.ratingTemp = this.player.getRating().intValue();
+            } else {
+                this.ratingTemp = null;
+            }
+
             if (uri.getRequestURI().contains("sorteiox5.xhtml")) {
                 instanciarPlayerGroup();
             } 
@@ -140,6 +147,7 @@ public class ManagerPlayer extends ManagerBase {
         this.estsPlayer = new ArrayList<>();
         this.jogo = new Jogo();
         this.playerSelecionado = new Player();
+        this.ratingTemp = null;
     }
 
     public void instanciarPlayerGroup() throws Exception {
@@ -358,6 +366,35 @@ public class ManagerPlayer extends ManagerBase {
         init();
     }
 
+    public void salvarRating() {
+        if (!isAdmin()) {
+            Mensagem.warn("Somente administradores podem avaliar jogadores.");
+            return;
+        }
+
+        if (this.ratingTemp == null || this.ratingTemp < 1 || this.ratingTemp > 10) {
+            Mensagem.warn("Informe um rating entre 1 e 10.");
+            return;
+        }
+
+        try {
+            this.player.setRating(this.ratingTemp.doubleValue());
+            Player atualizado = playerServico.save(this.player, this.player.getId(), Url.ATUALIZAR_PLAYER.getNome());
+
+            if (atualizado != null) {
+                this.player = atualizado;
+                this.ratingTemp = atualizado.getRating() != null ? atualizado.getRating().intValue() : null;
+                PrimeFaces.current().ajax().update("playerForm:playerRatingPanel");
+                Mensagem.success("Rating atualizado com sucesso!");
+            } else {
+                Mensagem.error("Não foi possível atualizar o rating do jogador.");
+            }
+        } catch (Exception e) {
+            Mensagem.error("Erro ao atualizar o rating do jogador.");
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Verifica se o usuário logado tem permissão para editar/excluir este player
      * Permite se for admin ou se for o próprio dono do perfil
@@ -560,6 +597,14 @@ public class ManagerPlayer extends ManagerBase {
 
     public void setPlayerSelecionado(Player playerSelecionado) {
         this.playerSelecionado = playerSelecionado;
+    }
+
+    public Integer getRatingTemp() {
+        return ratingTemp;
+    }
+
+    public void setRatingTemp(Integer ratingTemp) {
+        this.ratingTemp = ratingTemp;
     }
 
 }

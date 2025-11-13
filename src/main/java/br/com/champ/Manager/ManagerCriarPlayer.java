@@ -29,7 +29,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -72,15 +71,13 @@ public class ManagerCriarPlayer extends ManagerBase {
     private StreamedContent imagem;
     private Configuracao configuracao;
     private List<Jogo> jogos;
-    private List<Jogo> jogosSelecionados;
-    private Jogo jogo;
+    private List<Long> jogosSelecionadosIds;
     private boolean cadastrar;
     private String senhaVo;
 
     @PostConstruct
     public void init() {
         try {
-            HttpServletRequest uri = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
             instanciar();
 
             String visualizarPlayerId = FacesUtil
@@ -112,8 +109,18 @@ public class ManagerCriarPlayer extends ManagerBase {
                 }
             }
 
-            if (uri.getRequestURI().contains("criarJogador.xhtml") && this.player.getId() == null) {
+            try {
                 this.jogos = jogoServico.pesquisar();
+            } catch (Exception e) {
+                System.err.println("Erro ao carregar jogos: " + e.getMessage());
+                this.jogos = new ArrayList<>();
+            }
+
+            if (this.player != null && this.player.getJogos() != null) {
+                this.jogosSelecionadosIds = this.player.getJogos().stream()
+                        .filter(j -> j.getId() != null)
+                        .map(Jogo::getId)
+                        .collect(java.util.stream.Collectors.toList());
             }
         } catch (Exception ex) {
             System.err.println(ex);
@@ -127,9 +134,8 @@ public class ManagerCriarPlayer extends ManagerBase {
         this.playerApagar = new Player();
         this.players = null;
         this.configuracao = new Configuracao();
-        this.jogo = new Jogo();
         this.jogos = new ArrayList<>();
-        this.jogosSelecionados = new ArrayList<>();
+        this.jogosSelecionadosIds = new ArrayList<>();
         this.fileTemp = null;
     }
 
@@ -204,25 +210,35 @@ public class ManagerCriarPlayer extends ManagerBase {
         this.jogos = jogos;
     }
 
-    public Jogo getJogo() {
-        return jogo;
+    public List<Long> getJogosSelecionadosIds() {
+        return jogosSelecionadosIds;
     }
 
-    public void setJogo(Jogo jogo) {
-        this.jogo = jogo;
-    }
-
-    public List<Jogo> getJogosSelecionados() {
-        return jogosSelecionados;
-    }
-
-    public void setJogosSelecionados(List<Jogo> jogosSelecionados) {
-        this.jogosSelecionados = jogosSelecionados;
+    public void setJogosSelecionadosIds(List<Long> jogosSelecionadosIds) {
+        this.jogosSelecionadosIds = jogosSelecionadosIds;
     }
 
     public void salvarPlayer() throws Exception {
 
-        this.player.setJogos(this.jogosSelecionados);
+        if ((this.jogos == null || this.jogos.isEmpty()) && jogoServico != null) {
+            try {
+                this.jogos = jogoServico.pesquisar();
+            } catch (Exception e) {
+                System.err.println("Erro ao recarregar lista de jogos: " + e.getMessage());
+                this.jogos = new ArrayList<>();
+            }
+        }
+
+        List<Jogo> selecionados = new ArrayList<>();
+        if (this.jogosSelecionadosIds != null && this.jogos != null) {
+            for (Jogo jogoDisponivel : this.jogos) {
+                if (jogoDisponivel != null && jogoDisponivel.getId() != null
+                        && this.jogosSelecionadosIds.contains(jogoDisponivel.getId())) {
+                    selecionados.add(jogoDisponivel);
+                }
+            }
+        }
+        this.player.setJogos(selecionados);
         if (this.player.getAnexo() != null && this.player.getAnexo().getId() == null) {
             this.player.setAnexo(anexoServico.salvarAnexo(this.player.getAnexo()));
         }
@@ -270,12 +286,6 @@ public class ManagerCriarPlayer extends ManagerBase {
         this.playerServico.delete(this.playerApagar, Url.APAGAR_PLAYER.getNome());
         Mensagem.successAndRedirect("pesquisarPlayer.xhtml");
         init();
-    }
-
-    public void adicionarJogo() {
-        this.jogosSelecionados.add(this.jogo);
-        this.jogo = new Jogo();
-
     }
 
     public String getFileTemp() {
@@ -416,7 +426,9 @@ public class ManagerCriarPlayer extends ManagerBase {
 
             desabilitaVerificacaoSSL();
 
-            try (InputStream in = new URL(imagemUrl).openStream(); 
+            java.net.URI uriImagem = java.net.URI.create(imagemUrl);
+
+            try (InputStream in = uriImagem.toURL().openStream(); 
                  OutputStream out = new FileOutputStream(arquivoDestino)) {
 
                 byte[] buffer = new byte[8192];

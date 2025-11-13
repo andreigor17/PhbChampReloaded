@@ -1,77 +1,335 @@
-<ui:composition template="layout.xhtml"
+<ui:composition template="vercel.xhtml"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+                xmlns:f="http://java.sun.com/jsf/core">
 
     <ui:define name="title">
-        Criar Jogo 
+        Criar Jogo
     </ui:define>
 
     <ui:define name="content">
 
-        <h:form id="formJogo"
-                enctype="multipart/form-data"
-                class="form-horizontal">
-
-            <p:growl id="messages"
-                     showDetail="false"/>
-
-            <p:fieldset legend="Dados" id="dadosFieldset">
-
-                <div class="row">
-                    <div class="column2 bold">
-                        <p:outputLabel value="Nome"
-                                       for="nomeJogo"/>
-                    </div>
-                    <div class="column3 text">
-                        <p:inputText id="nomeJogo"
-                                     value="#{managerJogo.jogo.nome}"
-                                     required="true"
-                                     requiredMessage="Informe o nome do jogo!"/>
-                    </div>
-
-                </div>
-
-                <div class="row">
-
-                    <p:dataTable id="playersDataTable" value="#{ managerJogo.versoes }" var="versao"
-                                 rows="10" paginator="true" paginatorPosition="bottom" emptyMessage="Nenhuma versão adicionado">
-
-                        <p:column headerText="Nome" width="50%">
-                            <h:outputText value="#{ versao.nome }" />
-                        </p:column>
-                       
-
-                    </p:dataTable>
-                </div>
-
-            </p:fieldset>
-
-            <div class="actions">
-
-                <center>
-
-                    <p:button value="Cancelar"
-                              title="Cancelar"
-                              icon="ui-icon-close"
-                              href="pesquisarJogos.xhtml"/>
-
-                    <p:commandButton value="Salvar"
-                                     title="Salvar Jogo"
-                                     icon="ui-icon-check"
-                                     process="@form"
-                                     update="@form"                                     
-                                     actionListener="#{managerJogo.salvar()}"
-                                     />
-
-                </center>
-
+        <div class="section-header">
+            <div>
+                <p:link outcome="pesquisarJogos.xhtml" styleClass="mb-3 d-block header-back-link">
+                    <i class="pi pi-arrow-left mr-2"></i>Voltar para Jogos
+                </p:link>
+                <h1 class="section-title">
+                    #{managerJogo.jogo.id ne null ? 'Editar Jogo' : 'Criar Jogo'}
+                </h1>
+                <p class="section-description">Defina as informações visuais e técnicas do jogo.</p>
             </div>
+        </div>
 
-        </h:form>
+        <p:card styleClass="glass-card jogo-card">
+            <h:form id="formJogo" enctype="multipart/form-data">
+                <p:growl id="messages" showDetail="false"/>
+                <p:remoteCommand name="atualizarLogo" update="logoPanel uploadPanel colorPreview"/>
 
+                <div class="grid jogo-grid">
+                    <div class="col-12 md:col-4">
+                        <p:panel styleClass="glass-panel mb-3">
+                            <f:facet name="header">
+                                <div class="section-card-title">
+                                    <i class="pi pi-image"></i>
+                                    <span class="title-text">Logo do jogo</span>
+                                </div>
+                            </f:facet>
+                            <h:panelGroup id="logoPanel">
+                                <div class="game-logo-container #{empty managerJogo.fileTemp ? 'placeholder' : ''}">
+                                    <p:graphicImage value="image/#{managerJogo.fileTemp}"
+                                                    rendered="#{not empty managerJogo.fileTemp}"
+                                                    styleClass="game-logo-img"/>
+                                    <div class="game-logo-placeholder" rendered="#{empty managerJogo.fileTemp}">
+                                        <i class="pi pi-image"></i>
+                                        <span>Adicione a identidade visual do jogo</span>
+                                    </div>
+                                </div>
+                            </h:panelGroup>
+                            <h:panelGroup id="uploadPanel" layout="block" styleClass="logo-upload-actions">
+                                <p:fileUpload mode="advanced"
+                                              dragDropSupport="false"
+                                              auto="true"
+                                              label="Enviar logo"
+                                              chooseIcon="pi pi-upload"
+                                              skinSimple="true"
+                                              sizeLimit="5242880"
+                                              styleClass="logo-upload-btn"
+                                              listener="#{managerJogo.doUpload}"/>
+                                <p:commandButton value="Remover logo"
+                                                 icon="pi pi-trash"
+                                                 styleClass="remove-logo-btn"
+                                                 rendered="#{not empty managerJogo.fileTemp}"
+                                                 update="logoPanel uploadPanel"
+                                                 actionListener="#{managerJogo.removerLogo}"/>
+                            </h:panelGroup>
+                        </p:panel>
+                    </div>
+
+                    <div class="col-12 md:col-8">
+                        <p:panel styleClass="glass-panel mb-3">
+                            <f:facet name="header">
+                                <div class="section-card-title">
+                                    <i class="pi pi-desktop"></i>
+                                    <span class="title-text">Informações básicas</span>
+                                </div>
+                            </f:facet>
+                            <div class="formgrid grid">
+                                <div class="field col-12">
+                                    <p:outputLabel for="nomeJogo" value="Nome do jogo"/>
+                                    <p:inputText id="nomeJogo"
+                                                 value="#{managerJogo.jogo.nome}"
+                                                 required="true"
+                                                 requiredMessage="Informe o nome do jogo!"
+                                                 styleClass="w-full"/>
+                                    <p:message for="nomeJogo"/>
+                                </div>
+
+                                <div class="field col-12 md:col-6">
+                                    <p:outputLabel for="corHex" value="Cor da badge"/>
+                                    <div class="color-picker-wrapper">
+                                        <p:inputText id="colorHexOutput"
+                                                     value="#{managerJogo.jogo.corHex}"
+                                                     styleClass="color-hex-input"
+                                                     maxlength="7">
+                                            <f:ajax event="blur" render="colorPreview"/>
+                                        </p:inputText>
+                                        <p:colorPicker id="corHex"
+                                                       value="#{managerJogo.jogo.corHex}"
+                                                       mode="popup"
+                                                       styleClass="color-picker-input">
+                                            <p:ajax event="change" update="colorPreview colorHexOutput"/>
+                                        </p:colorPicker>
+                                        <h:panelGroup id="colorPreview" layout="block"
+                                                      styleClass="color-preview"
+                                                      style="background: #{empty managerJogo.jogo.corHex ? '#00e1ff' : managerJogo.jogo.corHex};">
+                                        </h:panelGroup>
+                                    </div>
+                                    <small class="field-hint">A cor será usada nas badges exibidas junto aos jogadores.</small>
+                                </div>
+                            </div>
+                        </p:panel>
+
+                        <p:panel styleClass="glass-panel">
+                            <f:facet name="header">
+                                <div class="section-card-title">
+                                    <i class="pi pi-list"></i>
+                                    <span class="title-text">Versões cadastradas</span>
+                                </div>
+                            </f:facet>
+                            <p:dataTable id="versoesTable"
+                                         value="#{managerJogo.versoes}"
+                                         var="versao"
+                                         paginator="true"
+                                         rows="10"
+                                         paginatorPosition="bottom"
+                                         emptyMessage="Nenhuma versão adicionada"
+                                         styleClass="elegant-table">
+                                <p:column headerText="Nome" sortBy="#{versao.nome}">
+                                    <h:outputText value="#{versao.nome}"/>
+                                </p:column>
+                            </p:dataTable>
+                        </p:panel>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <p:button value="Cancelar"
+                              outcome="pesquisarJogos.xhtml"
+                              icon="pi pi-arrow-left"
+                              styleClass="action-btn action-btn--outline"/>
+                    <p:commandButton value="Salvar jogo"
+                                     icon="pi pi-check"
+                                     process="@form"
+                                     update="@form"
+                                     styleClass="action-btn action-btn--primary"
+                                     actionListener="#{managerJogo.salvar}"/>
+                </div>
+            </h:form>
+        </p:card>
+
+        <style type="text/css">
+            .section-description {
+                color: var(--text-300);
+                margin-top: .35rem;
+                font-size: .95rem;
+            }
+
+            .jogo-card {
+                border: 1px solid var(--border) !important;
+            }
+
+            .jogo-grid {
+                gap: 1.5rem;
+            }
+
+            .glass-panel {
+                background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important;
+                border: 1px solid rgba(255,255,255,0.08) !important;
+                border-radius: 16px !important;
+                box-shadow: var(--surface-shadow) !important;
+            }
+
+            .game-logo-container {
+                position: relative;
+                width: 100%;
+                padding-top: 100%;
+                border-radius: 18px;
+                overflow: hidden;
+                border: 1px dashed rgba(255,255,255,0.12);
+                background: rgba(255,255,255,0.02);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .game-logo-container.placeholder {
+                border-style: dashed;
+            }
+
+            .game-logo-img {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .game-logo-placeholder {
+                position: absolute;
+                inset: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: .5rem;
+                color: var(--text-300);
+                font-size: .9rem;
+            }
+
+            .game-logo-placeholder i {
+                font-size: 2rem;
+                color: var(--accent);
+            }
+
+            .logo-upload-actions {
+                margin-top: 1rem;
+                display: flex;
+                flex-direction: column;
+                gap: .5rem;
+            }
+
+            .logo-upload-btn .pi {
+                margin-right: .35rem;
+            }
+
+            .remove-logo-btn {
+                align-self: flex-start;
+                background: rgba(255,255,255,0.05) !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                color: var(--danger) !important;
+            }
+
+            .remove-logo-btn:hover {
+                border-color: rgba(239,68,68,0.45) !important;
+                color: var(--danger) !important;
+            }
+
+            .color-picker-wrapper {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .color-hex-input {
+                width: 120px;
+                background: rgba(255,255,255,0.02) !important;
+                border: 1px solid rgba(255,255,255,0.1) !important;
+                border-radius: 12px !important;
+                color: var(--text-100) !important;
+                text-transform: uppercase;
+                font-weight: 600;
+                letter-spacing: .3px;
+                padding-left: .75rem !important;
+                padding-right: .75rem !important;
+            }
+
+            .color-hex-input:focus {
+                border-color: rgba(0,225,255,0.35) !important;
+                box-shadow: 0 0 0 1px rgba(0,225,255,0.18);
+            }
+
+            .color-picker-input .p-colorpicker-preview {
+                width: 3rem;
+                height: 3rem;
+                border-radius: 12px;
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+
+            .color-preview {
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                border: 1px solid rgba(255,255,255,0.12);
+                box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+            }
+
+            .field-hint {
+                color: var(--muted);
+                font-size: .75rem;
+            }
+
+            .form-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 0.75rem;
+                margin-top: 1.5rem;
+            }
+
+            .action-btn {
+                display: inline-flex !important;
+                align-items: center;
+                gap: .5rem;
+                border-radius: 12px !important;
+                padding: .65rem 1.5rem !important;
+                font-weight: 600 !important;
+                letter-spacing: .4px;
+            }
+
+            .action-btn--primary {
+                background: linear-gradient(135deg, rgba(0,225,255,0.2), rgba(0,225,255,0.1)) !important;
+                border: 1px solid rgba(0,225,255,0.35) !important;
+                color: var(--text-100) !important;
+            }
+
+            .action-btn--primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 26px rgba(0,225,255,0.2);
+            }
+
+            .action-btn--outline {
+                background: transparent !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                color: var(--text-100) !important;
+            }
+
+            .action-btn--outline:hover {
+                background: rgba(255,255,255,0.06) !important;
+            }
+
+            @media (max-width: 768px) {
+                .form-actions {
+                    flex-direction: column;
+                }
+
+                .action-btn {
+                    width: 100%;
+                    justify-content: center;
+                }
+            }
+        </style>
     </ui:define>
 
 </ui:composition>

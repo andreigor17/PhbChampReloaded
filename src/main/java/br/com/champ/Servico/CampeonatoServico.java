@@ -363,7 +363,8 @@ public class CampeonatoServico {
 
     public Campeonato buscaCamp(Long id) {
         try {
-            String url = pathToAPI() + "/api/campeonato/" + id;
+            // Usa rota otimizada para melhor performance
+            String url = pathToAPI() + "/api/campeonato/" + id + "/visualizar";
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             // optional default is GET
@@ -374,6 +375,18 @@ public class CampeonatoServico {
             int responseCode = con.getResponseCode();
             System.out.println("\nSending 'GET' request to URL : " + url);
             System.out.println("Response Code : " + responseCode);
+            
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                // Fallback para rota não otimizada se a otimizada falhar
+                url = pathToAPI() + "/api/campeonato/" + id;
+                obj = new URL(url);
+                con = (HttpURLConnection) obj.openConnection();
+                con.setRequestMethod("GET");
+                con.setRequestProperty("Content-Type", "application/json");
+                con.setRequestProperty("Accept", "application/json");
+                responseCode = con.getResponseCode();
+            }
+            
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(con.getInputStream()));
             String inputLine;

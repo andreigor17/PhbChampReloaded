@@ -14,9 +14,9 @@
                     </p:link>
                     <h1 class="section-title">Perfil do Jogador</h1>
                 </div>
-                <div>
-                    <p:button value="Editar" icon="pi pi-pencil" href="criarJogador.xhtml?id=#{managerPlayer.player.id}" rendered="#{managerPlayer.verificarPermissao()}" styleClass="p-button-outlined mr-2" />
-                    <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="p-button-danger p-button-outlined" rendered="#{managerPlayer.verificarPermissao()}"/>
+                <div class="header-actions">
+                    <p:button value="Editar" icon="pi pi-pencil" href="criarJogador.xhtml?id=#{managerPlayer.player.id}" rendered="#{managerPlayer.verificarPermissao()}" styleClass="header-action-btn header-action-btn--primary" />
+                    <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="header-action-btn header-action-btn--danger" rendered="#{managerPlayer.verificarPermissao()}"/>
                 </div>
             </div>
 
@@ -87,9 +87,9 @@
                 <div class="col-12 md:col-4">
                     <p:card styleClass="mb-3 glass-card">
                         <f:facet name="title">
-                            <div class="flex align-items-center">
-                                <i class="pi pi-user mr-2"></i>
-                                <span>Perfil</span>
+                            <div class="section-card-title">
+                                <i class="pi pi-user"></i>
+                                <span class="title-text">Perfil</span>
                             </div>
                         </f:facet>
                         <div class="p-fluid">
@@ -105,10 +105,69 @@
                             </div>
                         </div>
                     </p:card>
+                    
+                    <!-- Card de Rating -->
+                    <p:card styleClass="mb-3 glass-card">
+                        <f:facet name="title">
+                            <div class="section-card-title">
+                                <i class="pi pi-star"></i>
+                                <span class="title-text">Rating</span>
+                            </div>
+                        </f:facet>
+                        <h:panelGroup id="playerRatingPanel" layout="block" styleClass="player-rating-panel">
+                            <div class="player-rating-display">
+                                <div class="rating-circle">
+                                    <svg class="rating-svg" viewBox="0 0 120 120">
+                                        <circle class="rating-bg" cx="60" cy="60" r="52" />
+                                        <circle class="rating-progress" cx="60" cy="60" r="52" 
+                                                style="stroke-dasharray: #{managerPlayer.player.rating ne null ? (managerPlayer.player.rating * 32.67) : 0} 326.7;" />
+                                    </svg>
+                                    <div class="rating-content">
+                                        <h:panelGroup rendered="#{managerPlayer.player.rating ne null}">
+                                            <span class="rating-number">
+                                                <h:outputText value="#{managerPlayer.player.rating}">
+                                                    <f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>
+                                                </h:outputText>
+                                            </span>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{managerPlayer.player.rating eq null}">
+                                            <span class="rating-number">--</span>
+                                        </h:panelGroup>
+                                        <span class="rating-label">/ 10</span>
+                                    </div>
+                                </div>
+                                <div class="rating-info">
+                                    <h:panelGroup rendered="#{managerPlayer.player.rating eq null}">
+                                        <span class="rating-status-text muted">Não avaliado</span>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{managerPlayer.player.rating ne null}">
+                                        <span class="rating-status-text">Avaliado pela administração</span>
+                                    </h:panelGroup>
+                                </div>
+                            </div>
+
+                            <h:panelGroup rendered="#{managerPlayer.isAdmin()}" styleClass="player-rating-admin">
+                                <p:outputLabel value="Avaliar jogador" styleClass="admin-label" />
+                                <p:rating value="#{managerPlayer.ratingTemp}" stars="10" cancel="false" styleClass="player-rating-stars"/>
+                                <p:commandButton value="Salvar avaliação" icon="pi pi-save"
+                                                 styleClass="rating-save-btn"
+                                                 actionListener="#{managerPlayer.salvarRating()}"
+                                                 process="@form" update="playerRatingPanel"/>
+                            </h:panelGroup>
+
+                            <h:panelGroup rendered="#{not managerPlayer.isAdmin()}" styleClass="player-rating-hint">
+                                <i class="pi pi-info-circle"></i>
+                                <span>Apenas administradores podem avaliar jogadores</span>
+                            </h:panelGroup>
+                        </h:panelGroup>
+                    </p:card>
+                    
                     <div class="player-badges mt-2 text-center">
-                        <p:badge value="Capitão" severity="info" styleClass="mr-2" />
-                        <p:badge value="CS:GO" severity="success" styleClass="mr-2" />
-                        <p:badge value="FIFA" severity="warning" />
+                        <ui:repeat value="#{managerPlayer.player.jogos}" var="jogo">
+                            <span class="game-badge" style="background-color: #{jogo.corHex ne null ? jogo.corHex : '#00e1ff'};">
+                                #{jogo.nome}
+                            </span>
+                        </ui:repeat>
                     </div>
                 </div>
 
@@ -116,9 +175,9 @@
                 <div class="col-12 md:col-8">
                     <p:card styleClass="mb-3 glass-card info-card">
                         <f:facet name="title">
-                            <div class="flex align-items-center">
-                                <i class="pi pi-id-card mr-2 card-icon"></i>
-                                <span>Informações Pessoais</span>
+                            <div class="section-card-title">
+                                <i class="pi pi-id-card"></i>
+                                <span class="title-text">Informações Pessoais</span>
                             </div>
                         </f:facet>
 
@@ -140,16 +199,6 @@
                                         <div class="info-field-content">
                                             <p:outputLabel value="Nickname" styleClass="info-label" />
                                             <div class="info-value">#{managerPlayer.player.nick}</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="field col-12 md:col-6">
-                                    <div class="info-field">
-                                        <i class="pi pi-envelope field-icon"></i>
-                                        <div class="info-field-content">
-                                            <p:outputLabel value="E-mail" styleClass="info-label" />
-                                            <div class="info-value">#{managerPlayer.player.email}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -183,9 +232,9 @@
 
                     <p:card styleClass="mb-3 glass-card">
                         <f:facet name="title">
-                            <div class="flex align-items-center">
-                                <i class="pi pi-desktop mr-2"></i>
-                                <span>Informações da Steam</span>
+                            <div class="section-card-title">
+                                <i class="pi pi-desktop"></i>
+                                <span class="title-text">Informações da Steam</span>
                             </div>
                         </f:facet>
 
@@ -338,9 +387,9 @@
                 <div class="col-12">
                     <p:card styleClass="mb-3 glass-card">
                         <f:facet name="title">
-                            <div class="flex align-items-center">
-                                <i class="pi pi-chart-bar mr-2"></i>
-                                <span>Estatísticas Resumidas</span>
+                            <div class="section-card-title">
+                                <i class="pi pi-chart-bar"></i>
+                                <span class="title-text">Estatísticas Resumidas</span>
                             </div>
                         </f:facet>
 
@@ -385,9 +434,9 @@
                 <div class="col-12">
                     <p:card styleClass="mb-3 glass-card">
                         <f:facet name="title">
-                            <div class="flex align-items-center">
-                                <i class="pi pi-sliders-h mr-2"></i>
-                                <span>Estatísticas de Desempenho</span>
+                            <div class="section-card-title">
+                                <i class="pi pi-sliders-h"></i>
+                                <span class="title-text">Estatísticas de Desempenho</span>
                             </div>
                         </f:facet>
                         <div class="grid">
@@ -427,9 +476,9 @@
                 <div class="col-12">
                     <p:panel header="Últimas Partidas" toggleable="true" collapsed="false" toggleSpeed="500" styleClass="mb-3 glass-panel">
                         <f:facet name="header">
-                            <div class="flex align-items-center">
-                                <i class="pi pi-history mr-2"></i>
-                                <span>Últimas Partidas</span>
+                            <div class="section-card-title">
+                                <i class="pi pi-history"></i>
+                                <span class="title-text">Últimas Partidas</span>
                             </div>
                         </f:facet>
 
@@ -502,51 +551,6 @@
                     </p:panel>
                 </div>
 
-                <!-- Área de Insights (somente atributos existentes em ManagerPlayer) -->
-                <div class="col-12">
-                    <p:card styleClass="mb-3 glass-card">
-                        <f:facet name="title">
-                            <div class="flex align-items-center">
-                                <i class="pi pi-lightbulb mr-2"></i>
-                                <span>Insights</span>
-                            </div>
-                        </f:facet>
-                        <div class="grid">
-                            <div class="col-12 md:col-4">
-                                <div class="steam-stat-box">
-                                    <div class="steam-stat-value">
-                                        <i class="pi pi-user mr-2" style="color: var(--accent)"></i>
-                                        #{managerPlayer.statusConta}
-                                    </div>
-                                    <div class="steam-stat-label">Visibilidade do perfil</div>
-                                </div>
-                            </div>
-                            <div class="col-12 md:col-4">
-                                <div class="steam-stat-box">
-                                    <div class="steam-stat-value">
-                                        <i class="pi pi-external-link mr-2" style="color: var(--accent)"></i>
-                                        <h:panelGroup rendered="#{not empty managerPlayer.profileUrl}">
-                                            <p:link value="Abrir Perfil" href="#{managerPlayer.profileUrl}" target="_blank"/>
-                                        </h:panelGroup>
-                                        <h:panelGroup rendered="#{empty managerPlayer.profileUrl}">—</h:panelGroup>
-                                    </div>
-                                    <div class="steam-stat-label">Perfil Steam</div>
-                                </div>
-                            </div>
-                            <div class="col-12 md:col-4">
-                                <div class="steam-stat-box">
-                                    <div class="steam-stat-value">
-                                        <i class="pi pi-chart-line mr-2" style="color: var(--accent)"></i>
-                                        #{managerPlayer.gameCount}
-                                    </div>
-                                    <div class="steam-stat-label">Jogos cadastrados</div>
-                                </div>
-                            </div>
-                        </div>
-                    </p:card>
-                </div>
-
-
             </div>
         </h:form>
 
@@ -575,6 +579,239 @@
 
             .section-header {
                 margin-bottom: 1rem;
+            }
+            .section-card-title{
+                display: inline-flex;
+                align-items: center;
+                gap: .55rem;
+                letter-spacing: .5px;
+                text-transform: uppercase;
+                font-size: .85rem;
+                font-weight: 700;
+                color: var(--text-300);
+            }
+            .section-card-title .title-text{
+                color: var(--text-100);
+                font-size: 1rem;
+                letter-spacing: .35px;
+            }
+            .section-card-title .pi{
+                color: var(--accent);
+                font-size: 1.05rem;
+            }
+            .header-actions{
+                display: flex;
+                align-items: center;
+                gap: .75rem;
+            }
+            .header-action-btn{
+                display: inline-flex !important;
+                align-items: center;
+                gap: .45rem;
+                padding: .55rem 1.2rem !important;
+                border-radius: 999px !important;
+                background: linear-gradient(135deg, rgba(0,225,255,0.15), rgba(0,225,255,0.06)) !important;
+                border: 1px solid rgba(0,225,255,0.3) !important;
+                color: var(--text-100) !important;
+                font-weight: 600 !important;
+                letter-spacing: .4px;
+                text-transform: uppercase;
+                transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+            }
+            .header-action-btn .pi{
+                font-size: 1rem;
+                color: inherit !important;
+            }
+            .header-action-btn:hover{
+                transform: translateY(-1px);
+                box-shadow: 0 12px 28px rgba(0,225,255,0.18);
+                border-color: rgba(0,225,255,0.45) !important;
+                background: linear-gradient(135deg, rgba(0,225,255,0.22), rgba(0,225,255,0.1)) !important;
+            }
+            .header-action-btn--primary{
+                background: linear-gradient(135deg, rgba(0,225,255,0.2), rgba(0,225,255,0.08)) !important;
+                border-color: rgba(0,225,255,0.45) !important;
+            }
+            .header-action-btn--primary:hover{
+                box-shadow: 0 14px 32px rgba(0,225,255,0.24);
+            }
+            .header-action-btn--danger{
+                background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.08)) !important;
+                border: 1px solid rgba(239,68,68,0.45) !important;
+            }
+            .header-action-btn--danger:hover{
+                box-shadow: 0 14px 32px rgba(239,68,68,0.25);
+                border-color: rgba(239,68,68,0.6) !important;
+                background: linear-gradient(135deg, rgba(239,68,68,0.28), rgba(239,68,68,0.12)) !important;
+            }
+
+            /* Rating Panel - Minimalista e Elegante */
+            .player-rating-panel{
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1.5rem;
+                padding: 1.5rem 1rem;
+            }
+            
+            /* Display do Rating com SVG Circle */
+            .player-rating-display{
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+                width: 100%;
+            }
+            
+            .rating-circle{
+                position: relative;
+                width: 140px;
+                height: 140px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .rating-svg{
+                width: 140px;
+                height: 140px;
+                transform: rotate(-90deg);
+            }
+            
+            .rating-bg{
+                fill: none;
+                stroke: rgba(255,255,255,0.06);
+                stroke-width: 8;
+            }
+            
+            .rating-progress{
+                fill: none;
+                stroke: var(--accent);
+                stroke-width: 8;
+                stroke-linecap: round;
+                transition: stroke-dasharray 0.6s ease;
+                filter: drop-shadow(0 0 6px rgba(0,225,255,0.4));
+            }
+            
+            .rating-content{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .rating-number{
+                font-size: 2.5rem;
+                font-weight: 800;
+                color: var(--text-100);
+                line-height: 1;
+                letter-spacing: -1px;
+            }
+            
+            .rating-label{
+                font-size: .75rem;
+                color: var(--muted);
+                font-weight: 600;
+                margin-top: .25rem;
+            }
+            
+            .rating-info{
+                text-align: center;
+            }
+            
+            .rating-status-text{
+                font-size: .8rem;
+                color: var(--text-300);
+                font-weight: 500;
+            }
+            
+            .rating-status-text.muted{
+                color: var(--muted);
+            }
+            
+            /* Admin Section */
+            .player-rating-admin{
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                align-items: center;
+                padding-top: 1.5rem;
+                border-top: 1px solid rgba(255,255,255,0.06);
+                width: 100%;
+            }
+            
+            .player-rating-admin .admin-label{
+                font-size: .75rem;
+                text-transform: uppercase;
+                letter-spacing: .8px;
+                color: var(--text-300);
+                font-weight: 700;
+                margin-bottom: 0;
+            }
+            
+            .player-rating-stars .ui-rating{
+                display: flex;
+                gap: .35rem;
+            }
+            
+            .player-rating-stars .ui-rating-star a{
+                color: rgba(255,255,255,0.15) !important;
+                font-size: 1.15rem;
+                transition: all .2s ease;
+            }
+            
+            .player-rating-stars .ui-rating-star a:hover{
+                color: rgba(0,225,255,0.5) !important;
+                transform: scale(1.15);
+            }
+            
+            .player-rating-stars .ui-rating-star-on a{
+                color: var(--accent) !important;
+            }
+            
+            .rating-save-btn{
+                display: inline-flex !important;
+                align-items: center;
+                gap: .5rem;
+                padding: .5rem 1.25rem !important;
+                border-radius: 8px !important;
+                background: linear-gradient(135deg, rgba(0,225,255,0.12), rgba(0,225,255,0.06)) !important;
+                border: 1px solid rgba(0,225,255,0.25) !important;
+                color: var(--text-100) !important;
+                font-weight: 600 !important;
+                font-size: .8rem !important;
+                transition: all .2s ease !important;
+            }
+            
+            .rating-save-btn:hover{
+                transform: translateY(-1px);
+                box-shadow: 0 8px 20px rgba(0,225,255,0.2);
+                background: linear-gradient(135deg, rgba(0,225,255,0.18), rgba(0,225,255,0.1)) !important;
+                border-color: rgba(0,225,255,0.4) !important;
+            }
+            
+            /* Hint Section */
+            .player-rating-hint{
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+                padding: .75rem 1rem;
+                background: rgba(255,255,255,0.02);
+                border-radius: 8px;
+                border: 1px solid rgba(255,255,255,0.04);
+                color: var(--muted);
+                font-size: .75rem;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .player-rating-hint .pi{
+                font-size: .9rem;
             }
 
             .header-back-link {
@@ -636,7 +873,6 @@
             .font-medium.text-300 { color: var(--text-300) !important; }
             
             /* Info Card melhorado */
-            .info-card .card-icon { color: var(--accent); font-size: 1.1rem; }
             .info-field { 
                 display: flex; gap: .75rem; align-items: flex-start; 
                 padding: .85rem 1rem; border-radius: 12px; 
@@ -829,8 +1065,30 @@
                 box-shadow: 0 0 0 1px rgba(0,225,255,0.3), 0 0 20px rgba(0,225,255,0.1) !important;
             }
             
-            /* Badges */
-            .player-badges .p-badge { background: rgba(255,255,255,0.06); border-radius: 999px; padding: .35rem .6rem; }
+            /* Badges dos Jogos */
+            .player-badges {
+                display: flex;
+                flex-wrap: wrap;
+                gap: .5rem;
+                justify-content: center;
+            }
+            
+            .game-badge {
+                display: inline-block;
+                padding: .35rem .85rem;
+                border-radius: 999px;
+                font-size: .8rem;
+                font-weight: 600;
+                color: white;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                transition: all .2s ease;
+            }
+            
+            .game-badge:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            }
 
             /* Steam stats e progress */
             .steam-stat-box {
