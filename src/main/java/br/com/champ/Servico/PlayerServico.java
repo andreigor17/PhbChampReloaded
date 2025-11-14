@@ -45,23 +45,32 @@ public class PlayerServico implements Serializable {
     }
 
     public List<Player> pesquisar(String nomePlayer) throws Exception {
+        // Validação: se nomePlayer for null ou vazio, retorna lista vazia
+        if (nomePlayer == null || nomePlayer.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
 
         try {
-            String url = pathToAPI() + Url.BUSCAR_PLAYER_NOME.getNome() + "?nomePlayer=";
+            // URL encode para tratar caracteres especiais
+            String encodedNome = java.net.URLEncoder.encode(nomePlayer.trim(), "UTF-8");
+            String url = pathToAPI() + Url.BUSCAR_PLAYER_NOME.getNome() + "?nomePlayer=" + encodedNome;
             Gson gson = new Gson();
-            url += nomePlayer;
-            //System.err.println("url " + url);
+            
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-            // optional default is GET
             con.setRequestMethod("GET");
-            //add request header
             con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             con.setRequestProperty("Accept", "application/json");
             con.setRequestProperty("Accept-Charset", "UTF-8");
+            
             int responseCode = con.getResponseCode();
-            //System.out.println("\nSending 'GET' request to URL : " + url);
-            //System.out.println("Response Code : " + responseCode);
+            
+            // Se a resposta for diferente de 200, retorna lista vazia
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                System.err.println("Erro HTTP ao buscar player: " + responseCode);
+                return new ArrayList<>();
+            }
+            
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(con.getInputStream(), java.nio.charset.StandardCharsets.UTF_8));
             String inputLine;
@@ -70,31 +79,40 @@ public class PlayerServico implements Serializable {
                 response.append(inputLine);
             }
             in.close();
-            //print in String
-            //System.out.println(response.toString());
-            //Read JSON response and print           
-            List<Player> p = new ArrayList<>();
-
-            //Player[] userArray = gson.fromJson(response.toString(), Player[].class);
-            Type userListType = new TypeToken<ArrayList<Player>>() {
-            }.getType();
-
+            
+            // Se a resposta estiver vazia, retorna lista vazia
+            if (response.length() == 0) {
+                return new ArrayList<>();
+            }
+            
+            // Tenta fazer parse do JSON
+            Type userListType = new TypeToken<ArrayList<Player>>() {}.getType();
             ArrayList<Player> userArray = gson.fromJson(response.toString(), userListType);
+            
+            // Se o array for null, retorna lista vazia
+            if (userArray == null) {
+                return new ArrayList<>();
+            }
 
+            List<Player> p = new ArrayList<>();
             for (Player user : userArray) {
-                p.add(user);
+                if (user != null) {
+                    p.add(user);
+                }
             }
 
             return p;
+        } catch (java.net.MalformedURLException e) {
+            System.err.println("URL malformada ao buscar player: " + e.getMessage());
+            return new ArrayList<>();
         } catch (IOException iOException) {
-            System.err.println(iOException);
-        } catch (JSONException jSONException) {
-            System.err.println(jSONException);
-        } catch (NumberFormatException numberFormatException) {
-            System.err.println(numberFormatException);
+            System.err.println("Erro de I/O ao buscar player: " + iOException.getMessage());
+            return new ArrayList<>();
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar player: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
         }
-        return null;
-
     }
 
     public Player buscaPlayer(Long id) {

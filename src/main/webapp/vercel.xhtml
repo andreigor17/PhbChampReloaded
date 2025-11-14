@@ -93,6 +93,19 @@
         .nav-menu-item i{ 
             color: var(--accent) !important; 
             font-size: 1rem;
+            display: inline-block !important;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        .nav-menu-item i.pi-star {
+            color: var(--accent) !important;
+            font-size: 1.1rem !important;
+            font-weight: bold !important;
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
         .nav-menu-item span{
             color: inherit;
@@ -684,12 +697,12 @@
                 <i class="pi pi-users"></i>
                 <span>Jogadores</span>
             </h:link>
-            <h:link outcome="error.xhtml" styleClass="nav-menu-item">
+            <h:link outcome="times.xhtml" styleClass="nav-menu-item">
                 <i class="pi pi-users"></i>
                 <span>Times</span>
             </h:link>
             <h:link outcome="campeonatos.xhtml" styleClass="nav-menu-item">
-                <i class="pi pi-trophy"></i>
+                <i class="pi pi-star"></i>
                 <span>Campeonatos</span>
             </h:link>
             <h:link outcome="indexPartida.xhtml" styleClass="nav-menu-item">

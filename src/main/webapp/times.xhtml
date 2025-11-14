@@ -7,140 +7,165 @@
 
     <ui:define name="content">
         <div class="section-header">
-            <div>
-                <h1 class="section-title">Times</h1>
-                <p class="section-description">Pesquise o seu time!</p>
-            </div>
-            <p:button value="Novo Time" icon="pi pi-plus" outcome="criarTime.xhtml" styleClass="p-button-primary" />
+            <h1 class="section-title">
+                <i class="pi pi-users mr-2"></i>
+                Times
+            </h1>
+            <h:link outcome="criarTime.xhtml" styleClass="full-stats-btn">
+                <i class="pi pi-plus"></i>
+                <span>Novo Time</span>
+            </h:link>
         </div>
 
-        <div class="card mb-4">
+        <p:card styleClass="glass-card">
             <h:form id="searchForm">
-                <div class="p-inputgroup">
-                    <span class="p-inputgroup-addon">
-                        <i class="pi pi-search"></i>
-                    </span>
-                    <p:inputText id="searchInput" placeholder="Buscar times..." value="#{managerTeam.termoBusca}">
-                        <p:ajax event="keyup" update="timesTable loadingIndicator noResultsMessage initialMessage" 
-                                listener="#{managerTeam.pesquisarTime()}" delay="300" />
-                    </p:inputText>
-                    <span class="p-inputgroup-addon">
-                        <p:commandButton value="Limpar" action="#{managerTeam.limparBusca()}" 
-                                         update="searchInput timesTable loadingIndicator noResultsMessage initialMessage" 
-                                         styleClass="p-button-secondary p-button-sm" />
-                    </span>
-                </div>
-            </h:form>
-        </div>
-
-        <!-- Indicador de carregamento -->
-        <p:outputPanel id="loadingIndicator">
-            <div class="text-center p-3" style="display: #{managerTeam.buscando ? 'block' : 'none'};">
-                <p:progressBar style="width:50px;height:50px" animationDuration="5" />
-                <div class="mt-2">Buscando times...</div>
-            </div>
-        </p:outputPanel>
-
-        <!-- Mensagem quando não há resultados -->
-        <p:outputPanel id="noResultsMessage">
-            <div class="text-center p-5" style="display: #{managerTeam.semResultados ? 'block' : 'none'};">
-                <i class="pi pi-shield" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
-                <h3>Nenhum time encontrado</h3>
-                <p>Tente usar termos diferentes na sua busca.</p>
-            </div>
-        </p:outputPanel>
-
-        <!-- Mensagem inicial -->
-        <p:outputPanel id="initialMessage">
-            <div class="text-center p-5" style="display: #{managerTeam.estadoInicial ? 'block' : 'none'};">
-                <i class="pi pi-shield" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
-                <h3>Digite para buscar times</h3>
-                <p>Os resultados aparecerão aqui conforme você digita.</p>
-            </div>
-        </p:outputPanel>
-
-        <p:dataTable id="timesTable" var="time" value="#{managerTeam.times}" 
-                     emptyMessage="Nenhum time encontrado" styleClass="mb-4"
-                     rowKey="#{time.id}" expandedRow="false"
-                     rowExpandMode="single"
-                     style="display: #{managerTeam.temResultados ? 'table' : 'none'}">
-
-            <p:column style="width:70px;text-align:center" exportable="false">
-                <p:rowToggler />
-            </p:column>
-
-            <p:column headerText="Logo" style="width:80px;text-align:center">
-                <div class="team-logo-container">
-                    <p:graphicImage value="image/#{time.anexo.nome}" rendered="#{time.anexo ne null}" styleClass="team-logo"  />
-                    <div class="team-logo-placeholder" rendered="#{time.anexo eq null}">
-                        <i class="pi pi-shield"></i>
+                <div class="filter-grid-times">
+                    <div class="filter-field">
+                        <label class="filter-label">
+                            <i class="pi pi-search"></i>
+                            <span>Buscar Time</span>
+                        </label>
+                        <p:inputText id="searchInput" 
+                                     placeholder="Digite o nome do time..." 
+                                     styleClass="filter-input"
+                                     value="#{managerTeam.termoBusca}">
+                            <p:ajax event="keyup" 
+                                    update="timesGrid loadingIndicator noResultsMessage initialMessage" 
+                                    listener="#{managerTeam.pesquisarTime()}" 
+                                    delay="500"
+                                    global="false" />
+                        </p:inputText>
+                    </div>
+                    
+                    <div class="filter-field">
+                        <label class="filter-label filter-label-empty">
+                            <span></span>
+                        </label>
+                        <p:commandButton value="Limpar Filtros" 
+                                         icon="pi pi-times"
+                                         styleClass="clear-btn"
+                                         action="#{managerTeam.limparBusca()}" 
+                                         update="@form"
+                                         process="@this" />
                     </div>
                 </div>
-            </p:column>
 
-            <p:column headerText="Nome" sortBy="#{time.nome}" filterBy="#{time.nome}">
-                <h:outputText value="#{time.nome}" />
-            </p:column>
-
-            <p:column headerText="Sigla" sortBy="#{time.sigla}" style="width:100px">
-                <h:outputText value="#{time.sigla}" />
-            </p:column>
-
-            <p:column headerText="Jogos" style="width:100px;text-align:center">
-                <p:badge value="CS:GO" severity="success" styleClass="mr-1" />
-                <p:badge value="LOL" severity="info" />
-                <p:badge value="FIFA" severity="error" />
-            </p:column>          
-
-            <p:column headerText="Ações" style="width:120px;text-align:center" exportable="false">
-                <p:button icon="pi pi-eye" styleClass="p-button-text p-button-sm" outcome="visualizarTime.xhtml">
-                    <f:param name="id" value="#{time.id}" />
-                </p:button>                              
-            </p:column>
-
-            <p:rowExpansion>
-                <div class="team-players-container">
-                    <div class="team-players-header">
-                        <h3>Jogadores do Time</h3>                        
-                    </div>
-
-
-
-
-                    <!-- Mensagem quando o time não tem jogadores -->
-                    <p:outputPanel rendered="#{empty time.players}">
-                        <div class="text-center p-4">
-                            <i class="pi pi-users" style="font-size: 2rem; color: #ccc; margin-bottom: 1rem;"></i>
-                            <h3>Nenhum jogador neste time</h3>
-                            <p>Este time ainda não possui jogadores cadastrados.</p>
-                            <p:button value="Adicionar Jogador" outcome="criarJogador" styleClass="p-button-secondary mt-2">
-                                <f:param name="teamId" value="#{time.id}" />
-                            </p:button>
+                <!-- Indicador de carregamento -->
+                <p:outputPanel id="loadingIndicator">
+                    <div class="empty-state" style="display: #{managerTeam.buscando ? 'block' : 'none'};">
+                        <div class="empty-icon">
+                            <i class="pi pi-spin pi-spinner"></i>
                         </div>
-                    </p:outputPanel>
+                        <h3 class="empty-title">Buscando times...</h3>
+                        <p class="empty-text">Aguarde um momento</p>
+                    </div>
+                </p:outputPanel>
 
-                    <!-- Grid de jogadores -->
-                    <div class="team-players-grid" rendered="#{not empty time.players}">
-                        <!-- Jogador 1 -->
-                        <ui:repeat value="#{time.players}" var="player">
-                            <div class="team-player-card">
-                                <div class="player-photo-container">
-                                    <p:graphicImage value="image/#{player.anexo.nome}" rendered="#{player.anexo ne null}" styleClass="player-photo" /> 
-                                    <div class="team-logo-placeholder" rendered="#{player.anexo eq null}">
-                                        <i class="pi pi-shield"></i>
+                <!-- Mensagem quando não há resultados -->
+                <p:outputPanel id="noResultsMessage">
+                    <div class="empty-state" style="display: #{managerTeam.semResultados ? 'block' : 'none'};">
+                        <div class="empty-icon">
+                            <i class="pi pi-shield"></i>
+                        </div>
+                        <h3 class="empty-title">Nenhum time encontrado</h3>
+                        <p class="empty-text">Tente usar termos diferentes na sua busca</p>
+                    </div>
+                </p:outputPanel>
+
+                <!-- Mensagem inicial -->
+                <p:outputPanel id="initialMessage">
+                    <div class="empty-state" style="display: #{managerTeam.estadoInicial ? 'block' : 'none'};">
+                        <div class="empty-icon">
+                            <i class="pi pi-shield"></i>
+                        </div>
+                        <h3 class="empty-title">Digite para buscar times</h3>
+                        <p class="empty-text">Os resultados aparecerão aqui conforme você digita</p>
+                    </div>
+                </p:outputPanel>
+
+                <!-- Grid de Times -->
+                <h:panelGroup id="timesGrid">
+                    <div class="teams-grid" style="display: #{managerTeam.temResultados ? 'grid' : 'none'};">
+                        <ui:repeat value="#{managerTeam.times}" var="time">
+                            <div class="team-card-modern">
+                                <!-- Header do Card com Logo e Info -->
+                                <div class="team-card-header">
+                                    <div class="team-logo-large">
+                                        <p:graphicImage value="image/#{time.anexo.nome}" 
+                                                        rendered="#{time.anexo ne null}" 
+                                                        styleClass="team-logo-img" />
+                                        <div class="team-logo-placeholder-large" rendered="#{time.anexo eq null}">
+                                            <i class="pi pi-shield"></i>
+                                        </div>
+                                    </div>
+                                    <div class="team-info">
+                                        <h3 class="team-name">#{time.nome}</h3>
+                                        <span class="team-tag">#{time.sigla}</span>
                                     </div>
                                 </div>
-                                <div class="player-info">
-                                    <div class="player-name">#{player.nome}</div>
-                                    <div class="player-nickname">#{player.nick}</div>
-                                    <p:badge value="Capitão" severity="info" styleClass="player-role" />
+
+                                <!-- Jogadores do Time -->
+                                <div class="team-players-section">
+                                    <div class="players-header">
+                                        <i class="pi pi-users"></i>
+                                        <span>Jogadores</span>
+                                        <span class="players-count">#{time.players != null ? time.players.size() : 0}</span>
+                                    </div>
+                                    
+                                    <!-- Lista de Jogadores -->
+                                    <h:panelGroup rendered="#{time.players != null and !time.players.isEmpty()}">
+                                        <div class="players-list">
+                                            <ui:repeat value="#{time.players}" var="player" varStatus="status">
+                                                <h:panelGroup rendered="#{status.index lt 5}">
+                                                    <div class="player-mini-card">
+                                                        <div class="player-avatar-mini">
+                                                            <p:graphicImage value="image/#{player.anexo.nome}" 
+                                                                            rendered="#{player.anexo ne null}" 
+                                                                            styleClass="player-avatar-img" />
+                                                            <div class="player-avatar-placeholder" rendered="#{player.anexo eq null}">
+                                                                <i class="pi pi-user"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="player-mini-info">
+                                                            <div class="player-mini-name">#{player.nome}</div>
+                                                            <div class="player-mini-nick">#{player.nick}</div>
+                                                        </div>
+                                                    </div>
+                                                </h:panelGroup>
+                                            </ui:repeat>
+                                            
+                                            <!-- Indicador de mais jogadores -->
+                                            <h:panelGroup rendered="#{time.players.size() gt 5}">
+                                                <div class="more-players">
+                                                    +#{time.players.size() - 5} jogadores
+                                                </div>
+                                            </h:panelGroup>
+                                        </div>
+                                    </h:panelGroup>
+                                    
+                                    <!-- Mensagem quando não há jogadores -->
+                                    <h:panelGroup rendered="#{time.players == null or time.players.isEmpty()}">
+                                        <div class="no-players">
+                                            <i class="pi pi-user-plus"></i>
+                                            <span>Nenhum jogador cadastrado</span>
+                                        </div>
+                                    </h:panelGroup>
                                 </div>
-                            </div>                                              
+
+                                <!-- Footer com Ações -->
+                                <div class="team-card-footer">
+                                    <h:link outcome="time.xhtml" styleClass="team-action-btn">
+                                        <f:param name="id" value="#{time.id}" />
+                                        <i class="pi pi-eye"></i>
+                                        <span>Ver Detalhes</span>
+                                    </h:link>
+                                </div>
+                            </div>
                         </ui:repeat>
                     </div>
-                </div>
-            </p:rowExpansion>
-        </p:dataTable>
+                </h:panelGroup>
+            </h:form>
+        </p:card>
 
         <!-- Diálogo de confirmação de exclusão -->
         <p:dialog id="deleteDialog" header="Confirmar Exclusão" widgetVar="deleteDialogWidget" modal="true" 
@@ -151,187 +176,399 @@
             <f:facet name="footer">
                 <p:commandButton value="Cancelar" styleClass="p-button-text" onclick="PF('deleteDialogWidget').hide()" />
                 <p:commandButton value="Excluir" styleClass="p-button-danger" 
-                                 action="#{managerTeam.deletar()}" oncomplete="PF('deleteDialogWidget').hide()" 
-                                 update=":timesTable" />
+                                 action="#{managerTeam.deletar()}" 
+                                 oncomplete="PF('deleteDialogWidget').hide(); window.location.href='times.xhtml';" 
+                                 update="@none" />
             </f:facet>
         </p:dialog>
 
         <style type="text/css">
-            /* Estilos para a tabela de times */
-            .team-logo-container {
-                width: 48px;
-                height: 48px;
-                border-radius: 50%;
-                overflow: hidden;
-                background-color: #f8f9fa;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin: 0 auto;
-                border: 1px solid #dee2e6;
-            }
-
-            .team-logo {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-
-            .team-logo-placeholder {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-                height: 100%;
-                font-size: 1.5rem;
-                color: #adb5bd;
-            }
-
-            /* Estilos para a expansão de jogadores */
-            .team-players-container {
-                padding: 1rem;
-                background-color: #f8f9fa;
-                border-radius: 0.5rem;
-            }
-
-            .team-players-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 1rem;
-            }
-
-            .team-players-header h3 {
-                margin: 0;
-                font-size: 1.25rem;
-                font-weight: 600;
-                color: #343a40;
-            }
-
-            .team-players-grid {
+            /* Filter Grid - Times */
+            .filter-grid-times {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                gap: 1rem;
+                grid-template-columns: 1fr auto;
+                gap: 1.5rem 1rem;
+                margin-bottom: 1.5rem;
+                margin-top: 0.5rem;
             }
 
-            .team-player-card {
+            .filter-field {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .filter-label {
                 display: flex;
                 align-items: center;
-                background-color: #ffffff;
-                border-radius: 0.5rem;
-                padding: 0.75rem;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-                transition: transform 0.2s, box-shadow 0.2s;
+                gap: 0.5rem;
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: var(--text-200) !important;
+                margin: 0;
+                padding: 0;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                line-height: 1.2;
             }
 
-            .team-player-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            .filter-label i {
+                color: var(--accent);
+                font-size: 0.875rem;
+                flex-shrink: 0;
             }
 
-            .player-photo-container {
-                width: 48px;
-                height: 48px;
+            .filter-label-empty {
+                visibility: hidden;
+                height: 1.2rem;
+            }
+
+            .filter-input {
+                background: rgba(255,255,255,0.05) !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                color: var(--text-100) !important;
+                border-radius: 10px !important;
+                padding: 0.75rem 1rem !important;
+                font-size: 0.95rem !important;
+                transition: all 0.2s ease !important;
+            }
+
+            .filter-input:focus {
+                border-color: var(--accent) !important;
+                box-shadow: 0 0 0 3px rgba(0,225,255,0.15) !important;
+                background: rgba(255,255,255,0.08) !important;
+            }
+
+            .filter-input::placeholder {
+                color: var(--text-300) !important;
+            }
+
+            .clear-btn {
+                min-height: 46px !important;
+                padding: 0.75rem 1.5rem !important;
+                font-weight: 600 !important;
+                font-size: 0.9rem !important;
+                white-space: nowrap !important;
+                background: transparent !important;
+                border: 1px solid var(--border) !important;
+                color: var(--text-200) !important;
+                border-radius: 10px !important;
+                transition: all 0.2s ease !important;
+            }
+
+            .clear-btn:hover {
+                background: rgba(239,68,68,0.1) !important;
+                border-color: rgba(239,68,68,0.4) !important;
+                color: #ef4444 !important;
+            }
+
+            /* Empty State */
+            .empty-state {
+                text-align: center;
+                padding: 4rem 2rem;
+            }
+
+            .empty-icon {
+                font-size: 4rem;
+                color: var(--text-300);
+                margin-bottom: 1.5rem;
+            }
+
+            .empty-icon i {
+                color: var(--accent);
+                opacity: 0.5;
+            }
+
+            .empty-title {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: var(--text-100);
+                margin: 0 0 0.5rem 0;
+            }
+
+            .empty-text {
+                font-size: 1rem;
+                color: var(--text-300);
+                margin: 0;
+            }
+
+            /* Teams Grid */
+            .teams-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 1.5rem;
+                margin-top: 1.5rem;
+            }
+
+            /* Team Card Modern */
+            .team-card-modern {
+                background: linear-gradient(135deg, var(--bg-800), var(--bg-900));
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                overflow: hidden;
+                transition: all 0.3s ease;
+                box-shadow: var(--shadow);
+            }
+
+            .team-card-modern:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 16px 32px rgba(0,0,0,0.5);
+                border-color: rgba(0,225,255,0.3);
+            }
+
+            /* Team Card Header */
+            .team-card-header {
+                display: flex;
+                align-items: center;
+                gap: 1.25rem;
+                padding: 1.5rem;
+                border-bottom: 1px solid var(--border);
+                background: rgba(255,255,255,0.02);
+            }
+
+            .team-logo-large {
+                width: 80px;
+                height: 80px;
                 border-radius: 50%;
                 overflow: hidden;
-                background-color: #f8f9fa;
-                margin-right: 0.75rem;
+                background: rgba(255,255,255,0.05);
+                border: 2px solid var(--border);
                 flex-shrink: 0;
-                border: 1px solid #dee2e6;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
             }
 
-            .player-photo {
+            .team-card-modern:hover .team-logo-large {
+                border-color: var(--accent);
+                box-shadow: 0 0 20px rgba(0,225,255,0.3);
+            }
+
+            .team-logo-img {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
             }
 
-            .player-photo-placeholder {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-                height: 100%;
-                font-size: 1.25rem;
-                color: #adb5bd;
+            .team-logo-placeholder-large {
+                font-size: 2.5rem;
+                color: var(--accent);
+                opacity: 0.5;
             }
 
-            .player-info {
+            .team-info {
                 flex: 1;
                 min-width: 0;
             }
 
-            .player-name {
-                font-weight: 600;
-                font-size: 0.875rem;
-                margin-bottom: 0.25rem;
-                white-space: nowrap;
+            .team-name {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: var(--text-100);
+                margin: 0 0 0.5rem 0;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                white-space: nowrap;
             }
 
-            .player-nickname {
+            .team-tag {
+                display: inline-block;
+                padding: 0.25rem 0.75rem;
+                background: rgba(0,225,255,0.15);
+                border: 1px solid rgba(0,225,255,0.3);
+                color: var(--accent);
+                border-radius: 999px;
                 font-size: 0.75rem;
-                color: #6c757d;
-                margin-bottom: 0.25rem;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
             }
 
-            .player-role {
-                font-size: 0.7rem;
-            }
-
-            /* Estilos para o botão "Ver Todos" */
-            .p-button-plain {
-                background-color: transparent;
-                border: none;
-                color: #6c757d;
-                font-weight: 500;
-                transition: color 0.2s;
-            }
-
-            .p-button-plain:hover {
-                background-color: transparent;
-                color: #343a40;
-                text-decoration: underline;
-            }
-
-            /* Estilos para mensagens e indicadores */
-            .text-center {
-                text-align: center;
-            }
-
-            .p-3 {
-                padding: 1rem;
-            }
-
-            .p-4 {
+            /* Team Players Section */
+            .team-players-section {
                 padding: 1.5rem;
             }
 
-            .p-5 {
-                padding: 3rem;
+            .players-header {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+                color: var(--text-200);
+                font-size: 0.875rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
             }
 
-            .mt-2 {
-                margin-top: 0.5rem;
+            .players-header i {
+                color: var(--accent);
+                font-size: 1rem;
+            }
+
+            .players-count {
+                margin-left: auto;
+                background: rgba(0,225,255,0.15);
+                color: var(--accent);
+                padding: 0.25rem 0.6rem;
+                border-radius: 999px;
+                font-size: 0.75rem;
+                font-weight: 700;
+            }
+
+            /* Players List */
+            .players-list {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .player-mini-card {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 0.75rem;
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 10px;
+                transition: all 0.2s ease;
+            }
+
+            .player-mini-card:hover {
+                background: rgba(255,255,255,0.06);
+                border-color: rgba(0,225,255,0.2);
+                transform: translateX(4px);
+            }
+
+            .player-avatar-mini {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                overflow: hidden;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .player-avatar-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .player-avatar-placeholder {
+                font-size: 1.25rem;
+                color: var(--text-300);
+            }
+
+            .player-mini-info {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .player-mini-name {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: var(--text-100);
+                margin-bottom: 0.25rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .player-mini-nick {
+                font-size: 0.75rem;
+                color: var(--text-300);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .more-players {
+                text-align: center;
+                padding: 0.75rem;
+                color: var(--accent);
+                font-size: 0.875rem;
+                font-weight: 600;
+                background: rgba(0,225,255,0.05);
+                border: 1px dashed rgba(0,225,255,0.3);
+                border-radius: 10px;
+            }
+
+            .no-players {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                padding: 2rem;
+                color: var(--text-300);
+                font-size: 0.875rem;
+                text-align: center;
+            }
+
+            .no-players i {
+                font-size: 1.5rem;
+                opacity: 0.5;
+            }
+
+            /* Team Card Footer */
+            .team-card-footer {
+                padding: 1rem 1.5rem;
+                border-top: 1px solid var(--border);
+                background: rgba(255,255,255,0.02);
+            }
+
+            .team-action-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                width: 100%;
+                padding: 0.75rem 1rem;
+                background: linear-gradient(135deg, rgba(0,225,255,0.12), rgba(0,225,255,0.06));
+                border: 1px solid rgba(0,225,255,0.25);
+                color: var(--text-100) !important;
+                border-radius: 10px;
+                font-weight: 600;
+                font-size: 0.9rem;
+                text-decoration: none !important;
+                transition: all 0.2s ease;
+            }
+
+            .team-action-btn:hover {
+                background: linear-gradient(135deg, rgba(0,225,255,0.18), rgba(0,225,255,0.10));
+                border-color: rgba(0,225,255,0.4);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0,225,255,0.2);
+            }
+
+            .team-action-btn i {
+                color: var(--accent);
+                font-size: 1rem;
             }
 
             /* Responsividade */
             @media (max-width: 768px) {
-                .team-players-grid {
-                    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                }
-            }
-
-            @media (max-width: 576px) {
-                .team-players-grid {
-                    grid-template-columns: 1fr 1fr;
-                }
-            }
-
-            @media (max-width: 480px) {
-                .team-players-grid {
+                .teams-grid {
                     grid-template-columns: 1fr;
+                }
+
+                .filter-grid-times {
+                    grid-template-columns: 1fr;
+                }
+
+                .team-card-header {
+                    flex-direction: column;
+                    text-align: center;
+                }
+
+                .team-logo-large {
+                    width: 100px;
+                    height: 100px;
                 }
             }
         </style>

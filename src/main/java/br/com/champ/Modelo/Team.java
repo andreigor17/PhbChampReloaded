@@ -22,6 +22,8 @@ public class Team extends ModeloGenerico implements Serializable {
     private Anexo anexo;
     private boolean timeAmistoso;
     private String sigla;
+    private Player capitao;
+    private List<Jogo> jogos;
 
     public String getNome() {
         return nome;
@@ -106,7 +108,21 @@ public class Team extends ModeloGenerico implements Serializable {
         }
         return Objects.equals(this.anexo, other.anexo);
     }
-    
-    
+
+    public List<Jogo> getJogos() {
+        return jogos;
+    }
+
+    public void setJogos(List<Jogo> jogos) {
+        this.jogos = jogos;
+    }
+
+    public Player getCapitao() {
+        return capitao;
+    }
+
+    public void setCapitao(Player capitao) {
+        this.capitao = capitao;
+    }
 
 }

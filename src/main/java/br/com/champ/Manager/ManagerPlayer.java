@@ -329,9 +329,9 @@ public class ManagerPlayer extends ManagerBase {
     }
 
     public void pesquisarPlayer() throws Exception {
+        // Se o termo de busca for null, vazio ou menor que 2 caracteres, limpa a busca
         if (termoBusca == null || termoBusca.trim().length() < 2) {
             limparBusca();
-            this.termoBusca = "";
             return;
         }
 
@@ -339,11 +339,20 @@ public class ManagerPlayer extends ManagerBase {
         buscando = true;
 
         try {
-
-            this.players = playerServico.pesquisar(this.termoBusca);
+            // Chama o serviço para pesquisar
+            List<Player> resultado = playerServico.pesquisar(this.termoBusca.trim());
+            
+            // Garante que sempre temos uma lista (nunca null)
+            if (resultado == null) {
+                this.players = new ArrayList<>();
+            } else {
+                this.players = resultado;
+            }
         } catch (Exception e) {
-            this.players = new ArrayList<>();
+            System.err.println("Erro ao pesquisar player: " + e.getMessage());
             e.printStackTrace();
+            // Em caso de erro, inicializa lista vazia
+            this.players = new ArrayList<>();
         } finally {
             buscando = false;
         }

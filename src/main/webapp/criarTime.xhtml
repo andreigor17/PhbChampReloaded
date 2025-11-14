@@ -1,0 +1,1139 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="vercel.xhtml">
+
+    <ui:define name="content">
+        <h:form id="teamForm" enctype="multipart/form-data">
+            <!-- Header -->
+            <div class="section-header">
+                <h1 class="section-title">
+                    <i class="pi pi-shield mr-2"></i>
+                    #{managerTeam.team.id == null ? 'Novo Time' : 'Editar Time'}
+                </h1>
+                <div style="display: flex; gap: 0.75rem;">
+                    <h:link outcome="times.xhtml" styleClass="action-btn">
+                        <i class="pi pi-arrow-left"></i>
+                        <span>Voltar</span>
+                    </h:link>
+                </div>
+            </div>
+
+            <!-- Banner Upload Section -->
+            <p:card styleClass="glass-card mb-4">
+                <f:facet name="header">
+                    <div class="card-header-custom">
+                        <i class="pi pi-image"></i>
+                        <span>Banner do Time</span>
+                    </div>
+                </f:facet>
+                
+                <div class="banner-upload-section">
+                    <div class="banner-preview" id="bannerPreview">
+                        <p:graphicImage value="image/#{managerTeam.team.anexo.nome}" 
+                                        rendered="#{managerTeam.team.anexo ne null}"
+                                        styleClass="banner-img" />
+                        <div class="banner-placeholder" rendered="#{managerTeam.team.anexo eq null}">
+                            <i class="pi pi-image"></i>
+                            <span>Nenhum banner selecionado</span>
+                        </div>
+                    </div>
+                    <div class="upload-actions">
+                        <p:fileUpload id="bannerUpload"
+                                      mode="simple"
+                                      skinSimple="true"
+                                      label="Escolher Banner"
+                                      chooseLabel="Escolher Banner"
+                                      accept="image/*"
+                                      styleClass="upload-btn" />
+                        <p class="upload-hint">
+                            <i class="pi pi-info-circle"></i>
+                            Recomendado: 1200x300px (proporção 4:1)
+                        </p>
+                    </div>
+                </div>
+            </p:card>
+
+            <!-- Informações Básicas -->
+            <p:card styleClass="glass-card mb-4">
+                <f:facet name="header">
+                    <div class="card-header-custom">
+                        <i class="pi pi-info-circle"></i>
+                        <span>Informações do Time</span>
+                    </div>
+                </f:facet>
+
+                <div class="team-info-grid">
+                    <!-- Logo Upload -->
+                    <div class="logo-upload-section">
+                        <label class="form-label">
+                            <i class="pi pi-shield"></i>
+                            <span>Logo do Time</span>
+                        </label>
+                        <div class="logo-preview-container">
+                            <div class="logo-preview">
+                                <p:graphicImage value="image/#{managerTeam.team.anexo.nome}" 
+                                                rendered="#{managerTeam.team.anexo ne null}"
+                                                styleClass="logo-img" />
+                                <div class="logo-placeholder" rendered="#{managerTeam.team.anexo eq null}">
+                                    <i class="pi pi-shield"></i>
+                                </div>
+                            </div>
+                            <p:fileUpload id="logoUpload"
+                                          mode="simple"
+                                          skinSimple="true"
+                                          label="Upload Logo"
+                                          chooseLabel="Upload"
+                                          accept="image/*"
+                                          styleClass="logo-upload-btn" />
+                        </div>
+                        <p class="field-hint">PNG ou JPG, máx. 2MB</p>
+                    </div>
+
+                    <!-- Campos do Formulário -->
+                    <div class="form-fields-section">
+                        <div class="form-field">
+                            <label class="form-label" for="teamName">
+                                <i class="pi pi-tag"></i>
+                                <span>Nome do Time</span>
+                            </label>
+                            <p:inputText id="teamName" 
+                                         value="#{managerTeam.team.nome}"
+                                         placeholder="Digite o nome do time..."
+                                         styleClass="form-input"
+                                         required="true"
+                                         requiredMessage="Nome do time é obrigatório" />
+                        </div>
+
+                        <div class="form-field">
+                            <label class="form-label" for="teamTag">
+                                <i class="pi pi-bookmark"></i>
+                                <span>Sigla</span>
+                            </label>
+                            <p:inputText id="teamTag" 
+                                         value="#{managerTeam.team.sigla}"
+                                         placeholder="Ex: FNC, G2, LOUD..."
+                                         styleClass="form-input"
+                                         maxlength="5"
+                                         required="true"
+                                         requiredMessage="Sigla é obrigatória" />
+                        </div>
+
+                        <div class="form-field">
+                            <label class="form-label">
+                                <i class="pi pi-check-square"></i>
+                                <span>Tipo de Time</span>
+                            </label>
+                            <div class="checkbox-wrapper">
+                                <p:selectBooleanCheckbox id="isAmistoso" 
+                                                         value="#{managerTeam.team.timeAmistoso}" />
+                                <label for="isAmistoso" class="checkbox-label">Time Amistoso</label>
+                            </div>
+                            <p class="field-hint">Times amistosos não participam de rankings oficiais</p>
+                        </div>
+                    </div>
+                </div>
+            </p:card>
+
+            <!-- Seleção de Jogos -->
+            <p:card styleClass="glass-card mb-4">
+                <f:facet name="header">
+                    <div class="card-header-custom">
+                        <i class="pi pi-desktop"></i>
+                        <span>Jogos do Time</span>
+                    </div>
+                </f:facet>
+
+                <div class="games-selection-grid">
+                    <p:selectManyCheckbox id="teamGames" 
+                                          value="#{managerTeam.jogosSelecionadosIds}"
+                                          layout="grid"
+                                          columns="3">
+                        <f:selectItems value="#{managerTeam.jogos}"
+                                       var="jogo"
+                                       itemLabel="#{jogo.nome}"
+                                       itemValue="#{jogo.id}" />
+                    </p:selectManyCheckbox>
+                </div>
+                <p class="field-hint">
+                    <i class="pi pi-info-circle"></i>
+                    Selecione os jogos que o time está apto a competir
+                </p>
+            </p:card>
+
+            <!-- Gerenciamento de Jogadores -->
+            <p:card styleClass="glass-card mb-4">
+                <f:facet name="header">
+                    <div class="card-header-custom">
+                        <i class="pi pi-users"></i>
+                        <span>Jogadores do Time</span>
+                        <span class="players-count-badge">
+                            #{managerTeam.team.players != null ? managerTeam.team.players.size() : 0}
+                        </span>
+                    </div>
+                </f:facet>
+
+                <!-- Adicionar Jogador -->
+                <div class="add-player-section">
+                    <div class="add-player-field">
+                        <label class="form-label">
+                            <i class="pi pi-user-plus"></i>
+                            <span>Adicionar Jogador</span>
+                        </label>
+                        <div class="add-player-controls">
+                            <p:autoComplete id="playerSearch"
+                                            value="#{managerTeam.playerSelecionado}"
+                                            completeMethod="#{managerTeam.buscarJogadores}"
+                                            var="player"
+                                            itemLabel="#{player.nome}"
+                                            itemValue="#{player}"
+                                            converter="player_converter"
+                                            placeholder="Buscar jogador..."
+                                            styleClass="form-input"
+                                            scrollHeight="300"
+                                            forceSelection="true">
+                                <p:column style="width: 60px;">
+                                    <div class="autocomplete-avatar">
+                                        <p:graphicImage value="image/#{player.anexo.nome}" 
+                                                        rendered="#{player.anexo ne null}"
+                                                        styleClass="autocomplete-img" />
+                                        <div class="autocomplete-placeholder" rendered="#{player.anexo eq null}">
+                                            <i class="pi pi-user"></i>
+                                        </div>
+                                    </div>
+                                </p:column>
+                                <p:column>
+                                    <div class="autocomplete-info">
+                                        <div class="autocomplete-name">#{player.nome}</div>
+                                        <div class="autocomplete-nick">#{player.nick}</div>
+                                    </div>
+                                </p:column>
+                            </p:autoComplete>
+                            <p:commandButton value="Adicionar"
+                                             icon="pi pi-plus"
+                                             styleClass="action-btn success"
+                                             action="#{managerTeam.adicionarJogador()}"
+                                             update="playersList"
+                                             process="@this playerSearch" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Jogadores -->
+                <h:panelGroup id="playersList">
+                    <h:panelGroup rendered="#{managerTeam.team.players != null and !managerTeam.team.players.isEmpty()}">
+                        <div class="players-grid-manage">
+                            <ui:repeat value="#{managerTeam.team.players}" var="player">
+                                <div class="player-card-manage">
+                                    <div class="player-card-header-manage">
+                                        <h:link outcome="jogador.xhtml" styleClass="player-link-manage">
+                                            <f:param name="id" value="#{player.id}" />
+                                            <div class="player-avatar-manage">
+                                                <p:graphicImage value="image/#{player.anexo.nome}" 
+                                                                rendered="#{player.anexo ne null}"
+                                                                styleClass="player-avatar-img-manage" />
+                                                <div class="player-avatar-placeholder-manage" rendered="#{player.anexo eq null}">
+                                                    <i class="pi pi-user"></i>
+                                                </div>
+                                            </div>
+                                            <div class="player-info-manage">
+                                                <div class="player-name-manage">#{player.nome}</div>
+                                                <div class="player-nick-manage">#{player.nick}</div>
+                                            </div>
+                                        </h:link>
+                                        <p:commandButton icon="pi pi-trash"
+                                                         styleClass="remove-player-btn"
+                                                         action="#{managerTeam.removerJogador(player)}"
+                                                         update="playersList"
+                                                         process="@this"
+                                                         title="Remover jogador">
+                                            <p:confirm header="Confirmar Remoção" 
+                                                       message="Deseja remover #{player.nome} do time?"
+                                                       icon="pi pi-exclamation-triangle" />
+                                        </p:commandButton>
+                                    </div>
+                                    <div class="player-card-footer-manage">
+                                        <div class="player-games-tags">
+                                            <ui:repeat value="#{player.jogos}" var="jogo" varStatus="status">
+                                                <h:panelGroup rendered="#{status.index lt 3}">
+                                                    <span class="game-tag-small" style="background-color: #{jogo.corHex ne null ? jogo.corHex : 'var(--accent)'};">
+                                                        #{jogo.nome}
+                                                    </span>
+                                                </h:panelGroup>
+                                            </ui:repeat>
+                                            <h:panelGroup rendered="#{player.jogos != null and player.jogos.size() gt 3}">
+                                                <span class="game-tag-more">+#{player.jogos.size() - 3}</span>
+                                            </h:panelGroup>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ui:repeat>
+                        </div>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{managerTeam.team.players == null or managerTeam.team.players.isEmpty()}">
+                        <div class="empty-state-small">
+                            <i class="pi pi-users"></i>
+                            <p>Nenhum jogador adicionado ao time</p>
+                        </div>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </p:card>
+
+            <!-- Estatísticas do Time (apenas em edição) -->
+            <h:panelGroup rendered="#{managerTeam.team.id ne null}">
+                <div class="stats-section mb-4">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="pi pi-chart-line"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value">#{managerTeam.totalPartidas}</div>
+                                <div class="stat-label">Partidas</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon success">
+                                <i class="pi pi-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value">#{managerTeam.vitorias}</div>
+                                <div class="stat-label">Vitórias</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon danger">
+                                <i class="pi pi-times-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value">#{managerTeam.derrotas}</div>
+                                <div class="stat-label">Derrotas</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="pi pi-star"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value">#{managerTeam.campeonatos}</div>
+                                <div class="stat-label">Campeonatos</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Últimas Partidas -->
+                <p:card styleClass="glass-card mb-4">
+                    <f:facet name="header">
+                        <div class="card-header-custom">
+                            <i class="pi pi-history"></i>
+                            <span>Últimas Partidas</span>
+                        </div>
+                    </f:facet>
+
+                    <p:dataTable var="partida" 
+                                 value="#{managerTeam.ultimasPartidas}"
+                                 styleClass="elegant-table"
+                                 emptyMessage="Nenhuma partida encontrada"
+                                 rows="5"
+                                 paginator="true">
+                        
+                        <p:column headerText="Data" style="width: 120px;">
+                            <h:outputText value="#{partida.data}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="Adversário">
+                            <h:outputText value="#{partida.adversario}" />
+                        </p:column>
+
+                        <p:column headerText="Placar" style="width: 100px; text-align: center;">
+                            <span class="match-score">#{partida.placar}</span>
+                        </p:column>
+
+                        <p:column headerText="Resultado" style="width: 100px;">
+                            <span class="result-badge #{partida.vitoria ? 'victory' : 'defeat'}">
+                                #{partida.vitoria ? 'Vitória' : 'Derrota'}
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="Ações" style="width: 80px; text-align: center;">
+                            <h:link outcome="visualizarPartida.xhtml" styleClass="action-icon-small">
+                                <f:param name="id" value="#{partida.id}" />
+                                <i class="pi pi-eye"></i>
+                            </h:link>
+                        </p:column>
+                    </p:dataTable>
+                </p:card>
+
+                <!-- Campeonatos -->
+                <p:card styleClass="glass-card mb-4">
+                    <f:facet name="header">
+                        <div class="card-header-custom">
+                            <i class="pi pi-star"></i>
+                            <span>Campeonatos</span>
+                        </div>
+                    </f:facet>
+
+                    <p:dataTable var="campeonato" 
+                                 value="#{managerTeam.campeonatos}"
+                                 styleClass="elegant-table"
+                                 emptyMessage="Time não participa de nenhum campeonato"
+                                 rows="5"
+                                 paginator="true">
+                        
+                        <p:column headerText="Nome">
+                            <h:outputText value="#{campeonato.nome}" />
+                        </p:column>
+
+                        <p:column headerText="Jogo" style="width: 150px;">
+                            <span class="game-badge" style="background-color: #{campeonato.jogo.corHex ne null ? campeonato.jogo.corHex : 'var(--accent)'};">
+                                #{campeonato.jogo.nome}
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="Status" style="width: 150px;">
+                            <span class="status-badge #{campeonato.status.nome eq 'Em Andamento' ? 'active' : (campeonato.status.nome eq 'Finalizado' ? 'finished' : 'scheduled')}">
+                                #{campeonato.status.nome}
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="Ações" style="width: 80px; text-align: center;">
+                            <h:link outcome="visualizarCampeonato.xhtml" styleClass="action-icon-small">
+                                <f:param name="id" value="#{campeonato.id}" />
+                                <i class="pi pi-eye"></i>
+                            </h:link>
+                        </p:column>
+                    </p:dataTable>
+                </p:card>
+            </h:panelGroup>
+
+            <!-- Botões de Ação -->
+            <div class="action-buttons-footer">
+                <h:link outcome="times.xhtml" styleClass="action-btn-footer cancel">
+                    <i class="pi pi-times"></i>
+                    <span>Cancelar</span>
+                </h:link>
+                <p:commandButton value="Salvar Time"
+                                 icon="pi pi-check"
+                                 styleClass="action-btn-footer save"
+                                 action="#{managerTeam.salvarTime()}"
+                                 update="@form"
+                                 process="@form" />
+            </div>
+
+            <!-- Confirm Dialog -->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="400">
+                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-text" />
+                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" />
+            </p:confirmDialog>
+        </h:form>
+
+        <style type="text/css">
+            /* Card Header Custom */
+            .card-header-custom {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                color: var(--text-100);
+                font-size: 1.25rem;
+                font-weight: 700;
+            }
+
+            .card-header-custom i {
+                color: var(--accent);
+                font-size: 1.5rem;
+            }
+
+            .players-count-badge {
+                margin-left: auto;
+                background: rgba(0,225,255,0.15);
+                color: var(--accent);
+                padding: 0.35rem 0.75rem;
+                border-radius: 999px;
+                font-size: 0.875rem;
+                font-weight: 700;
+            }
+
+            /* Banner Upload Section */
+            .banner-upload-section {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                gap: 2rem;
+                align-items: start;
+            }
+
+            .banner-preview {
+                width: 100%;
+                height: 250px;
+                border-radius: var(--radius);
+                overflow: hidden;
+                background: rgba(255,255,255,0.03);
+                border: 2px dashed var(--border);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .banner-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .banner-placeholder {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+                color: var(--text-300);
+            }
+
+            .banner-placeholder i {
+                font-size: 4rem;
+                opacity: 0.3;
+            }
+
+            .upload-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .upload-btn {
+                width: 100%;
+            }
+
+            .upload-hint {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.875rem;
+                color: var(--text-300);
+                margin: 0;
+            }
+
+            .upload-hint i {
+                color: var(--accent);
+            }
+
+            /* Team Info Grid */
+            .team-info-grid {
+                display: grid;
+                grid-template-columns: 300px 1fr;
+                gap: 3rem;
+            }
+
+            /* Logo Upload */
+            .logo-upload-section {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .logo-preview-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .logo-preview {
+                width: 200px;
+                height: 200px;
+                border-radius: 50%;
+                overflow: hidden;
+                background: rgba(255,255,255,0.05);
+                border: 3px solid var(--border);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+            }
+
+            .logo-preview:hover {
+                border-color: var(--accent);
+                box-shadow: 0 0 20px rgba(0,225,255,0.3);
+            }
+
+            .logo-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .logo-placeholder {
+                font-size: 5rem;
+                color: var(--accent);
+                opacity: 0.3;
+            }
+
+            .logo-upload-btn {
+                width: 100%;
+            }
+
+            /* Form Fields */
+            .form-fields-section {
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .form-field {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .form-label {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: var(--text-200);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .form-label i {
+                color: var(--accent);
+                font-size: 1rem;
+            }
+
+            .form-input {
+                background: rgba(255,255,255,0.05) !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                color: var(--text-100) !important;
+                border-radius: 10px !important;
+                padding: 0.85rem 1rem !important;
+                font-size: 1rem !important;
+                transition: all 0.2s ease !important;
+            }
+
+            .form-input:focus {
+                border-color: var(--accent) !important;
+                box-shadow: 0 0 0 3px rgba(0,225,255,0.15) !important;
+                background: rgba(255,255,255,0.08) !important;
+            }
+
+            .form-input::placeholder {
+                color: var(--text-300) !important;
+            }
+
+            .field-hint {
+                font-size: 0.875rem;
+                color: var(--text-300);
+                margin: 0;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .field-hint i {
+                color: var(--accent);
+            }
+
+            .checkbox-wrapper {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 0.75rem;
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 10px;
+            }
+
+            .checkbox-label {
+                color: var(--text-100);
+                font-size: 1rem;
+                cursor: pointer;
+            }
+
+            /* Games Selection */
+            .games-selection-grid {
+                margin-bottom: 1rem;
+            }
+
+            .games-selection-grid table {
+                width: 100%;
+            }
+
+            .games-selection-grid td {
+                padding: 0.75rem !important;
+            }
+
+            .games-selection-grid label {
+                color: var(--text-200) !important;
+                font-size: 0.95rem !important;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.5rem;
+                border-radius: 8px;
+                transition: all 0.2s ease;
+            }
+
+            .games-selection-grid label:hover {
+                background: rgba(255,255,255,0.05);
+            }
+
+            /* Add Player Section */
+            .add-player-section {
+                padding: 1.5rem;
+                background: rgba(255,255,255,0.02);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                margin-bottom: 2rem;
+            }
+
+            .add-player-field {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .add-player-controls {
+                display: flex;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .add-player-controls .form-input {
+                flex: 1;
+            }
+
+            /* Autocomplete Styles */
+            .autocomplete-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                overflow: hidden;
+                background: rgba(255,255,255,0.05);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .autocomplete-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .autocomplete-placeholder {
+                font-size: 1.25rem;
+                color: var(--text-300);
+            }
+
+            .autocomplete-info {
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .autocomplete-name {
+                font-weight: 600;
+                color: var(--text-100);
+            }
+
+            .autocomplete-nick {
+                font-size: 0.875rem;
+                color: var(--text-300);
+            }
+
+            /* Players Grid Manage */
+            .players-grid-manage {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 1rem;
+            }
+
+            .player-card-manage {
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: var(--radius);
+                overflow: hidden;
+                transition: all 0.2s ease;
+            }
+
+            .player-card-manage:hover {
+                background: rgba(255,255,255,0.06);
+                border-color: rgba(0,225,255,0.2);
+                transform: translateY(-2px);
+            }
+
+            .player-card-header-manage {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .player-link-manage {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                flex: 1;
+                text-decoration: none !important;
+                color: inherit;
+            }
+
+            .player-avatar-manage {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                overflow: hidden;
+                background: rgba(255,255,255,0.05);
+                border: 2px solid rgba(255,255,255,0.1);
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .player-avatar-img-manage {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .player-avatar-placeholder-manage {
+                font-size: 1.5rem;
+                color: var(--text-300);
+            }
+
+            .player-info-manage {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .player-name-manage {
+                font-size: 1rem;
+                font-weight: 600;
+                color: var(--text-100);
+                margin-bottom: 0.25rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .player-nick-manage {
+                font-size: 0.875rem;
+                color: var(--text-300);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .remove-player-btn {
+                width: 36px !important;
+                height: 36px !important;
+                padding: 0 !important;
+                background: transparent !important;
+                border: 1px solid rgba(239,68,68,0.3) !important;
+                color: #ef4444 !important;
+                border-radius: 8px !important;
+                flex-shrink: 0;
+            }
+
+            .remove-player-btn:hover {
+                background: rgba(239,68,68,0.1) !important;
+                border-color: #ef4444 !important;
+            }
+
+            .player-card-footer-manage {
+                padding: 0.75rem 1rem;
+                border-top: 1px solid rgba(255,255,255,0.06);
+                background: rgba(255,255,255,0.02);
+            }
+
+            .player-games-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .game-tag-small {
+                display: inline-block;
+                padding: 0.25rem 0.6rem;
+                border-radius: 999px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: white;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            }
+
+            .game-tag-more {
+                display: inline-block;
+                padding: 0.25rem 0.6rem;
+                background: rgba(255,255,255,0.1);
+                border: 1px solid rgba(255,255,255,0.2);
+                color: var(--text-300);
+                border-radius: 999px;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+
+            /* Empty State Small */
+            .empty-state-small {
+                text-align: center;
+                padding: 3rem 2rem;
+                color: var(--text-300);
+            }
+
+            .empty-state-small i {
+                font-size: 3rem;
+                opacity: 0.3;
+                margin-bottom: 1rem;
+            }
+
+            .empty-state-small p {
+                margin: 0;
+                font-size: 1rem;
+            }
+
+            /* Stats Section */
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .stat-card {
+                display: flex;
+                align-items: center;
+                gap: 1.25rem;
+                padding: 1.5rem;
+                background: linear-gradient(135deg, var(--bg-800), var(--bg-900));
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                transition: all 0.2s ease;
+            }
+
+            .stat-card:hover {
+                transform: translateY(-2px);
+                border-color: rgba(0,225,255,0.3);
+                box-shadow: var(--shadow);
+            }
+
+            .stat-icon {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background: rgba(0,225,255,0.15);
+                border: 2px solid rgba(0,225,255,0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+            .stat-icon i {
+                font-size: 1.75rem;
+                color: var(--accent);
+            }
+
+            .stat-icon.success {
+                background: rgba(34,197,94,0.15);
+                border-color: rgba(34,197,94,0.3);
+            }
+
+            .stat-icon.success i {
+                color: var(--success);
+            }
+
+            .stat-icon.danger {
+                background: rgba(239,68,68,0.15);
+                border-color: rgba(239,68,68,0.3);
+            }
+
+            .stat-icon.danger i {
+                color: #ef4444;
+            }
+
+            .stat-content {
+                flex: 1;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+                font-weight: 800;
+                color: var(--text-100);
+                line-height: 1;
+                margin-bottom: 0.5rem;
+            }
+
+            .stat-label {
+                font-size: 0.875rem;
+                color: var(--text-300);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                font-weight: 600;
+            }
+
+            /* Match Score & Result */
+            .match-score {
+                font-weight: 700;
+                color: var(--text-100);
+                font-size: 1.1rem;
+            }
+
+            .result-badge {
+                display: inline-block;
+                padding: 0.4rem 0.9rem;
+                border-radius: 999px;
+                font-size: 0.875rem;
+                font-weight: 600;
+            }
+
+            .result-badge.victory {
+                background: rgba(34,197,94,0.15);
+                color: var(--success);
+                border: 1px solid rgba(34,197,94,0.3);
+            }
+
+            .result-badge.defeat {
+                background: rgba(239,68,68,0.15);
+                color: #ef4444;
+                border: 1px solid rgba(239,68,68,0.3);
+            }
+
+            .game-badge {
+                display: inline-block;
+                padding: 0.4rem 0.9rem;
+                border-radius: 999px;
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: white;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            }
+
+            .status-badge {
+                display: inline-block;
+                padding: 0.4rem 0.9rem;
+                border-radius: 999px;
+                font-size: 0.875rem;
+                font-weight: 600;
+            }
+
+            .status-badge.active {
+                background: rgba(34,197,94,0.15);
+                color: var(--success);
+                border: 1px solid rgba(34,197,94,0.3);
+            }
+
+            .status-badge.finished {
+                background: rgba(156,163,175,0.15);
+                color: var(--text-300);
+                border: 1px solid rgba(156,163,175,0.3);
+            }
+
+            .status-badge.scheduled {
+                background: rgba(0,225,255,0.15);
+                color: var(--accent);
+                border: 1px solid rgba(0,225,255,0.3);
+            }
+
+            .action-icon-small {
+                color: var(--accent);
+                font-size: 1.25rem;
+                transition: all 0.2s ease;
+                text-decoration: none !important;
+            }
+
+            .action-icon-small:hover {
+                color: var(--text-100);
+                transform: scale(1.1);
+            }
+
+            /* Action Buttons Footer */
+            .action-buttons-footer {
+                display: flex;
+                justify-content: flex-end;
+                gap: 1rem;
+                padding: 2rem 0;
+            }
+
+            .action-btn-footer {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                padding: 0.85rem 2rem;
+                border-radius: 10px;
+                font-weight: 600;
+                font-size: 1rem;
+                text-decoration: none !important;
+                transition: all 0.2s ease;
+                border: 1px solid;
+            }
+
+            .action-btn-footer.cancel {
+                background: transparent;
+                border-color: var(--border);
+                color: var(--text-200) !important;
+            }
+
+            .action-btn-footer.cancel:hover {
+                background: rgba(239,68,68,0.1);
+                border-color: rgba(239,68,68,0.4);
+                color: #ef4444 !important;
+            }
+
+            .action-btn-footer.save {
+                background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.08)) !important;
+                border-color: rgba(34,197,94,0.3) !important;
+                color: var(--text-100) !important;
+            }
+
+            .action-btn-footer.save:hover {
+                background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(34,197,94,0.15)) !important;
+                border-color: rgba(34,197,94,0.5) !important;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(34,197,94,0.2);
+            }
+
+            /* Responsividade */
+            @media (max-width: 1024px) {
+                .banner-upload-section,
+                .team-info-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .stats-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+
+            @media (max-width: 768px) {
+                .players-grid-manage {
+                    grid-template-columns: 1fr;
+                }
+
+                .stats-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .add-player-controls {
+                    flex-direction: column;
+                }
+
+                .action-buttons-footer {
+                    flex-direction: column;
+                }
+
+                .action-btn-footer {
+                    width: 100%;
+                }
+            }
+        </style>
+    </ui:define>
+</ui:composition>
+

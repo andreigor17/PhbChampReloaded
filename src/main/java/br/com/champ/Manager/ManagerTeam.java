@@ -1,6 +1,7 @@
 package br.com.champ.Manager;
 
 import br.com.champ.Enums.Url;
+import br.com.champ.Modelo.Campeonato;
 import br.com.champ.Modelo.Player;
 import br.com.champ.Servico.TeamServico;
 import java.io.Serializable;
@@ -14,6 +15,8 @@ import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.StreamedContent;
@@ -25,7 +28,7 @@ import org.primefaces.model.file.UploadedFile;
  */
 @ViewScoped
 @Named
-public class ManagerTeam implements Serializable {
+public class ManagerTeam extends ManagerBase {
 
     @EJB
     TeamServico teamServico;
@@ -46,6 +49,7 @@ public class ManagerTeam implements Serializable {
     private boolean carregandoJogadores;
     private boolean estadoInicial = true;
     private Team teamSelecionado;
+    private List<Campeonato> trofeus;
 
     @PostConstruct
     public void init() {
@@ -61,6 +65,8 @@ public class ManagerTeam implements Serializable {
             }
             if (this.team.getId() != null) {
                 this.membros = this.team.getPlayers();
+                // Carrega os troféus (campeonatos vencidos)
+                carregarTrofeus();
             }
         }
     }
@@ -69,6 +75,7 @@ public class ManagerTeam implements Serializable {
         this.team = new Team();
         this.teamSelecionado = new Team();
         this.times = new ArrayList<>();
+        this.trofeus = new ArrayList<>();
         this.membros = new ArrayList<Player>();
         this.membro = new Player();
     }
@@ -155,9 +162,9 @@ public class ManagerTeam implements Serializable {
     }
 
     public void pesquisarTime() throws Exception {
+        // Se o termo de busca for null, vazio ou menor que 2 caracteres, limpa a busca
         if (termoBusca == null || termoBusca.trim().length() < 2) {
             limparBusca();
-            this.termoBusca = "";
             return;
         }
 
@@ -165,11 +172,20 @@ public class ManagerTeam implements Serializable {
         buscando = true;
 
         try {
-
-            this.times = teamServico.pesquisar(this.termoBusca);
+            // Chama o serviço para pesquisar
+            List<Team> resultado = teamServico.pesquisar(this.termoBusca.trim());
+            
+            // Garante que sempre temos uma lista (nunca null)
+            if (resultado == null) {
+                this.times = new ArrayList<>();
+            } else {
+                this.times = resultado;
+            }
         } catch (Exception e) {
-            this.times = new ArrayList<>();
+            System.err.println("Erro ao pesquisar team: " + e.getMessage());
             e.printStackTrace();
+            // Em caso de erro, inicializa lista vazia
+            this.times = new ArrayList<>();
         } finally {
             buscando = false;
         }
@@ -246,6 +262,86 @@ public class ManagerTeam implements Serializable {
 
     public void deletar() {
 
+    }
+
+    public String getDataCriacaoFormatada() {
+        if (this.team != null && this.team.getDataCriacao() != null && !this.team.getDataCriacao().isEmpty()) {
+            try {
+                OffsetDateTime odt = OffsetDateTime.parse(this.team.getDataCriacao());
+                return odt.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+            } catch (Exception e) {
+                System.err.println("Erro ao formatar data: " + e.getMessage());
+                // Se não conseguir parsear, retorna os primeiros 10 caracteres (YYYY-MM-DD) e converte para dd-MM-yyyy
+                try {
+                    String dataStr = this.team.getDataCriacao();
+                    if (dataStr.length() >= 10) {
+                        String[] parts = dataStr.substring(0, 10).split("-");
+                        if (parts.length == 3) {
+                            return parts[2] + "-" + parts[1] + "-" + parts[0];
+                        }
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Erro ao formatar data alternativa: " + ex.getMessage());
+                }
+                return this.team.getDataCriacao();
+            }
+        }
+        return "";
+    }
+
+    /**
+     * Verifica se o usuário logado é o capitão do time
+     * @return true se o usuário logado é o capitão do time, false caso contrário
+     */
+    public boolean isCapitao() {
+        if (this.team == null || this.team.getCapitao() == null) {
+            return false;
+        }
+        Player player = getPlayerLogado();
+        if (player == null || player.getId() == null) {
+            return false;
+        }
+        return player.getId().equals(this.team.getCapitao().getId());
+    }
+
+    /**
+     * Verifica se o usuário logado pode editar o time (é capitão OU admin)
+     * @return true se pode editar, false caso contrário
+     */
+    public boolean podeEditarTime() {
+        if (!isUsuarioLogado()) {
+            return false;
+        }
+        return isCapitao() || isAdmin();
+    }
+    
+    /**
+     * Carrega os troféus (campeonatos vencidos) do time
+     */
+    public void carregarTrofeus() {
+        try {
+            if (this.team != null && this.team.getId() != null) {
+                this.trofeus = teamServico.buscarTrofeus(this.team.getId());
+                if (this.trofeus == null) {
+                    this.trofeus = new ArrayList<>();
+                }
+                System.out.println("Troféus carregados: " + this.trofeus.size());
+            } else {
+                this.trofeus = new ArrayList<>();
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao carregar troféus: " + e.getMessage());
+            e.printStackTrace();
+            this.trofeus = new ArrayList<>();
+        }
+    }
+    
+    public List<Campeonato> getTrofeus() {
+        return trofeus;
+    }
+    
+    public void setTrofeus(List<Campeonato> trofeus) {
+        this.trofeus = trofeus;
     }
 
 }
