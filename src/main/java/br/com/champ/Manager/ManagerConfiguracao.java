@@ -6,6 +6,7 @@
 package br.com.champ.Manager;
 
 import br.com.champ.Modelo.Configuracao;
+import jakarta.faces.context.FacesContext;
 import br.com.champ.Servico.ConfiguracaoServico;
 import br.com.champ.Utilitario.APIPath;
 import br.com.champ.Utilitario.Mensagem;
@@ -15,7 +16,6 @@ import jakarta.ejb.EJB;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,7 +26,7 @@ import java.util.logging.Logger;
  */
 @ViewScoped
 @Named
-public class ManagerConfiguracao implements Serializable {
+public class ManagerConfiguracao extends ManagerBase {
 
     private String menu = "GERAL";
     private Configuracao configuracao;
@@ -39,7 +39,24 @@ public class ManagerConfiguracao implements Serializable {
 
     @PostConstruct
     public void init() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        
+        // Verifica se contexto já foi released ou response já foi committed
+        if (context == null || context.getResponseComplete()) {
+            return;
+        }
+        
         try {
+            // Se não estiver logado ou não for admin, redireciona
+            if (!isUsuarioLogado() || !isAdmin()) {
+                // Verifica se response não foi committed antes de redirecionar
+                if (!context.getExternalContext().isResponseCommitted()) {
+                    context.getExternalContext().redirect("index.xhtml");
+                    context.responseComplete();
+                }
+                return;
+            }
+            
             instanciar();
             this.configuracao = this.configuracaoServico.buscaConfig();
             this.path = APIPath.pathToAPI();
@@ -47,6 +64,10 @@ public class ManagerConfiguracao implements Serializable {
             //System.out.println("cs " + this.csVo.getHealth());
             //this.csgoServerStatus = this.configuracaoServico.csgoServerStatus();
 
+        } catch (IOException ex) {
+            System.err.println("Erro ao redirecionar: " + ex.getMessage());
+        } catch (IllegalStateException ex) {
+            System.err.println("Response já foi committed, não é possível redirecionar: " + ex.getMessage());
         } catch (Exception ex) {
             Logger.getLogger(ManagerPlayer.class.getName()).log(Level.SEVERE, null, ex);
         }

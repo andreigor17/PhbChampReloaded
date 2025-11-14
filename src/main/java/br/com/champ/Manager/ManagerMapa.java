@@ -47,10 +47,21 @@ public class ManagerMapa extends ManagerBase {
 
     @PostConstruct
     public void init() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        
+        // Verifica se contexto já foi released ou response já foi committed
+        if (context == null || context.getResponseComplete()) {
+            return;
+        }
+        
         try {
-            // Verifica se usuário é admin
-            if (!isAdmin()) {
-                FacesContext.getCurrentInstance().getExternalContext().redirect("login.xhtml");
+            // Se não estiver logado ou não for admin, redireciona
+            if (!isUsuarioLogado() || !isAdmin()) {
+                // Verifica se response não foi committed antes de redirecionar
+                if (!context.getExternalContext().isResponseCommitted()) {
+                    context.getExternalContext().redirect("index.xhtml");
+                    context.responseComplete();
+                }
                 return;
             }
 
@@ -67,6 +78,8 @@ public class ManagerMapa extends ManagerBase {
             }
         } catch (IOException ex) {
             System.err.println("Erro ao redirecionar: " + ex.getMessage());
+        } catch (IllegalStateException ex) {
+            System.err.println("Response já foi committed, não é possível redirecionar: " + ex.getMessage());
         }
     }
 

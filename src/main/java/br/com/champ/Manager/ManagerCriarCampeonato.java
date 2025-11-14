@@ -21,8 +21,10 @@ import br.com.champ.Utilitario.PartidaUtils;
 import br.com.champ.Utilitario.Utils;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -76,13 +78,36 @@ public class ManagerCriarCampeonato extends ManagerBase {
 
     @PostConstruct
     public void init() {
-        instanciar();
+        FacesContext context = FacesContext.getCurrentInstance();
+        
+        // Verifica se contexto já foi released ou response já foi committed
+        if (context == null || context.getResponseComplete()) {
+            return;
+        }
+        
+        try {
+            // Se não estiver logado ou não for admin, redireciona
+            if (!isUsuarioLogado() || !isAdmin()) {
+                // Verifica se response não foi committed antes de redirecionar
+                if (!context.getExternalContext().isResponseCommitted()) {
+                    context.getExternalContext().redirect("index.xhtml");
+                    context.responseComplete();
+                }
+                return;
+            }
+            
+            instanciar();
 
-        String visualizarCampId = FacesUtil
-                .getRequestParameter("id");
+            String visualizarCampId = FacesUtil
+                    .getRequestParameter("id");
 
-        if (visualizarCampId != null && !visualizarCampId.isEmpty()) {
-            this.camp = this.campeonatoServico.buscaCamp(Long.parseLong(visualizarCampId));
+            if (visualizarCampId != null && !visualizarCampId.isEmpty()) {
+                this.camp = this.campeonatoServico.buscaCamp(Long.parseLong(visualizarCampId));
+            }
+        } catch (IOException ex) {
+            System.err.println("Erro ao redirecionar: " + ex.getMessage());
+        } catch (IllegalStateException ex) {
+            System.err.println("Response já foi committed, não é possível redirecionar: " + ex.getMessage());
         }
 
     }

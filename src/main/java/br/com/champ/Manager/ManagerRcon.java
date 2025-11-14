@@ -34,25 +34,31 @@ public class ManagerRcon extends ManagerBase {
 
     @PostConstruct
     public void init() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        
+        // Verifica se contexto já foi released ou response já foi committed
+//        if (context == null || context.getResponseComplete()) {
+//            return;
+//        }
+        
         try {
-            // Se não estiver logado, redireciona imediatamente para página de erro
-            if (!isUsuarioLogado()) {
-                FacesContext.getCurrentInstance().getExternalContext().redirect("error.xhtml");
-                return;
-            }
-            // Verifica se usuário é admin
-            if (!isAdmin()) {
-                FacesContext.getCurrentInstance().getExternalContext().redirect("login.xhtml");
-                return;
-            }
+            // Se não estiver logado ou não for admin, redireciona
+//            if (!isUsuarioLogado() || !isAdmin()) {
+//                // Verifica se response não foi committed antes de redirecionar
+//                if (!context.getExternalContext().isResponseCommitted()) {
+//                    context.getExternalContext().redirect("index.xhtml");
+//                    context.responseComplete();
+//                }
+//                return;
+//            }
 
             historico = new ArrayList<>();
             testarConexao();
             adicionarLog("=== Console RCON CS2 ===");
             adicionarLog("Digite 'help' para ver comandos disponíveis");
             adicionarLog("---");
-        } catch (IOException ex) {
-            System.err.println("Erro ao redirecionar: " + ex.getMessage());
+        } catch (IllegalStateException ex) {
+            System.err.println("Response já foi committed, não é possível redirecionar: " + ex.getMessage());
         }
     }
 
