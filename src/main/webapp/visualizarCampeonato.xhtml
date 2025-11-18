@@ -139,13 +139,19 @@
                 </h:panelGroup>
             </p:card>
 
-            <!-- Participantes -->
-            <p:card styleClass="glass-card mb-4">
+            <!-- Participantes - Acessível sem login -->
+            <p:card styleClass="glass-card mb-4" rendered="#{managerCamp.camp ne null}">
                 <f:facet name="title">
                     <div class="flex align-items-center justify-content-between">
                         <span class="flex align-items-center">
                             <i class="pi pi-users mr-2" style="color: var(--accent)"></i>
                             <span>Participantes</span>
+                            <!-- Indicador quando for sorteio e ainda não houver times -->
+                            <h:panelGroup rendered="#{managerCamp.camp.categoria eq 'TIME' and managerCamp.camp.gerarTimesPorSorteio and (empty managerCamp.camp.teams or managerCamp.camp.teams.size() eq 0)}">
+                                <span style="font-size: 0.75rem; color: var(--text-300); margin-left: 0.5rem;">
+                                    (Jogadores inscritos para sorteio)
+                                </span>
+                            </h:panelGroup>
                         </span>
                         <p:button value="Ver Todos" 
                                   styleClass="p-button-text" 
@@ -153,29 +159,67 @@
                     </div>
                 </f:facet>
 
-                <div class="grid-container-modern">
-                    <ui:repeat value="#{managerCamp.camp.teams}" var="time">
-                        <div class="participant-card-modern">
-                            <div class="participant-avatar-modern">
-                                <h:panelGroup rendered="#{time.anexo != null}">
-                                    <p:graphicImage value="image/#{time.anexo.nome}" 
-                                                  styleClass="participant-img" />
-                                </h:panelGroup>
-                                <h:panelGroup rendered="#{time.anexo == null}">
-                                    #{time.nome.substring(0,1).toUpperCase()}
-                                </h:panelGroup>
+                <!-- Mostra Times quando existirem -->
+                <h:panelGroup rendered="#{not empty managerCamp.camp.teams}">
+                    <div class="grid-container-modern">
+                        <ui:repeat value="#{managerCamp.camp.teams}" var="time">
+                            <div class="participant-card-modern">
+                                <div class="participant-avatar-modern">
+                                    <h:panelGroup rendered="#{time.anexo != null}">
+                                        <p:graphicImage value="image/#{time.anexo.nome}" 
+                                                      styleClass="participant-img" />
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{time.anexo == null}">
+                                        #{time.nome.substring(0,1).toUpperCase()}
+                                    </h:panelGroup>
+                                </div>
+                                <div class="participant-name-modern">#{time.nome}</div>
+                                <h:link outcome="time.xhtml" 
+                                       styleClass="action-icon neon-action">
+                                    <f:param name="id" value="#{time.id}" />
+                                    <i class="pi pi-eye"></i>
+                                    <span>Ver Time</span>
+                                </h:link>
                             </div>
-                            <div class="participant-name-modern">#{time.nome}</div>
-                            <p:link value="Ver Time" 
-                                   styleClass="action-icon neon-action"
-                                   outcome="error.xhtml">
-                                <i class="pi pi-eye"></i>
-                            </p:link>
-                        </div>
-                    </ui:repeat>
-                </div>
+                        </ui:repeat>
+                    </div>
+                </h:panelGroup>
 
-                <h:panelGroup rendered="#{empty managerCamp.camp.teams}">
+                <!-- Mostra Players quando for sorteio e não houver times -->
+                <h:panelGroup rendered="#{managerCamp.camp.categoria eq 'TIME' and managerCamp.camp.gerarTimesPorSorteio and (empty managerCamp.camp.teams or managerCamp.camp.teams.size() eq 0)}">
+                    <div class="grid-container-modern">
+                        <h:panelGroup rendered="#{empty managerCamp.camp.players}">
+                            <div class="text-center py-5" style="grid-column: 1 / -1;">
+                                <i class="pi pi-users mb-3" style="font-size: 3rem; color: var(--muted)"></i>
+                                <p style="color: #d1d8e6">Nenhum jogador inscrito ainda</p>
+                            </div>
+                        </h:panelGroup>
+                        <ui:repeat value="#{managerCamp.camp.players}" var="player">
+                            <div class="participant-card-modern">
+                                <div class="participant-avatar-modern">
+                                    <h:panelGroup rendered="#{player.anexo != null}">
+                                        <p:graphicImage value="image/#{player.anexo.nome}" 
+                                                      styleClass="participant-img" />
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{player.anexo == null}">
+                                        #{player.nome != null and not empty player.nome ? player.nome.substring(0,1).toUpperCase() : '?'}
+                                    </h:panelGroup>
+                                </div>
+                                <div class="participant-name-modern">#{player.nome}</div>
+                                <p class="participant-nick-modern" style="color: #98a2b3; font-size: 0.85rem; margin: 0.25rem 0;">#{player.nick}</p>
+                                <h:link outcome="jogador.xhtml" 
+                                       styleClass="action-icon neon-action">
+                                    <f:param name="id" value="#{player.id}" />
+                                    <i class="pi pi-eye"></i>
+                                    <span>Ver Jogador</span>
+                                </h:link>
+                            </div>
+                        </ui:repeat>
+                    </div>
+                </h:panelGroup>
+
+                <!-- Mensagem quando não for sorteio e não houver times -->
+                <h:panelGroup rendered="#{empty managerCamp.camp.teams and not (managerCamp.camp.categoria eq 'TIME' and managerCamp.camp.gerarTimesPorSorteio)}">
                     <div class="text-center py-5">
                         <i class="pi pi-users mb-3" style="font-size: 3rem; color: var(--muted)"></i>
                         <p style="color: #d1d8e6">Nenhum time inscrito ainda</p>
@@ -183,50 +227,17 @@
                 </h:panelGroup>
             </p:card>
 
-            <!-- Fieldset de Players Inscritos (apenas para admin, campeonatos de TIME com gerarTimesPorSorteio) -->
-            <p:fieldset legend="Jogadores Inscritos para Sorteio" 
-                        styleClass="glass-card mb-4"
-                        rendered="#{managerCamp.isAdmin() and managerCamp.camp.categoria eq 'TIME' and managerCamp.camp.gerarTimesPorSorteio}">
-                <!-- Botão de Sortear Times (apenas se houver players e ainda não tiver times criados) -->
-                <div class="mb-3" style="text-align: center;">
+            <!-- Botão de Sortear Times (apenas para admin, quando for sorteio e ainda não houver times) -->
+            <h:panelGroup rendered="#{managerCamp.isAdmin() and managerCamp.camp ne null and managerCamp.camp.categoria eq 'TIME' and managerCamp.camp.gerarTimesPorSorteio and (empty managerCamp.camp.teams or managerCamp.camp.teams.size() eq 0) and not empty managerCamp.camp.players}">
+                <div class="text-center mb-3">
                     <p:commandButton value="Sortear Times" 
                                      icon="pi pi-random"
                                      styleClass="btn-sortear-times"
-                                     rendered="#{not empty managerCamp.camp.players and (empty managerCamp.camp.teams or managerCamp.camp.teams.size() eq 0)}"
                                      action="#{managerCamp.sortearTimes()}"
                                      update="@form"
                                      onclick="return confirm('Tem certeza que deseja sortear os times? Esta ação não pode ser desfeita.');" />
                 </div>
-                <div class="grid-container-modern">
-                    <h:panelGroup rendered="#{empty managerCamp.camp.players}">
-                        <div class="text-center py-5" style="grid-column: 1 / -1;">
-                            <i class="pi pi-users mb-3" style="font-size: 3rem; color: var(--muted)"></i>
-                            <p style="color: #d1d8e6">Nenhum jogador inscrito ainda</p>
-                        </div>
-                    </h:panelGroup>
-                    <ui:repeat value="#{managerCamp.camp.players}" var="player">
-                        <div class="participant-card-modern">
-                            <div class="participant-avatar-modern">
-                                <h:panelGroup rendered="#{player.anexo != null}">
-                                    <p:graphicImage value="image/#{player.anexo.nome}" 
-                                                  styleClass="participant-img" />
-                                </h:panelGroup>
-                                <h:panelGroup rendered="#{player.anexo == null}">
-                                    #{player.nome != null and not empty player.nome ? player.nome.substring(0,1).toUpperCase() : '?'}
-                                </h:panelGroup>
-                            </div>
-                            <div class="participant-name-modern">#{player.nome}</div>
-                            <p class="participant-nick-modern" style="color: #98a2b3; font-size: 0.85rem; margin: 0.25rem 0;">#{player.nick}</p>
-                            <p:button icon="pi pi-eye" 
-                                     styleClass="p-button-text p-button-sm mt-2"
-                                     outcome="jogador.xhtml"
-                                     title="Ver perfil">
-                                <f:param name="id" value="#{player.id}" />
-                            </p:button>
-                        </div>
-                    </ui:repeat>
-                </div>
-            </p:fieldset>
+            </h:panelGroup>
 
             <!-- Swiss System Bracket (apenas para formato SUÍÇO) -->
             <h:panelGroup rendered="#{managerCamp.camp.tipoCampeonato.nome eq 'SUÍÇO'}">
