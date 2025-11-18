@@ -212,9 +212,9 @@
                             <div class="formato-options">
                                 <p:selectOneRadio id="campTipo" 
                                                   value="#{managerCriarCampeonato.camp.tipoCampeonato}"
-                                                  required="true"
-                                                  requiredMessage="Formato é obrigatório"
+                                                  required="false"
                                                   styleClass="custom-radio-list">
+                                    <f:selectItem itemLabel="" itemValue="" noSelectionOption="true" />
                                     <f:selectItems value="#{enums.tipoCampeonato()}" />
                                 </p:selectOneRadio>
                             </div>
@@ -586,9 +586,7 @@
             .ui-selectoneradio,
             .ui-selectoneradio.custom-radio-list {
                 background: transparent !important;
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 0.75rem !important;
+                display: block !important;
                 width: 100% !important;
             }
             
@@ -596,24 +594,30 @@
                 width: 100% !important;
                 border-collapse: separate !important;
                 border-spacing: 0 0.75rem !important;
+                display: table !important;
             }
             
             .ui-selectoneradio tbody {
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 0.75rem !important;
+                display: table-row-group !important;
             }
             
             .ui-selectoneradio .ui-radiobutton {
                 width: 24px !important;
                 height: 24px !important;
-                margin-right: 1rem !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 flex-shrink: 0 !important;
+                display: inline-block !important;
+                vertical-align: middle !important;
             }
             
             .ui-selectoneradio .ui-radiobutton .ui-radiobutton-box {
                 width: 24px !important;
                 height: 24px !important;
+                min-width: 24px !important;
+                min-height: 24px !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 background: rgba(255,255,255,0.05) !important;
                 border: 2px solid rgba(255,255,255,0.2) !important;
                 border-radius: 50% !important;
@@ -621,6 +625,7 @@
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
+                flex-shrink: 0 !important;
             }
             
             .ui-selectoneradio .ui-radiobutton .ui-radiobutton-box:hover {
@@ -636,12 +641,23 @@
                 box-shadow: 0 0 20px rgba(0,225,255,0.4), inset 0 0 10px rgba(0,225,255,0.3) !important;
             }
             
+            .ui-selectoneradio .ui-radiobutton .ui-radiobutton-box:not(.ui-state-active) {
+                background: rgba(255,255,255,0.05) !important;
+                border-color: rgba(255,255,255,0.2) !important;
+            }
+            
             .ui-selectoneradio .ui-radiobutton .ui-radiobutton-icon {
                 width: 12px !important;
                 height: 12px !important;
                 background-color: var(--accent) !important;
                 border-radius: 50% !important;
                 box-shadow: 0 0 8px rgba(0,225,255,0.6) !important;
+                display: none !important;
+                margin: 0 !important;
+            }
+            
+            .ui-selectoneradio .ui-radiobutton .ui-radiobutton-box.ui-state-active .ui-radiobutton-icon {
+                display: block !important;
             }
             
             .ui-selectoneradio tr {
@@ -651,10 +667,7 @@
                 padding: 1rem 1.25rem !important;
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
                 cursor: pointer !important;
-                display: flex !important;
-                align-items: center !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
+                display: table-row !important;
             }
             
             .ui-selectoneradio tr:hover {
@@ -681,9 +694,21 @@
             
             .ui-selectoneradio tr td {
                 padding: 0 !important;
+                margin: 0 !important;
                 border: none !important;
-                display: flex !important;
-                align-items: center !important;
+                background: transparent !important;
+                vertical-align: middle !important;
+                display: table-cell !important;
+                white-space: nowrap !important;
+            }
+            
+            .ui-selectoneradio tr td:first-child {
+                width: 50px !important;
+                padding-right: 1rem !important;
+            }
+            
+            .ui-selectoneradio tr td:last-child {
+                width: auto !important;
             }
             
             .ui-selectoneradio .ui-radiobutton-label {
@@ -692,7 +717,26 @@
                 font-size: 1rem !important;
                 letter-spacing: 0.4px !important;
                 transition: all 0.3s ease !important;
-                flex: 1 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                line-height: 1.5 !important;
+                display: inline-block !important;
+                vertical-align: middle !important;
+                white-space: nowrap !important;
+            }
+            
+            /* Força todos os elementos dentro a ficarem inline */
+            .ui-selectoneradio tr td *,
+            .ui-selectoneradio tr td div,
+            .ui-selectoneradio tr td label,
+            .ui-selectoneradio tr td div[role="radio"],
+            .ui-selectoneradio .ui-radiobutton-label *,
+            .ui-selectoneradio .ui-radiobutton-label div {
+                display: inline !important;
+                white-space: nowrap !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                vertical-align: middle !important;
             }
             
             .ui-selectoneradio tr:hover .ui-radiobutton-label {
@@ -1059,50 +1103,122 @@
         </style>
 
         <script>
+            <![CDATA[
             // Script para garantir que o estado ativo seja aplicado corretamente nos radio buttons
-            document.addEventListener('DOMContentLoaded', function() {
-                // Função para atualizar estado visual dos radio buttons
+            // e permitir desmarcar clicando no radio já selecionado
+            jQuery(document).ready(function() {
+                var radioStates = {}; // Armazena o estado anterior de cada radio
+                
                 function updateRadioStates() {
-                    const radioGroups = document.querySelectorAll('.ui-selectoneradio');
-                    
-                    radioGroups.forEach(function(group) {
-                        const rows = group.querySelectorAll('tr');
+                    jQuery('.ui-selectoneradio.custom-radio-list').each(function() {
+                        var $group = jQuery(this);
+                        var $rows = $group.find('tr');
+                        var groupId = $group.attr('id') || 'radioGroup';
                         
-                        rows.forEach(function(row) {
-                            const radioBox = row.querySelector('.ui-radiobutton-box');
+                        $rows.each(function() {
+                            var $row = jQuery(this);
+                            var $radioBox = $row.find('.ui-radiobutton-box');
+                            var $radioInput = $row.find('input[type="radio"]');
                             
-                            if (radioBox) {
-                                // Remove classe ativa de todas as linhas
-                                row.classList.remove('ui-state-active');
+                            if ($radioBox.length && $radioInput.length) {
+                                var radioId = $radioInput.attr('id') || $radioInput.attr('name');
+                                var isChecked = $radioInput.is(':checked') || $radioBox.hasClass('ui-state-active');
                                 
-                                // Adiciona classe ativa apenas na linha com radio button selecionado
-                                if (radioBox.classList.contains('ui-state-active')) {
-                                    row.classList.add('ui-state-active');
+                                // Remove classe ativa de todas as linhas
+                                $row.removeClass('ui-state-active');
+                                
+                                // Verifica se o radio está selecionado
+                                if (isChecked) {
+                                    $row.addClass('ui-state-active');
+                                    radioStates[radioId] = true;
+                                } else {
+                                    // Se não está selecionado, remove estado ativo visual
+                                    $radioBox.removeClass('ui-state-active');
+                                    $radioBox.find('.ui-radiobutton-icon').hide();
+                                    radioStates[radioId] = false;
                                 }
                             }
                         });
+                    });
+                }
+                
+                function setupRadioToggle() {
+                    jQuery('.ui-selectoneradio.custom-radio-list').each(function() {
+                        var $group = jQuery(this);
+                        var $rows = $group.find('tr');
                         
-                        // Adiciona listener de clique para atualizar estados
-                        rows.forEach(function(row) {
-                            row.addEventListener('click', function() {
+                        $rows.off('mousedown.radioToggle click.radioToggle').on('mousedown.radioToggle', function(e) {
+                            var $row = jQuery(this);
+                            var $radioInput = $row.find('input[type="radio"]');
+                            var $radioBox = $row.find('.ui-radiobutton-box');
+                            
+                            if ($radioInput.length && $radioBox.length) {
+                                var radioId = $radioInput.attr('id') || $radioInput.attr('name');
+                                // Salva o estado ANTES do clique
+                                var wasCheckedBeforeClick = $radioInput.is(':checked') || $radioBox.hasClass('ui-state-active');
+                                $row.data('wasCheckedBeforeClick', wasCheckedBeforeClick);
+                            }
+                        }).on('click.radioToggle', function(e) {
+                            var $row = jQuery(this);
+                            var $radioInput = $row.find('input[type="radio"]');
+                            var $radioBox = $row.find('.ui-radiobutton-box');
+                            
+                            if ($radioInput.length && $radioBox.length) {
+                                var radioId = $radioInput.attr('id') || $radioInput.attr('name');
+                                var wasCheckedBeforeClick = $row.data('wasCheckedBeforeClick');
+                                
+                                // Aguarda o PrimeFaces processar o clique
                                 setTimeout(function() {
-                                    updateRadioStates();
-                                }, 50);
-                            });
+                                    var isCheckedNow = $radioInput.is(':checked') || $radioBox.hasClass('ui-state-active');
+                                    
+                                    // Se estava marcado ANTES e CONTINUA marcado DEPOIS, desmarca
+                                    if (wasCheckedBeforeClick && isCheckedNow) {
+                                        // Desmarca o radio
+                                        $radioInput.prop('checked', false);
+                                        $radioBox.removeClass('ui-state-active');
+                                        $radioBox.find('.ui-radiobutton-icon').hide();
+                                        $row.removeClass('ui-state-active');
+                                        radioStates[radioId] = false;
+                                        
+                                        // Limpa o valor no backend
+                                        var form = $radioInput.closest('form');
+                                        var inputName = $radioInput.attr('name');
+                                        
+                                        // Remove todos os radios do grupo
+                                        form.find('input[type="radio"][name="' + inputName + '"]').prop('checked', false);
+                                        form.find('.ui-radiobutton-box.ui-state-active').removeClass('ui-state-active');
+                                        form.find('.ui-radiobutton-icon').hide();
+                                        form.find('tr.ui-state-active').removeClass('ui-state-active');
+                                        
+                                        // Atualiza estados visuais
+                                        setTimeout(updateRadioStates, 50);
+                                    } else {
+                                        // Se não estava marcado ou mudou, atualiza estado normal
+                                        setTimeout(updateRadioStates, 50);
+                                    }
+                                }, 100);
+                            }
                         });
                     });
                 }
                 
                 // Executa ao carregar
-                updateRadioStates();
+                setTimeout(function() {
+                    updateRadioStates();
+                    setupRadioToggle();
+                }, 200);
                 
                 // Executa após AJAX updates
                 if (typeof PrimeFaces !== 'undefined') {
                     PrimeFaces.ajax.addOnCompleteCallback(function() {
-                        setTimeout(updateRadioStates, 100);
+                        setTimeout(function() {
+                            updateRadioStates();
+                            setupRadioToggle();
+                        }, 200);
                     });
                 }
             });
+            ]]>
         </script>
     </ui:define>
 </ui:composition>

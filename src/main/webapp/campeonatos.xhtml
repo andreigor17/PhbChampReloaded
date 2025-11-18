@@ -59,27 +59,31 @@
                     </div>
 
                     <!-- Filtro por jogo -->
-                    <div class="filter-field filter-field-checkbox">
+                    <div class="filter-field">
                         <label class="filter-label">
                             <i class="pi pi-gamepad"></i>
                             <span>Jogos</span>
                         </label>
-                        <div class="filter-checkbox-container">
-                            <p:selectManyCheckbox id="filtroJogos"
-                                                  value="#{managerCamp.jogosSelecionados}"
-                                                  layout="grid"
-                                                  columns="3">
-                                <f:selectItems value="#{managerCamp.jogos}"
-                                               var="jogo"
-                                               itemLabel="#{jogo.nome}"
-                                               itemValue="#{jogo.id}" />
-                                <p:ajax event="change"
-                                        listener="#{managerCamp.pesquisarCamp()}"
-                                        update="campeonatosGrid"
-                                        global="false"
-                                        process="@this" />
-                            </p:selectManyCheckbox>
-                        </div>
+                        <p:selectCheckboxMenu id="filtroJogos"
+                                             value="#{managerCamp.jogosSelecionados}"
+                                             label="Jogos"
+                                             filter="true"
+                                             filterMatchMode="contains"
+                                             showHeader="true"
+                                             multiple="true"
+                                             panelStyle="min-width: 300px"
+                                             styleClass="filter-checkbox-menu"
+                                             widgetVar="filtroJogosWidget">
+                            <f:selectItems value="#{managerCamp.jogos}"
+                                           var="jogo"
+                                           itemLabel="#{jogo.nome}"
+                                           itemValue="#{jogo.id}" />
+                            <p:ajax event="toggleSelect"
+                                    listener="#{managerCamp.pesquisarCamp()}"
+                                    update="campeonatosGrid"
+                                    global="false"
+                                    process="@this" />
+                        </p:selectCheckboxMenu>
                     </div>
 
                     <!-- Botão limpar -->
@@ -92,7 +96,8 @@
                                          styleClass="clear-btn"
                                          action="#{managerCamp.limpar()}"
                                          update="@form"
-                                         process="@this" />
+                                         process="@this"
+                                         global="false" />
                     </div>
                 </div>
 
@@ -140,21 +145,15 @@
                                 </div>
                                 <div class="tournament-footer">
                                     <div class="tournament-actions">
-                                        <h:link outcome="visualizarCampeonato.xhtml" styleClass="btn-outlined">
+                                        <p:button value="Ver detalhes" 
+                                                 icon="pi pi-eye"
+                                                 outcome="visualizarCampeonato.xhtml" 
+                                                 styleClass="btn-outlined">
                                             <f:param name="id" value="#{campeonato.id}" />
-                                            <i class="pi pi-eye"></i>
-                                            <span>Ver detalhes</span>
-                                        </h:link>
-                                        <h:link outcome="editarCampeonato.xhtml" 
-                                                styleClass="btn-outlined"
-                                                rendered="#{managerPrincipal.isUsuarioLogado() and managerPrincipal.isAdmin()}">
-                                            <f:param name="id" value="#{campeonato.id}" />
-                                            <i class="pi pi-pencil"></i>
-                                            <span>Gerenciar</span>
-                                        </h:link>
+                                        </p:button>                                        
+                                    </div>
                                     </div>
                                 </div>
-                            </div>
                         </ui:repeat>
                         
                         <!-- Mensagem quando não houver campeonatos -->
@@ -204,7 +203,7 @@
             /* Filter Grid - seguindo padrão das outras telas */
             .filter-grid {
                 display: grid;
-                grid-template-columns: repeat(2, 1fr) 1.5fr auto;
+                grid-template-columns: repeat(3, 1fr) auto;
                 gap: 1.5rem 1rem;
                 margin-bottom: 1.5rem;
                 margin-top: 0.5rem;
@@ -219,32 +218,34 @@
             
             /* Filter Labels - seguindo padrão do sistema */
             .filter-label {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                font-size: 0.875rem;
-                font-weight: 600;
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+                font-size: 0.875rem !important;
+                font-weight: 600 !important;
                 color: var(--text-200) !important;
-                margin: 0;
-                padding: 0;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                line-height: 1.2;
+                margin: 0 !important;
+                padding: 0 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+                line-height: 1.2 !important;
+                visibility: visible !important;
+                opacity: 1 !important;
             }
             
             .filter-label i {
-                color: var(--accent);
-                font-size: 0.875rem;
-                flex-shrink: 0;
+                color: var(--accent) !important;
+                font-size: 0.875rem !important;
+                flex-shrink: 0 !important;
             }
             
             .filter-label span {
-                color: inherit;
+                color: inherit !important;
             }
             
             .filter-label-empty {
-                visibility: hidden;
-                height: 1.2rem;
+                visibility: hidden !important;
+                height: 1.2rem !important;
             }
             
             /* Input Fields - sem ícones dentro, apenas na label */
@@ -289,116 +290,306 @@
                 width: 100% !important;
             }
             
-            /* Filter Checkbox Container */
-            .filter-field-checkbox {
-                grid-column: span 1;
+            /* SelectCheckboxMenu - Dark Theme */
+            .filter-checkbox-menu.ui-selectcheckboxmenu,
+            .filter-checkbox-menu.p-selectcheckboxmenu {
+                width: 100% !important;
             }
             
-            .filter-checkbox-container {
-                background: rgba(255,255,255,0.05) !important;
+            /* Container de múltiplos itens - igual ao input normal */
+            .filter-checkbox-menu .ui-selectcheckboxmenu-multiple-container,
+            .filter-checkbox-menu .p-selectcheckboxmenu-multiple-container {
+                width: calc(100% - 40px) !important;
+                background: var(--bg-700) !important;
                 border: 1px solid rgba(255,255,255,0.12) !important;
-                border-radius: 10px !important;
-                padding: 0.75rem 1rem !important;
-                max-height: 200px;
-                overflow-y: auto;
+                border-right: none !important;
+                color: var(--text-100) !important;
+                font-size: 0.95rem !important;
+                padding: 0.5rem 0.75rem !important;
+                min-height: 46px !important;
+                border-radius: 10px 0 0 10px !important;
+                transition: all 0.2s ease !important;
+                box-sizing: border-box !important;
+                display: flex !important;
+                align-items: center !important;
+                flex-wrap: wrap !important;
+                gap: 0.375rem !important;
+                overflow: visible !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-multiple-container:hover,
+            .filter-checkbox-menu .p-selectcheckboxmenu-multiple-container:hover {
+                background: var(--bg-600) !important;
+                border-color: rgba(255,255,255,0.2) !important;
+                border-right: none !important;
+            }
+            
+            /* Quando vazio, mostra o data-label */
+            .filter-checkbox-menu .ui-selectcheckboxmenu-multiple-container:empty::before,
+            .filter-checkbox-menu .p-selectcheckboxmenu-multiple-container:empty::before {
+                content: attr(data-label) !important;
+                color: var(--text-300) !important;
+                opacity: 0.7 !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-trigger,
+            .filter-checkbox-menu .p-selectcheckboxmenu-trigger {
+                width: 40px !important;
+                height: 46px !important;
+                background: var(--bg-700) !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                border-left: none !important;
+                border-radius: 0 10px 10px 0 !important;
+                color: var(--accent) !important;
                 transition: all 0.2s ease !important;
             }
             
-            .filter-checkbox-container:hover {
-                background: rgba(255,255,255,0.08) !important;
+            .filter-checkbox-menu .ui-selectcheckboxmenu-trigger:hover,
+            .filter-checkbox-menu .p-selectcheckboxmenu-trigger:hover {
+                background: var(--bg-600) !important;
+                border-color: rgba(255,255,255,0.2) !important;
+                border-left: none !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-label-container,
+            .filter-checkbox-menu .p-selectcheckboxmenu-label-container {
+                width: calc(100% - 40px) !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-label,
+            .filter-checkbox-menu .p-selectcheckboxmenu-label {
+                width: 100% !important;
+                background: var(--bg-700) !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                color: var(--text-100) !important;
+                font-size: 0.95rem !important;
+                padding: 0.75rem 1rem !important;
+                min-height: 46px !important;
+                border-radius: 10px 0 0 10px !important;
+                transition: all 0.2s ease !important;
+                box-sizing: border-box !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-label .ui-selectcheckboxmenu-label-container,
+            .filter-checkbox-menu .p-selectcheckboxmenu-label .p-selectcheckboxmenu-label-container {
+                color: var(--text-100) !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-label .ui-selectcheckboxmenu-label-container .ui-selectcheckboxmenu-label,
+            .filter-checkbox-menu .p-selectcheckboxmenu-label .p-selectcheckboxmenu-label-container .p-selectcheckboxmenu-label {
+                color: var(--text-300) !important;
+                opacity: 1 !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-label:hover,
+            .filter-checkbox-menu .p-selectcheckboxmenu-label:hover {
+                background: var(--bg-600) !important;
                 border-color: rgba(255,255,255,0.2) !important;
             }
             
-            /* Scrollbar customizado */
-            .filter-checkbox-container::-webkit-scrollbar {
+            .filter-checkbox-menu.ui-state-focus .ui-selectcheckboxmenu-label,
+            .filter-checkbox-menu.p-focus .p-selectcheckboxmenu-label,
+            .filter-checkbox-menu.ui-state-focus .ui-selectcheckboxmenu-multiple-container,
+            .filter-checkbox-menu.p-focus .p-selectcheckboxmenu-multiple-container {
+                background: var(--bg-600) !important;
+                border-color: var(--accent) !important;
+                box-shadow: 0 0 0 3px rgba(0,225,255,0.15) !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-label .ui-selectcheckboxmenu-token,
+            .filter-checkbox-menu .p-selectcheckboxmenu-label .p-selectcheckboxmenu-token,
+            .filter-checkbox-menu .ui-selectcheckboxmenu-multiple-container .ui-selectcheckboxmenu-token,
+            .filter-checkbox-menu .p-selectcheckboxmenu-multiple-container .p-selectcheckboxmenu-token {
+                background: rgba(0,225,255,0.2) !important;
+                border: 1px solid rgba(0,225,255,0.4) !important;
+                color: var(--accent) !important;
+                border-radius: 6px !important;
+                padding: 0.375rem 0.625rem !important;
+                margin: 0 !important;
+                font-size: 0.85rem !important;
+                font-weight: 600 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 0.375rem !important;
+                white-space: nowrap !important;
+                flex-shrink: 0 !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-multiple-container .ui-selectcheckboxmenu-token-label,
+            .filter-checkbox-menu .p-selectcheckboxmenu-multiple-container .p-selectcheckboxmenu-token-label {
+                white-space: nowrap !important;
+                overflow: visible !important;
+                text-overflow: clip !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-label .ui-selectcheckboxmenu-token .ui-selectcheckboxmenu-token-icon,
+            .filter-checkbox-menu .p-selectcheckboxmenu-label .p-selectcheckboxmenu-token .p-selectcheckboxmenu-token-icon,
+            .filter-checkbox-menu .ui-selectcheckboxmenu-multiple-container .ui-selectcheckboxmenu-token .ui-selectcheckboxmenu-token-icon,
+            .filter-checkbox-menu .p-selectcheckboxmenu-multiple-container .p-selectcheckboxmenu-token .p-selectcheckboxmenu-token-icon {
+                color: var(--accent) !important;
+                margin-left: 0.25rem !important;
+                cursor: pointer !important;
+            }
+            
+            /* Panel do menu dropdown */
+            .filter-checkbox-menu .ui-selectcheckboxmenu-panel,
+            .filter-checkbox-menu .p-selectcheckboxmenu-panel {
+                background: var(--bg-800) !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                border-radius: 10px !important;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.4) !important;
+                padding: 0.5rem !important;
+                min-width: 300px !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-header,
+            .filter-checkbox-menu .p-selectcheckboxmenu-header {
+                background: var(--bg-700) !important;
+                border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+                padding: 0.75rem !important;
+                border-radius: 10px 10px 0 0 !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-filter-container,
+            .filter-checkbox-menu .p-selectcheckboxmenu-filter-container {
+                width: 100% !important;
+                margin-bottom: 0.5rem !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-filter-container .ui-inputfield,
+            .filter-checkbox-menu .p-selectcheckboxmenu-filter-container .p-inputtext {
+                width: 100% !important;
+                background: var(--bg-700) !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                color: var(--text-100) !important;
+                padding: 0.5rem 0.75rem !important;
+                border-radius: 8px !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-filter-container .ui-inputfield:focus,
+            .filter-checkbox-menu .p-selectcheckboxmenu-filter-container .p-inputtext:focus {
+                background: var(--bg-600) !important;
+                border-color: var(--accent) !important;
+                box-shadow: 0 0 0 2px rgba(0,225,255,0.15) !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-filter-container .ui-icon,
+            .filter-checkbox-menu .p-selectcheckboxmenu-filter-container .p-icon {
+                color: var(--accent) !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-list,
+            .filter-checkbox-menu .p-selectcheckboxmenu-list {
+                background: var(--bg-800) !important;
+                padding: 0.25rem !important;
+                max-height: 300px !important;
+                overflow-y: auto !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-list::-webkit-scrollbar,
+            .filter-checkbox-menu .p-selectcheckboxmenu-list::-webkit-scrollbar {
                 width: 6px;
             }
             
-            .filter-checkbox-container::-webkit-scrollbar-track {
+            .filter-checkbox-menu .ui-selectcheckboxmenu-list::-webkit-scrollbar-track,
+            .filter-checkbox-menu .p-selectcheckboxmenu-list::-webkit-scrollbar-track {
                 background: rgba(255,255,255,0.05);
                 border-radius: 10px;
             }
             
-            .filter-checkbox-container::-webkit-scrollbar-thumb {
+            .filter-checkbox-menu .ui-selectcheckboxmenu-list::-webkit-scrollbar-thumb,
+            .filter-checkbox-menu .p-selectcheckboxmenu-list::-webkit-scrollbar-thumb {
                 background: rgba(0,225,255,0.3);
                 border-radius: 10px;
             }
             
-            .filter-checkbox-container::-webkit-scrollbar-thumb:hover {
-                background: rgba(0,225,255,0.5);
-            }
-            
-            /* Checkboxes personalizados */
-            .filter-checkbox-container .ui-selectmanycheckbox,
-            .filter-checkbox-container .p-selectmanycheckbox {
-                width: 100%;
-            }
-            
-            /* Layout horizontal dos checkboxes */
-            .filter-checkbox-container table {
-                width: 100%;
-                border-collapse: separate;
-                border-spacing: 0;
-            }
-            
-            .filter-checkbox-container td {
+            .filter-checkbox-menu .ui-selectcheckboxmenu-list-item,
+            .filter-checkbox-menu .p-selectcheckboxmenu-list-item {
                 padding: 0.5rem 0.75rem !important;
-                vertical-align: middle !important;
+                border-radius: 6px !important;
+                margin-bottom: 0.25rem !important;
+                transition: all 0.2s ease !important;
+                color: var(--text-200) !important;
             }
             
-            .filter-checkbox-container tr {
-                display: table-row;
+            .filter-checkbox-menu .ui-selectcheckboxmenu-list-item:hover,
+            .filter-checkbox-menu .p-selectcheckboxmenu-list-item:hover {
+                background: var(--bg-700) !important;
             }
             
-            /* Checkbox box styling */
-            .filter-checkbox-container .ui-chkbox-box,
-            .filter-checkbox-container .p-checkbox-box {
-                width: 20px !important;
-                height: 20px !important;
+            .filter-checkbox-menu .ui-selectcheckboxmenu-list-item.ui-state-highlight,
+            .filter-checkbox-menu .p-selectcheckboxmenu-list-item.p-highlight {
+                background: rgba(0,225,255,0.1) !important;
+                color: var(--accent) !important;
+            }
+            
+            .filter-checkbox-menu .ui-chkbox-box,
+            .filter-checkbox-menu .p-checkbox-box {
+                width: 18px !important;
+                height: 18px !important;
                 background: rgba(255,255,255,0.05) !important;
                 border: 2px solid rgba(255,255,255,0.2) !important;
-                border-radius: 6px !important;
+                border-radius: 4px !important;
                 transition: all 0.2s ease !important;
-                flex-shrink: 0;
             }
             
-            .filter-checkbox-container .ui-chkbox-box:hover,
-            .filter-checkbox-container .p-checkbox-box:hover {
+            .filter-checkbox-menu .ui-chkbox-box:hover,
+            .filter-checkbox-menu .p-checkbox-box:hover {
                 background: rgba(255,255,255,0.08) !important;
                 border-color: var(--accent) !important;
             }
             
-            .filter-checkbox-container .ui-chkbox-box.ui-state-active,
-            .filter-checkbox-container .p-checkbox-box.p-highlight {
+            /* Checkbox marcado/ativo - múltiplos seletores para garantir */
+            .filter-checkbox-menu .ui-chkbox-box.ui-state-active,
+            .filter-checkbox-menu .p-checkbox-box.p-highlight,
+            .filter-checkbox-menu .ui-selectcheckboxmenu-list-item .ui-chkbox-box.ui-state-active,
+            .filter-checkbox-menu .p-selectcheckboxmenu-list-item .p-checkbox-box.p-highlight,
+            .filter-checkbox-menu .ui-state-active .ui-chkbox-box,
+            .filter-checkbox-menu .p-highlight .p-checkbox-box,
+            .filter-checkbox-menu .ui-chkbox.ui-state-active .ui-chkbox-box,
+            .filter-checkbox-menu .p-checkbox.p-highlight .p-checkbox-box {
                 background: linear-gradient(135deg, var(--accent), var(--accent-dark)) !important;
                 border-color: var(--accent) !important;
             }
             
-            .filter-checkbox-container .ui-chkbox-icon,
-            .filter-checkbox-container .p-checkbox-icon {
+            .filter-checkbox-menu .ui-chkbox-icon,
+            .filter-checkbox-menu .p-checkbox-icon {
                 color: #0a0e27 !important;
-                font-size: 14px !important;
+                font-size: 12px !important;
                 font-weight: bold !important;
             }
             
-            /* Label dos checkboxes */
-            .filter-checkbox-container label {
+            /* Garantir que o ícone apareça quando marcado */
+            .filter-checkbox-menu .ui-chkbox-box.ui-state-active .ui-chkbox-icon,
+            .filter-checkbox-menu .p-checkbox-box.p-highlight .p-checkbox-icon,
+            .filter-checkbox-menu .ui-state-active .ui-chkbox-box .ui-chkbox-icon,
+            .filter-checkbox-menu .p-highlight .p-checkbox-box .p-checkbox-icon {
+                display: inline-block !important;
+                opacity: 1 !important;
+            }
+            
+            .filter-checkbox-menu .ui-selectcheckboxmenu-list-item label,
+            .filter-checkbox-menu .p-selectcheckboxmenu-list-item label {
                 color: var(--text-200) !important;
                 font-size: 0.9rem !important;
                 margin-left: 0.5rem !important;
                 cursor: pointer !important;
                 user-select: none;
-                white-space: nowrap;
-                display: inline-flex;
-                align-items: center;
             }
             
-            /* Container do checkbox + label */
-            .filter-checkbox-container .ui-chkbox,
-            .filter-checkbox-container .p-checkbox {
-                display: inline-flex;
-                align-items: center;
-                vertical-align: middle;
+            .filter-checkbox-menu .ui-selectcheckboxmenu-list-item.ui-state-highlight label,
+            .filter-checkbox-menu .p-selectcheckboxmenu-list-item.p-highlight label {
+                color: var(--text-100) !important;
+                font-weight: 600 !important;
+            }
+            
+            /* Item selecionado - destacar o texto também */
+            .filter-checkbox-menu .ui-selectcheckboxmenu-list-item:has(.ui-chkbox-box.ui-state-active) label,
+            .filter-checkbox-menu .p-selectcheckboxmenu-list-item:has(.p-checkbox-box.p-highlight) label,
+            .filter-checkbox-menu .ui-selectcheckboxmenu-list-item .ui-chkbox.ui-state-active ~ label,
+            .filter-checkbox-menu .p-selectcheckboxmenu-list-item .p-checkbox.p-highlight ~ label {
+                color: var(--text-100) !important;
+                font-weight: 600 !important;
             }
             
             /* Clear button - melhorado seguindo padrão do sistema */
@@ -455,16 +646,47 @@
                 min-height: 44px;
             }
             
-            .btn-primary {
+            .btn-primary,
+            .btn-primary a,
+            a.btn-primary,
+            h:link.btn-primary {
                 background: linear-gradient(135deg, var(--accent), var(--accent-dark)) !important;
-                color: #0a0e27 !important;
+                color: var(--text-100) !important;
                 box-shadow: 0 4px 12px rgba(0,225,255,0.25);
+                text-decoration: none !important;
             }
             
-            .btn-primary:hover {
+            .btn-primary span,
+            .btn-primary i,
+            .btn-primary .pi,
+            a.btn-primary span,
+            a.btn-primary i,
+            a.btn-primary .pi,
+            h:link.btn-primary span,
+            h:link.btn-primary i,
+            h:link.btn-primary .pi {
+                color: var(--text-100) !important;
+            }
+            
+            .btn-primary:hover,
+            a.btn-primary:hover,
+            h:link.btn-primary:hover {
                 background: linear-gradient(135deg, var(--accent-light), var(--accent)) !important;
                 transform: translateY(-2px);
                 box-shadow: 0 8px 20px rgba(0,225,255,0.35);
+                color: var(--text-100) !important;
+            }
+            
+            .btn-primary:hover span,
+            .btn-primary:hover i,
+            .btn-primary:hover .pi,
+            a.btn-primary:hover span,
+            a.btn-primary:hover i,
+            a.btn-primary:hover .pi,
+            h:link.btn-primary:hover span,
+            h:link.btn-primary:hover i,
+            h:link.btn-primary:hover .pi {
+                color: var(--text-100) !important;
             }
             
             .btn-outlined {
@@ -607,7 +829,7 @@
             .tournament-actions {
                 display: flex;
                 gap: 0.75rem;
-                justify-content: flex-end;
+                justify-content: center;
                 flex-wrap: wrap;
             }
 
@@ -651,6 +873,7 @@
                     grid-template-columns: repeat(2, 1fr);
                 }
                 
+                .filter-field:nth-child(4),
                 .filter-field:last-child {
                     grid-column: span 2;
                 }
@@ -667,6 +890,7 @@
                     gap: 1rem;
                 }
                 
+                .filter-field:nth-child(4),
                 .filter-field:last-child {
                     grid-column: 1;
                 }
@@ -691,8 +915,60 @@
                 .tournament-actions a {
                     flex: 1;
                 }
+                
+                .filter-checkbox-menu .ui-selectcheckboxmenu-panel,
+                .filter-checkbox-menu .p-selectcheckboxmenu-panel {
+                    min-width: calc(100vw - 2rem) !important;
+                    max-width: calc(100vw - 2rem) !important;
+                }
             }
         </style>
+        
+        <script type="text/javascript">
+            <![CDATA[
+            // Prevenir fechamento do selectCheckboxMenu ao clicar nos itens
+            jQuery(document).ready(function() {
+                // Aguarda o componente ser renderizado
+                setTimeout(function() {
+                    var widget = PF('filtroJogosWidget');
+                    if (widget && widget.itemContainer) {
+                        // Previne o comportamento padrão de fechar
+                        widget.itemContainer.off('click.selectCheckboxMenu').on('click.selectCheckboxMenu', function(e) {
+                            // Não faz nada - deixa o painel aberto
+                            e.stopPropagation();
+                        });
+                        
+                        // Intercepta o método hide para prevenir fechamento ao selecionar
+                        var originalHide = widget.hide;
+                        widget.hide = function() {
+                            // Não esconde o painel ao clicar nos itens
+                            var event = window.event;
+                            if (event && event.target) {
+                                var target = jQuery(event.target);
+                                // Só permite fechar clicando fora ou no botão de fechar
+                                if (!target.closest('.ui-selectcheckboxmenu-list-item').length && 
+                                    !target.closest('.ui-chkbox').length) {
+                                    originalHide.call(this);
+                                }
+                            }
+                        };
+                    }
+                }, 500);
+                
+                // Re-aplica ao atualizar via AJAX
+                jQuery(document).on('pfAjaxComplete', function() {
+                    setTimeout(function() {
+                        var widget = PF('filtroJogosWidget');
+                        if (widget && widget.itemContainer) {
+                            widget.itemContainer.off('click.selectCheckboxMenu').on('click.selectCheckboxMenu', function(e) {
+                                e.stopPropagation();
+                            });
+                        }
+                    }, 200);
+                });
+            });
+            ]]>
+        </script>
         
     </ui:define>
 </ui:composition>

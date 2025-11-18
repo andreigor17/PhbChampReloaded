@@ -88,7 +88,7 @@ public class PlayerServico implements Serializable {
             // Tenta fazer parse do JSON
             Type userListType = new TypeToken<ArrayList<Player>>() {}.getType();
             ArrayList<Player> userArray = gson.fromJson(response.toString(), userListType);
-            
+
             // Se o array for null, retorna lista vazia
             if (userArray == null) {
                 return new ArrayList<>();
@@ -97,7 +97,7 @@ public class PlayerServico implements Serializable {
             List<Player> p = new ArrayList<>();
             for (Player user : userArray) {
                 if (user != null) {
-                    p.add(user);
+                p.add(user);
                 }
             }
 

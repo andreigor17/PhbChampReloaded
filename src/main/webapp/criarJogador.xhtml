@@ -7,19 +7,19 @@
 
     <ui:define name="content">
         <h:form id="headerForm">
-            <div class="section-header">
-                <div>
-                    <p:link outcome="/jogadores" styleClass="mb-3 d-block header-back-link">
-                        <i class="pi pi-arrow-left mr-2"></i>Voltar para Jogadores
-                    </p:link>
-                    <h1 class="section-title">Cadastrar Jogador</h1>
-                    <p class="section-description">Preencha as informações para criar ou atualizar um perfil de jogador.</p>
-                </div>
+        <div class="section-header">
+            <div>
+                <p:link outcome="/jogadores" styleClass="mb-3 d-block header-back-link">
+                    <i class="pi pi-arrow-left mr-2"></i>Voltar para Jogadores
+                </p:link>
+                <h1 class="section-title">Cadastrar Jogador</h1>
+                <p class="section-description">Preencha as informações para criar ou atualizar um perfil de jogador.</p>
             </div>
+        </div>
         </h:form>
 
         <h:form id="playerForm" enctype="multipart/form-data">
-            <p:card styleClass="glass-card player-card">
+        <p:card styleClass="glass-card player-card">
                 <p:remoteCommand name="atualizarImagem" update="playerPhotoPanel uploadPanel"/>
 
                 <div class="grid player-grid">
@@ -171,14 +171,14 @@
                                 <p:outputLabel for="jogosCheckbox" value="Selecione os jogos" styleClass="mb-3"/>
                                 <div class="games-checkbox-container">
                                     <p:selectManyCheckbox id="jogosCheckbox"
-                                                          value="#{managerCriarPlayer.jogosSelecionadosIds}"
+                                                      value="#{managerCriarPlayer.jogosSelecionadosIds}"
                                                           layout="grid"
                                                           columns="1"
                                                           styleClass="games-checkbox-list">
-                                        <f:selectItems value="#{managerCriarPlayer.jogos}"
-                                                       var="jogo"
-                                                       itemLabel="#{jogo.nome}"
-                                                       itemValue="#{jogo.id}"/>
+                                    <f:selectItems value="#{managerCriarPlayer.jogos}"
+                                                   var="jogo"
+                                                   itemLabel="#{jogo.nome}"
+                                                   itemValue="#{jogo.id}"/>
                                     </p:selectManyCheckbox>
                                 </div>
                             </div>
@@ -199,7 +199,7 @@
                                      actionListener="#{managerCriarPlayer.salvarPlayer}"/>
                 </div>
             </p:card>
-        </h:form>
+            </h:form>
 
         <style type="text/css">
             .section-description {
@@ -464,7 +464,7 @@
                 max-height: 380px;
                 overflow-y: auto;
             }
-            
+
             /* Scrollbar customizada */
             .games-checkbox-container::-webkit-scrollbar {
                 width: 8px;
@@ -541,7 +541,7 @@
                 transition: all 0.25s ease !important;
                 flex-shrink: 0 !important;
             }
-            
+
             .games-checkbox-list .ui-chkbox:hover .ui-chkbox-box,
             .games-checkbox-list .p-checkbox:hover .p-checkbox-box {
                 border-color: rgba(0,225,255,0.4) !important;

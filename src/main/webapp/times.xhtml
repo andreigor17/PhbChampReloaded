@@ -22,7 +22,7 @@
                 <div class="filter-grid-times">
                     <div class="filter-field">
                         <label class="filter-label">
-                            <i class="pi pi-search"></i>
+                        <i class="pi pi-search"></i>
                             <span>Buscar Time</span>
                         </label>
                         <p:inputText id="searchInput" 
@@ -34,7 +34,7 @@
                                     listener="#{managerTeam.pesquisarTime()}" 
                                     delay="500"
                                     global="false" />
-                        </p:inputText>
+                    </p:inputText>
                     </div>
                     
                     <div class="filter-field">
@@ -48,40 +48,40 @@
                                          update="@form"
                                          process="@this" />
                     </div>
-                </div>
+        </div>
 
-                <!-- Indicador de carregamento -->
-                <p:outputPanel id="loadingIndicator">
+        <!-- Indicador de carregamento -->
+        <p:outputPanel id="loadingIndicator">
                     <div class="empty-state" style="display: #{managerTeam.buscando ? 'block' : 'none'};">
                         <div class="empty-icon">
                             <i class="pi pi-spin pi-spinner"></i>
                         </div>
                         <h3 class="empty-title">Buscando times...</h3>
                         <p class="empty-text">Aguarde um momento</p>
-                    </div>
-                </p:outputPanel>
+            </div>
+        </p:outputPanel>
 
-                <!-- Mensagem quando não há resultados -->
-                <p:outputPanel id="noResultsMessage">
+        <!-- Mensagem quando não há resultados -->
+        <p:outputPanel id="noResultsMessage">
                     <div class="empty-state" style="display: #{managerTeam.semResultados ? 'block' : 'none'};">
                         <div class="empty-icon">
                             <i class="pi pi-shield"></i>
                         </div>
                         <h3 class="empty-title">Nenhum time encontrado</h3>
                         <p class="empty-text">Tente usar termos diferentes na sua busca</p>
-                    </div>
-                </p:outputPanel>
+            </div>
+        </p:outputPanel>
 
-                <!-- Mensagem inicial -->
-                <p:outputPanel id="initialMessage">
+        <!-- Mensagem inicial -->
+        <p:outputPanel id="initialMessage">
                     <div class="empty-state" style="display: #{managerTeam.estadoInicial ? 'block' : 'none'};">
                         <div class="empty-icon">
                             <i class="pi pi-shield"></i>
                         </div>
                         <h3 class="empty-title">Digite para buscar times</h3>
                         <p class="empty-text">Os resultados aparecerão aqui conforme você digita</p>
-                    </div>
-                </p:outputPanel>
+            </div>
+        </p:outputPanel>
 
                 <!-- Grid de Times -->
                 <h:panelGroup id="timesGrid">
@@ -95,9 +95,9 @@
                                                         rendered="#{time.anexo ne null}" 
                                                         styleClass="team-logo-img" />
                                         <div class="team-logo-placeholder-large" rendered="#{time.anexo eq null}">
-                                            <i class="pi pi-shield"></i>
-                                        </div>
-                                    </div>
+                        <i class="pi pi-shield"></i>
+                    </div>
+                </div>
                                     <div class="team-info">
                                         <h3 class="team-name">#{time.nome}</h3>
                                         <span class="team-tag">#{time.sigla}</span>
@@ -110,8 +110,8 @@
                                         <i class="pi pi-users"></i>
                                         <span>Jogadores</span>
                                         <span class="players-count">#{time.players != null ? time.players.size() : 0}</span>
-                                    </div>
-                                    
+                    </div>
+
                                     <!-- Lista de Jogadores -->
                                     <h:panelGroup rendered="#{time.players != null and !time.players.isEmpty()}">
                                         <div class="players-list">
@@ -140,15 +140,15 @@
                                                     +#{time.players.size() - 5} jogadores
                                                 </div>
                                             </h:panelGroup>
-                                        </div>
+                        </div>
                                     </h:panelGroup>
-                                    
+
                                     <!-- Mensagem quando não há jogadores -->
                                     <h:panelGroup rendered="#{time.players == null or time.players.isEmpty()}">
                                         <div class="no-players">
                                             <i class="pi pi-user-plus"></i>
                                             <span>Nenhum jogador cadastrado</span>
-                                        </div>
+                                    </div>
                                     </h:panelGroup>
                                 </div>
 
@@ -160,7 +160,7 @@
                                         <span>Ver Detalhes</span>
                                     </h:link>
                                 </div>
-                            </div>
+                            </div>                                              
                         </ui:repeat>
                     </div>
                 </h:panelGroup>

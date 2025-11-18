@@ -645,6 +645,23 @@
         </p:dialog>
 
         <style>
+            /* Estilos Gerais dos Cards - Espaçamento do Título */
+            .glass-card .ui-card-header,
+            .glass-card .p-card-header {
+                padding: 2rem 2rem 1.5rem 2rem !important;
+                margin-bottom: 0 !important;
+            }
+            
+            .glass-card .ui-card-body,
+            .glass-card .p-card-body {
+                padding: 0 2rem 2rem 2rem !important;
+            }
+            
+            .glass-card .ui-card-header + .ui-card-body,
+            .glass-card .p-card-header + .p-card-body {
+                padding-top: 1.5rem !important;
+            }
+            
             /* Hero do Campeonato */
             .camp-hero { background: linear-gradient(135deg, var(--bg-800), var(--bg-900)) !important; padding: 2rem 1.5rem; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: var(--radius) !important; box-shadow: var(--shadow) !important; }
             .camp-hero-content { display: flex; align-items: flex-start; gap: 2rem; flex-wrap: wrap; }

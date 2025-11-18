@@ -96,13 +96,13 @@ public class ManagerCriarCampeonato extends ManagerBase {
                 return;
             }
             
-            instanciar();
+        instanciar();
 
-            String visualizarCampId = FacesUtil
-                    .getRequestParameter("id");
+        String visualizarCampId = FacesUtil
+                .getRequestParameter("id");
 
-            if (visualizarCampId != null && !visualizarCampId.isEmpty()) {
-                this.camp = this.campeonatoServico.buscaCamp(Long.parseLong(visualizarCampId));
+        if (visualizarCampId != null && !visualizarCampId.isEmpty()) {
+            this.camp = this.campeonatoServico.buscaCamp(Long.parseLong(visualizarCampId));
             }
         } catch (IOException ex) {
             System.err.println("Erro ao redirecionar: " + ex.getMessage());

@@ -97,7 +97,7 @@ public class ManagerCriarPlayer extends ManagerBase {
                 cadastrar = true;
                 processSteamReturn();
             }
-            
+
             // Verifica se veio da Steam através do ManagerSteamCallback
             String fromSteam = FacesUtil.getRequestParameter("fromSteam");
             if (fromSteam != null && !fromSteam.isEmpty()) {
@@ -275,17 +275,17 @@ public class ManagerCriarPlayer extends ManagerBase {
             System.err.println("Cadastrar flag: " + cadastrar);
             
             try {
-                this.player = playerServico.registrarPlayer(this.player, null, Url.REGISTRAR_PLAYER.getNome());
+            this.player = playerServico.registrarPlayer(this.player, null, Url.REGISTRAR_PLAYER.getNome());
                 
                 if (this.player != null && this.player.getId() != null) {
-                    if (cadastrar) {
+            if (cadastrar) {
                         // Faz login automático após cadastro
-                        LoginVo loginVo = new LoginVo();
-                        loginVo.setLogin(this.player.getLogin());
+                LoginVo loginVo = new LoginVo();
+                loginVo.setLogin(this.player.getLogin());
                         loginVo.setSenha(senhaVo); // Senha em texto plano
                         
                         String token = loginServico.autenticar(loginVo);
-                        
+
                         if (token != null && !token.trim().isEmpty()) {
                             System.err.println("Login automático realizado com sucesso!");
                             Mensagem.successAndRedirect("Conta criada com sucesso! Você já está logado.", "index.xhtml");
@@ -294,7 +294,7 @@ public class ManagerCriarPlayer extends ManagerBase {
                             Mensagem.successAndRedirect("Player salvo com sucesso! Faça login para continuar.", "login.xhtml");
                         }
                     } else {
-                        Mensagem.successAndRedirect("Player salvo com sucesso", "jogador.xhtml?id=" + this.player.getId());
+            Mensagem.successAndRedirect("Player salvo com sucesso", "jogador.xhtml?id=" + this.player.getId());
                     }
                 } else {
                     Mensagem.error("Erro ao salvar o jogador. Tente novamente.");

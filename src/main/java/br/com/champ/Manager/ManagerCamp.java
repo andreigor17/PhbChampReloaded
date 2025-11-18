@@ -344,7 +344,37 @@ public class ManagerCamp extends ManagerBase {
     }
 
     public void limpar() {
-        instanciar();
+        try {
+            // Limpa apenas os campos de filtro
+            if (this.camp == null) {
+                this.camp = new Campeonato();
+            } else {
+                this.camp.setNome(null);
+                this.camp.setDataCamp(null);
+            }
+            
+            // Limpa a lista de jogos selecionados
+            if (this.jogosSelecionados == null) {
+                this.jogosSelecionados = new ArrayList<>();
+            } else {
+                this.jogosSelecionados.clear();
+            }
+            
+            // Mantém a lista de jogos carregada (não limpa)
+            // Se não estiver carregada, carrega
+            if (this.jogos == null || this.jogos.isEmpty()) {
+                this.jogos = jogoServico.autoCompleteJogos();
+            }
+            
+            // Refaz a consulta como se fosse o carregamento inicial
+            this.camps = campeonatoServico.pesquisar();
+        } catch (Exception ex) {
+            Logger.getLogger(ManagerCamp.class.getName()).log(Level.SEVERE, null, ex);
+            // Em caso de erro, garante que a lista não fique null
+            if (this.camps == null) {
+                this.camps = new ArrayList<>();
+            }
+        }
     }
     
     public List<Long> getJogosSelecionados() {
@@ -788,7 +818,16 @@ public class ManagerCamp extends ManagerBase {
 
                 // Cria um novo time
                 Team novoTime = new Team();
-                novoTime.setNome("Time " + numeroTime);
+                
+                // Se quantidadePorTime for 2, usa os nicks dos jogadores
+                if (quantidadePorTime == 2 && playersDoTime.size() == 2) {
+                    String nick1 = playersDoTime.get(0).getNick() != null ? playersDoTime.get(0).getNick() : playersDoTime.get(0).getNome();
+                    String nick2 = playersDoTime.get(1).getNick() != null ? playersDoTime.get(1).getNick() : playersDoTime.get(1).getNome();
+                    novoTime.setNome("Time " + nick1 + " e " + nick2);
+                } else {
+                    novoTime.setNome("Time " + numeroTime);
+                }
+                
                 novoTime.setPlayers(playersDoTime);
                 novoTime.setTimeAmistoso(false);
                 novoTime.setActive(true);

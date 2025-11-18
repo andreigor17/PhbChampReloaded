@@ -53,7 +53,7 @@ public class TeamServico {
             String encodedNome = java.net.URLEncoder.encode(nomeTeam.trim(), "UTF-8");
             String url = pathToAPI() + "/api/team/team-nome?nomeTime=" + encodedNome;
             
-            URL obj = new URL(url);
+            URL obj = new URL(url);            
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             con.setRequestMethod("GET");
             con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
@@ -86,7 +86,7 @@ public class TeamServico {
             Gson gson = new Gson();
             Type userListType = new TypeToken<ArrayList<Team>>() {}.getType();
             ArrayList<Team> userArray = gson.fromJson(response.toString(), userListType);
-            
+
             // Se o array for null, retorna lista vazia
             if (userArray == null) {
                 return new ArrayList<>();
@@ -95,7 +95,7 @@ public class TeamServico {
             List<Team> t = new ArrayList<>();
             for (Team time : userArray) {
                 if (time != null) {
-                    t.add(time);
+                t.add(time);
                 }
             }
 

@@ -7,8 +7,8 @@
 
     <ui:define name="content">
         <h:form id="teamForm">
-            <div class="section-header">
-                <div>
+        <div class="section-header">
+            <div>
                     <h:link outcome="times.xhtml" styleClass="action-btn mb-3">
                         <i class="pi pi-arrow-left"></i>
                         <span>Voltar para Times</span>
@@ -17,12 +17,12 @@
                         <i class="pi pi-shield mr-2"></i>
                         #{managerTeam.team.nome}
                     </h1>
-                </div>
+            </div>
                 <div style="display: flex; gap: 0.75rem;">
                     <h:link outcome="criarTime.xhtml" 
                             styleClass="action-btn" 
                             rendered="#{managerTeam.team.id ne null and managerTeam.podeEditarTime()}">
-                        <f:param name="id" value="#{managerTeam.team.id}" />
+                    <f:param name="id" value="#{managerTeam.team.id}" />
                         <i class="pi pi-pencil"></i>
                         <span>Editar</span>
                     </h:link>
@@ -34,44 +34,44 @@
                                      onclick="PF('deleteDialogWidget').show()" 
                                      process="@this" 
                                      update="@none" />
-                </div>
             </div>
+        </div>
 
-            <!-- Informações Básicas do Time -->
-            <div class="grid">
-                <div class="col-12 md:col-4">
+        <!-- Informações Básicas do Time -->
+        <div class="grid">
+            <div class="col-12 md:col-4">
                     <p:card styleClass="glass-card team-profile-card">
-                        <div class="team-profile-header">
-                            <div class="team-logo-container">
+                    <div class="team-profile-header">
+                        <div class="team-logo-container">
                                 <p:graphicImage value="image/#{managerTeam.team.anexo.nome}" 
                                                 styleClass="team-logo" 
                                                 rendered="#{managerTeam.team.anexo ne null}" />
-                                <div class="team-logo-placeholder" rendered="#{managerTeam.team.anexo eq null}">
-                                    <i class="pi pi-shield"></i>
-                                </div>
+                            <div class="team-logo-placeholder" rendered="#{managerTeam.team.anexo eq null}">
+                                <i class="pi pi-shield"></i>
                             </div>
-                            <h2 class="team-name">#{managerTeam.team.nome}</h2>
-                            <span class="team-tag-badge">#{managerTeam.team.sigla}</span>
                         </div>
+                        <h2 class="team-name">#{managerTeam.team.nome}</h2>
+                            <span class="team-tag-badge">#{managerTeam.team.sigla}</span>
+                    </div>
 
-                        <div class="team-info-section">
+                    <div class="team-info-section">
                             <h3 class="section-subtitle">
                                 <i class="pi pi-info-circle"></i>
                                 <span>Informações</span>
                             </h3>
-                            <div class="team-info-grid">
-                                <div class="info-item">
+                        <div class="team-info-grid">
+                            <div class="info-item">
                                     <span class="info-label">
                                         <i class="pi pi-calendar"></i>
                                         <span>Fundado</span>
                                     </span>
                                     <span class="info-value">#{managerTeam.dataCriacaoFormatada}</span>
-                                </div>
-                                <div class="info-item">
+                            </div>                           
+                            <div class="info-item">
                                     <span class="info-label">
                                         <i class="pi pi-users"></i>
                                         <span>Jogadores</span>
-                                    </span>
+                                </span>
                                     <span class="info-value">#{managerTeam.team.players != null ? managerTeam.team.players.size() : 0}</span>
                                 </div>
                                 <div class="info-item full-width">
@@ -89,43 +89,43 @@
                                             <span class="no-games-text">Nenhum jogo cadastrado</span>
                                         </h:panelGroup>
                                     </div>
-                                </div>
-                                <div class="info-item">
+                            </div>
+                            <div class="info-item">
                                     <span class="info-label">
                                         <i class="pi pi-check-circle"></i>
                                         <span>Tipo</span>
                                     </span>
-                                    <span class="info-value">
+                                <span class="info-value">
                                         <span class="status-badge #{managerTeam.team.timeAmistoso ? 'friendly' : 'competitive'}">
                                             #{managerTeam.team.timeAmistoso ? 'Amistoso' : 'Competitivo'}
                                         </span>
-                                    </span>
-                                </div>
+                                </span>
                             </div>
                         </div>
-                    </p:card>
-                </div>
+                    </div>
+                </p:card>
+            </div>
 
-                <div class="col-12 md:col-8">
-                    <!-- Estatísticas do Time -->
+            <div class="col-12 md:col-8">
+                <!-- Estatísticas do Time -->
                     <p:card styleClass="glass-card mb-4">
-                        <f:facet name="title">
+                    <f:facet name="title">
                             <div class="card-header-custom">
                                 <i class="pi pi-chart-bar"></i>
-                                <span>Estatísticas</span>
-                            </div>
-                        </f:facet>
+                            <span>Estatísticas</span>
+                        </div>
+                    </f:facet>
 
                         <div class="stats-grid-team">
                             <div class="stat-card-team">
                                 <div class="stat-icon-team">
                                     <i class="pi pi-calendar"></i>
-                                </div>
+                            </div>
                                 <div class="stat-content-team">
                                     <div class="stat-value-team">0</div>
                                     <div class="stat-label-team">Partidas</div>
-                                </div>
                             </div>
+                        </div>
 
                             <div class="stat-card-team">
                                 <div class="stat-icon-team success">
@@ -134,32 +134,32 @@
                                 <div class="stat-content-team">
                                     <div class="stat-value-team win">0</div>
                                     <div class="stat-label-team">Vitórias</div>
-                                </div>
                             </div>
+                        </div>
 
                             <div class="stat-card-team">
                                 <div class="stat-icon-team danger">
                                     <i class="pi pi-times-circle"></i>
-                                </div>
+                            </div>
                                 <div class="stat-content-team">
                                     <div class="stat-value-team loss">0</div>
                                     <div class="stat-label-team">Derrotas</div>
-                                </div>
-                            </div>
+                        </div>
+                    </div>
 
                             <div class="stat-card-team">
                                 <div class="stat-icon-team">
                                     <i class="pi pi-percentage"></i>
-                                </div>
+                                            </div>
                                 <div class="stat-content-team">
                                     <div class="stat-value-team">0%</div>
                                     <div class="stat-label-team">Taxa de Vitória</div>
-                                </div>
-                            </div>
+                                            </div>
                         </div>
-                    </p:card>
-                </div>
+                        </div>
+                </p:card>
             </div>
+        </div>
 
             <!-- Troféus e Conquistas -->
             <p:card styleClass="glass-card mb-4">
@@ -167,7 +167,7 @@
                     <div class="card-header-custom">
                         <i class="pi pi-star-fill"></i>
                         <span>Troféus e Conquistas</span>
-                    </div>
+        </div>
                 </f:facet>
 
                 <h:panelGroup rendered="#{managerTeam.trofeus ne null and managerTeam.trofeus.size() gt 0}">
@@ -183,9 +183,9 @@
                                     <h:panelGroup rendered="#{campeonato.trofeu eq null or campeonato.trofeu.nome eq null}">
                                         <div class="trofeu-placeholder">
                                             <i class="pi pi-trophy"></i>
-                                        </div>
+                        </div>
                                     </h:panelGroup>
-                                </div>
+                        </div>
                                 <div class="trofeu-info">
                                     <h4 class="trofeu-nome">#{campeonato.nome}</h4>
                                     <h:panelGroup rendered="#{campeonato.jogo ne null}">
@@ -196,10 +196,10 @@
                                         <i class="pi pi-eye"></i>
                                         <span>Ver Campeonato</span>
                                     </h:link>
-                                </div>
-                            </div>
-                        </ui:repeat>
                     </div>
+                </div>  
+            </ui:repeat>
+        </div>
                 </h:panelGroup>
 
                 <h:panelGroup rendered="#{managerTeam.trofeus eq null or managerTeam.trofeus.size() eq 0}">
@@ -207,7 +207,7 @@
                         <i class="pi pi-trophy"></i>
                         <p>Sem troféus recentes</p>
                         <span>Este time ainda não conquistou nenhum campeonato</span>
-                    </div>
+        </div>
                 </h:panelGroup>
             </p:card>
 
@@ -218,7 +218,7 @@
                         <i class="pi pi-users"></i>
                         <span>Jogadores do Time</span>
                         <span class="players-count-badge">#{managerTeam.team.players != null ? managerTeam.team.players.size() : 0}</span>
-                    </div>
+                        </div>
                 </f:facet>
 
                 <h:panelGroup rendered="#{managerTeam.team.players != null and !managerTeam.team.players.isEmpty()}">
@@ -233,8 +233,8 @@
                                                         rendered="#{jogador.anexo ne null}" />
                                         <div class="player-photo-placeholder-team" rendered="#{jogador.anexo eq null}">
                                             <i class="pi pi-user"></i>
-                                        </div>
-                                    </div>
+                            </div>
+                            </div>
                                     <div class="player-info-team">
                                         <h3 class="player-name-team">#{jogador.nome}</h3>
                                         <p class="player-nickname-team">#{jogador.nick}</p>
@@ -243,16 +243,16 @@
                                                 <h:panelGroup rendered="#{status.index lt 2}">
                                                     <span class="game-tag-mini" style="background-color: #{jogo.corHex ne null ? jogo.corHex : 'var(--accent)'};">
                                                         #{jogo.nome}
-                                                    </span>
+                                </span>
                                                 </h:panelGroup>
                                             </ui:repeat>
                                             <h:panelGroup rendered="#{jogador.jogos != null and jogador.jogos.size() gt 2}">
                                                 <span class="game-tag-more">+#{jogador.jogos.size() - 2}</span>
                                             </h:panelGroup>
-                                        </div>
-                                    </div>
-                                </h:link>
                             </div>
+                            </div>
+                                </h:link>
+                        </div>
                         </ui:repeat>
                     </div>
                 </h:panelGroup>
@@ -264,7 +264,7 @@
                         <p>Este time ainda não possui jogadores cadastrados</p>
                     </div>
                 </h:panelGroup>
-            </p:card>
+                </p:card>
 
             <!-- Campeonatos do Time -->
             <p:card styleClass="glass-card mb-4">
@@ -272,7 +272,7 @@
                     <div class="card-header-custom">
                         <i class="pi pi-star"></i>
                         <span>Campeonatos</span>
-                    </div>
+        </div>
                 </f:facet>
 
                 <h:panelGroup rendered="#{managerTeam.team.id ne null}">
@@ -282,13 +282,13 @@
                             <i class="pi pi-star"></i>
                             <h3>Nenhum campeonato</h3>
                             <p>Esta funcionalidade será implementada em breve</p>
-                        </div>
+        </div>
                         <ui:repeat value="#{null}" var="campeonato" rendered="false">
                             <div class="championship-card-team">
                                 <div class="championship-header-team">
                                     <div class="championship-icon-team">
                                         <i class="pi pi-star"></i>
-                                    </div>
+                                </div>
                                     <span class="status-badge #{campeonato.status.nome eq 'Em Andamento' ? 'active' : (campeonato.status.nome eq 'Finalizado' ? 'finished' : 'scheduled')}">
                                         #{campeonato.status.nome}
                                     </span>
@@ -301,7 +301,7 @@
                                             <span class="game-badge-team" style="background-color: #{campeonato.jogo.corHex ne null ? campeonato.jogo.corHex : 'var(--accent)'};">
                                                 #{campeonato.jogo.nome}
                                             </span>
-                                        </div>
+                            </div>
                                         <div class="champ-info-item" rendered="#{campeonato.dataCamp ne null}">
                                             <i class="pi pi-calendar"></i>
                                             <span>
@@ -309,9 +309,9 @@
                                                     <f:convertDateTime pattern="dd/MM/yyyy" />
                                                 </h:outputText>
                                             </span>
-                                        </div>
                                     </div>
                                 </div>
+                                    </div>
                                 <div class="championship-footer-team">
                                     <h:link outcome="visualizarCampeonato.xhtml" styleClass="champ-action-btn">
                                         <f:param name="id" value="#{campeonato.id}" />
@@ -321,10 +321,10 @@
                                 </div>
                             </div>
                         </ui:repeat>
-                    </div>
+                                </div>
                 </h:panelGroup>
 
-            </p:card>
+                        </p:card>
 
             <!-- Partidas do Time -->
             <p:card styleClass="glass-card mb-4">
@@ -332,7 +332,7 @@
                     <div class="card-header-custom">
                         <i class="pi pi-history"></i>
                         <span>Últimas Partidas</span>
-                    </div>
+                </div>
                 </f:facet>
 
                 <h:panelGroup rendered="#{managerTeam.team.id ne null}">
@@ -342,7 +342,7 @@
                             <i class="pi pi-history"></i>
                             <h3>Nenhuma partida encontrada</h3>
                             <p>Esta funcionalidade será implementada em breve</p>
-                        </div>
+                                </div>
                         <ui:repeat value="#{null}" var="partida" rendered="false">
                             <div class="match-card-team">
                                 <div class="match-header-team">
@@ -364,12 +364,12 @@
                                                             styleClass="team-logo-match" />
                                             <div class="team-logo-placeholder-match" rendered="#{partida.time1.anexo eq null}">
                                                 <i class="pi pi-shield"></i>
-                                            </div>
-                                        </div>
+                            </div>
+                                    </div>
                                         <div class="match-team-name-team">#{partida.time1.nome}</div>
                                         <div class="match-score-team #{partida.timeVencedor != null and partida.timeVencedor.id eq partida.time1.id ? 'winner' : ''}">
                                             #{partida.placarTime1}
-                                        </div>
+                                </div>
                                     </div>
                                     <div class="match-vs-team">VS</div>
                                     <div class="match-team-side">
@@ -379,19 +379,19 @@
                                                             styleClass="team-logo-match" />
                                             <div class="team-logo-placeholder-match" rendered="#{partida.time2.anexo eq null}">
                                                 <i class="pi pi-shield"></i>
-                                            </div>
-                                        </div>
+                                </div>
+                            </div>
                                         <div class="match-team-name-team">#{partida.time2.nome}</div>
                                         <div class="match-score-team #{partida.timeVencedor != null and partida.timeVencedor.id eq partida.time2.id ? 'winner' : ''}">
                                             #{partida.placarTime2}
-                                        </div>
-                                    </div>
                                 </div>
+                            </div>
+                    </div>
                                 <div class="match-footer-team">
                                     <div class="match-game-team">
                                         <i class="pi pi-desktop"></i>
                                         <span>#{partida.jogo.nome}</span>
-                                    </div>
+                </div>
                                     <h:link outcome="visualizarPartida.xhtml" styleClass="match-action-btn">
                                         <f:param name="id" value="#{partida.id}" />
                                         <i class="pi pi-eye"></i>
@@ -1191,7 +1191,7 @@
                 color: var(--text-300);
                 margin: 0;
             }
-            
+
             .empty-state-team span {
                 font-size: 0.875rem;
                 color: var(--text-400);
