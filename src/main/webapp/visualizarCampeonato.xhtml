@@ -238,18 +238,20 @@
                                     <i class="pi pi-sitemap" style="color: var(--accent); font-size: 1.5rem;"></i>
                                     <h3 class="swiss-title">Rodadas (Formato Suíço)</h3>
                                 </div>
+                            </div>
+                            <div class="swiss-header-right">
                                 <div class="swiss-status-indicator #{managerCamp.isRodadaAtualEmAndamento() ? 'in-progress' : 'waiting'}">
                                     <i class="pi pi-#{managerCamp.isRodadaAtualEmAndamento() ? 'spin pi-spinner' : 'clock'}"></i>
                                     <span>#{managerCamp.getRodadaAtualDescricao()}</span>
                                 </div>
+                                <p:commandButton value="Gerar Próxima Rodada" 
+                                               icon="pi pi-refresh"
+                                               styleClass="btn-gerar-rodada"
+                                               rendered="#{managerCamp.isAdmin() and managerCamp.camp.tipoCampeonato.nome eq 'SUÍÇO' and not empty managerCamp.camp.teams and (empty managerCamp.getRodadasSuicas() or managerCamp.podeMostrarProximaRodada())}"
+                                               action="#{managerCamp.gerarProximaRodada()}"
+                                               update="@form"
+                                               onclick="return confirm('Tem certeza que deseja gerar a próxima rodada? Esta ação criará as partidas da rodada.');" />
                             </div>
-                            <p:commandButton value="Gerar Próxima Rodada" 
-                                           icon="pi pi-refresh"
-                                           styleClass="btn-gerar-rodada"
-                                           rendered="#{managerCamp.isAdmin() and managerCamp.camp.tipoCampeonato.nome eq 'SUÍÇO' and not empty managerCamp.camp.teams and (empty managerCamp.getRodadasSuicas() or managerCamp.podeMostrarProximaRodada())}"
-                                           action="#{managerCamp.gerarProximaRodada()}"
-                                           update="@form"
-                                           onclick="return confirm('Tem certeza que deseja gerar a próxima rodada? Esta ação criará as partidas da rodada.');" />
                         </div>
                     </f:facet>
 
@@ -990,9 +992,15 @@
             
             .swiss-header-left {
                 display: flex;
-                flex-direction: column;
-                gap: 1rem;
+                align-items: center;
                 flex: 1;
+            }
+            
+            .swiss-header-right {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                flex-wrap: wrap;
             }
             
             .swiss-title-group {
@@ -1014,12 +1022,13 @@
                 display: inline-flex;
                 align-items: center;
                 gap: 0.6rem;
-                padding: 0.65rem 1.25rem;
-                border-radius: 24px;
-                font-size: 0.9rem;
+                padding: 0.625rem 1.25rem;
+                border-radius: 20px;
+                font-size: 0.875rem;
                 font-weight: 600;
                 transition: all 0.3s ease;
                 backdrop-filter: blur(10px);
+                white-space: nowrap;
             }
             
             .swiss-status-indicator.in-progress {
@@ -1714,95 +1723,50 @@
                 transform: translateY(-2px);
             }
 
-            /* Botões de Ação - Mais estilosos e arredondados */
+            /* Botões de Ação - Elegante e discreto */
             .btn-gerar-rodada,
             .btn-sortear-times {
-                padding: 0.875rem 2rem !important;
-                border-radius: 16px !important;
-                font-weight: 700 !important;
-                font-size: 0.95rem !important;
-                letter-spacing: 0.5px !important;
-                text-transform: uppercase;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                padding: 0.625rem 1.25rem !important;
+                border-radius: 8px !important;
+                font-weight: 600 !important;
+                font-size: 0.875rem !important;
+                letter-spacing: 0.3px !important;
+                text-transform: none !important;
+                transition: all 0.2s ease !important;
                 position: relative !important;
-                overflow: hidden !important;
-                border: 2px solid transparent !important;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+                border: 1px solid !important;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
             }
             
             .btn-gerar-rodada {
-                background: linear-gradient(135deg, rgba(0,225,255,0.9), rgba(0,180,255,0.8)) !important;
-                color: var(--bg-900) !important;
+                background: rgba(0,225,255,0.1) !important;
+                color: var(--accent) !important;
                 border-color: rgba(0,225,255,0.3) !important;
             }
             
-            .btn-gerar-rodada::before {
-                content: '' !important;
-                position: absolute !important;
-                top: 50% !important;
-                left: 50% !important;
-                width: 0 !important;
-                height: 0 !important;
-                border-radius: 50% !important;
-                background: rgba(255,255,255,0.3) !important;
-                transform: translate(-50%, -50%) !important;
-                transition: width 0.5s ease, height 0.5s ease !important;
-            }
-            
             .btn-gerar-rodada:hover {
-                background: linear-gradient(135deg, rgba(0,225,255,1), rgba(0,200,255,0.95)) !important;
-                transform: translateY(-3px) !important;
-                box-shadow: 0 8px 24px rgba(0,225,255,0.4), 0 0 40px rgba(0,225,255,0.2) !important;
-                border-color: rgba(0,225,255,0.5) !important;
-            }
-            
-            .btn-gerar-rodada:hover::before {
-                width: 300px !important;
-                height: 300px !important;
+                background: rgba(0,225,255,0.15) !important;
+                border-color: rgba(0,225,255,0.4) !important;
+                transform: translateY(-1px) !important;
+                box-shadow: 0 4px 8px rgba(0,225,255,0.2) !important;
             }
             
             .btn-sortear-times {
-                background: linear-gradient(135deg, rgba(168,85,247,0.9), rgba(147,51,234,0.8)) !important;
-                color: #fff !important;
+                background: rgba(168,85,247,0.1) !important;
+                color: #a855f7 !important;
                 border-color: rgba(168,85,247,0.3) !important;
             }
             
-            .btn-sortear-times::before {
-                content: '' !important;
-                position: absolute !important;
-                top: 50% !important;
-                left: 50% !important;
-                width: 0 !important;
-                height: 0 !important;
-                border-radius: 50% !important;
-                background: rgba(255,255,255,0.2) !important;
-                transform: translate(-50%, -50%) !important;
-                transition: width 0.5s ease, height 0.5s ease !important;
-            }
-            
             .btn-sortear-times:hover {
-                background: linear-gradient(135deg, rgba(168,85,247,1), rgba(147,51,234,0.95)) !important;
-                transform: translateY(-3px) !important;
-                box-shadow: 0 8px 24px rgba(168,85,247,0.4), 0 0 40px rgba(168,85,247,0.2) !important;
-                border-color: rgba(168,85,247,0.5) !important;
-            }
-            
-            .btn-sortear-times:hover::before {
-                width: 300px !important;
-                height: 300px !important;
-            }
-            
-            .btn-gerar-rodada .ui-button-text,
-            .btn-sortear-times .ui-button-text {
-                position: relative !important;
-                z-index: 1 !important;
+                background: rgba(168,85,247,0.15) !important;
+                border-color: rgba(168,85,247,0.4) !important;
+                transform: translateY(-1px) !important;
+                box-shadow: 0 4px 8px rgba(168,85,247,0.2) !important;
             }
             
             .btn-gerar-rodada .pi,
             .btn-sortear-times .pi {
-                position: relative !important;
-                z-index: 1 !important;
-                font-size: 1.1rem !important;
+                font-size: 0.9rem !important;
             }
 
             @media (max-width: 768px) {
@@ -1821,11 +1785,23 @@
                     width: 100%;
                 }
                 
+                .swiss-header-right {
+                    width: 100%;
+                    flex-direction: column;
+                    align-items: stretch;
+                    gap: 0.75rem;
+                }
+                
+                .swiss-status-indicator {
+                    width: 100%;
+                    justify-content: center;
+                }
+                
                 .btn-gerar-rodada,
                 .btn-sortear-times {
                     width: 100%;
-                    padding: 0.75rem 1.5rem !important;
-                    font-size: 0.9rem !important;
+                    padding: 0.625rem 1rem !important;
+                    font-size: 0.8rem !important;
                 }
                 
                 .swiss-column { 

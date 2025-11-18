@@ -288,6 +288,36 @@
                                              oncomplete="scrollConsoleToBottom();"
                                              styleClass="quick-cmd-btn" />
 
+                            <!-- Partida -->
+                            <h4 class="command-section-title">
+                                <i class="pi pi-pause mr-1"></i>
+                                Partida
+                            </h4>
+
+                            <p:commandButton value="Pausar Partida" 
+                                             icon="pi pi-pause"
+                                             actionListener="#{managerRcon.setComando('mp_pause_match')}"
+                                             action="#{managerRcon.executarComando()}"
+                                             update="consoleOutputPanel historyPanel"
+                                             oncomplete="scrollConsoleToBottom();"
+                                             styleClass="quick-cmd-btn" />
+
+                            <p:commandButton value="Tirar Pause Partida" 
+                                             icon="pi pi-play"
+                                             actionListener="#{managerRcon.setComando('mp_unpause_match')}"
+                                             action="#{managerRcon.executarComando()}"
+                                             update="consoleOutputPanel historyPanel"
+                                             oncomplete="scrollConsoleToBottom();"
+                                             styleClass="quick-cmd-btn" />
+
+                            <p:commandButton value="Auto Pause 5v5" 
+                                             icon="pi pi-check-circle"
+                                             actionListener="#{managerRcon.setComando('sv_matchpause_auto_5v5 true')}"
+                                             action="#{managerRcon.executarComando()}"
+                                             update="consoleOutputPanel historyPanel"
+                                             oncomplete="scrollConsoleToBottom();"
+                                             styleClass="quick-cmd-btn" />
+
                             <!-- Maps -->
                             <h4 class="command-section-title">
                                 <i class="pi pi-map mr-1"></i>
@@ -829,23 +859,37 @@
             .quick-cmd-btn {
                 width: 100%;
                 background: rgba(255,255,255,0.03) !important;
-                border: 1px solid rgba(255,255,255,0.08) !important;
-                color: var(--text-200) !important;
+                border: 1px solid rgba(255,255,255,0.1) !important;
+                border-radius: 8px !important;
+                color: var(--text-100) !important;
                 font-weight: 500 !important;
+                font-size: 0.875rem !important;
                 justify-content: flex-start !important;
                 text-align: left !important;
-                transition: all 0.2s !important;
+                padding: 0.75rem 1rem !important;
+                transition: all 0.3s ease !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+                min-height: 44px !important;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
             }
 
             .quick-cmd-btn:hover {
-                background: rgba(0,225,255,0.1) !important;
+                background: rgba(0,225,255,0.12) !important;
                 border-color: var(--accent) !important;
                 color: var(--text-100) !important;
                 transform: translateX(4px);
+                box-shadow: 0 4px 8px rgba(0,225,255,0.2) !important;
             }
             
             .quick-cmd-btn i {
                 color: var(--accent) !important;
+                font-size: 1rem !important;
+            }
+
+            .quick-cmd-btn:active {
+                transform: translateX(2px);
             }
 
             .map-btn {
