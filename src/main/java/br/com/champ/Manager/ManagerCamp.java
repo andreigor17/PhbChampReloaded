@@ -3,6 +3,8 @@ package br.com.champ.Manager;
 import br.com.champ.Enums.Url;
 import br.com.champ.Modelo.Campeonato;
 import br.com.champ.Modelo.Estatisticas;
+import br.com.champ.Modelo.Fase;
+import br.com.champ.Modelo.Grupo;
 import br.com.champ.Modelo.ItemPartida;
 import br.com.champ.Modelo.Jogo;
 import br.com.champ.Modelo.Partida;
@@ -10,6 +12,8 @@ import br.com.champ.Modelo.Player;
 import br.com.champ.Modelo.Team;
 import br.com.champ.Servico.CampeonatoServico;
 import br.com.champ.Servico.EstatisticaServico;
+import br.com.champ.Servico.FaseServico;
+import br.com.champ.Servico.GrupoServico;
 import br.com.champ.Servico.ItemPartidaServico;
 import br.com.champ.Servico.JogoServico;
 import br.com.champ.Servico.PartidaServico;
@@ -36,6 +40,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -59,6 +64,10 @@ public class ManagerCamp extends ManagerBase {
     ItemPartidaServico itemPartidaServico;
     @EJB
     JogoServico jogoServico;
+    @EJB
+    FaseServico faseServico;
+    @EJB
+    GrupoServico grupoServico;
 
     private Campeonato camp;
     private Campeonato preCamp;
@@ -1469,29 +1478,40 @@ public class ManagerCamp extends ManagerBase {
         novaPartida.setActive(true);
         novaPartida.setFinalizada(false);
         
-        // Cria os itens da partida (mapas)
-        // Usa qtdItensPartidas do campeonato ou um valor padrão
+        // Salva a partida PRIMEIRO (sem itens ainda)
+        novaPartida = partidaServico.salvar(novaPartida, null, Url.SALVAR_PARTIDA.getNome());
+        
+        if (novaPartida == null || novaPartida.getId() == null) {
+            System.err.println("Erro ao salvar partida suíça: partida retornou null");
+            return null;
+        }
+        
+        // Cria os itens da partida (mapas) COM o ID da partida já definido
         int qtdItens = 1; // Valor padrão, pode ser ajustado
         if (this.camp.getJogo() != null) {
             // Pode buscar quantidade de mapas do jogo
         }
         
         List<ItemPartida> itensPartida = PartidaUtils.gerarPartidasTimes(novaPartida, this.camp.getId(), time1, time2, qtdItens);
-        novaPartida.setItemPartida(itensPartida);
         
-        // Salva a partida
-        novaPartida = partidaServico.salvar(novaPartida, null, Url.SALVAR_PARTIDA.getNome());
-        
-        // Atualiza os itens da partida com o ID da partida
-        if (novaPartida.getItemPartida() != null) {
-            List<ItemPartida> itensAtualizados = new ArrayList<>();
-            for (ItemPartida item : novaPartida.getItemPartida()) {
-                item.setPartida(novaPartida.getId());
-                itensAtualizados.add(item);
+        // Define o partida_id em todos os itens ANTES de salvar
+        if (itensPartida != null && !itensPartida.isEmpty()) {
+            for (ItemPartida item : itensPartida) {
+                if (item != null) {
+                    item.setPartida(novaPartida.getId());
+                    // Salva o item (cria novo, não atualiza)
+                    try {
+                        itemPartidaServico.salvar(item, null, Url.SALVAR_ITEM_PARTIDA.getNome());
+                    } catch (Exception e) {
+                        System.err.println("Erro ao salvar item de partida suíça: " + e.getMessage());
+                    }
+                }
             }
-            novaPartida.setItemPartida(itensAtualizados);
-            novaPartida = partidaServico.salvar(novaPartida, novaPartida.getId(), Url.ATUALIZAR_PARTIDA.getNome());
         }
+        
+        // Atualiza a partida com os itens
+        novaPartida.setItemPartida(itensPartida);
+        novaPartida = partidaServico.salvar(novaPartida, novaPartida.getId(), Url.ATUALIZAR_PARTIDA.getNome());
         
         return novaPartida;
     }
@@ -1884,6 +1904,9 @@ public class ManagerCamp extends ManagerBase {
             if (this.camp != null && this.camp.getId() != null) {
                 this.partidas = obterPartidasDoCache();
             }
+            
+            // Verifica se a final foi concluída e finaliza o campeonato se necessário
+            finalizarCampeonatoSeNecessario();
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -2057,4 +2080,1119 @@ public class ManagerCamp extends ManagerBase {
         return null;
     }
 
+    // ===========================
+    // MÉTODOS DE PLAYOFFS
+    // ===========================
+
+    /**
+     * Verifica se o campeonato é do tipo Suíço
+     */
+    public boolean isSwiss() {
+        return this.camp != null && 
+               this.camp.getTipoCampeonato() != null && 
+               "SUÍÇO".equals(this.camp.getTipoCampeonato().getNome());
+    }
+    
+    /**
+     * Verifica se o campeonato é do tipo Grupo e Playoff
+     */
+    public boolean isGrupoPlayoff() {
+        return this.camp != null && 
+               this.camp.getTipoCampeonato() != null && 
+               "GRUPO E PLAYOFF".equals(this.camp.getTipoCampeonato().getNome());
+    }
+
+    /**
+     * Verifica se todas as rodadas suíças foram concluídas
+     */
+    public boolean isRodadasSuicasConcluidas() {
+        if (this.camp == null || !isSwiss()) {
+            return false;
+        }
+        
+        List<SwissRound> rodadas = getRodadasSuicas();
+        if (rodadas.isEmpty()) {
+            return false;
+        }
+        
+        // Verifica se a última rodada está finalizada
+        SwissRound ultimaRodada = rodadas.get(rodadas.size() - 1);
+        if (!ultimaRodada.isFinalizada()) {
+            return false;
+        }
+        
+        // Verifica se há times com 3 vitórias ou 3 derrotas
+        Map<Team, SwissRecord> records = calcularSwissRecords();
+        long timesClassificados = records.values().stream()
+                .filter(r -> r.wins >= 3)
+                .count();
+        
+        return timesClassificados >= 2; // Pelo menos 2 times classificados
+    }
+    
+    /**
+     * Obtém lista de times classificados (3 vitórias) ordenados por vitórias
+     */
+    public List<Team> getTimesClassificados() {
+        if (this.camp == null) {
+            return new ArrayList<>();
+        }
+        
+        Map<Team, SwissRecord> records = calcularSwissRecords();
+        
+        return records.entrySet().stream()
+                .filter(entry -> entry.getValue().wins >= 3)
+                .sorted((e1, e2) -> {
+                    // Ordena por vitórias (maior primeiro)
+                    int compareWins = Integer.compare(e2.getValue().wins, e1.getValue().wins);
+                    if (compareWins != 0) return compareWins;
+                    
+                    // Depois por derrotas (menor primeiro)
+                    return Integer.compare(e1.getValue().losses, e2.getValue().losses);
+                })
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Verifica se já existem playoffs criados
+     */
+    public boolean hasPlayoffs() {
+        return this.camp != null && 
+               this.camp.getFasesCamp() != null && 
+               !this.camp.getFasesCamp().isEmpty();
+    }
+    
+    /**
+     * Gera os playoffs baseado nos times classificados
+     */
+    public void gerarPlayoffs() {
+        try {
+            System.out.println("====== INICIANDO GERAÇÃO DOS PLAYOFFS ======");
+            
+            // Validações
+            if (!isAdmin()) {
+                System.err.println("Erro: Usuário não é admin");
+                Mensagem.error("Apenas administradores podem gerar os playoffs!");
+                return;
+            }
+            
+            if (!isSwiss()) {
+                System.err.println("Erro: Campeonato não é suíço");
+                Mensagem.error("Este campeonato não é do tipo SUÍÇO!");
+                return;
+            }
+            
+            if (!isRodadasSuicasConcluidas()) {
+                System.err.println("Erro: Rodadas suíças não concluídas");
+                Mensagem.error("As rodadas suíças ainda não foram concluídas!");
+                return;
+            }
+            
+            if (hasPlayoffs()) {
+                System.err.println("Erro: Playoffs já foram gerados");
+                Mensagem.error("Os playoffs já foram gerados para este campeonato!");
+                return;
+            }
+            
+            // Atualiza o campeonato
+            this.camp = this.campeonatoServico.buscaCamp(this.camp.getId());
+            
+            List<Team> classificados = getTimesClassificados();
+            System.out.println("✓ Times classificados: " + classificados.size());
+            
+            if (classificados.size() < 2) {
+                Mensagem.error("É necessário pelo menos 2 times classificados para gerar os playoffs!");
+                return;
+            }
+            
+            // Determina o número de times nos playoffs (potência de 2)
+            int numeroTimes = getMaiorPotenciaDe2(classificados.size());
+            List<Team> timesPlayoffs = classificados.subList(0, Math.min(numeroTimes, classificados.size()));
+            
+            System.out.println("✓ Times nos playoffs: " + timesPlayoffs.size());
+            
+            // Inicializa lista de fases se necessário
+            if (this.camp.getFasesCamp() == null) {
+                this.camp.setFasesCamp(new ArrayList<>());
+            }
+            
+            // Gera a primeira fase dos playoffs
+            Fase primeiraFase = gerarFase(timesPlayoffs, getNomeFase(timesPlayoffs.size()));
+            this.camp.getFasesCamp().add(primeiraFase);
+            
+            System.out.println("✓ Fase gerada: " + primeiraFase.getNome() + " com " + 
+                             primeiraFase.getPartidas().size() + " partidas");
+            
+            // Salva o campeonato atualizado
+            this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
+            
+            System.out.println("====== PLAYOFFS GERADOS COM SUCESSO ======");
+            
+            Mensagem.successAndRedirect(
+                "Playoffs gerados com sucesso! " + primeiraFase.getNome() + " criada com " + 
+                primeiraFase.getPartidas().size() + " partidas.",
+                "visualizarCampeonato.xhtml?id=" + this.camp.getId()
+            );
+            
+        } catch (Exception ex) {
+            System.err.println("====== ERRO AO GERAR PLAYOFFS ======");
+            ex.printStackTrace();
+            Mensagem.error("Erro ao gerar playoffs: " + ex.getMessage());
+        }
+    }
+    
+    /**
+     * Gera a próxima fase dos playoffs baseado nos vencedores da fase anterior
+     */
+    public void gerarProximaFasePlayoff() {
+        try {
+            System.out.println("====== GERANDO PRÓXIMA FASE DOS PLAYOFFS ======");
+            
+            if (!isAdmin()) {
+                Mensagem.error("Apenas administradores podem gerar fases!");
+                return;
+            }
+            
+            if (!hasPlayoffs()) {
+                Mensagem.error("Não há playoffs criados ainda!");
+                return;
+            }
+            
+            // Atualiza o campeonato
+            this.camp = this.campeonatoServico.buscaCamp(this.camp.getId());
+            
+            List<Fase> fases = this.camp.getFasesCamp();
+            Fase ultimaFase = fases.get(fases.size() - 1);
+            
+            // Verifica se todas as partidas da última fase foram finalizadas
+            boolean todasFinalizadas = ultimaFase.getPartidas().stream()
+                    .allMatch(Partida::isFinalizada);
+            
+            if (!todasFinalizadas) {
+                Mensagem.error("Todas as partidas da fase " + ultimaFase.getNome() + " devem estar finalizadas!");
+                return;
+            }
+            
+            // Coleta os vencedores
+            List<Team> vencedores = ultimaFase.getPartidas().stream()
+                    .map(Partida::getTimeVencedor)
+                    .filter(t -> t != null)
+                    .collect(Collectors.toList());
+            
+            System.out.println("✓ Vencedores da fase anterior: " + vencedores.size());
+            
+            if (vencedores.size() < 2) {
+                Mensagem.error("É necessário pelo menos 2 vencedores para gerar a próxima fase!");
+                return;
+            }
+            
+            // Se houver apenas 2 vencedores e já é a final, declara o campeão
+            if (vencedores.size() == 1) {
+                Mensagem.success("Campeonato finalizado! Campeão: " + vencedores.get(0).getNome());
+                return;
+            }
+            
+            // Gera a próxima fase
+            String nomeFase = getNomeFase(vencedores.size());
+            Fase proximaFase = gerarFase(vencedores, nomeFase);
+            this.camp.getFasesCamp().add(proximaFase);
+            
+            System.out.println("✓ Próxima fase gerada: " + proximaFase.getNome());
+            
+            // Salva o campeonato
+            this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
+            
+            Mensagem.successAndRedirect(
+                "Próxima fase gerada com sucesso! " + proximaFase.getNome() + " criada.",
+                "visualizarCampeonato.xhtml?id=" + this.camp.getId()
+            );
+            
+        } catch (Exception ex) {
+            System.err.println("====== ERRO AO GERAR PRÓXIMA FASE ======");
+            ex.printStackTrace();
+            Mensagem.error("Erro ao gerar próxima fase: " + ex.getMessage());
+        }
+    }
+    
+    /**
+     * Gera uma fase com as partidas entre os times fornecidos
+     */
+    private Fase gerarFase(List<Team> times, String nomeFase) throws Exception {
+        System.out.println("  Gerando fase: " + nomeFase + " com " + times.size() + " times");
+        
+        // Cria as partidas primeiro
+        List<Partida> partidas = new ArrayList<>();
+        
+        // Emparelha os times (1º vs último, 2º vs penúltimo, etc.)
+        for (int i = 0; i < times.size() / 2; i++) {
+            Team time1 = times.get(i);
+            Team time2 = times.get(times.size() - 1 - i);
+            
+            if (time1 == null || time1.getId() == null || time2 == null || time2.getId() == null) {
+                System.err.println("  ✗ Time inválido na posição " + i);
+                continue;
+            }
+            
+            System.out.println("  Criando partida: " + time1.getNome() + " vs " + time2.getNome());
+            
+            Partida partida = criarPartidaPlayoff(time1, time2, nomeFase);
+            if (partida != null && partida.getId() != null) {
+                partidas.add(partida);
+                System.out.println("  ✓ Partida criada com ID: " + partida.getId());
+            } else {
+                System.err.println("  ✗ Erro ao criar partida entre " + time1.getNome() + " e " + time2.getNome());
+                throw new Exception("Erro ao criar partida entre " + time1.getNome() + " e " + time2.getNome());
+            }
+        }
+        
+        if (partidas.isEmpty()) {
+            throw new Exception("Nenhuma partida foi criada para a fase " + nomeFase);
+        }
+        
+        // Cria a fase com as partidas já associadas
+        Fase fase = new Fase();
+        fase.setNome(nomeFase);
+        fase.setIdCamp(this.camp.getId());
+        fase.setActive(true);
+        fase.setPartidas(partidas);
+        
+        // Salva a fase com as partidas
+        System.out.println("  Salvando fase com " + partidas.size() + " partidas...");
+        fase = faseServico.save(fase, null, Url.SALVAR_FASE.getNome());
+        
+        if (fase == null || fase.getId() == null) {
+            throw new Exception("Erro ao salvar a fase " + nomeFase);
+        }
+        
+        System.out.println("  ✓ Fase salva com ID: " + fase.getId() + " e " + 
+                         (fase.getPartidas() != null ? fase.getPartidas().size() : 0) + " partidas");
+        
+        return fase;
+    }
+    
+    /**
+     * Cria uma partida de playoff entre dois times
+     */
+    private Partida criarPartidaPlayoff(Team time1, Team time2, String nomeFase) throws Exception {
+        if (time1 == null || time1.getId() == null || time2 == null || time2.getId() == null) {
+            System.err.println("  criarPartidaPlayoff: Time inválido");
+            return null;
+        }
+        
+        if (time1.getId().equals(time2.getId())) {
+            System.err.println("  criarPartidaPlayoff: Times iguais não podem jogar entre si");
+            return null;
+        }
+        
+        System.out.println("    Criando partida: " + time1.getNome() + " (ID: " + time1.getId() + 
+                         ") vs " + time2.getNome() + " (ID: " + time2.getId() + ")");
+        
+        Partida novaPartida = new Partida();
+        novaPartida.setJogo(this.camp.getJogo());
+        novaPartida.setActive(true);
+        novaPartida.setFinalizada(false);
+        novaPartida.setNome(nomeFase + " - " + time1.getNome() + " vs " + time2.getNome());
+        novaPartida.setDataPartida(new Date());
+        
+        // Salva a partida PRIMEIRO (sem itens ainda)
+        System.out.println("    Salvando partida no servidor...");
+        novaPartida = partidaServico.salvar(novaPartida, null, Url.SALVAR_PARTIDA.getNome());
+        
+        if (novaPartida == null || novaPartida.getId() == null) {
+            System.err.println("    ✗ Erro: Partida não foi salva (retornou null)");
+            throw new Exception("Erro ao salvar partida entre " + time1.getNome() + " e " + time2.getNome());
+        }
+        
+        System.out.println("    ✓ Partida salva com ID: " + novaPartida.getId());
+        
+        // Agora cria os itens da partida COM o ID da partida já definido
+        int qtdItens = 1;
+        List<ItemPartida> itensPartida = PartidaUtils.gerarPartidasTimes(novaPartida, this.camp.getId(), time1, time2, qtdItens);
+        
+        // Define o partida_id em todos os itens ANTES de salvar
+        if (itensPartida != null && !itensPartida.isEmpty()) {
+            for (ItemPartida item : itensPartida) {
+                if (item != null) {
+                    item.setPartida(novaPartida.getId());
+                    // Salva o item (cria novo, não atualiza)
+                    try {
+                        itemPartidaServico.salvar(item, null, Url.SALVAR_ITEM_PARTIDA.getNome());
+                        System.out.println("    ✓ Item de partida salvo");
+                    } catch (Exception e) {
+                        System.err.println("    ✗ Erro ao salvar item de partida: " + e.getMessage());
+                    }
+                }
+            }
+        }
+        
+        // Atualiza a partida com os itens
+        novaPartida.setItemPartida(itensPartida);
+        novaPartida = partidaServico.salvar(novaPartida, novaPartida.getId(), Url.ATUALIZAR_PARTIDA.getNome());
+        
+        return novaPartida;
+    }
+    
+    /**
+     * Retorna o nome da fase baseado no número de times
+     */
+    private String getNomeFase(int numeroTimes) {
+        switch (numeroTimes) {
+            case 2:
+                return "Final";
+            case 4:
+                return "Semifinal";
+            case 8:
+                return "Quartas de Final";
+            case 16:
+                return "Oitavas de Final";
+            default:
+                return "Fase de " + numeroTimes + " times";
+        }
+    }
+    
+    /**
+     * Retorna a maior potência de 2 menor ou igual ao número fornecido
+     */
+    private int getMaiorPotenciaDe2(int numero) {
+        int potencia = 1;
+        while (potencia * 2 <= numero) {
+            potencia *= 2;
+        }
+        return potencia;
+    }
+    
+    /**
+     * Obtém as fases dos playoffs
+     */
+    public List<Fase> getFasesPlayoffs() {
+        if (this.camp == null || this.camp.getFasesCamp() == null) {
+            return new ArrayList<>();
+        }
+        return this.camp.getFasesCamp();
+    }
+    
+    /**
+     * Verifica se pode gerar a próxima fase dos playoffs
+     */
+    public boolean podeMostrarProximaFasePlayoff() {
+        if (!hasPlayoffs()) {
+            return false;
+        }
+        
+        List<Fase> fases = this.camp.getFasesCamp();
+        if (fases.isEmpty()) {
+            return false;
+        }
+        
+        Fase ultimaFase = fases.get(fases.size() - 1);
+        
+        // Verifica se a última fase está completa
+        boolean todasFinalizadas = ultimaFase.getPartidas().stream()
+                .allMatch(Partida::isFinalizada);
+        
+        if (!todasFinalizadas) {
+            return false;
+        }
+        
+        // Verifica se não é a final
+        long vencedores = ultimaFase.getPartidas().stream()
+                .filter(p -> p.getTimeVencedor() != null)
+                .count();
+        
+        return vencedores >= 2; // Se houver 2+ vencedores, pode gerar próxima fase
+    }
+    
+    /**
+     * Verifica se a final foi concluída
+     */
+    public boolean isFinalConcluida() {
+        if (!hasPlayoffs()) {
+            return false;
+        }
+        
+        List<Fase> fases = this.camp.getFasesCamp();
+        if (fases.isEmpty()) {
+            return false;
+        }
+        
+        Fase ultimaFase = fases.get(fases.size() - 1);
+        
+        // Verifica se é a final (apenas 1 partida) e está finalizada
+        return "Final".equals(ultimaFase.getNome()) && 
+               ultimaFase.getPartidas() != null &&
+               ultimaFase.getPartidas().size() == 1 &&
+               ultimaFase.getPartidas().get(0).isFinalizada();
+    }
+    
+    /**
+     * Obtém o time campeão (vencedor da final)
+     */
+    public Team getCampeao() {
+        if (!isFinalConcluida()) {
+            return null;
+        }
+        
+        List<Fase> fases = this.camp.getFasesCamp();
+        Fase finalFase = fases.get(fases.size() - 1);
+        
+        if (finalFase.getPartidas() != null && !finalFase.getPartidas().isEmpty()) {
+            Partida partidaFinal = finalFase.getPartidas().get(0);
+            return partidaFinal.getTimeVencedor();
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Verifica se uma fase é a final
+     */
+    public boolean isFaseFinal(Fase fase) {
+        return fase != null && "Final".equals(fase.getNome());
+    }
+    
+    /**
+     * Finaliza o campeonato quando a final for concluída
+     */
+    public void finalizarCampeonatoSeNecessario() {
+        try {
+            if (isFinalConcluida()) {
+                Team campeao = getCampeao();
+                
+                if (campeao != null) {
+                    // Atualiza o status para Finalizado
+                    if (this.camp.getStatus() == null || !"Finalizado".equals(this.camp.getStatus().getNome())) {
+                        System.out.println("====== FINALIZANDO CAMPEONATO ======");
+                        System.out.println("Campeão: " + campeao.getNome());
+                        
+                        // Busca o status "Finalizado"
+                        // Assumindo que você tenha um enum ou forma de setar o status
+                        // Se precisar buscar do banco, ajuste aqui
+                        
+                        // Salva o campeonato
+                        this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
+                        
+                        System.out.println("✓ Campeonato finalizado com sucesso!");
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            System.err.println("Erro ao finalizar campeonato: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+    
+    // ===========================
+    // MÉTODOS DE GRUPOS (GRUPO_PLAYOFF)
+    // ===========================
+    
+    /**
+     * Gera os grupos e suas partidas para campeonato tipo GRUPO_PLAYOFF
+     */
+    public void gerarGrupos() {
+        try {
+            System.out.println("====== INICIANDO GERAÇÃO DOS GRUPOS ======");
+            
+            // Validações
+            if (!isAdmin()) {
+                System.err.println("Erro: Usuário não é admin");
+                Mensagem.error("Apenas administradores podem gerar os grupos!");
+                return;
+            }
+            
+            if (!isGrupoPlayoff()) {
+                System.err.println("Erro: Campeonato não é GRUPO_PLAYOFF");
+                Mensagem.error("Este campeonato não é do tipo GRUPO E PLAYOFF!");
+                return;
+            }
+            
+            if (this.camp == null || this.camp.getId() == null) {
+                Mensagem.error("Campeonato não encontrado!");
+                return;
+            }
+            
+            // Atualiza o campeonato
+            this.camp = this.campeonatoServico.buscaCamp(this.camp.getId());
+            
+            if (this.camp.getTeams() == null || this.camp.getTeams().isEmpty()) {
+                Mensagem.error("Não há times inscritos para gerar grupos!");
+                return;
+            }
+            
+            // Verifica se já existem grupos
+            if (this.camp.getGrupos() != null && !this.camp.getGrupos().isEmpty()) {
+                Mensagem.error("Os grupos já foram criados para este campeonato!");
+                return;
+            }
+            
+            List<Team> times = new ArrayList<>(this.camp.getTeams());
+            int totalTimes = times.size();
+            
+            if (totalTimes < 4) {
+                Mensagem.error("É necessário pelo menos 4 times para criar grupos!");
+                return;
+            }
+            
+            // Determina número de grupos
+            // Menos de 10 times: 2 grupos (A e B)
+            // 10 ou mais times: 3 grupos (A, B, C)
+            int numeroGrupos = totalTimes < 10 ? 2 : 3;
+            System.out.println("✓ Número de grupos: " + numeroGrupos);
+            System.out.println("✓ Total de times: " + totalTimes);
+            
+            // Calcula distribuição
+            int timesPorGrupo = totalTimes / numeroGrupos;
+            int timesExtras = totalTimes % numeroGrupos;
+            
+            if (timesExtras > 0) {
+                System.out.println("✓ Distribuição: " + timesExtras + " grupo(s) terá(ão) " + (timesPorGrupo + 1) + 
+                                 " times, e " + (numeroGrupos - timesExtras) + " grupo(s) terá(ão) " + timesPorGrupo + " times");
+            } else {
+                System.out.println("✓ Distribuição: Todos os grupos terão " + timesPorGrupo + " times");
+            }
+            
+            // Embaralha os times para distribuição aleatória
+            Collections.shuffle(times);
+            
+            // Divide os times nos grupos
+            List<List<Team>> gruposDistribuidos = distribuirTimesEmGrupos(times, numeroGrupos);
+            
+            // Cria os grupos no banco
+            List<Grupo> gruposCriados = new ArrayList<>();
+            List<Integer> partidasPorGrupo = new ArrayList<>(); // Armazena número de partidas por grupo
+            String[] nomesGrupos = {"Grupo A", "Grupo B", "Grupo C", "Grupo D"};
+            
+            for (int i = 0; i < gruposDistribuidos.size(); i++) {
+                List<Team> timesDoGrupo = gruposDistribuidos.get(i);
+                
+                try {
+                    Grupo grupo = new Grupo();
+                    grupo.setNome(nomesGrupos[i]);
+                    grupo.setTeams(timesDoGrupo);
+                    grupo.setActive(true);
+                    grupo.setIdCamp(this.camp.getId());
+                    
+                    // Gera partidas todos contra todos no grupo
+                    List<Partida> partidasGrupo = gerarPartidasTodosContraTodos(timesDoGrupo, nomesGrupos[i]);
+                    grupo.setPartidas(partidasGrupo);
+                    
+                    // Armazena número de partidas antes de salvar
+                    int numPartidas = partidasGrupo != null ? partidasGrupo.size() : 0;
+                    partidasPorGrupo.add(numPartidas);
+                    
+                    // Salva o grupo
+                    System.out.println("  Tentando salvar " + nomesGrupos[i] + "...");
+                    System.out.println("    - Times no grupo: " + timesDoGrupo.size());
+                    System.out.println("    - Partidas geradas: " + numPartidas);
+                    
+                    Grupo grupoSalvo = null;
+                    try {
+                        grupoSalvo = grupoServico.save(grupo, null, Url.SALVAR_GRUPO.getNome());
+                    } catch (Exception e) {
+                        System.err.println("  EXCEÇÃO ao salvar " + nomesGrupos[i] + ": " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                    
+                    // Valida se o grupo foi salvo com sucesso
+                    if (grupoSalvo == null) {
+                        System.err.println("  AVISO: " + nomesGrupos[i] + " não foi salvo pela API (retornou null)");
+                        System.err.println("  Continuando com o grupo local (partidas já foram criadas)...");
+                        // Usa o grupo original se o save retornou null
+                        // As partidas já foram salvas individualmente, então podemos continuar
+                        grupoSalvo = grupo;
+                    } else {
+                        System.out.println("  ✓ " + nomesGrupos[i] + " salvo com sucesso (ID: " + 
+                                         (grupoSalvo.getId() != null ? grupoSalvo.getId() : "null") + ")");
+                    }
+                    
+                    // Garante que o grupo não é null antes de adicionar
+                    if (grupoSalvo != null) {
+                        gruposCriados.add(grupoSalvo);
+                    } else {
+                        System.err.println("  ERRO CRÍTICO: Não foi possível criar " + nomesGrupos[i]);
+                        throw new Exception("Não foi possível criar " + nomesGrupos[i] + " - grupo é null");
+                    }
+                    
+                    // Log detalhado
+                    StringBuilder timesNomes = new StringBuilder();
+                    for (Team t : timesDoGrupo) {
+                        if (timesNomes.length() > 0) timesNomes.append(", ");
+                        timesNomes.append(t.getNome());
+                    }
+                    System.out.println("✓ " + nomesGrupos[i] + " criado com " + timesDoGrupo.size() + 
+                                     " times e " + numPartidas + " partidas");
+                    System.out.println("  Times: " + timesNomes.toString());
+                    
+                } catch (Exception e) {
+                    System.err.println("  ERRO ao criar " + nomesGrupos[i] + ": " + e.getMessage());
+                    e.printStackTrace();
+                    throw new Exception("Erro ao criar " + nomesGrupos[i] + ": " + e.getMessage(), e);
+                }
+            }
+            
+            // Valida se pelo menos um grupo foi criado
+            if (gruposCriados.isEmpty()) {
+                throw new Exception("Nenhum grupo foi criado com sucesso!");
+            }
+            
+            // Remove grupos null da lista (caso algum tenha falhado)
+            gruposCriados.removeIf(g -> g == null);
+            
+            if (gruposCriados.size() != gruposDistribuidos.size()) {
+                System.err.println("  AVISO: Apenas " + gruposCriados.size() + " de " + gruposDistribuidos.size() + 
+                                 " grupos foram criados com sucesso!");
+            }
+            
+            // Atualiza o campeonato com os grupos
+            if (this.camp.getGrupos() == null) {
+                this.camp.setGrupos(new ArrayList<>());
+            }
+            
+            // Adiciona apenas grupos não-null
+            for (Grupo g : gruposCriados) {
+                if (g != null) {
+                    this.camp.getGrupos().add(g);
+                }
+            }
+            
+            System.out.println("  Atualizando campeonato com " + this.camp.getGrupos().size() + " grupos...");
+            this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
+            
+            if (this.camp == null) {
+                throw new Exception("Erro ao atualizar o campeonato após criar os grupos!");
+            }
+            
+            System.out.println("====== GRUPOS CRIADOS COM SUCESSO ======");
+            
+            // Monta mensagem de sucesso usando a lista de partidas por grupo
+            int totalPartidas = partidasPorGrupo.stream()
+                    .mapToInt(Integer::intValue)
+                    .sum();
+            
+            String mensagemSucesso = String.format(
+                "%d grupos criados com sucesso! Total de %d partidas geradas (todos contra todos em cada grupo). " +
+                "Os 2 primeiros colocados de cada grupo avançam para os playoffs.",
+                gruposCriados.size(),
+                totalPartidas
+            );
+            
+            Mensagem.successAndRedirect(
+                mensagemSucesso,
+                "visualizarCampeonato.xhtml?id=" + this.camp.getId()
+            );
+            
+        } catch (Exception ex) {
+            System.err.println("====== ERRO AO GERAR GRUPOS ======");
+            ex.printStackTrace();
+            Mensagem.error("Erro ao gerar grupos: " + ex.getMessage());
+        }
+    }
+    
+    /**
+     * Distribui times em grupos de forma balanceada
+     * Permite número ímpar de times - um grupo terá no máximo 1 time a mais
+     */
+    private List<List<Team>> distribuirTimesEmGrupos(List<Team> times, int numeroGrupos) {
+        List<List<Team>> grupos = new ArrayList<>();
+        
+        // Inicializa os grupos
+        for (int i = 0; i < numeroGrupos; i++) {
+            grupos.add(new ArrayList<>());
+        }
+        
+        // Distribui os times de forma circular
+        // Se houver número ímpar, os primeiros grupos terão 1 time a mais
+        for (int i = 0; i < times.size(); i++) {
+            int grupoIndex = i % numeroGrupos;
+            grupos.get(grupoIndex).add(times.get(i));
+        }
+        
+        // Log da distribuição
+        for (int i = 0; i < grupos.size(); i++) {
+            System.out.println("  Grupo " + (i + 1) + " terá " + grupos.get(i).size() + " times");
+        }
+        
+        return grupos;
+    }
+    
+    /**
+     * Gera partidas todos contra todos para um grupo
+     */
+    private List<Partida> gerarPartidasTodosContraTodos(List<Team> times, String nomeGrupo) throws Exception {
+        List<Partida> partidas = new ArrayList<>();
+        
+        // Gera todas as combinações possíveis (todos contra todos)
+        for (int i = 0; i < times.size(); i++) {
+            for (int j = i + 1; j < times.size(); j++) {
+                Team time1 = times.get(i);
+                Team time2 = times.get(j);
+                
+                Partida partida = criarPartidaGrupo(time1, time2, nomeGrupo);
+                if (partida != null) {
+                    partidas.add(partida);
+                }
+            }
+        }
+        
+        return partidas;
+    }
+    
+    /**
+     * Cria uma partida de grupo
+     */
+    private Partida criarPartidaGrupo(Team time1, Team time2, String nomeGrupo) throws Exception {
+        if (time1 == null || time1.getId() == null || time2 == null || time2.getId() == null) {
+            return null;
+        }
+        
+        Partida novaPartida = new Partida();
+        novaPartida.setJogo(this.camp.getJogo());
+        novaPartida.setActive(true);
+        novaPartida.setFinalizada(false);
+        novaPartida.setNome(nomeGrupo + " - " + time1.getNome() + " vs " + time2.getNome());
+        novaPartida.setDataPartida(new Date());
+        
+        // Salva a partida PRIMEIRO (sem itens ainda)
+        novaPartida = partidaServico.salvar(novaPartida, null, Url.SALVAR_PARTIDA.getNome());
+        
+        if (novaPartida == null || novaPartida.getId() == null) {
+            System.err.println("Erro ao salvar partida do grupo: partida retornou null");
+            return null;
+        }
+        
+        System.out.println("  Partida do grupo salva com ID: " + novaPartida.getId());
+        
+        // Agora cria os itens da partida COM o ID da partida já definido
+        int qtdItens = 1;
+        List<ItemPartida> itensPartida = PartidaUtils.gerarPartidasTimes(novaPartida, this.camp.getId(), time1, time2, qtdItens);
+        
+        // Define o partida_id em todos os itens ANTES de salvar
+        if (itensPartida != null && !itensPartida.isEmpty()) {
+            for (ItemPartida item : itensPartida) {
+                if (item != null) {
+                    item.setPartida(novaPartida.getId());
+                    // Salva o item (cria novo, não atualiza)
+                    try {
+                        itemPartidaServico.salvar(item, null, Url.SALVAR_ITEM_PARTIDA.getNome());
+                    } catch (Exception e) {
+                        System.err.println("  Erro ao salvar item de partida: " + e.getMessage());
+                    }
+                }
+            }
+        }
+        
+        // Atualiza a partida com os itens
+        novaPartida.setItemPartida(itensPartida);
+        novaPartida = partidaServico.salvar(novaPartida, novaPartida.getId(), Url.ATUALIZAR_PARTIDA.getNome());
+        
+        return novaPartida;
+    }
+    
+    /**
+     * Verifica se há grupos criados
+     */
+    public boolean hasGrupos() {
+        return this.camp != null && 
+               this.camp.getGrupos() != null && 
+               !this.camp.getGrupos().isEmpty();
+    }
+    
+    /**
+     * Obtém os grupos do campeonato
+     */
+    public List<Grupo> getGrupos() {
+        if (this.camp == null || this.camp.getGrupos() == null) {
+            return new ArrayList<>();
+        }
+        return this.camp.getGrupos();
+    }
+    
+    /**
+     * Verifica se todas as partidas de um grupo foram finalizadas
+     */
+    public boolean isGrupoFinalizado(Grupo grupo) {
+        if (grupo == null || grupo.getPartidas() == null || grupo.getPartidas().isEmpty()) {
+            return false;
+        }
+        
+        return grupo.getPartidas().stream()
+                .allMatch(Partida::isFinalizada);
+    }
+    
+    /**
+     * Verifica se todos os grupos foram finalizados
+     */
+    public boolean isTodosGruposFinalizados() {
+        if (!hasGrupos()) {
+            return false;
+        }
+        
+        return this.camp.getGrupos().stream()
+                .allMatch(this::isGrupoFinalizado);
+    }
+    
+    /**
+     * Obtém a classificação de um grupo
+     */
+    public List<ClassificacaoTime> getClassificacaoGrupo(Grupo grupo) {
+        List<ClassificacaoTime> tabela = new ArrayList<>();
+        
+        if (grupo == null) {
+            System.err.println("getClassificacaoGrupo: grupo é null");
+            return tabela;
+        }
+        
+        // Inicializa classificação para cada time
+        Map<Long, ClassificacaoTime> classificacaoPorTime = new HashMap<>();
+        
+        // Tenta obter times diretamente do grupo
+        List<Team> timesDoGrupo = new ArrayList<>();
+        if (grupo.getTeams() != null && !grupo.getTeams().isEmpty()) {
+            timesDoGrupo = grupo.getTeams();
+            System.out.println("getClassificacaoGrupo: Encontrados " + timesDoGrupo.size() + " times diretamente no grupo");
+        } else if (grupo.getTimes() != null && !grupo.getTimes().isEmpty()) {
+            // Fallback para método legado
+            timesDoGrupo = grupo.getTimes();
+            System.out.println("getClassificacaoGrupo: Encontrados " + timesDoGrupo.size() + " times via método legado");
+        }
+        
+        // Se não encontrou times diretamente, extrai das partidas
+        if (timesDoGrupo.isEmpty() && grupo.getPartidas() != null && !grupo.getPartidas().isEmpty()) {
+            System.out.println("getClassificacaoGrupo: Extraindo times das partidas...");
+            Set<Long> idsTimesJaAdicionados = new HashSet<>();
+            
+            for (Partida partida : grupo.getPartidas()) {
+                if (partida.getItemPartida() != null && !partida.getItemPartida().isEmpty()) {
+                    ItemPartida item = partida.getItemPartida().get(0);
+                    
+                    if (item.getTeam1() != null && item.getTeam1().getId() != null) {
+                        if (!idsTimesJaAdicionados.contains(item.getTeam1().getId())) {
+                            timesDoGrupo.add(item.getTeam1());
+                            idsTimesJaAdicionados.add(item.getTeam1().getId());
+                        }
+                    }
+                    
+                    if (item.getTeam2() != null && item.getTeam2().getId() != null) {
+                        if (!idsTimesJaAdicionados.contains(item.getTeam2().getId())) {
+                            timesDoGrupo.add(item.getTeam2());
+                            idsTimesJaAdicionados.add(item.getTeam2().getId());
+                        }
+                    }
+                }
+            }
+            
+            System.out.println("getClassificacaoGrupo: Extraídos " + timesDoGrupo.size() + " times das partidas");
+        }
+        
+        if (timesDoGrupo.isEmpty()) {
+            System.err.println("getClassificacaoGrupo: Nenhum time encontrado no grupo " + grupo.getNome());
+            return tabela;
+        }
+        
+        // Inicializa classificação para cada time encontrado
+        for (Team time : timesDoGrupo) {
+            if (time != null && time.getId() != null) {
+                classificacaoPorTime.put(time.getId(), new ClassificacaoTime(time));
+            }
+        }
+        
+        System.out.println("getClassificacaoGrupo: Inicializada classificação para " + classificacaoPorTime.size() + " times");
+        
+        // Processa partidas do grupo
+        if (grupo.getPartidas() != null) {
+            int partidasProcessadas = 0;
+            for (Partida partida : grupo.getPartidas()) {
+                if (partida.isFinalizada() && partida.getTimeVencedor() != null && 
+                    partida.getTimePerdedor() != null) {
+                    
+                    Team timeVencedor = partida.getTimeVencedor();
+                    Team timePerdedor = partida.getTimePerdedor();
+                    
+                    if (timeVencedor != null && timeVencedor.getId() != null &&
+                        timePerdedor != null && timePerdedor.getId() != null) {
+                        
+                        ClassificacaoTime classVencedor = classificacaoPorTime.get(timeVencedor.getId());
+                        ClassificacaoTime classPerdedor = classificacaoPorTime.get(timePerdedor.getId());
+                        
+                        if (classVencedor != null && classPerdedor != null) {
+                            classVencedor.adicionarVitoria();
+                            classPerdedor.adicionarDerrota();
+                            partidasProcessadas++;
+                        }
+                    }
+                }
+            }
+            System.out.println("getClassificacaoGrupo: Processadas " + partidasProcessadas + " partidas finalizadas");
+        }
+        
+        // Converte para lista e ordena
+        tabela = new ArrayList<>(classificacaoPorTime.values());
+        tabela.sort((c1, c2) -> {
+            // Primeiro critério: mais vitórias
+            int compareVitorias = Integer.compare(c2.getVitorias(), c1.getVitorias());
+            if (compareVitorias != 0) {
+                return compareVitorias;
+            }
+            // Segundo critério: menos derrotas
+            int compareDerrotas = Integer.compare(c1.getDerrotas(), c2.getDerrotas());
+            if (compareDerrotas != 0) {
+                return compareDerrotas;
+            }
+            // Terceiro critério: ordem alfabética do nome
+            return c1.getTeam().getNome().compareTo(c2.getTeam().getNome());
+        });
+        
+        // Define as posições
+        for (int i = 0; i < tabela.size(); i++) {
+            tabela.get(i).setPosicao(i + 1);
+        }
+        
+        System.out.println("getClassificacaoGrupo: Retornando " + tabela.size() + " times na classificação");
+        
+        return tabela;
+    }
+    
+    /**
+     * Obtém os 2 primeiros colocados de um grupo
+     */
+    public List<Team> getClassificadosGrupo(Grupo grupo) {
+        List<ClassificacaoTime> classificacao = getClassificacaoGrupo(grupo);
+        
+        return classificacao.stream()
+                .limit(2) // Apenas os 2 primeiros
+                .map(ClassificacaoTime::getTeam)
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Obtém a quantidade de times de um grupo
+     * Busca diretamente do grupo ou extrai das partidas se necessário
+     */
+    public int getQuantidadeTimesGrupo(Grupo grupo) {
+        if (grupo == null) {
+            return 0;
+        }
+        
+        // Tenta obter diretamente do grupo
+        if (grupo.getTeams() != null && !grupo.getTeams().isEmpty()) {
+            return grupo.getTeams().size();
+        }
+        
+        if (grupo.getTimes() != null && !grupo.getTimes().isEmpty()) {
+            return grupo.getTimes().size();
+        }
+        
+        // Se não encontrou, extrai das partidas
+        if (grupo.getPartidas() != null && !grupo.getPartidas().isEmpty()) {
+            Set<Long> idsTimes = new HashSet<>();
+            for (Partida partida : grupo.getPartidas()) {
+                if (partida.getItemPartida() != null && !partida.getItemPartida().isEmpty()) {
+                    ItemPartida item = partida.getItemPartida().get(0);
+                    if (item.getTeam1() != null && item.getTeam1().getId() != null) {
+                        idsTimes.add(item.getTeam1().getId());
+                    }
+                    if (item.getTeam2() != null && item.getTeam2().getId() != null) {
+                        idsTimes.add(item.getTeam2().getId());
+                    }
+                }
+            }
+            return idsTimes.size();
+        }
+        
+        return 0;
+    }
+    
+    /**
+     * Gera os playoffs com os classificados dos grupos
+     * Usa a mesma lógica do método gerarPlayoffs() do suíço
+     */
+    public void gerarPlayoffsDeGrupos() {
+        try {
+            System.out.println("====== INICIANDO GERAÇÃO DOS PLAYOFFS DOS GRUPOS ======");
+            
+            // Validações
+            if (!isAdmin()) {
+                System.err.println("Erro: Usuário não é admin");
+                Mensagem.error("Apenas administradores podem gerar os playoffs!");
+                return;
+            }
+            
+            if (!isGrupoPlayoff()) {
+                System.err.println("Erro: Campeonato não é GRUPO E PLAYOFF");
+                Mensagem.error("Este campeonato não é do tipo GRUPO E PLAYOFF!");
+                return;
+            }
+            
+            if (!isTodosGruposFinalizados()) {
+                System.err.println("Erro: Grupos não finalizados");
+                Mensagem.error("Todas as partidas dos grupos devem estar finalizadas!");
+                return;
+            }
+            
+            if (hasPlayoffs()) {
+                System.err.println("Erro: Playoffs já foram gerados");
+                Mensagem.error("Os playoffs já foram gerados para este campeonato!");
+                return;
+            }
+            
+            // Atualiza o campeonato
+            this.camp = this.campeonatoServico.buscaCamp(this.camp.getId());
+            
+            // Coleta os classificados de cada grupo (2 primeiros de cada grupo)
+            List<Team> classificados = new ArrayList<>();
+            for (Grupo grupo : this.camp.getGrupos()) {
+                if (grupo != null) {
+                    List<Team> classificadosGrupo = getClassificadosGrupo(grupo);
+                    classificados.addAll(classificadosGrupo);
+                    System.out.println("✓ Classificados do " + grupo.getNome() + ": " + 
+                                     classificadosGrupo.stream()
+                                         .map(Team::getNome)
+                                         .collect(Collectors.joining(", ")));
+                }
+            }
+            
+            System.out.println("✓ Total de times classificados: " + classificados.size());
+            
+            if (classificados.size() < 2) {
+                Mensagem.error("É necessário pelo menos 2 times classificados para gerar os playoffs!");
+                return;
+            }
+            
+            // Determina o número de times nos playoffs (potência de 2) - mesma lógica do suíço
+            int numeroTimes = getMaiorPotenciaDe2(classificados.size());
+            List<Team> timesPlayoffs = classificados.subList(0, Math.min(numeroTimes, classificados.size()));
+            
+            System.out.println("✓ Times nos playoffs: " + timesPlayoffs.size() + " (de " + classificados.size() + " classificados)");
+            
+            // Inicializa lista de fases se necessário
+            if (this.camp.getFasesCamp() == null) {
+                this.camp.setFasesCamp(new ArrayList<>());
+            }
+            
+            // Gera a primeira fase dos playoffs - mesma lógica do suíço
+            Fase primeiraFase = gerarFase(timesPlayoffs, getNomeFase(timesPlayoffs.size()));
+            this.camp.getFasesCamp().add(primeiraFase);
+            
+            System.out.println("✓ Fase gerada: " + primeiraFase.getNome() + " com " + 
+                             primeiraFase.getPartidas().size() + " partidas");
+            
+            // Salva o campeonato atualizado - mesma lógica do suíço
+            this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
+            
+            System.out.println("====== PLAYOFFS DOS GRUPOS GERADOS COM SUCESSO ======");
+            
+            Mensagem.successAndRedirect(
+                "Playoffs gerados com sucesso! " + primeiraFase.getNome() + " criada com " + 
+                primeiraFase.getPartidas().size() + " partidas.",
+                "visualizarCampeonato.xhtml?id=" + this.camp.getId()
+            );
+            
+        } catch (Exception ex) {
+            System.err.println("====== ERRO AO GERAR PLAYOFFS DOS GRUPOS ======");
+            ex.printStackTrace();
+            Mensagem.error("Erro ao gerar playoffs: " + ex.getMessage());
+        }
+    }
+
 }
+

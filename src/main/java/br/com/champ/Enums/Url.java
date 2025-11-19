@@ -65,7 +65,9 @@ public enum Url {
     EXCLUIR_VERSAO("/versao/excluir/"),
     LOGIN("/api/login/auth"),
     REGISTRAR_USUARIO("/api/login/usuario"),
-    SALVAR_FASE("/api/fase");
+    SALVAR_FASE("/api/fase"),
+    SALVAR_GRUPO("/api/grupo"),
+    ATUALIZAR_GRUPO("/api/grupo/");
 
     private String nome;
 

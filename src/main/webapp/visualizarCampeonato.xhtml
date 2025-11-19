@@ -15,6 +15,9 @@
                         <div class="flex align-items-center gap-2 mb-3">
                             <h1 class="m-0" style="font-weight: 800; font-size: 2rem; color: var(--text-100)">
                                 <i class="pi pi-trophy mr-2" style="color: var(--accent)"></i>#{managerCamp.camp.nome}
+                                <h:panelGroup rendered="#{managerCamp.camp.campeao != null}">
+                                    <i class="pi pi-crown ml-2" style="color: var(--gold); font-size: 1.5rem;" title="Campeão: #{managerCamp.camp.campeao.nome}"></i>
+                                </h:panelGroup>
                             </h1>
                         </div>
                         
@@ -87,6 +90,40 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Card do Campeão (quando a final estiver concluída) -->
+            <h:panelGroup rendered="#{managerCamp.isFinalConcluida() and managerCamp.getCampeao() ne null}">
+                <div class="campeao-hero glass-card mb-4">
+                    <div class="campeao-content">
+                        <div class="campeao-trophy-icon">
+                            <i class="pi pi-crown"></i>
+                        </div>
+                        <div class="campeao-info">
+                            <h2 class="campeao-title">
+                                <i class="pi pi-trophy mr-2" style="color: #FFD700;"></i>
+                                CAMPEÃO
+                            </h2>
+                            <div class="campeao-team-display">
+                                <div class="campeao-team-logo">
+                                    <h:panelGroup rendered="#{managerCamp.getCampeao().anexo != null}">
+                                        <p:graphicImage value="image/#{managerCamp.getCampeao().anexo.nome}" 
+                                                      styleClass="campeao-logo-img" />
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{managerCamp.getCampeao().anexo == null}">
+                                        #{managerCamp.getCampeao().nome.substring(0,1).toUpperCase()}
+                                    </h:panelGroup>
+                                </div>
+                                <h3 class="campeao-team-name">#{managerCamp.getCampeao().nome}</h3>
+                            </div>
+                        </div>
+                        <div class="campeao-decoration">
+                            <i class="pi pi-star"></i>
+                            <i class="pi pi-star"></i>
+                            <i class="pi pi-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </h:panelGroup>
 
             <!-- Informações Detalhadas -->
             <p:card styleClass="glass-card mb-4">
@@ -238,6 +275,146 @@
                 </div>
             </h:panelGroup>
 
+            <!-- Card de Grupos (apenas para formato GRUPO E PLAYOFF) -->
+            <!-- Regra: Menos de 10 times = 2 grupos (A e B), 10+ times = 3 grupos (A, B, C) -->
+            <!-- Permite número ímpar de times (um grupo terá no máximo 1 time a mais) -->
+            <!-- Apenas os 2 primeiros de cada grupo avançam para os playoffs -->
+            <h:panelGroup rendered="#{managerCamp.camp.tipoCampeonato.nome eq 'GRUPO E PLAYOFF'}">
+                <!-- Botão para Gerar Grupos -->
+                <h:panelGroup rendered="#{managerCamp.isAdmin() and not managerCamp.hasGrupos() and not empty managerCamp.camp.teams}">
+                    <div class="text-center mb-3">
+                        <p:commandButton value="Gerar Grupos e Partidas" 
+                                         icon="pi pi-sitemap"
+                                         styleClass="btn-gerar-grupos"
+                                         action="#{managerCamp.gerarGrupos()}"
+                                         process="@this"
+                                         ajax="false"
+                                         onclick="if (!confirm('Tem certeza que deseja gerar os grupos? Os times serão divididos em grupos (2 grupos para menos de 10 times, 3 grupos para 10+ times) e as partidas todos contra todos serão criadas.')) { return false; }" />
+                    </div>
+                </h:panelGroup>
+
+                <!-- Card de Exibição dos Grupos -->
+                <h:panelGroup rendered="#{managerCamp.hasGrupos()}">
+                    <ui:repeat value="#{managerCamp.getGrupos()}" var="grupo">
+                        <p:card styleClass="glass-card mb-4 grupo-card">
+                            <f:facet name="title">
+                                <div class="grupo-header-wrapper">
+                                    <div class="grupo-title-group">
+                                        <div class="grupo-badge">
+                                            <i class="pi pi-users" style="color: var(--accent); font-size: 1.1rem;"></i>
+                                        </div>
+                                        <div class="grupo-title-container">
+                                            <h3 class="grupo-title">#{grupo.nome}</h3>
+                                            <span class="grupo-subtitle">#{managerCamp.getQuantidadeTimesGrupo(grupo)} times</span>
+                                        </div>
+                                    </div>
+                                    <h:panelGroup rendered="#{managerCamp.isGrupoFinalizado(grupo)}">
+                                        <span class="status-tag" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3);">
+                                            <i class="pi pi-check-circle mr-1"></i>
+                                            Concluído
+                                        </span>
+                                    </h:panelGroup>
+                                </div>
+                            </f:facet>
+
+                            <div class="grupo-content-layout">
+                                <!-- Classificação do Grupo -->
+                                <div class="grupo-classificacao-section">
+                                    <h4 class="section-title">
+                                        <i class="pi pi-list mr-1"></i>
+                                        Classificação - #{grupo.nome}
+                                    </h4>
+                                    <p:dataTable value="#{managerCamp.getClassificacaoGrupo(grupo)}" 
+                                                 var="classificacao"
+                                                 styleClass="classificacao-table-grupo"
+                                                 emptyMessage="Nenhum time encontrado no grupo.">
+                                        <p:column headerText="#" style="width: 60px; text-align: center;">
+                                            <span class="classificacao-posicao-badge #{classificacao.posicao le 2 ? 'qualified' : ''}">
+                                                #{classificacao.posicao}
+                                            </span>
+                                        </p:column>
+                                        <p:column headerText="Time">
+                                            <div class="time-info-cell">
+                                                <span class="team-initial">#{classificacao.team.nome.substring(0,1).toUpperCase()}</span>
+                                                <span class="team-name">#{classificacao.team.nome}</span>
+                                                <h:panelGroup rendered="#{classificacao.posicao le 2}">
+                                                    <i class="pi pi-star-fill ml-2" style="color: var(--gold); font-size: 0.9rem;" title="Classificado para Playoffs"></i>
+                                                </h:panelGroup>
+                                            </div>
+                                        </p:column>
+                                        <p:column headerText="V" style="width: 70px; text-align: center;">
+                                            <span class="stat-value victories">#{classificacao.vitorias}</span>
+                                        </p:column>
+                                        <p:column headerText="D" style="width: 70px; text-align: center;">
+                                            <span class="stat-value defeats">#{classificacao.derrotas}</span>
+                                        </p:column>
+                                    </p:dataTable>
+                                </div>
+
+                                <!-- Partidas do Grupo -->
+                                <div class="grupo-partidas-section">
+                                    <h4 class="section-title">
+                                        <i class="pi pi-calendar mr-1"></i>
+                                        Partidas
+                                    </h4>
+                                    <div class="grupo-matches-grid">
+                                        <ui:repeat value="#{grupo.partidas}" var="partidaGrupo">
+                                            <div class="grupo-match-card #{partidaGrupo.isFinalizada() ? 'finalized' : ''}">
+                                                <div class="match-teams-row">
+                                                    <div class="team-entry">
+                                                        <span class="team-initial">#{partidaGrupo.getItemPartida().get(0).getTeam1().getNome().substring(0,1).toUpperCase()}</span>
+                                                        <span class="team-name">#{partidaGrupo.getItemPartida().get(0).getTeam1().getNome()}</span>
+                                                        <h:panelGroup rendered="#{partidaGrupo.isFinalizada() and partidaGrupo.getTimeVencedor().getId().equals(partidaGrupo.getItemPartida().get(0).getTeam1().getId())}">
+                                                            <i class="pi pi-check-circle winner-icon"></i>
+                                                        </h:panelGroup>
+                                                    </div>
+                                                    <div class="vs-divider">VS</div>
+                                                    <div class="team-entry">
+                                                        <span class="team-initial">#{partidaGrupo.getItemPartida().get(0).getTeam2().getNome().substring(0,1).toUpperCase()}</span>
+                                                        <span class="team-name">#{partidaGrupo.getItemPartida().get(0).getTeam2().getNome()}</span>
+                                                        <h:panelGroup rendered="#{partidaGrupo.isFinalizada() and partidaGrupo.getTimeVencedor().getId().equals(partidaGrupo.getItemPartida().get(0).getTeam2().getId())}">
+                                                            <i class="pi pi-check-circle winner-icon"></i>
+                                                        </h:panelGroup>
+                                                    </div>
+                                                </div>
+                                                <div class="match-actions">
+                                                    <p:button value="Ver" icon="pi pi-eye" styleClass="match-action-btn" outcome="visualizarPartida.xhtml">
+                                                        <f:param name="id" value="#{partidaGrupo.getId()}" />
+                                                    </p:button>
+                                                    <h:panelGroup rendered="#{not partidaGrupo.isFinalizada() and managerCamp.playerLogado ne null}">
+                                                        <p:commandButton value="Finalizar" 
+                                                                         icon="pi pi-check-circle" 
+                                                                         styleClass="match-action-btn match-action-btn--accent"
+                                                                         action="#{managerCamp.abrirDialogoResultado(partidaGrupo)}" 
+                                                                         update=":formDialogoResultado" 
+                                                                         process="@this" 
+                                                                         ajax="true" 
+                                                                         oncomplete="PF('dialogoResultado').show();" />
+                                                    </h:panelGroup>
+                                                </div>
+                                            </div>
+                                        </ui:repeat>
+                                    </div>
+                                </div>
+                            </div>
+                        </p:card>
+                    </ui:repeat>
+                </h:panelGroup>
+
+                <!-- Botão para Gerar Playoffs (após concluir os grupos) -->
+                <h:panelGroup rendered="#{managerCamp.isAdmin() and managerCamp.isTodosGruposFinalizados() and not managerCamp.hasPlayoffs()}">
+                    <div class="text-center mb-3">
+                        <p:commandButton value="Gerar Playoffs" 
+                                         icon="pi pi-trophy"
+                                         styleClass="btn-gerar-playoffs-grupos"
+                                         action="#{managerCamp.gerarPlayoffsDeGrupos()}"
+                                         process="@this"
+                                         ajax="false"
+                                         onclick="if (!confirm('Tem certeza que deseja gerar os playoffs? Os 2 primeiros colocados de cada grupo irão para a fase eliminatória.')) { return false; }" />
+                    </div>
+                </h:panelGroup>
+            </h:panelGroup>
+
             <!-- Swiss System Bracket (apenas para formato SUÍÇO) -->
             <h:panelGroup rendered="#{managerCamp.camp.tipoCampeonato.nome eq 'SUÍÇO'}">
                 <p:card styleClass="glass-card mb-4">
@@ -265,99 +442,84 @@
                         </div>
                     </f:facet>
 
-                    <!-- Container de Rodadas Suíças -->
-                    <div class="swiss-bracket-container">
+                    <!-- Container de Rodadas Suíças - Layout Vertical Compacto -->
+                    <div class="swiss-rounds-vertical">
                         <ui:repeat value="#{managerCamp.getRodadasSuicas()}" var="rodada" varStatus="status">
-                            <div class="swiss-column #{status.last and managerCamp.isRodadaAtualEmAndamento() ? 'current-round' : ''}">
-                                <div class="swiss-column-header">
-                                    <div class="flex align-items-center gap-2 mb-2">
-                                        <span class="swiss-round-badge">#{rodada.nome}</span>
+                            <div class="swiss-round-row #{status.last and managerCamp.isRodadaAtualEmAndamento() ? 'current-round' : ''} #{rodada.finalizada ? 'finished' : ''}">
+                                <!-- Header da Rodada -->
+                                <div class="round-row-header">
+                                    <div class="round-info">
+                                        <span class="round-number">#{rodada.nome}</span>
                                         <h:panelGroup rendered="#{status.last and managerCamp.isRodadaAtualEmAndamento()}">
-                                            <span class="status-tag live" style="background: rgba(34,197,94,0.15); color: var(--success); border: 1px solid rgba(34,197,94,0.3); display: inline-flex; align-items: center; gap: 0.4rem;">
-                                                <i class="pi pi-circle-fill" style="font-size: 0.6rem; animation: blink 1.5s ease-in-out infinite;"></i>
-                                                <span>Em Andamento</span>
+                                            <span class="round-status live">
+                                                <i class="pi pi-circle-fill"></i>
+                                                Em Andamento
                                             </span>
                                         </h:panelGroup>
                                         <h:panelGroup rendered="#{rodada.finalizada}">
-                                            <span class="status-tag" style="background: rgba(255,255,255,0.08); color: var(--text-200); border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center; gap: 0.4rem;">
-                                                <i class="pi pi-check-circle" style="font-size: 0.9rem;"></i>
-                                                <span>Finalizada</span>
+                                            <span class="round-status finished">
+                                                <i class="pi pi-check-circle"></i>
+                                                Finalizada
                                             </span>
                                         </h:panelGroup>
                                     </div>
                                     
-                                    <!-- Distribuição de Records após a rodada -->
+                                    <!-- Records após a rodada -->
                                     <h:panelGroup rendered="#{rodada.finalizada and not empty rodada.recordsNaRodada}">
-                                        <div class="swiss-records-distribution">
+                                        <div class="round-records">
                                             <ui:repeat value="#{rodada.recordsNaRodada.entrySet().toArray()}" var="entry">
-                                                <span class="record-chip">
-                                                    <span class="record-label">#{entry.key}</span>
-                                                    <span class="record-count">#{entry.value} #{entry.value eq 1 ? 'time' : 'times'}</span>
-                                                </span>
+                                                <span class="record-tag">#{entry.key} (#{entry.value})</span>
                                             </ui:repeat>
                                         </div>
                                     </h:panelGroup>
                                 </div>
 
-                                <!-- Visualização Compacta das Partidas Agrupadas por Recorde -->
-                                <ui:repeat value="#{managerCamp.getPartidasPorRecorde(rodada).entrySet().toArray()}" var="recordEntry">
-                                    <h:panelGroup rendered="#{not empty recordEntry.value}">
-                                        <div class="swiss-record-group">
-                                            <div class="swiss-record-header">
-                                                <h:panelGroup rendered="#{not recordEntry.value.get(0).isFinalizada()}">
-                                                    <span class="swiss-record-badge">#{recordEntry.key}</span>
-                                                </h:panelGroup>
-                                                <h:panelGroup rendered="#{not recordEntry.value.get(0).isFinalizada()}">
-                                                    <span class="swiss-record-count">#{recordEntry.value.size()} #{recordEntry.value.size() eq 1 ? 'partida' : 'partidas'}</span>
-                                                </h:panelGroup>
-                                                <h:panelGroup rendered="#{recordEntry.value.get(0).isFinalizada()}">
-                                                    <span class="swiss-finalized-label">Partidas Finalizadas</span>
-                                                </h:panelGroup>
-                                            </div>
-                                        <div class="swiss-visual-matchups-container">
-                                            <ui:repeat value="#{recordEntry.value}" var="partida" varStatus="partidaStatus">
-                                                <div class="swiss-matchup-mini">
-                                                    <h:panelGroup rendered="#{partida.itemPartida ne null and partida.itemPartida.size() gt 0}">
-                                                        <!-- Time 1 -->
-                                                        <div class="swiss-mini-team #{partida.isFinalizada() and partida.itemPartida.get(0).team1.id eq partida.timeVencedor.id ? 'winner' : (partida.isFinalizada() ? 'loser' : '')}">
-                                                            <span class="swiss-mini-team-initial">#{partida.itemPartida.get(0).team1.nome.substring(0,1).toUpperCase()}</span>
-                                                            <span class="swiss-mini-team-name">#{partida.itemPartida.get(0).team1.nome}</span>
-                                                        </div>
-                                                        
-                                                        <!-- Time 2 -->
-                                                        <div class="swiss-mini-team #{partida.isFinalizada() and partida.itemPartida.get(0).team2.id eq partida.timeVencedor.id ? 'winner' : (partida.isFinalizada() ? 'loser' : '')}">
-                                                            <span class="swiss-mini-team-initial">#{partida.itemPartida.get(0).team2.nome.substring(0,1).toUpperCase()}</span>
-                                                            <span class="swiss-mini-team-name">#{partida.itemPartida.get(0).team2.nome}</span>
-                                                        </div>
-                                                        
-                                                        <!-- Ações da partida -->
-                                                        <div class="swiss-mini-actions">
-                                                            <p:button value="Ver"
-                                                                      icon="pi pi-eye"
-                                                                      styleClass="swiss-action-btn"
-                                                                      outcome="visualizarPartida.xhtml">
-                                                                <f:param name="id" value="#{partida.id}" />
-                                                            </p:button>
-                                                            
-                                                            <h:panelGroup rendered="#{not partida.isFinalizada() and managerCamp.playerLogado ne null}">
-                                                                <p:commandButton value="Finalizar"
-                                                                               icon="pi pi-check-circle"
-                                                                               styleClass="swiss-action-btn swiss-action-btn--accent"
-                                                                               title="Registrar Resultado"
-                                                                               action="#{managerCamp.abrirDialogoResultado(partida)}"
-                                                                               update=":formDialogoResultado"
-                                                                               process="@this"
-                                                                               ajax="true"
-                                                                               oncomplete="PF('dialogoResultado').show();" />
+                                <!-- Grid de Partidas Compacto -->
+                                <div class="matches-compact-grid">
+                                    <ui:repeat value="#{managerCamp.getPartidasPorRecorde(rodada).entrySet().toArray()}" var="recordEntry">
+                                        <ui:repeat value="#{recordEntry.value}" var="partida">
+                                            <h:panelGroup rendered="#{partida.itemPartida ne null and partida.itemPartida.size() gt 0}">
+                                                <div class="match-compact-item">
+                                                    <div class="match-teams">
+                                                        <div class="team-compact #{partida.isFinalizada() and partida.itemPartida.get(0).team1.id eq partida.timeVencedor.id ? 'winner' : ''}">
+                                                            <span class="team-initial">#{partida.itemPartida.get(0).team1.nome.substring(0,1)}</span>
+                                                            <span class="team-name">#{partida.itemPartida.get(0).team1.nome}</span>
+                                                            <h:panelGroup rendered="#{partida.isFinalizada() and partida.itemPartida.get(0).team1.id eq partida.timeVencedor.id}">
+                                                                <i class="pi pi-trophy winner-icon"></i>
                                                             </h:panelGroup>
                                                         </div>
-                                                    </h:panelGroup>
+                                                        <span class="vs">vs</span>
+                                                        <div class="team-compact #{partida.isFinalizada() and partida.itemPartida.get(0).team2.id eq partida.timeVencedor.id ? 'winner' : ''}">
+                                                            <span class="team-initial">#{partida.itemPartida.get(0).team2.nome.substring(0,1)}</span>
+                                                            <span class="team-name">#{partida.itemPartida.get(0).team2.nome}</span>
+                                                            <h:panelGroup rendered="#{partida.isFinalizada() and partida.itemPartida.get(0).team2.id eq partida.timeVencedor.id}">
+                                                                <i class="pi pi-trophy winner-icon"></i>
+                                                            </h:panelGroup>
+                                                        </div>
+                                                    </div>
+                                                    <div class="match-actions-compact">
+                                                        <p:button icon="pi pi-eye"
+                                                                  styleClass="btn-compact"
+                                                                  title="Ver Partida"
+                                                                  outcome="visualizarPartida.xhtml">
+                                                            <f:param name="id" value="#{partida.id}" />
+                                                        </p:button>
+                                                        <h:panelGroup rendered="#{not partida.isFinalizada() and managerCamp.playerLogado ne null}">
+                                                            <p:commandButton icon="pi pi-check"
+                                                                           styleClass="btn-compact btn-finish"
+                                                                           title="Finalizar"
+                                                                           action="#{managerCamp.abrirDialogoResultado(partida)}"
+                                                                           update=":formDialogoResultado"
+                                                                           process="@this"
+                                                                           ajax="true"
+                                                                           oncomplete="PF('dialogoResultado').show();" />
+                                                        </h:panelGroup>
+                                                    </div>
                                                 </div>
-                                            </ui:repeat>
-                                        </div>
-                                        </div>
-                                    </h:panelGroup>
-                                </ui:repeat>
+                                            </h:panelGroup>
+                                        </ui:repeat>
+                                    </ui:repeat>
+                                </div>
                             </div>
                         </ui:repeat>
                     </div>
@@ -405,7 +567,21 @@
                                                 #{classificacao.team.nome.substring(0,1).toUpperCase()}
                                             </h:panelGroup>
                                         </div>
-                                        <span class="team-classificacao-name">#{classificacao.team.nome}</span>
+                                        <div class="team-classificacao-info">
+                                            <span class="team-classificacao-name">#{classificacao.team.nome}</span>
+                                            <h:panelGroup rendered="#{classificacao.vitorias >= 3}">
+                                                <span class="badge-classificado">
+                                                    <i class="pi pi-check-circle"></i>
+                                                    Classificado
+                                                </span>
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{classificacao.derrotas >= 3}">
+                                                <span class="badge-eliminado">
+                                                    <i class="pi pi-times-circle"></i>
+                                                    Eliminado
+                                                </span>
+                                            </h:panelGroup>
+                                        </div>
                                     </div>
                                 </p:column>
 
@@ -436,6 +612,276 @@
                             </div>
                         </h:panelGroup>
                     </div>
+                </p:card>
+            </h:panelGroup>
+
+            <!-- Card de Playoffs (apenas para formato SUÍÇO) -->
+            <h:panelGroup rendered="#{managerCamp.camp.tipoCampeonato.nome eq 'SUÍÇO'}">
+                <p:card styleClass="glass-card mb-4">
+                    <f:facet name="title">
+                        <div class="swiss-header-wrapper">
+                            <div class="swiss-header-left">
+                                <div class="swiss-title-group">
+                                    <i class="pi pi-trophy" style="color: #FFD700; font-size: 1.5rem;"></i>
+                                    <h3 class="swiss-title">Playoffs</h3>
+                                </div>
+                            </div>
+                            <div class="swiss-header-right">
+                                <!-- Botão para gerar playoffs (quando rodadas suíças terminarem) -->
+                                <h:panelGroup rendered="#{managerCamp.isAdmin() and managerCamp.isRodadasSuicasConcluidas() and not managerCamp.hasPlayoffs()}">
+                                    <p:commandButton value="Gerar Playoffs" 
+                                                   icon="pi pi-sitemap"
+                                                   styleClass="btn-gerar-rodada"
+                                                   action="#{managerCamp.gerarPlayoffs()}"
+                                                   update="@form"
+                                                   onclick="return confirm('Tem certeza que deseja gerar os playoffs? Esta ação não pode ser desfeita.');" />
+                                </h:panelGroup>
+                                
+                                <!-- Botão para gerar próxima fase -->
+                                <h:panelGroup rendered="#{managerCamp.isAdmin() and managerCamp.hasPlayoffs() and managerCamp.podeMostrarProximaFasePlayoff()}">
+                                    <p:commandButton value="Gerar Próxima Fase" 
+                                                   icon="pi pi-arrow-right"
+                                                   styleClass="btn-gerar-rodada"
+                                                   action="#{managerCamp.gerarProximaFasePlayoff()}"
+                                                   update="@form"
+                                                   onclick="return confirm('Tem certeza que deseja gerar a próxima fase? Esta ação criará as partidas da fase.');" />
+                                </h:panelGroup>
+                            </div>
+                        </div>
+                    </f:facet>
+
+                    <!-- Container de Fases dos Playoffs -->
+                    <h:panelGroup rendered="#{not empty managerCamp.getFasesPlayoffs()}">
+                        <div class="playoffs-container">
+                            <ui:repeat value="#{managerCamp.getFasesPlayoffs()}" var="fase" varStatus="status">
+                                <div class="playoff-fase-card">
+                                    <!-- Header da Fase -->
+                                    <div class="playoff-fase-header">
+                                        <h4 class="playoff-fase-nome">
+                                            <i class="pi pi-sitemap mr-2" style="color: var(--accent);"></i>
+                                            #{fase.nome}
+                                        </h4>
+                                        <span class="playoff-fase-partidas">#{fase.partidas.size()} #{fase.partidas.size() eq 1 ? 'partida' : 'partidas'}</span>
+                                    </div>
+
+                                    <!-- Grid de Partidas da Fase -->
+                                    <div class="playoff-matches-grid">
+                                        <ui:repeat value="#{fase.partidas}" var="partida">
+                                            <h:panelGroup rendered="#{partida.itemPartida ne null and partida.itemPartida.size() gt 0}">
+                                                <div class="playoff-match-card">
+                                                    <div class="playoff-match-teams">
+                                                        <div class="playoff-team #{partida.isFinalizada() and partida.itemPartida.get(0).team1.id eq partida.timeVencedor.id ? 'winner' : ''}">
+                                                            <span class="playoff-team-initial">#{partida.itemPartida.get(0).team1.nome.substring(0,1)}</span>
+                                                            <span class="playoff-team-name">#{partida.itemPartida.get(0).team1.nome}</span>
+                                                            <h:panelGroup rendered="#{partida.isFinalizada() and partida.itemPartida.get(0).team1.id eq partida.timeVencedor.id}">
+                                                                <!-- Coroa para vencedor da final -->
+                                                                <h:panelGroup rendered="#{managerCamp.isFaseFinal(fase)}">
+                                                                    <i class="pi pi-crown playoff-champion-icon"></i>
+                                                                </h:panelGroup>
+                                                                <!-- Troféu para vencedores de outras fases -->
+                                                                <h:panelGroup rendered="#{not managerCamp.isFaseFinal(fase)}">
+                                                                    <i class="pi pi-trophy playoff-winner-icon"></i>
+                                                                </h:panelGroup>
+                                                            </h:panelGroup>
+                                                        </div>
+                                                        <div class="playoff-vs">vs</div>
+                                                        <div class="playoff-team #{partida.isFinalizada() and partida.itemPartida.get(0).team2.id eq partida.timeVencedor.id ? 'winner' : ''}">
+                                                            <span class="playoff-team-initial">#{partida.itemPartida.get(0).team2.nome.substring(0,1)}</span>
+                                                            <span class="playoff-team-name">#{partida.itemPartida.get(0).team2.nome}</span>
+                                                            <h:panelGroup rendered="#{partida.isFinalizada() and partida.itemPartida.get(0).team2.id eq partida.timeVencedor.id}">
+                                                                <!-- Coroa para vencedor da final -->
+                                                                <h:panelGroup rendered="#{managerCamp.isFaseFinal(fase)}">
+                                                                    <i class="pi pi-crown playoff-champion-icon"></i>
+                                                                </h:panelGroup>
+                                                                <!-- Troféu para vencedores de outras fases -->
+                                                                <h:panelGroup rendered="#{not managerCamp.isFaseFinal(fase)}">
+                                                                    <i class="pi pi-trophy playoff-winner-icon"></i>
+                                                                </h:panelGroup>
+                                                            </h:panelGroup>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="playoff-match-actions">
+                                                        <p:button icon="pi pi-eye"
+                                                                  styleClass="btn-compact"
+                                                                  title="Ver Partida"
+                                                                  outcome="visualizarPartida.xhtml">
+                                                            <f:param name="id" value="#{partida.id}" />
+                                                        </p:button>
+                                                        <h:panelGroup rendered="#{not partida.isFinalizada() and managerCamp.playerLogado ne null}">
+                                                            <p:commandButton icon="pi pi-check"
+                                                                           styleClass="btn-compact btn-finish"
+                                                                           title="Finalizar"
+                                                                           action="#{managerCamp.abrirDialogoResultado(partida)}"
+                                                                           update=":formDialogoResultado"
+                                                                           process="@this"
+                                                                           ajax="true"
+                                                                           oncomplete="PF('dialogoResultado').show();" />
+                                                        </h:panelGroup>
+                                                    </div>
+                                                    
+                                                    <h:panelGroup rendered="#{partida.isFinalizada()}">
+                                                        <div class="playoff-match-status">
+                                                            <i class="pi pi-check-circle"></i>
+                                                            Finalizada
+                                                        </div>
+                                                    </h:panelGroup>
+                                                </div>
+                                            </h:panelGroup>
+                                        </ui:repeat>
+                                    </div>
+                                </div>
+                            </ui:repeat>
+                        </div>
+                    </h:panelGroup>
+
+                    <!-- Mensagem quando não há playoffs -->
+                    <h:panelGroup rendered="#{empty managerCamp.getFasesPlayoffs()}">
+                        <div class="text-center py-5">
+                            <i class="pi pi-trophy mb-3" style="font-size: 3rem; color: var(--muted)"></i>
+                            <p style="color: #d1d8e6">Playoffs ainda não foram gerados</p>
+                            <h:panelGroup rendered="#{managerCamp.isRodadasSuicasConcluidas()}">
+                                <p style="color: #98a2b3; font-size: 0.9rem; margin-top: 0.5rem;">
+                                    As rodadas suíças foram concluídas. O administrador pode gerar os playoffs.
+                                </p>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{not managerCamp.isRodadasSuicasConcluidas()}">
+                                <p style="color: #98a2b3; font-size: 0.9rem; margin-top: 0.5rem;">
+                                    Os playoffs serão gerados após a conclusão de todas as rodadas suíças.
+                                </p>
+                            </h:panelGroup>
+                        </div>
+                    </h:panelGroup>
+                </p:card>
+            </h:panelGroup>
+
+            <!-- Card de Playoffs (para formato GRUPO E PLAYOFF) -->
+            <h:panelGroup rendered="#{managerCamp.camp.tipoCampeonato.nome eq 'GRUPO E PLAYOFF' and managerCamp.hasPlayoffs()}">
+                <p:card styleClass="glass-card mb-4">
+                    <f:facet name="title">
+                        <div class="swiss-header-wrapper">
+                            <div class="swiss-header-left">
+                                <div class="swiss-title-group">
+                                    <i class="pi pi-trophy" style="color: #FFD700; font-size: 1.5rem;"></i>
+                                    <h3 class="swiss-title">Playoffs</h3>
+                                </div>
+                            </div>
+                            <div class="swiss-header-right">
+                                <!-- Botão para gerar próxima fase -->
+                                <h:panelGroup rendered="#{managerCamp.isAdmin() and managerCamp.podeMostrarProximaFasePlayoff()}">
+                                    <p:commandButton value="Gerar Próxima Fase" 
+                                                   icon="pi pi-arrow-right"
+                                                   styleClass="btn-gerar-rodada"
+                                                   action="#{managerCamp.gerarProximaFasePlayoff()}"
+                                                   update="@form"
+                                                   onclick="return confirm('Tem certeza que deseja gerar a próxima fase? Esta ação criará as partidas da fase.');" />
+                                </h:panelGroup>
+                            </div>
+                        </div>
+                    </f:facet>
+
+                    <!-- Container de Fases dos Playoffs -->
+                    <h:panelGroup rendered="#{not empty managerCamp.getFasesPlayoffs()}">
+                        <div class="playoffs-container">
+                            <ui:repeat value="#{managerCamp.getFasesPlayoffs()}" var="fase" varStatus="status">
+                                <div class="playoff-fase-card">
+                                    <!-- Header da Fase -->
+                                    <div class="playoff-fase-header">
+                                        <h4 class="playoff-fase-nome">
+                                            <i class="pi pi-sitemap mr-2" style="color: var(--accent);"></i>
+                                            #{fase.nome}
+                                        </h4>
+                                        <span class="playoff-fase-partidas">#{fase.partidas.size()} #{fase.partidas.size() eq 1 ? 'partida' : 'partidas'}</span>
+                                    </div>
+
+                                    <!-- Grid de Partidas da Fase -->
+                                    <div class="playoff-matches-grid">
+                                        <ui:repeat value="#{fase.partidas}" var="partida">
+                                            <h:panelGroup rendered="#{partida.itemPartida ne null and partida.itemPartida.size() gt 0}">
+                                                <div class="playoff-match-card">
+                                                    <div class="playoff-match-teams">
+                                                        <div class="playoff-team #{partida.isFinalizada() and partida.itemPartida.get(0).team1.id eq partida.timeVencedor.id ? 'winner' : ''}">
+                                                            <span class="playoff-team-initial">#{partida.itemPartida.get(0).team1.nome.substring(0,1)}</span>
+                                                            <span class="playoff-team-name">#{partida.itemPartida.get(0).team1.nome}</span>
+                                                            <h:panelGroup rendered="#{partida.isFinalizada() and partida.itemPartida.get(0).team1.id eq partida.timeVencedor.id}">
+                                                                <!-- Coroa para vencedor da final -->
+                                                                <h:panelGroup rendered="#{managerCamp.isFaseFinal(fase)}">
+                                                                    <i class="pi pi-crown playoff-champion-icon"></i>
+                                                                </h:panelGroup>
+                                                                <!-- Troféu para vencedores de outras fases -->
+                                                                <h:panelGroup rendered="#{not managerCamp.isFaseFinal(fase)}">
+                                                                    <i class="pi pi-trophy playoff-winner-icon"></i>
+                                                                </h:panelGroup>
+                                                            </h:panelGroup>
+                                                        </div>
+                                                        <div class="playoff-vs">vs</div>
+                                                        <div class="playoff-team #{partida.isFinalizada() and partida.itemPartida.get(0).team2.id eq partida.timeVencedor.id ? 'winner' : ''}">
+                                                            <span class="playoff-team-initial">#{partida.itemPartida.get(0).team2.nome.substring(0,1)}</span>
+                                                            <span class="playoff-team-name">#{partida.itemPartida.get(0).team2.nome}</span>
+                                                            <h:panelGroup rendered="#{partida.isFinalizada() and partida.itemPartida.get(0).team2.id eq partida.timeVencedor.id}">
+                                                                <!-- Coroa para vencedor da final -->
+                                                                <h:panelGroup rendered="#{managerCamp.isFaseFinal(fase)}">
+                                                                    <i class="pi pi-crown playoff-champion-icon"></i>
+                                                                </h:panelGroup>
+                                                                <!-- Troféu para vencedores de outras fases -->
+                                                                <h:panelGroup rendered="#{not managerCamp.isFaseFinal(fase)}">
+                                                                    <i class="pi pi-trophy playoff-winner-icon"></i>
+                                                                </h:panelGroup>
+                                                            </h:panelGroup>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="playoff-match-actions">
+                                                        <p:button icon="pi pi-eye"
+                                                                  styleClass="btn-compact"
+                                                                  title="Ver Partida"
+                                                                  outcome="visualizarPartida.xhtml">
+                                                            <f:param name="id" value="#{partida.id}" />
+                                                        </p:button>
+                                                        <h:panelGroup rendered="#{not partida.isFinalizada() and managerCamp.playerLogado ne null}">
+                                                            <p:commandButton icon="pi pi-check"
+                                                                           styleClass="btn-compact btn-finish"
+                                                                           title="Finalizar"
+                                                                           action="#{managerCamp.abrirDialogoResultado(partida)}"
+                                                                           update=":formDialogoResultado"
+                                                                           process="@this"
+                                                                           ajax="true"
+                                                                           oncomplete="PF('dialogoResultado').show();" />
+                                                        </h:panelGroup>
+                                                    </div>
+                                                    
+                                                    <h:panelGroup rendered="#{partida.isFinalizada()}">
+                                                        <div class="playoff-match-status">
+                                                            <i class="pi pi-check-circle"></i>
+                                                            Finalizada
+                                                        </div>
+                                                    </h:panelGroup>
+                                                </div>
+                                            </h:panelGroup>
+                                        </ui:repeat>
+                                    </div>
+                                </div>
+                            </ui:repeat>
+                        </div>
+                    </h:panelGroup>
+
+                    <!-- Mensagem quando não há playoffs -->
+                    <h:panelGroup rendered="#{empty managerCamp.getFasesPlayoffs()}">
+                        <div class="text-center py-5">
+                            <i class="pi pi-trophy mb-3" style="font-size: 3rem; color: var(--muted)"></i>
+                            <p style="color: #d1d8e6">Playoffs ainda não foram gerados</p>
+                            <h:panelGroup rendered="#{managerCamp.isTodosGruposFinalizados()}">
+                                <p style="color: #98a2b3; font-size: 0.9rem; margin-top: 0.5rem;">
+                                    Todos os grupos foram finalizados. O administrador pode gerar os playoffs.
+                                </p>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{not managerCamp.isTodosGruposFinalizados()}">
+                                <p style="color: #98a2b3; font-size: 0.9rem; margin-top: 0.5rem;">
+                                    Os playoffs serão gerados após a conclusão de todas as partidas dos grupos.
+                                </p>
+                            </h:panelGroup>
+                        </div>
+                    </h:panelGroup>
                 </p:card>
             </h:panelGroup>
 
@@ -636,7 +1082,7 @@
                                    icon="pi pi-check"
                                    styleClass="p-button-success"
                                    action="#{managerCamp.salvarResultadoDialogo()}"
-                                   update=":formCampeonato"
+                                   update="@form, :formCampeonato"
                                    process="@form"
                                    oncomplete="if (args &amp;&amp; !args.validationFailed) { PF('dialogoResultado').hide(); }" />
                 </div>
@@ -674,6 +1120,152 @@
             .camp-hero-logo { width: 150px; height: 150px; border-radius: 16px; overflow: hidden; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; }
             .camp-logo-img { width: 100%; height: 100%; object-fit: cover; }
             .camp-logo-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: var(--muted); }
+            
+            /* Card do Campeão */
+            .campeao-hero {
+                background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,165,0,0.08), var(--bg-900)) !important;
+                padding: 2rem;
+                border: 2px solid rgba(255,215,0,0.4) !important;
+                border-radius: var(--radius) !important;
+                box-shadow: 0 8px 32px rgba(255,215,0,0.3), 0 0 60px rgba(255,215,0,0.15) !important;
+                position: relative;
+                overflow: hidden;
+                animation: championGlow 3s ease-in-out infinite;
+            }
+            
+            @keyframes championGlow {
+                0%, 100% { box-shadow: 0 8px 32px rgba(255,215,0,0.3), 0 0 60px rgba(255,215,0,0.15); }
+                50% { box-shadow: 0 12px 40px rgba(255,215,0,0.4), 0 0 80px rgba(255,215,0,0.25); }
+            }
+            
+            .campeao-hero::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, transparent 70%);
+                animation: rotate 20s linear infinite;
+            }
+            
+            @keyframes rotate {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            
+            .campeao-content {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 2rem;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .campeao-trophy-icon {
+                font-size: 4rem;
+                color: #FFD700;
+                animation: bounce 2s ease-in-out infinite;
+            }
+            
+            @keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+            }
+            
+            .campeao-trophy-icon i {
+                filter: drop-shadow(0 0 20px rgba(255,215,0,0.8));
+            }
+            
+            .campeao-info {
+                flex: 1;
+                text-align: center;
+            }
+            
+            .campeao-title {
+                font-size: 1.5rem;
+                font-weight: 900;
+                color: #FFD700;
+                text-transform: uppercase;
+                letter-spacing: 3px;
+                margin: 0 0 1.5rem 0;
+                text-shadow: 0 0 20px rgba(255,215,0,0.5);
+                animation: pulse 2s ease-in-out infinite;
+            }
+            
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.8; }
+            }
+            
+            .campeao-team-display {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 1.5rem;
+                background: rgba(255,255,255,0.05);
+                padding: 1.5rem 2rem;
+                border-radius: 16px;
+                border: 2px solid rgba(255,215,0,0.3);
+            }
+            
+            .campeao-team-logo {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, rgba(255,215,0,0.3), rgba(255,215,0,0.1));
+                border: 3px solid #FFD700;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 2.5rem;
+                font-weight: 800;
+                color: #FFD700;
+                flex-shrink: 0;
+                overflow: hidden;
+                box-shadow: 0 4px 20px rgba(255,215,0,0.4);
+            }
+            
+            .campeao-logo-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            
+            .campeao-team-name {
+                font-size: 2rem;
+                font-weight: 900;
+                color: #FFD700;
+                margin: 0;
+                text-shadow: 0 2px 10px rgba(255,215,0,0.5);
+            }
+            
+            .campeao-decoration {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                font-size: 2rem;
+                color: #FFD700;
+            }
+            
+            .campeao-decoration i {
+                animation: starTwinkle 1.5s ease-in-out infinite;
+                filter: drop-shadow(0 0 10px rgba(255,215,0,0.8));
+            }
+            
+            .campeao-decoration i:nth-child(2) {
+                animation-delay: 0.3s;
+            }
+            
+            .campeao-decoration i:nth-child(3) {
+                animation-delay: 0.6s;
+            }
+            
+            @keyframes starTwinkle {
+                0%, 100% { opacity: 1; transform: scale(1); }
+                50% { opacity: 0.5; transform: scale(0.8); }
+            }
 
             /* Info grid moderno */
             .info-grid-modern { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; }
@@ -952,6 +1544,42 @@
                 .match-team-name {
                     font-size: 0.9rem;
                 }
+                
+                /* Card Campeão Responsivo */
+                .campeao-content {
+                    flex-direction: column;
+                    text-align: center;
+                }
+                
+                .campeao-trophy-icon {
+                    font-size: 3rem;
+                }
+                
+                .campeao-title {
+                    font-size: 1.2rem;
+                    letter-spacing: 2px;
+                }
+                
+                .campeao-team-display {
+                    flex-direction: column;
+                    gap: 1rem;
+                    padding: 1rem;
+                }
+                
+                .campeao-team-logo {
+                    width: 60px;
+                    height: 60px;
+                    font-size: 2rem;
+                }
+                
+                .campeao-team-name {
+                    font-size: 1.5rem;
+                }
+                
+                .campeao-decoration {
+                    flex-direction: row;
+                    justify-content: center;
+                }
             }
 
             /* Stats grid */
@@ -1082,281 +1710,190 @@
                 }
             }
             
-            /* Swiss Bracket Styles - Mais elegante e organizado */
-            .swiss-bracket-container {
-                display: flex;
-                gap: 1.5rem;
-                overflow-x: auto;
-                padding: 1.5rem 0;
-                scroll-behavior: smooth;
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            .swiss-bracket-container::-webkit-scrollbar {
-                height: 8px;
-            }
-            
-            .swiss-bracket-container::-webkit-scrollbar-track {
-                background: rgba(255,255,255,0.03);
-                border-radius: 10px;
-            }
-            
-            .swiss-bracket-container::-webkit-scrollbar-thumb {
-                background: rgba(0,225,255,0.2);
-                border-radius: 10px;
-            }
-            
-            .swiss-bracket-container::-webkit-scrollbar-thumb:hover {
-                background: rgba(0,225,255,0.3);
-            }
-            
-            .swiss-column {
-                min-width: 320px;
-                max-width: 360px;
+            /* Swiss Rounds - Layout Vertical Compacto */
+            .swiss-rounds-vertical {
                 display: flex;
                 flex-direction: column;
+                gap: 1rem;
+                max-height: 1200px;
+                overflow-y: auto;
+                padding: 0.5rem;
+            }
+            
+            .swiss-rounds-vertical::-webkit-scrollbar {
+                width: 6px;
+            }
+            
+            .swiss-rounds-vertical::-webkit-scrollbar-track {
+                background: rgba(255,255,255,0.02);
+                border-radius: 10px;
+            }
+            
+            .swiss-rounds-vertical::-webkit-scrollbar-thumb {
+                background: rgba(0,225,255,0.3);
+                border-radius: 10px;
+            }
+            
+            .swiss-rounds-vertical::-webkit-scrollbar-thumb:hover {
+                background: rgba(0,225,255,0.5);
+            }
+            
+            /* Cada Rodada como uma Linha */
+            .swiss-round-row {
                 background: rgba(255,255,255,0.02);
                 border: 1px solid rgba(255,255,255,0.08);
-                border-radius: 16px;
-                padding: 1.25rem;
-                transition: all 0.3s ease;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                border-radius: 12px;
+                padding: 1rem;
+                transition: all 0.2s ease;
             }
             
-            .swiss-column:hover {
-                background: rgba(255,255,255,0.03);
+            .swiss-round-row:hover {
+                background: rgba(255,255,255,0.04);
                 border-color: rgba(255,255,255,0.12);
-                transform: translateY(-2px);
-                box-shadow: 0 4px 16px rgba(0,0,0,0.15);
             }
             
-            .swiss-column.current-round {
-                background: linear-gradient(180deg, rgba(34,197,94,0.12), rgba(34,197,94,0.04));
-                border: 2px solid rgba(34,197,94,0.5);
-                box-shadow: 0 8px 24px rgba(34,197,94,0.25), 0 0 40px rgba(34,197,94,0.1);
+            .swiss-round-row.current-round {
+                background: rgba(34,197,94,0.08);
+                border: 2px solid rgba(34,197,94,0.4);
+                box-shadow: 0 4px 12px rgba(34,197,94,0.2);
             }
             
-            .swiss-column.current-round:hover {
-                border-color: rgba(34,197,94,0.6);
-                box-shadow: 0 12px 32px rgba(34,197,94,0.3), 0 0 50px rgba(34,197,94,0.15);
+            .swiss-round-row.finished {
+                opacity: 0.85;
             }
             
-            .swiss-column-header {
+            /* Header da Rodada */
+            .round-row-header {
                 display: flex;
-                flex-direction: column;
-                gap: 0.75rem;
-                margin-bottom: 1.25rem;
+                justify-content: space-between;
                 align-items: center;
-                padding-bottom: 1rem;
-                border-bottom: 2px solid rgba(255,255,255,0.08);
+                margin-bottom: 0.75rem;
+                padding-bottom: 0.75rem;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+                flex-wrap: wrap;
+                gap: 0.75rem;
+            }
+            
+            .round-info {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            
+            .round-number {
+                font-size: 0.95rem;
+                font-weight: 800;
+                color: var(--accent);
+                padding: 0.4rem 0.9rem;
+                background: rgba(0,225,255,0.12);
+                border: 1px solid rgba(0,225,255,0.3);
+                border-radius: 8px;
+                letter-spacing: 0.5px;
+            }
+            
+            .round-status {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4rem;
+                padding: 0.35rem 0.75rem;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+            
+            .round-status.live {
+                background: rgba(34,197,94,0.15);
+                color: var(--success);
+                border: 1px solid rgba(34,197,94,0.3);
+            }
+            
+            .round-status.live i {
+                animation: blink 1.5s infinite;
+            }
+            
+            .round-status.finished {
+                background: rgba(255,255,255,0.05);
+                color: var(--text-300);
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .round-records {
+                display: flex;
+                gap: 0.4rem;
+                flex-wrap: wrap;
+            }
+            
+            .record-tag {
+                font-size: 0.75rem;
+                padding: 0.25rem 0.6rem;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 12px;
+                color: var(--text-200);
+                font-weight: 600;
+                font-family: monospace;
             }
             @keyframes blink {
                 0%, 100% { opacity: 1; }
                 50% { opacity: 0.3; }
             }
             
-            .swiss-round-badge {
-                font-size: 1rem;
-                font-weight: 800;
-                color: var(--accent);
-                padding: 0.75rem 1.5rem;
-                background: linear-gradient(135deg, rgba(0,225,255,0.2), rgba(0,225,255,0.08));
-                border: 2px solid rgba(0,225,255,0.4);
-                border-radius: 12px;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                box-shadow: 0 4px 12px rgba(0,225,255,0.2);
-                transition: all 0.3s ease;
+            /* Grid de Partidas Compacto */
+            .matches-compact-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 1rem;
             }
             
-            .swiss-round-badge:hover {
-                transform: scale(1.05);
-                box-shadow: 0 6px 16px rgba(0,225,255,0.3);
-            }
-            
-            /* Records Distribution */
-            .swiss-records-distribution {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-                margin-top: 0.75rem;
-                justify-content: center;
-            }
-            .record-chip {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.4rem;
-                padding: 0.4rem 0.8rem;
-                background: rgba(255,255,255,0.05);
-                border: 1px solid rgba(255,255,255,0.1);
-                border-radius: 20px;
-                font-size: 0.85rem;
-                transition: all 0.2s ease;
-            }
-            .record-chip:hover {
-                background: rgba(255,255,255,0.08);
-                border-color: rgba(0,225,255,0.3);
-                transform: translateY(-1px);
-            }
-            .record-label {
-                font-weight: 800;
-                color: var(--accent);
-                font-size: 0.9rem;
-            }
-            .record-count {
-                color: var(--text-300);
-                font-weight: 600;
-            }
-            
-            /* Grupos de Recorde - Mais minimalista */
-            .swiss-record-group {
-                margin-bottom: 1rem;
-                background: rgba(255,255,255,0.01);
-                border: 1px solid rgba(255,255,255,0.06);
-                border-radius: 12px;
-                padding: 0.875rem;
-                transition: all 0.3s ease;
-                overflow: hidden;
-            }
-            
-            .swiss-record-group:hover {
-                background: rgba(255,255,255,0.03);
-                border-color: rgba(0,225,255,0.2);
-                transform: translateX(4px);
-                box-shadow: -2px 0 0 0 rgba(0,225,255,0.5);
-            }
-            
-            .swiss-record-group:last-child {
-                margin-bottom: 0;
-            }
-            
-            .swiss-record-header {
+            .match-compact-item {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 0.75rem;
-                margin-bottom: 0.75rem;
-                padding-bottom: 0.5rem;
-                border-bottom: 1px solid rgba(255,255,255,0.06);
-            }
-            
-            .swiss-record-badge {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                padding: 0.4rem 0.875rem;
-                background: linear-gradient(135deg, rgba(0,225,255,0.18), rgba(0,225,255,0.08));
-                border: 1px solid rgba(0,225,255,0.3);
-                border-radius: 8px;
-                color: var(--accent);
-                font-weight: 800;
-                font-size: 0.95rem;
-                font-family: 'Courier New', monospace;
-                letter-spacing: 1px;
-                min-width: 70px;
-                text-align: center;
-                box-shadow: 0 2px 8px rgba(0,225,255,0.15);
-            }
-            
-            .swiss-record-count {
-                font-size: 0.8rem;
-                color: var(--text-300);
-                font-weight: 600;
-                text-transform: lowercase;
-            }
-            
-            .swiss-finalized-label {
-                font-size: 0.85rem;
-                color: var(--text-300);
-                font-weight: 600;
-                font-style: italic;
-            }
-            
-            /* Visualização Minimalista de Partidas */
-            .swiss-visual-matchups-container {
-                display: flex;
-                flex-direction: column;
-                gap: 0.625rem;
-                padding: 0;
-            }
-            
-            .swiss-matchup-mini {
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-                padding: 0.875rem;
-                background: rgba(255,255,255,0.015);
-                border: 1px solid rgba(255,255,255,0.05);
-                border-radius: 10px;
-                transition: all 0.25s ease;
-                position: relative;
-                overflow: hidden;
-            }
-            
-            .swiss-matchup-mini::before {
-                content: '';
-                position: absolute;
-                left: 0;
-                top: 0;
-                bottom: 0;
-                width: 2px;
-                background: rgba(0,225,255,0.3);
-                opacity: 0;
-                transition: opacity 0.25s ease;
-            }
-            
-            .swiss-matchup-mini:hover {
-                background: rgba(255,255,255,0.03);
-                border-color: rgba(255,255,255,0.1);
-                transform: translateX(4px);
-            }
-            
-            .swiss-matchup-mini:hover::before {
-                opacity: 1;
-            }
-            
-            .swiss-mini-team {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                padding: 0.5rem 0.65rem;
-                border-radius: 8px;
+                gap: 1rem;
+                padding: 1rem;
                 background: rgba(255,255,255,0.02);
                 border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 10px;
                 transition: all 0.2s ease;
-                position: relative;
-                min-height: 36px;
+                min-height: 70px;
             }
             
-            .swiss-mini-team.winner {
-                background: rgba(34,197,94,0.12);
-                border-color: rgba(34,197,94,0.35);
-                box-shadow: 0 0 10px rgba(34,197,94,0.2);
+            .match-compact-item:hover {
+                background: rgba(255,255,255,0.04);
+                border-color: rgba(0,225,255,0.2);
+                transform: translateX(2px);
             }
             
-            .swiss-mini-team.winner::after {
-                content: '✓';
-                position: absolute;
-                right: 0.65rem;
-                top: 50%;
-                transform: translateY(-50%);
-                color: var(--success);
-                font-weight: 800;
-                font-size: 0.85rem;
+            .match-teams {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                flex: 1;
+                min-width: 0;
+                flex-wrap: wrap;
             }
             
-            .swiss-mini-team.loser {
-                opacity: 0.5;
-                background: rgba(255,255,255,0.01);
+            .team-compact {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                flex: 1 1 auto;
+                min-width: 0;
+                max-width: 100%;
             }
             
-            .swiss-mini-team-initial {
+            .team-compact.winner {
+                color: var(--accent);
+                font-weight: 700;
+            }
+            
+            .team-initial {
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 width: 28px;
                 height: 28px;
-                border-radius: 6px;
+                border-radius: 8px;
                 background: rgba(0,225,255,0.12);
                 border: 1px solid rgba(0,225,255,0.25);
                 color: var(--accent);
@@ -1365,85 +1902,327 @@
                 flex-shrink: 0;
             }
             
-            .swiss-mini-team.winner .swiss-mini-team-initial {
+            .team-compact.winner .team-initial {
                 background: rgba(34,197,94,0.2);
                 border-color: rgba(34,197,94,0.4);
                 color: var(--success);
             }
             
-            .swiss-mini-team-name {
+            .team-name {
                 font-size: 0.875rem;
                 font-weight: 600;
                 color: var(--text-200);
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
+                line-height: 1.4;
+                word-break: break-word;
                 flex: 1;
-                min-width: 0;
-                letter-spacing: 0.2px;
+                min-width: 80px;
             }
             
-            .swiss-mini-team.winner .swiss-mini-team-name {
+            .team-compact.winner .team-name {
                 color: var(--text-100);
                 font-weight: 700;
             }
             
-            .swiss-mini-vs {
-                display: none;
+            .winner-icon {
+                font-size: 0.9rem;
+                color: #FFD700;
+                margin-left: 0.25rem;
+                flex-shrink: 0;
             }
-            .swiss-mini-actions {
+            
+            .vs {
+                font-size: 0.75rem;
+                font-weight: 800;
+                color: var(--text-300);
+                padding: 0.3rem 0.5rem;
+                background: rgba(255,255,255,0.05);
+                border-radius: 6px;
+                flex-shrink: 0;
+            }
+            
+            .match-actions-compact {
+                display: flex;
+                gap: 0.5rem;
+                flex-shrink: 0;
+            }
+            
+            .btn-compact {
+                padding: 0.5rem 0.6rem !important;
+                min-width: 40px !important;
+                height: 36px !important;
+                border-radius: 8px !important;
+                background: rgba(255,255,255,0.05) !important;
+                border: 1px solid rgba(255,255,255,0.1) !important;
+                color: var(--text-200) !important;
+                transition: all 0.2s ease !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            
+            .btn-compact:hover {
+                background: rgba(0,225,255,0.12) !important;
+                border-color: var(--accent) !important;
+                color: var(--accent) !important;
+                transform: scale(1.05);
+            }
+            
+            .btn-compact.btn-finish {
+                background: rgba(34,197,94,0.12) !important;
+                border-color: rgba(34,197,94,0.3) !important;
+                color: var(--success) !important;
+            }
+            
+            .btn-compact.btn-finish:hover {
+                background: rgba(34,197,94,0.2) !important;
+                border-color: var(--success) !important;
+            }
+            
+            .btn-compact .pi {
+                font-size: 1rem !important;
+            }
+            
+            /* Aumenta o card de cada rodada */
+            .swiss-round-row {
+                padding: 1.25rem;
+            }
+            
+            .round-row-header {
+                margin-bottom: 1rem;
+                padding-bottom: 1rem;
+            }
+            
+            /* ===========================
+               ESTILOS DOS PLAYOFFS
+               =========================== */
+            
+            .playoffs-container {
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+                padding: 0.5rem;
+            }
+            
+            .playoff-fase-card {
+                background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(255,215,0,0.02));
+                border: 1px solid rgba(255,215,0,0.2);
+                border-radius: 16px;
+                padding: 1.5rem;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 12px rgba(255,215,0,0.1);
+            }
+            
+            .playoff-fase-card:hover {
+                border-color: rgba(255,215,0,0.3);
+                box-shadow: 0 8px 24px rgba(255,215,0,0.2);
+                transform: translateY(-2px);
+            }
+            
+            .playoff-fase-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.25rem;
+                padding-bottom: 1rem;
+                border-bottom: 2px solid rgba(255,215,0,0.2);
+            }
+            
+            .playoff-fase-nome {
+                margin: 0;
+                font-size: 1.35rem;
+                font-weight: 800;
+                color: #FFD700;
+                display: flex;
+                align-items: center;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            
+            .playoff-fase-partidas {
+                font-size: 0.85rem;
+                color: var(--text-300);
+                font-weight: 600;
+                padding: 0.4rem 0.8rem;
+                background: rgba(255,255,255,0.05);
+                border-radius: 20px;
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .playoff-matches-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+                gap: 1.25rem;
+            }
+            
+            .playoff-match-card {
+                background: rgba(255,255,255,0.02);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 14px;
+                padding: 1.25rem;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .playoff-match-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #FFD700, var(--accent));
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            
+            .playoff-match-card:hover {
+                background: rgba(255,255,255,0.04);
+                border-color: rgba(255,215,0,0.3);
+                transform: translateY(-4px);
+                box-shadow: 0 8px 20px rgba(255,215,0,0.15);
+            }
+            
+            .playoff-match-card:hover::before {
+                opacity: 1;
+            }
+            
+            .playoff-match-teams {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                margin-bottom: 1rem;
+            }
+            
+            .playoff-team {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 0.75rem;
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 10px;
+                transition: all 0.2s ease;
+            }
+            
+            .playoff-team:hover {
+                background: rgba(255,255,255,0.05);
+                border-color: rgba(255,255,255,0.12);
+            }
+            
+            .playoff-team.winner {
+                background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05));
+                border: 2px solid rgba(255,215,0,0.4);
+                box-shadow: 0 4px 12px rgba(255,215,0,0.2);
+            }
+            
+            .playoff-team-initial {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 36px;
+                height: 36px;
+                border-radius: 10px;
+                background: linear-gradient(135deg, rgba(0,225,255,0.2), rgba(0,225,255,0.1));
+                border: 2px solid rgba(0,225,255,0.3);
+                color: var(--accent);
+                font-weight: 800;
+                font-size: 1rem;
+                flex-shrink: 0;
+            }
+            
+            .playoff-team.winner .playoff-team-initial {
+                background: linear-gradient(135deg, rgba(255,215,0,0.3), rgba(255,215,0,0.15));
+                border-color: rgba(255,215,0,0.5);
+                color: #FFD700;
+            }
+            
+            .playoff-team-name {
+                flex: 1;
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: var(--text-100);
+                min-width: 0;
+            }
+            
+            .playoff-team.winner .playoff-team-name {
+                font-weight: 800;
+                color: #FFD700;
+            }
+            
+            .playoff-winner-icon {
+                font-size: 1.1rem;
+                color: #FFD700;
+                margin-left: 0.5rem;
+                flex-shrink: 0;
+                animation: twinkle 1.5s ease-in-out infinite;
+            }
+            
+            @keyframes twinkle {
+                0%, 100% { opacity: 1; transform: scale(1); }
+                50% { opacity: 0.6; transform: scale(1.1); }
+            }
+            
+            /* Coroa do Campeão na Final */
+            .playoff-champion-icon {
+                font-size: 1.5rem;
+                color: #FFD700;
+                margin-left: 0.5rem;
+                flex-shrink: 0;
+                animation: crownShine 2s ease-in-out infinite;
+                filter: drop-shadow(0 0 10px rgba(255,215,0,0.8));
+            }
+            
+            @keyframes crownShine {
+                0%, 100% { 
+                    opacity: 1; 
+                    transform: scale(1) rotate(0deg);
+                    filter: drop-shadow(0 0 10px rgba(255,215,0,0.8));
+                }
+                50% { 
+                    opacity: 0.8; 
+                    transform: scale(1.15) rotate(-5deg);
+                    filter: drop-shadow(0 0 20px rgba(255,215,0,1));
+                }
+            }
+            
+            .playoff-vs {
+                text-align: center;
+                font-size: 0.8rem;
+                font-weight: 800;
+                color: var(--text-300);
+                padding: 0.4rem;
+                background: rgba(255,255,255,0.05);
+                border-radius: 8px;
+                letter-spacing: 1px;
+            }
+            
+            .playoff-match-actions {
+                display: flex;
+                gap: 0.75rem;
+                margin-top: 1rem;
+                padding-top: 1rem;
+                border-top: 1px solid rgba(255,255,255,0.08);
+                justify-content: center;
+            }
+            
+            .playoff-match-status {
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 gap: 0.5rem;
-                margin-top: 0.5rem;
-                padding-top: 0.5rem;
-                border-top: 1px solid rgba(255,255,255,0.05);
-                flex-wrap: wrap;
-                width: 100%;
+                margin-top: 0.75rem;
+                padding: 0.5rem;
+                background: rgba(34,197,94,0.12);
+                border: 1px solid rgba(34,197,94,0.3);
+                border-radius: 8px;
+                color: var(--success);
+                font-size: 0.85rem;
+                font-weight: 700;
             }
             
-            .swiss-action-btn {
-                padding: 0.4rem 0.7rem !important;
-                border-radius: 8px !important;
-                background: rgba(255,255,255,0.05) !important;
-                border: 1px solid rgba(255,255,255,0.12) !important;
-                color: var(--text-200) !important;
-                font-weight: 600 !important;
-                font-size: 0.75rem !important;
-                letter-spacing: 0.2px !important;
-                transition: all 0.25s ease !important;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
-                white-space: nowrap !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                gap: 0.35rem !important;
-                flex: 0 0 auto !important;
-                min-height: 30px !important;
-            }
-            
-            .swiss-action-btn:hover {
-                background: rgba(255,255,255,0.08) !important;
-                border-color: rgba(255,255,255,0.2) !important;
-                color: var(--text-100) !important;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
-                transform: translateY(-1px) !important;
-            }
-            
-            .swiss-action-btn .pi {
-                font-size: 0.8rem !important;
-            }
-            
-            .swiss-action-btn--accent {
-                background: rgba(0,225,255,0.1) !important;
-                border: 1px solid rgba(0,225,255,0.35) !important;
-                color: var(--accent) !important;
-            }
-            
-            .swiss-action-btn--accent:hover {
-                background: rgba(0,225,255,0.18) !important;
-                border-color: rgba(0,225,255,0.4) !important;
-                box-shadow: 0 2px 8px rgba(0,225,255,0.25) !important;
+            .playoff-match-status i {
+                font-size: 1rem;
             }
             .status-tag.qualified { background: rgba(34,197,94,0.12); color: var(--success); border: 1px solid rgba(34,197,94,0.25); }
             .status-tag.eliminated { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
@@ -1507,7 +2286,7 @@
                 color: var(--text-200) !important;
             }
             .classificacao-table .col-pos { width: 80px; text-align: center; }
-            .classificacao-table .col-team { min-width: 200px; }
+            .classificacao-table .col-team { min-width: 250px; }
             .classificacao-table .col-stat { width: 80px; text-align: center; }
             .classificacao-table .col-record { width: 120px; text-align: center; }
             
@@ -1529,6 +2308,13 @@
                 border-color: rgba(255,215,0,0.4);
                 color: #FFD700;
                 box-shadow: 0 0 12px rgba(255,215,0,0.3);
+            }
+            
+            /* Destaque extra para primeiro colocado classificado */
+            .classificacao-table .ui-datatable-tbody > tr:first-child:has(.badge-classificado) {
+                background: linear-gradient(90deg, rgba(255,215,0,0.15), rgba(34,197,94,0.08), rgba(34,197,94,0.02)) !important;
+                border-left: 4px solid #FFD700 !important;
+                box-shadow: 0 4px 12px rgba(255,215,0,0.2);
             }
             .classificacao-table .ui-datatable-tbody > tr:nth-child(2) .posicao-badge {
                 background: linear-gradient(135deg, rgba(192,192,192,0.2), rgba(192,192,192,0.05));
@@ -1566,10 +2352,88 @@
                 object-fit: cover;
                 border-radius: 8px;
             }
+            .team-classificacao-info {
+                display: flex;
+                flex-direction: column;
+                gap: 0.35rem;
+            }
             .team-classificacao-name {
                 font-weight: 600;
                 color: var(--text-100);
                 font-size: 0.95rem;
+            }
+            
+            /* Badges de Status na Classificação */
+            .badge-classificado {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.35rem;
+                padding: 0.25rem 0.6rem;
+                background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.1));
+                border: 1px solid rgba(34,197,94,0.4);
+                border-radius: 12px;
+                color: var(--success);
+                font-size: 0.7rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                width: fit-content;
+                animation: pulseGreen 2s ease-in-out infinite;
+            }
+            
+            .badge-classificado i {
+                font-size: 0.75rem;
+            }
+            
+            .badge-eliminado {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.35rem;
+                padding: 0.25rem 0.6rem;
+                background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.1));
+                border: 1px solid rgba(239,68,68,0.4);
+                border-radius: 12px;
+                color: #f87171;
+                font-size: 0.7rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                width: fit-content;
+            }
+            
+            .badge-eliminado i {
+                font-size: 0.75rem;
+            }
+            
+            @keyframes pulseGreen {
+                0%, 100% {
+                    box-shadow: 0 0 0 0 rgba(34,197,94,0.4);
+                }
+                50% {
+                    box-shadow: 0 0 0 6px rgba(34,197,94,0);
+                }
+            }
+            
+            /* Destaque visual nas linhas da tabela baseado no badge */
+            .classificacao-table .ui-datatable-tbody > tr:has(.badge-classificado) {
+                background: linear-gradient(90deg, rgba(34,197,94,0.12), rgba(34,197,94,0.02)) !important;
+                border-left: 3px solid var(--success) !important;
+            }
+            
+            .classificacao-table .ui-datatable-tbody > tr:has(.badge-eliminado) {
+                background: linear-gradient(90deg, rgba(239,68,68,0.08), rgba(239,68,68,0.02)) !important;
+                border-left: 3px solid #f87171 !important;
+                opacity: 0.7;
+            }
+            
+            .classificacao-table .ui-datatable-tbody > tr:has(.badge-classificado):hover {
+                background: linear-gradient(90deg, rgba(34,197,94,0.18), rgba(34,197,94,0.04)) !important;
+                border-left-color: var(--success) !important;
+            }
+            
+            .classificacao-table .ui-datatable-tbody > tr:has(.badge-eliminado):hover {
+                background: linear-gradient(90deg, rgba(239,68,68,0.12), rgba(239,68,68,0.04)) !important;
+                border-left-color: #f87171 !important;
             }
             
             .stat-value-wins {
@@ -1831,50 +2695,71 @@
                     font-size: 0.8rem !important;
                 }
                 
-                .swiss-column { 
-                    min-width: 280px;
-                    max-width: 300px;
-                }
-                .swiss-visual-matchups-container {
-                    padding: 0;
+                /* Swiss rounds vertical responsivo */
+                .swiss-rounds-vertical {
+                    max-height: 900px;
                 }
                 
-                .swiss-matchup-mini {
-                    padding: 0.75rem;
-                    gap: 0.45rem;
+                .matches-compact-grid {
+                    grid-template-columns: 1fr;
                 }
                 
-                .swiss-mini-team {
-                    min-height: 32px;
-                    padding: 0.45rem 0.6rem;
+                .match-compact-item {
+                    flex-direction: column;
+                    align-items: stretch;
+                    padding: 1rem;
+                    min-height: auto;
                 }
                 
-                .swiss-mini-team-initial {
-                    width: 26px;
-                    height: 26px;
-                    font-size: 0.8rem;
+                .match-teams {
+                    flex-direction: column;
+                    gap: 0.6rem;
                 }
                 
-                .swiss-mini-team-name {
-                    font-size: 0.8rem;
+                .team-name {
+                    font-size: 0.85rem;
+                    max-width: 100%;
                 }
                 
-                .swiss-mini-actions {
+                .match-actions-compact {
                     justify-content: center;
-                    gap: 0.4rem;
-                    padding-top: 0.5rem;
-                    margin-top: 0.4rem;
+                    width: 100%;
+                    gap: 0.75rem;
                 }
                 
-                .swiss-action-btn {
-                    padding: 0.35rem 0.6rem !important;
-                    font-size: 0.7rem !important;
-                    min-height: 28px !important;
+                .btn-compact {
+                    flex: 1;
+                    min-width: 100px !important;
                 }
                 
-                .swiss-action-btn .pi {
-                    font-size: 0.75rem !important;
+                .round-row-header {
+                    flex-direction: column;
+                    align-items: flex-start;
                 }
+                
+                .round-records {
+                    width: 100%;
+                }
+                
+                /* Playoffs responsivo */
+                .playoff-matches-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .playoff-match-card {
+                    padding: 1rem;
+                }
+                
+                .playoff-fase-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 0.75rem;
+                }
+                
+                .playoff-fase-nome {
+                    font-size: 1.1rem;
+                }
+                
                 .dialogo-resultado .ui-dialog {
                     width: 95% !important;
                     max-width: 95% !important;
@@ -1887,6 +2772,378 @@
                 }
                 .dialog-footer-actions .p-button {
                     width: 100%;
+                }
+            }
+            
+            /* ===========================
+               ESTILOS PARA GRUPOS (GRUPO_PLAYOFF)
+               =========================== */
+            
+            .grupo-card {
+                background: linear-gradient(135deg, var(--bg-800), var(--bg-900)) !important;
+                border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            
+            .grupo-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+            }
+            
+            .grupo-header-wrapper {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            
+            .grupo-title-group {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+            
+            .grupo-badge {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                background: linear-gradient(135deg, var(--accent), var(--accent-2));
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            }
+            
+            .grupo-title-container {
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+            
+            .grupo-title {
+                font-size: 1.5rem;
+                font-weight: 800;
+                color: var(--text-100);
+                margin: 0;
+                letter-spacing: 0.5px;
+                line-height: 1.2;
+            }
+            
+            .grupo-subtitle {
+                font-size: 0.85rem;
+                color: var(--text-300);
+                font-weight: 500;
+            }
+            
+            .grupo-content-layout {
+                display: grid;
+                grid-template-columns: 500px 1fr;
+                gap: 2rem;
+                margin-top: 1rem;
+            }
+            
+            /* Classificação do Grupo */
+            .grupo-classificacao-section {
+                background: rgba(255, 255, 255, 0.03);
+                border-radius: 12px;
+                padding: 2rem;
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                height: fit-content;
+            }
+            
+            .section-title {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: var(--text-200);
+                margin-bottom: 1.5rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            
+            .classificacao-table-grupo {
+                background: transparent !important;
+                border: none !important;
+            }
+            
+            .classificacao-table-grupo .ui-datatable-header,
+            .classificacao-table-grupo .p-datatable-header {
+                background: rgba(255, 255, 255, 0.04) !important;
+                border: none !important;
+                color: var(--text-300) !important;
+                font-weight: 600;
+                font-size: 0.9rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                padding: 1rem 0.75rem !important;
+            }
+            
+            .classificacao-table-grupo .ui-datatable-tbody > tr,
+            .classificacao-table-grupo .p-datatable-tbody > tr {
+                background: rgba(255, 255, 255, 0.02) !important;
+                border: 1px solid rgba(255, 255, 255, 0.04) !important;
+                transition: all 0.2s ease;
+            }
+            
+            .classificacao-table-grupo .ui-datatable-tbody > tr > td,
+            .classificacao-table-grupo .p-datatable-tbody > tr > td {
+                padding: 1rem 0.75rem !important;
+                vertical-align: middle;
+            }
+            
+            .classificacao-table-grupo .ui-datatable-tbody > tr:hover,
+            .classificacao-table-grupo .p-datatable-tbody > tr:hover {
+                background: rgba(255, 255, 255, 0.06) !important;
+                transform: translateX(4px);
+            }
+            
+            .classificacao-posicao-badge {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                font-weight: 800;
+                font-size: 1rem;
+                background: rgba(255, 255, 255, 0.08);
+                color: var(--text-200);
+                border: 2px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .classificacao-posicao-badge.qualified {
+                background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.1));
+                color: var(--gold);
+                border-color: var(--gold);
+                box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+            }
+            
+            .time-info-cell {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+            
+            .team-initial {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 42px;
+                height: 42px;
+                border-radius: 10px;
+                font-weight: 900;
+                font-size: 1rem;
+                background: linear-gradient(135deg, var(--accent), var(--accent-2));
+                color: white;
+                flex-shrink: 0;
+            }
+            
+            .team-name {
+                font-weight: 600;
+                color: var(--text-100);
+                font-size: 1.05rem;
+                line-height: 1.4;
+                word-break: break-word;
+            }
+            
+            .stat-value {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.4rem 0.75rem;
+                border-radius: 8px;
+                font-weight: 700;
+                font-size: 1rem;
+                min-width: 45px;
+            }
+            
+            .stat-value.victories {
+                background: rgba(34, 197, 94, 0.15);
+                color: var(--success);
+                border: 1px solid rgba(34, 197, 94, 0.3);
+            }
+            
+            .stat-value.defeats {
+                background: rgba(239, 68, 68, 0.15);
+                color: var(--error);
+                border: 1px solid rgba(239, 68, 68, 0.3);
+            }
+            
+            /* Partidas do Grupo */
+            .grupo-partidas-section {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .grupo-matches-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 0.75rem;
+            }
+            
+            .grupo-match-card {
+                background: rgba(255, 255, 255, 0.04);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 8px;
+                padding: 0.75rem;
+                transition: all 0.3s ease;
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .grupo-match-card:hover {
+                background: rgba(255, 255, 255, 0.06);
+                border-color: var(--accent);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            }
+            
+            .grupo-match-card.finalized {
+                border-color: rgba(34, 197, 94, 0.3);
+                background: rgba(34, 197, 94, 0.05);
+            }
+            
+            .match-teams-row {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .team-entry {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.4rem;
+                background: rgba(255, 255, 255, 0.02);
+                border-radius: 6px;
+                border: 1px solid rgba(255, 255, 255, 0.04);
+            }
+            
+            .team-entry .team-initial {
+                width: 28px;
+                height: 28px;
+                font-size: 0.75rem;
+            }
+            
+            .team-entry .team-name {
+                font-size: 0.85rem;
+            }
+            
+            .vs-divider {
+                text-align: center;
+                font-weight: 800;
+                font-size: 0.65rem;
+                color: var(--text-400);
+                letter-spacing: 1.5px;
+                padding: 0.15rem 0;
+            }
+            
+            .winner-icon {
+                margin-left: auto;
+                color: var(--success);
+                font-size: 1.1rem;
+                animation: pulse 2s ease-in-out infinite;
+            }
+            
+            @keyframes pulse {
+                0%, 100% { opacity: 1; transform: scale(1); }
+                50% { opacity: 0.7; transform: scale(1.1); }
+            }
+            
+            .match-actions {
+                display: flex;
+                gap: 0.4rem;
+                justify-content: flex-end;
+            }
+            
+            .match-action-btn {
+                padding: 0.4rem 0.75rem !important;
+                font-size: 0.75rem !important;
+                border-radius: 6px !important;
+                font-weight: 600 !important;
+                background: rgba(255, 255, 255, 0.08) !important;
+                border: 1px solid rgba(255, 255, 255, 0.15) !important;
+                color: var(--text-100) !important;
+                transition: all 0.2s ease !important;
+            }
+            
+            .match-action-btn:hover {
+                background: rgba(255, 255, 255, 0.12) !important;
+                border-color: var(--accent) !important;
+                transform: translateY(-2px);
+            }
+            
+            .match-action-btn--accent {
+                background: linear-gradient(135deg, var(--accent), var(--accent-2)) !important;
+                border: none !important;
+                color: white !important;
+            }
+            
+            .match-action-btn--accent:hover {
+                background: linear-gradient(135deg, var(--accent-2), var(--accent)) !important;
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+            }
+            
+            /* Botões de Ação */
+            .btn-gerar-grupos,
+            .btn-gerar-playoffs-grupos {
+                padding: 1rem 2rem !important;
+                font-size: 1rem !important;
+                font-weight: 700 !important;
+                border-radius: 12px !important;
+                background: linear-gradient(135deg, var(--accent), var(--accent-2)) !important;
+                border: none !important;
+                color: white !important;
+                box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3) !important;
+                transition: all 0.3s ease !important;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            
+            .btn-gerar-grupos:hover,
+            .btn-gerar-playoffs-grupos:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5) !important;
+                background: linear-gradient(135deg, var(--accent-2), var(--accent)) !important;
+            }
+            
+            /* Responsivo */
+            @media (max-width: 1200px) {
+                .grupo-content-layout {
+                    grid-template-columns: 450px 1fr;
+                }
+            }
+            
+            @media (max-width: 1024px) {
+                .grupo-content-layout {
+                    grid-template-columns: 1fr;
+                }
+                
+                .grupo-classificacao-section {
+                    order: 2;
+                }
+                
+                .grupo-partidas-section {
+                    order: 1;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .grupo-matches-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .grupo-header-wrapper {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                
+                .grupo-title {
+                    font-size: 1.25rem;
                 }
             }
         </style>

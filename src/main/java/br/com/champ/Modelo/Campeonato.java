@@ -33,6 +33,7 @@ public class Campeonato extends ModeloGenerico implements Serializable {
     private Categoria categoria;
     private List<Grupo> grupos;
     private List<Fase> fasesCamp;
+    private Team campeao;
     private String observacao;
     private boolean gerarTimesPorSorteio;
     private Integer quantidadePorTime;
@@ -163,6 +164,14 @@ public class Campeonato extends ModeloGenerico implements Serializable {
 
     public void setFasesCamp(List<Fase> fasesCamp) {
         this.fasesCamp = fasesCamp;
+    }
+
+    public Team getCampeao() {
+        return campeao;
+    }
+
+    public void setCampeao(Team campeao) {
+        this.campeao = campeao;
     }
 
     public String getObservacao() {
