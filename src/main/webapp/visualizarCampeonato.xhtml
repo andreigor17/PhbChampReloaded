@@ -232,8 +232,9 @@
                                      icon="pi pi-random"
                                      styleClass="btn-sortear-times"
                                      action="#{managerCamp.sortearTimes()}"
-                                     update="@form"
-                                     onclick="return confirm('Tem certeza que deseja sortear os times? Esta ação não pode ser desfeita.');" />
+                                     process="@this"
+                                     ajax="false"
+                                     onclick="if (!confirm('Tem certeza que deseja sortear os times? Esta ação não pode ser desfeita.')) { return false; }" />
                 </div>
             </h:panelGroup>
 
