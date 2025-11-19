@@ -760,61 +760,95 @@ public class ManagerCamp extends ManagerBase {
      */
     public void sortearTimes() {
         try {
+            System.out.println("====== INICIANDO SORTEIO DE TIMES ======");
+            
             // Verifica se é admin
             if (!isAdmin()) {
+                System.err.println("Erro: Usuário não é admin");
                 Mensagem.error("Apenas administradores podem sortear os times!");
                 return;
             }
+            System.out.println("✓ Usuário é admin");
 
             if (this.camp == null || this.camp.getId() == null) {
+                System.err.println("Erro: Campeonato não encontrado");
                 Mensagem.error("Campeonato não encontrado!");
                 return;
             }
+            System.out.println("✓ Campeonato encontrado: ID=" + this.camp.getId());
 
             // Atualiza o campeonato do banco para ter dados frescos
             this.camp = this.campeonatoServico.buscaCamp(this.camp.getId());
+            System.out.println("✓ Campeonato atualizado do banco");
 
             // Verifica se é campeonato de TIME com gerarTimesPorSorteio
             if (this.camp.getCategoria() == null || !"TIME".equals(this.camp.getCategoria().getNome())) {
+                System.err.println("Erro: Campeonato não é de times. Categoria: " + (this.camp.getCategoria() != null ? this.camp.getCategoria().getNome() : "null"));
                 Mensagem.error("Este campeonato não é de times!");
                 return;
             }
+            System.out.println("✓ Campeonato é de times");
 
             if (!this.camp.isGerarTimesPorSorteio()) {
+                System.err.println("Erro: Campeonato não usa sorteio automático");
                 Mensagem.error("Este campeonato não utiliza sorteio automático de times!");
                 return;
             }
+            System.out.println("✓ Campeonato usa sorteio automático");
 
             // Verifica se há players inscritos
             if (this.camp.getPlayers() == null || this.camp.getPlayers().isEmpty()) {
+                System.err.println("Erro: Nenhum jogador inscrito. Players: " + (this.camp.getPlayers() != null ? this.camp.getPlayers().size() : "null"));
                 Mensagem.error("Não há jogadores inscritos para sortear!");
                 return;
             }
+            System.out.println("✓ " + this.camp.getPlayers().size() + " jogadores inscritos");
 
             // Verifica se quantidadePorTime está definido
             if (this.camp.getQuantidadePorTime() == null || this.camp.getQuantidadePorTime() <= 0) {
+                System.err.println("Erro: Quantidade por time inválida: " + this.camp.getQuantidadePorTime());
                 Mensagem.error("Quantidade de jogadores por time não está definida!");
                 return;
             }
+            System.out.println("✓ Quantidade por time: " + this.camp.getQuantidadePorTime());
 
             // Verifica se já existem times criados (evita duplicação)
             if (this.camp.getTeams() != null && !this.camp.getTeams().isEmpty()) {
+                System.err.println("Erro: Times já foram sorteados. Total de times: " + this.camp.getTeams().size());
                 Mensagem.error("Os times já foram sorteados anteriormente!");
                 return;
             }
+            System.out.println("✓ Nenhum time foi sorteado ainda");
 
             // Cria uma cópia da lista de players e embaralha
             List<Player> playersParaSortear = new ArrayList<>(this.camp.getPlayers());
             Collections.shuffle(playersParaSortear);
+            System.out.println("✓ Lista de jogadores embaralhada");
 
             int quantidadePorTime = this.camp.getQuantidadePorTime();
             List<Team> timesCriados = new ArrayList<>();
             int numeroTime = 1;
+            
+            // HashSet para garantir que nenhum jogador seja usado mais de uma vez
+            Set<Long> jogadoresJaUsados = new HashSet<>();
 
+            System.out.println("====== INICIANDO CRIAÇÃO DOS TIMES ======");
+            
             // Divide os players em grupos e cria os times
             for (int i = 0; i < playersParaSortear.size(); i += quantidadePorTime) {
                 int fim = Math.min(i + quantidadePorTime, playersParaSortear.size());
                 List<Player> playersDoTime = new ArrayList<>(playersParaSortear.subList(i, fim));
+                
+                // Validação extra: verifica se algum jogador já foi usado
+                for (Player player : playersDoTime) {
+                    if (player.getId() != null && jogadoresJaUsados.contains(player.getId())) {
+                        Mensagem.error("Erro: Jogador " + player.getNome() + " foi sorteado mais de uma vez!");
+                        return;
+                    }
+                    if (player.getId() != null) {
+                        jogadoresJaUsados.add(player.getId());
+                    }
+                }
 
                 // Cria um novo time
                 Team novoTime = new Team();
@@ -825,7 +859,7 @@ public class ManagerCamp extends ManagerBase {
                     String nick2 = playersDoTime.get(1).getNick() != null ? playersDoTime.get(1).getNick() : playersDoTime.get(1).getNome();
                     novoTime.setNome("Time " + nick1 + " e " + nick2);
                 } else {
-                    novoTime.setNome("Time " + numeroTime);
+                    novoTime.setNome("Time " + playersDoTime.get(0).getNick());
                 }
                 
                 novoTime.setPlayers(playersDoTime);
@@ -841,25 +875,34 @@ public class ManagerCamp extends ManagerBase {
                 // Salva o time
                 Team timeSalvo = teamServico.save(novoTime, null, Url.SALVAR_TIME.getNome());
                 timesCriados.add(timeSalvo);
+                System.out.println("✓ Time " + numeroTime + " criado: " + novoTime.getNome() + " (ID: " + timeSalvo.getId() + ")");
 
                 numeroTime++;
             }
+
+            System.out.println("====== FINALIZANDO SORTEIO ======");
+            System.out.println("Total de times criados: " + timesCriados.size());
 
             // Adiciona os times ao campeonato
             if (this.camp.getTeams() == null) {
                 this.camp.setTeams(new ArrayList<>());
             }
             this.camp.getTeams().addAll(timesCriados);
+            System.out.println("✓ Times adicionados ao campeonato");
 
             // Atualiza o campeonato
             this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
+            System.out.println("✓ Campeonato atualizado no banco");
 
+            System.out.println("====== SORTEIO CONCLUÍDO COM SUCESSO ======");
+            
             Mensagem.successAndRedirect(
                 "Times sorteados com sucesso! " + timesCriados.size() + " times criados.",
                 "visualizarCampeonato.xhtml?id=" + this.camp.getId()
             );
 
         } catch (Exception ex) {
+            System.err.println("====== ERRO NO SORTEIO ======");
             ex.printStackTrace();
             Mensagem.error("Erro ao sortear times: " + ex.getMessage());
         }
@@ -1311,6 +1354,7 @@ public class ManagerCamp extends ManagerBase {
     /**
      * Gera os emparelhamentos para a próxima rodada do sistema suíço
      * Segue as regras: emparelha times com records similares, evita rematches
+     * Times com 3:0 ou 0:3 não jogam mais
      */
     private List<Partida> gerarEmparelhamentosSwiss(Map<Team, SwissRecord> records, int rodadaNumero) throws Exception {
         List<Partida> partidasGeradas = new ArrayList<>();
@@ -1327,6 +1371,13 @@ public class ManagerCamp extends ManagerBase {
         if (rodadaNumero == 1) {
             Collections.shuffle(timesOrdenados);
         }
+        
+        // Remove times que já alcançaram 3 vitórias (3:0, 3:1, 3:2) ou 3 derrotas (0:3, 1:3, 2:3)
+        // Esses times não jogam mais nas próximas rodadas
+        timesOrdenados.removeIf(time -> {
+            SwissRecord record = records.get(time);
+            return record.wins >= 3 || record.losses >= 3;
+        });
         
         // Lista de times já emparelhados nesta rodada
         Set<Long> timesEmparelhados = new HashSet<>();
