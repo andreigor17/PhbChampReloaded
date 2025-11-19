@@ -17,6 +17,55 @@ import okhttp3.Response;
  */
 public class RequisicaoUtils {
 
+    /**
+     * Método de requisição POST que lança exceção para erros de autenticação
+     * @param url URL do endpoint
+     * @param json JSON a ser enviado
+     * @return String com a resposta
+     * @throws AuthenticationException quando o código de status é 401
+     */
+    public static String requisicaoPostComAuth(String url, String json) throws AuthenticationException {
+        try {
+
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .connectTimeout(1, TimeUnit.MINUTES)
+                    .writeTimeout(1, TimeUnit.MINUTES)
+                    .readTimeout(1, TimeUnit.MINUTES).build();
+
+            MediaType mediaType = MediaType.parse("application/json");
+            RequestBody body = RequestBody.create(mediaType, json);
+            System.err.println("body " + json);
+            System.err.println("url " + url);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .addHeader("Content-Type", "application/json")
+                    .build();
+
+            try (Response response = client.newCall(request).execute()) {
+                int statusCode = response.code();
+                
+                // Verifica se é erro 401 (Unauthorized)
+                if (statusCode == 401) {
+                    throw new AuthenticationException("Credenciais inválidas ou usuário não encontrado", 401);
+                }
+                
+                if (!response.isSuccessful()) {
+                    System.out.println("Erro inesperado: " + response);
+                    return null;
+                } 
+
+                return response.body().string();
+            }
+        } catch (AuthenticationException e) {
+            // Repassa a exceção de autenticação
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static String requisicaoPost(String url, String json) {
         try {
 

@@ -44,6 +44,8 @@ public class ManagerPrincipal extends ManagerBase {
     private String token;
     private String tokenReset;
     private LoginVo usuario;
+    private boolean loginSucesso = false;
+    private String redirectUrl = "index.xhtml";
 
     @PostConstruct
     public void init() {
@@ -105,25 +107,47 @@ public class ManagerPrincipal extends ManagerBase {
         
     public void login() {
         try {
-
-            if (loginServico.autenticar(this.usuario) != null) {
-                // Verifica se existe returnUrl na sessão (vindo do botão "Login para se inscrever")
-                String returnUrl = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("returnUrl");
-                if (returnUrl != null && !returnUrl.trim().isEmpty()) {
-                    // Remove o returnUrl da sessão após usar
-                    FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("returnUrl");
-                    // Redireciona para a URL de retorno (tela do campeonato)
-                    externalContext.redirect(returnUrl);
-                } else {
-                    // Redirecionamento padrão
-                    externalContext.redirect("index.xhtml");
-                }
-            } else {
-                Mensagem.error("Email ou senha inválidos! Verifique e tente novamente.");
+            // Reseta o flag de sucesso
+            this.loginSucesso = false;
+            
+            // Validação dos campos
+            if (this.usuario == null || this.usuario.getLogin() == null || this.usuario.getLogin().trim().isEmpty()
+                    || this.usuario.getSenha() == null || this.usuario.getSenha().trim().isEmpty()) {
+                Mensagem.error("Por favor, preencha o usuário e a senha.");
+                return; // Permanece na página para exibir a mensagem
             }
 
+            String token = loginServico.autenticar(this.usuario);
+            
+            if (token != null) {
+                // Login bem-sucedido - prepara redirect
+                System.out.println("Login bem-sucedido! Token recebido.");
+                
+                // Verifica se existe returnUrl na sessão (vindo do botão "Login para se inscrever")
+                String returnUrlSession = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("returnUrl");
+                if (returnUrlSession != null && !returnUrlSession.trim().isEmpty()) {
+                    // Remove o returnUrl da sessão após usar
+                    FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("returnUrl");
+                    this.redirectUrl = returnUrlSession;
+                } else {
+                    // Redirecionamento padrão
+                    this.redirectUrl = "index.xhtml";
+                }
+                
+                // Marca sucesso para executar redirect via JavaScript
+                this.loginSucesso = true;
+            } else {
+                // Falha na autenticação - erro genérico
+                Mensagem.error("Erro ao efetuar login. Tente novamente.");
+            }
+
+        } catch (br.com.champ.Utilitario.AuthenticationException e) {
+            // Erro 401 - Credenciais inválidas ou usuário não encontrado
+            Mensagem.error("Não existe player cadastrado com esses dados. Verifique suas credenciais ou cadastre-se.");
+            System.err.println("Erro de autenticação: " + e.getMessage());
+            e.printStackTrace();
         } catch (Exception e) {
-            Mensagem.error("Erro ao efetuar login.");
+            Mensagem.error("Erro ao efetuar login. Tente novamente.");
             e.printStackTrace();
         }
     }
@@ -170,6 +194,22 @@ public class ManagerPrincipal extends ManagerBase {
 
     public void setUsuario(LoginVo usuario) {
         this.usuario = usuario;
+    }
+
+    public boolean isLoginSucesso() {
+        return loginSucesso;
+    }
+
+    public void setLoginSucesso(boolean loginSucesso) {
+        this.loginSucesso = loginSucesso;
+    }
+
+    public String getRedirectUrl() {
+        return redirectUrl;
+    }
+
+    public void setRedirectUrl(String redirectUrl) {
+        this.redirectUrl = redirectUrl;
     }
 
     public String buildSteamLoginUrl() {

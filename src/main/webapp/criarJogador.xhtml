@@ -20,6 +20,12 @@
 
         <h:form id="playerForm" enctype="multipart/form-data">
         <p:card styleClass="glass-card player-card">
+                <!-- Mensagens flutuantes (Toast) -->
+                <p:growl id="growl" showDetail="false" sticky="false" life="6000" />
+                
+                <!-- Mensagens de Erro/Sucesso -->
+                <p:messages id="messages" showDetail="false" closable="true" styleClass="custom-messages mb-3" />
+                
                 <p:remoteCommand name="atualizarImagem" update="playerPhotoPanel uploadPanel"/>
 
                 <div class="grid player-grid">
@@ -194,7 +200,7 @@
                     <p:commandButton value="Salvar jogador"
                                      icon="pi pi-check"
                                      process="@form"
-                                     update="@form"
+                                     update="growl messages"
                                      styleClass="action-btn action-btn--primary"
                                      actionListener="#{managerCriarPlayer.salvarPlayer}"/>
                 </div>
@@ -205,6 +211,208 @@
             .section-description {
                 color: var(--text-300);
                 margin-top: .35rem;
+            }
+
+            /* Mensagens de Erro/Sucesso */
+            .custom-messages,
+            .custom-messages .ui-messages,
+            .custom-messages .p-messages {
+                margin-bottom: 1.5rem !important;
+                border-radius: 12px !important;
+                background: rgba(255,255,255,0.05) !important;
+                border: 1.5px solid rgba(255,138,61,0.3) !important;
+                padding: 1rem !important;
+            }
+
+            .custom-messages .ui-messages-error,
+            .custom-messages .p-messages-error {
+                background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(220,38,38,0.1)) !important;
+                border-left: 4px solid #ef4444 !important;
+                color: #fca5a5 !important;
+            }
+
+            .custom-messages .ui-messages-error .ui-messages-error-icon,
+            .custom-messages .p-messages-error .p-message-icon {
+                color: #ef4444 !important;
+            }
+
+            .custom-messages .ui-messages-error-summary,
+            .custom-messages .p-message-summary {
+                color: var(--text-100) !important;
+                font-weight: 600 !important;
+                font-size: 0.95rem !important;
+            }
+
+            .custom-messages .ui-messages-info,
+            .custom-messages .p-messages-info {
+                background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(37,99,235,0.1)) !important;
+                border-left: 4px solid #3b82f6 !important;
+                color: #93c5fd !important;
+            }
+
+            .custom-messages .ui-messages-success,
+            .custom-messages .p-messages-success {
+                background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(22,163,74,0.1)) !important;
+                border-left: 4px solid #22c55e !important;
+                color: #86efac !important;
+            }
+
+            .custom-messages .ui-messages-warn,
+            .custom-messages .p-messages-warn {
+                background: linear-gradient(135deg, rgba(251,146,60,0.15), rgba(249,115,22,0.1)) !important;
+                border-left: 4px solid #fb923c !important;
+                color: #fdba74 !important;
+            }
+
+            /* Growl - Notificações Flutuantes */
+            .ui-growl,
+            .p-growl {
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                z-index: 9999;
+                width: auto;
+                max-width: 450px;
+            }
+
+            .ui-growl-item-container,
+            .p-growl-item-container {
+                margin-bottom: 1rem;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+                backdrop-filter: blur(10px);
+                animation: slideInRight 0.3s ease-out;
+            }
+
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            .ui-growl-item,
+            .p-growl-item {
+                padding: 1rem 1.25rem !important;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            /* Growl Error */
+            .ui-growl-error,
+            .p-growl-message-error {
+                background: linear-gradient(135deg, rgba(239,68,68,0.95), rgba(220,38,38,0.9)) !important;
+                border-left: 4px solid #dc2626 !important;
+                border: 1px solid rgba(255,255,255,0.1) !important;
+            }
+
+            .ui-growl-error .ui-growl-icon-close,
+            .p-growl-message-error .p-growl-icon-close {
+                color: white !important;
+            }
+
+            .ui-growl-error .ui-growl-image,
+            .p-growl-message-error .p-growl-image {
+                font-size: 1.5rem !important;
+                color: white !important;
+            }
+
+            .ui-growl-error .ui-growl-title,
+            .p-growl-message-error .p-growl-title {
+                color: white !important;
+                font-weight: 700 !important;
+                font-size: 0.95rem !important;
+                margin-bottom: 0.25rem;
+            }
+
+            .ui-growl-error .ui-growl-message,
+            .p-growl-message-error .p-growl-detail {
+                color: rgba(255,255,255,0.95) !important;
+                font-size: 0.9rem !important;
+            }
+
+            /* Growl Success */
+            .ui-growl-info,
+            .p-growl-message-info {
+                background: linear-gradient(135deg, rgba(34,197,94,0.95), rgba(22,163,74,0.9)) !important;
+                border-left: 4px solid #16a34a !important;
+                border: 1px solid rgba(255,255,255,0.1) !important;
+            }
+
+            .ui-growl-info .ui-growl-icon-close,
+            .p-growl-message-info .p-growl-icon-close {
+                color: white !important;
+            }
+
+            .ui-growl-info .ui-growl-image,
+            .p-growl-message-info .p-growl-image {
+                font-size: 1.5rem !important;
+                color: white !important;
+            }
+
+            .ui-growl-info .ui-growl-title,
+            .p-growl-message-info .p-growl-title {
+                color: white !important;
+                font-weight: 700 !important;
+                font-size: 0.95rem !important;
+                margin-bottom: 0.25rem;
+            }
+
+            .ui-growl-info .ui-growl-message,
+            .p-growl-message-info .p-growl-detail {
+                color: rgba(255,255,255,0.95) !important;
+                font-size: 0.9rem !important;
+            }
+
+            /* Growl Warning */
+            .ui-growl-warn,
+            .p-growl-message-warn {
+                background: linear-gradient(135deg, rgba(251,146,60,0.95), rgba(249,115,22,0.9)) !important;
+                border-left: 4px solid #f97316 !important;
+                border: 1px solid rgba(255,255,255,0.1) !important;
+            }
+
+            .ui-growl-warn .ui-growl-icon-close,
+            .p-growl-message-warn .p-growl-icon-close {
+                color: white !important;
+            }
+
+            .ui-growl-warn .ui-growl-image,
+            .p-growl-message-warn .p-growl-image {
+                font-size: 1.5rem !important;
+                color: white !important;
+            }
+
+            .ui-growl-warn .ui-growl-title,
+            .p-growl-message-warn .p-growl-title {
+                color: white !important;
+                font-weight: 700 !important;
+                font-size: 0.95rem !important;
+                margin-bottom: 0.25rem;
+            }
+
+            .ui-growl-warn .ui-growl-message,
+            .p-growl-message-warn .p-growl-detail {
+                color: rgba(255,255,255,0.95) !important;
+                font-size: 0.9rem !important;
+            }
+
+            /* Botão fechar do Growl */
+            .ui-growl-icon-close,
+            .p-growl-icon-close {
+                opacity: 0.8;
+                transition: opacity 0.2s ease;
+            }
+
+            .ui-growl-icon-close:hover,
+            .p-growl-icon-close:hover {
+                opacity: 1;
             }
 
             .player-card {
@@ -699,6 +907,14 @@
             }
 
             @media (max-width: 768px) {
+                .ui-growl,
+                .p-growl {
+                    top: 20px;
+                    right: 10px;
+                    left: 10px;
+                    max-width: none;
+                }
+
                 .form-actions {
                     flex-direction: column;
                 }

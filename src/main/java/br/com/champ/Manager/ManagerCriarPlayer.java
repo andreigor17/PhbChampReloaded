@@ -237,6 +237,19 @@ public class ManagerCriarPlayer extends ManagerBase {
                 Mensagem.error("O campo Senha é obrigatório para criar uma conta.");
                 return;
             }
+            
+            // Verifica se já existe um player com esse login
+            try {
+                Player playerExistente = playerServico.buscarPlayerPorLogin(this.player.getLogin());
+                if (playerExistente != null) {
+                    Mensagem.error("Já existe um jogador cadastrado com este login. Por favor, escolha outro.");
+                    return;
+                }
+            } catch (Exception e) {
+                System.err.println("Erro ao verificar login existente: " + e.getMessage());
+                // Se der erro na verificação, continua o fluxo normal
+                // A API também fará essa validação
+            }
         }
 
         if ((this.jogos == null || this.jogos.isEmpty()) && jogoServico != null) {

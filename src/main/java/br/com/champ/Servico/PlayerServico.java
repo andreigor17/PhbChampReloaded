@@ -202,6 +202,56 @@ public class PlayerServico implements Serializable {
 
     }
 
+    /**
+     * Busca um player pelo login
+     * @param login Login do player
+     * @return Player encontrado ou null se não existir
+     */
+    public Player buscarPlayerPorLogin(String login) {
+        if (login == null || login.trim().isEmpty()) {
+            return null;
+        }
+        
+        try {
+            String encodedLogin = java.net.URLEncoder.encode(login.trim(), "UTF-8");
+            String url = pathToAPI() + Url.BUSCAR_PLAYER_LOGIN.getNome() + encodedLogin;
+            
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("GET");
+            con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            con.setRequestProperty("Accept", "application/json");
+            con.setRequestProperty("Accept-Charset", "UTF-8");
+            
+            int responseCode = con.getResponseCode();
+            
+            // Se não encontrou (404) ou outro erro, retorna null
+            if (responseCode == 404 || responseCode >= 400) {
+                System.err.println("Player não encontrado ou erro ao buscar login. Response Code: " + responseCode);
+                return null;
+            }
+            
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream(), java.nio.charset.StandardCharsets.UTF_8));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            
+            Gson gson = new Gson();
+            Player player = gson.fromJson(response.toString(), Player.class);
+            
+            return player;
+        } catch (IOException e) {
+            System.err.println("Erro ao buscar player por login: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Erro inesperado ao buscar player por login: " + e.getMessage());
+        }
+        return null;
+    }
+
     public List<Player> autoCompletePessoa() {
         return buscaPlayers();
     }

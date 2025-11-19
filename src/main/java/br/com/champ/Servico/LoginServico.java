@@ -45,7 +45,7 @@ public class LoginServico {
 
     }
 
-    public String autenticar(LoginVo pessoa) {
+    public String autenticar(LoginVo pessoa) throws br.com.champ.Utilitario.AuthenticationException {
         try {
 
             if (pessoa.getLogin() != null && !pessoa.getLogin().isBlank() && pessoa.getSenha() != null && !pessoa.getSenha().isBlank()) {
@@ -54,13 +54,17 @@ public class LoginServico {
 
                 try {
 
-                    String token = RequisicaoUtils.requisicaoPost(pathToAPI() + "/api/login/auth", json);
+                    String token = br.com.champ.Utilitario.RequisicaoUtils.requisicaoPostComAuth(pathToAPI() + "/api/login/auth", json);
                     if (token != null) {
                         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("token", token);
                         return token;
                     }
 
+                } catch (br.com.champ.Utilitario.AuthenticationException e) {
+                    // Repassa a exceção de autenticação para o Manager
+                    throw e;
                 } catch (Exception e) {
+                    e.printStackTrace();
                     return null;
                 }
 
@@ -68,6 +72,9 @@ public class LoginServico {
 
             return null;
 
+        } catch (br.com.champ.Utilitario.AuthenticationException e) {
+            // Repassa a exceção de autenticação
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

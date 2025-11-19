@@ -13,25 +13,38 @@
         
         <p:card styleClass="glass-card">
             <h:form id="jogadoresForm">
-                <div class="p-grid">
-                    <div class="p-col-12">
-                        <div class="p-inputgroup mb-3 search-group">
-                            <span class="p-inputgroup-addon glass-addon">
-                                <i class="pi pi-search"></i>
-                            </span>
-                            <p:inputText id="searchInput" placeholder="Buscar jogador..." styleClass="w-100 glass-input" 
-                                         value="#{managerPlayer.termoBusca}">
-                                <p:ajax event="keyup" listener="#{managerPlayer.pesquisarPlayer()}" 
-                                       update="jogadoresTable initialMessage noResultsMessage loadingIndicator" 
-                                       delay="500" global="false" />
-                            </p:inputText>
-                            <span class="p-inputgroup-addon glass-addon">
-                                <p:commandButton id="clearButton" icon="pi pi-times" styleClass="p-button-text" 
-                                               actionListener="#{managerPlayer.limparBusca()}" 
-                                               update="searchInput jogadoresTable initialMessage noResultsMessage" 
-                                               process="@this" />
-                            </span>
-                        </div>
+                <!-- Filtros em linha -->
+                <div class="filter-grid">
+                    <!-- Busca por nome -->
+                    <div class="filter-field">
+                        <label class="filter-label">
+                            <i class="pi pi-search"></i>
+                            <span>Nome do Jogador</span>
+                        </label>
+                        <p:inputText id="searchInput"
+                                     placeholder="Digite o nome..."
+                                     styleClass="filter-input"
+                                     value="#{managerPlayer.termoBusca}">
+                            <p:ajax event="keyup"
+                                    listener="#{managerPlayer.pesquisarPlayer()}"
+                                    update="jogadoresTable initialMessage noResultsMessage loadingIndicator"
+                                    delay="500"
+                                    global="false" />
+                        </p:inputText>
+                    </div>
+
+                    <!-- Botão limpar -->
+                    <div class="filter-field">
+                        <label class="filter-label filter-label-empty">
+                            <span></span>
+                        </label>
+                        <p:commandButton value="Limpar Filtros"
+                                         icon="pi pi-times"
+                                         styleClass="clear-btn"
+                                         actionListener="#{managerPlayer.limparBusca()}"
+                                         update="searchInput jogadoresTable initialMessage noResultsMessage"
+                                         process="@this"
+                                         global="false" />
                     </div>
                 </div>
                 
@@ -128,15 +141,149 @@
         
         <!-- Estilos adicionais (tema dark elegante) -->
         <style type="text/css">
-            /* Força tema dark no grupo de busca */
-            .search-group .glass-addon { background: rgba(255,255,255,0.04) !important; border: 1px solid rgba(255,255,255,0.08) !important; color: var(--text-300) !important; }
-            .search-group .glass-input { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.08) !important; color: var(--text-100) !important; }
-            .search-group .glass-input:focus { box-shadow: 0 0 0 1px rgba(0,225,255,0.18), 0 0 16px rgba(0,225,255,0.08); border-color: rgba(0,225,255,0.35) !important; }
-            .search-group .glass-input::placeholder { color: #98a2b3; }
-            .search-group .ui-inputfield { background: transparent !important; color: var(--text-100) !important; }
-            /* Compatibilidade com possíveis classes antigas */
-            .search-group .p-inputgroup-addon, .search-group .ui-inputgroup-addon { background: rgba(255,255,255,0.04) !important; border: 1px solid rgba(255,255,255,0.08) !important; color: var(--text-300) !important; }
-            .search-group .p-inputtext, .search-group .ui-inputtext { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.08) !important; color: var(--text-100) !important; }
+            /* Card padding - mais espaço no topo */
+            .glass-card .ui-card-body,
+            .glass-card .p-card-body {
+                padding: 1.75rem 1.5rem !important;
+            }
+            
+            /* Filter Grid - seguindo padrão das outras telas */
+            .filter-grid {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                gap: 1.5rem 1rem;
+                margin-bottom: 1.5rem;
+                margin-top: 0.5rem;
+            }
+            
+            /* Filter Field Container */
+            .filter-field {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            /* Filter Labels - seguindo padrão do sistema */
+            .filter-label {
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+                font-size: 0.875rem !important;
+                font-weight: 600 !important;
+                color: var(--text-200) !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+                line-height: 1.2 !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            .filter-label i {
+                color: var(--accent) !important;
+                font-size: 0.875rem !important;
+                flex-shrink: 0 !important;
+            }
+            
+            .filter-label span {
+                color: inherit !important;
+            }
+            
+            .filter-label-empty {
+                visibility: hidden !important;
+                height: 1.2rem !important;
+            }
+            
+            /* Input Fields - sem ícones dentro, apenas na label */
+            .filter-input,
+            .filter-input.ui-inputfield,
+            .ui-inputfield.filter-input {
+                width: 100% !important;
+                background: rgba(255,255,255,0.05) !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                color: var(--text-100) !important;
+                font-size: 0.95rem !important;
+                padding: 0.75rem 1rem !important;
+                transition: all 0.2s ease !important;
+                min-height: 46px;
+                box-sizing: border-box;
+                border-radius: 10px !important;
+            }
+            
+            .filter-input:hover,
+            .filter-input:focus,
+            .ui-inputfield.filter-input:hover,
+            .ui-inputfield.filter-input:focus {
+                background: rgba(255,255,255,0.08) !important;
+                border-color: rgba(255,255,255,0.2) !important;
+            }
+            
+            .filter-input:focus,
+            .ui-inputfield.filter-input:focus {
+                border-color: var(--accent) !important;
+                box-shadow: 0 0 0 3px rgba(0,225,255,0.15) !important;
+                outline: none !important;
+            }
+            
+            .filter-input::placeholder,
+            .ui-inputfield.filter-input::placeholder {
+                color: var(--text-300) !important;
+                opacity: 0.6 !important;
+            }
+            
+            /* Clear button - melhorado seguindo padrão do sistema */
+            .clear-btn,
+            .clear-btn.p-button,
+            .clear-btn.ui-button {
+                min-height: 46px !important;
+                padding: 0.75rem 1.5rem !important;
+                font-weight: 600 !important;
+                font-size: 0.9rem !important;
+                white-space: nowrap !important;
+                background: transparent !important;
+                border: 1px solid var(--border) !important;
+                color: var(--text-200) !important;
+                border-radius: 10px !important;
+                transition: all 0.2s ease !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 0.5rem !important;
+            }
+            
+            .clear-btn:hover,
+            .clear-btn.p-button:hover,
+            .clear-btn.ui-button:hover {
+                background: rgba(255,255,255,0.06) !important;
+                border-color: var(--accent) !important;
+                color: var(--text-100) !important;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0,225,255,0.15) !important;
+            }
+            
+            .clear-btn i,
+            .clear-btn .pi {
+                color: inherit !important;
+                font-size: 0.9rem !important;
+            }
+            
+            /* Responsividade */
+            @media (max-width: 768px) {
+                .filter-grid {
+                    grid-template-columns: 1fr;
+                    gap: 1rem;
+                }
+                
+                .filter-field:nth-child(2),
+                .filter-field:last-child {
+                    grid-column: 1;
+                }
+                
+                .filter-label-empty {
+                    display: none;
+                }
+            }
 
             .player-avatar-small {
                 width: 40px;
