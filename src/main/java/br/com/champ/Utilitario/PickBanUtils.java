@@ -29,8 +29,8 @@ public class PickBanUtils {
 
             pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.BAN));
             pickBanVo.add(new PickBanVo(segundo, TipoPickBan.BAN));
-            pickBanVo.add(new PickBanVo(segundo, TipoPickBan.BAN));
             pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.BAN));
+            pickBanVo.add(new PickBanVo(segundo, TipoPickBan.BAN));
             pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.BAN));
             pickBanVo.add(new PickBanVo(segundo, TipoPickBan.BAN));
             pickBanVo.add(new PickBanVo(primeiro, TipoPickBan.PICK));

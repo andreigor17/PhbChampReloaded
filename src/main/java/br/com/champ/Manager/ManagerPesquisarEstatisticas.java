@@ -8,10 +8,14 @@ package br.com.champ.Manager;
 import br.com.champ.Enums.Url;
 import br.com.champ.Modelo.Estatisticas;
 import br.com.champ.Modelo.ItemPartida;
+import br.com.champ.Modelo.Partida;
+import br.com.champ.Modelo.Player;
+import br.com.champ.Modelo.Team;
 import br.com.champ.Servico.EstatisticaServico;
 import br.com.champ.Servico.ItemPartidaServico;
 import br.com.champ.Utilitario.FacesUtil;
 import br.com.champ.Utilitario.Mensagem;
+import br.com.champ.Utilitario.PartidaUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.faces.view.ViewScoped;
@@ -152,6 +156,52 @@ public class ManagerPesquisarEstatisticas implements Serializable {
 
     public void cancelar() {
         Mensagem.successAndRedirect("Operação cancelada com sucesso!", "visualizarPartida.xhtml?id=" + this.itemPartida.getPartida());
+    }
+    
+    public void gerarEsts() {
+        try {
+
+            List<ItemPartida> it = new ArrayList<>();
+            it.add(itemPartida);
+            Team team1 = itemPartida.getTeam1();
+            Team team2 = itemPartida.getTeam2();
+            List<Estatisticas> estsTeam1 = new ArrayList<Estatisticas>();
+            List<Estatisticas> estsTeam2 = new ArrayList<Estatisticas>();
+
+            for (ItemPartida i : it) {
+                for (Player playerTime1 : team1.getPlayers()) {
+                    Estatisticas estatisticas = new Estatisticas();
+                    estatisticas.setPlayer(playerTime1);
+                    estatisticas.setTeam(team1);
+                    estatisticas.setItemPartida(i);
+                    estsTeam1.add(estatisticas);
+
+                }
+                this.estsGerais.addAll(estsTeam1);
+
+                for (Player playerTime2 : team2.getPlayers()) {
+                    Estatisticas estatisticas = new Estatisticas();
+                    estatisticas.setPlayer(playerTime2);
+                    estatisticas.setTeam(team2);
+                    estatisticas.setItemPartida(i);
+                    estsTeam2.add(estatisticas);
+                }
+                this.estsGerais.addAll(estsTeam2);
+
+                for (Estatisticas e : this.estsGerais) {
+                    estatisticasServico.salvar(e, null, Url.SALVAR_ESTATISTICA.getNome());
+                }
+
+                estsTeam1 = new ArrayList<Estatisticas>();
+                estsTeam2 = new ArrayList<Estatisticas>();
+                this.estsGerais = new ArrayList<Estatisticas>();
+
+            }
+
+            Mensagem.successAndRedirect("Estatisticas geradas  com sucesso", "editarItem.xhtml?id=" + itemPartida.getId());
+        } catch (Exception ex) {
+            System.err.println(ex);
+        }
     }
 
 }

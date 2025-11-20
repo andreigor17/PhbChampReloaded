@@ -1,8 +1,8 @@
-<ui:composition template="layout.xhtml"
+<ui:composition template="vercel.xhtml"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
 
     <ui:define name="title">
@@ -11,146 +11,172 @@
 
     <ui:define name="content">
 
-        <h:form id="formEditarItem"
-                >
+        <h:form id="formEditarItem">
 
             <p:growl id="messages"
                      showDetail="false"/>
 
-            <p:dataTable id="partidaTime1"
-                         value="#{managerPesquisarEstatisticas.estsTime1Visualizar}"
-                         var="ests1"
-                         paginator="true"
-                         editable="true"
-                         editMode="cell" widgetVar="estsPartida"
-                         paginatorPosition="bottom"
-                         paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                         currentPageReportTemplate="{currentPage} de {totalPages}"
-                         rows="10"
-                         rowsPerPageTemplate="5,10,15">
-
-                <f:facet name="header">
-                    <p:outputLabel value="#{managerPesquisarEstatisticas.itemPartida.team1.nome}" />
+            <!-- Card Time 1 -->
+            <p:card styleClass="glass-card mb-4">
+                <f:facet name="title">
+                    <div class="flex align-items-center">
+                        <i class="pi pi-users mr-2" style="color: var(--accent)"></i>
+                        <span>#{managerPesquisarEstatisticas.itemPartida.team1.nome}</span>
+                    </div>
                 </f:facet>
 
-                <p:column headerText="Opções" width="5%">
-                    <div class="options">
+                <p:dataTable id="partidaTime1"
+                             value="#{managerPesquisarEstatisticas.estsTime1Visualizar}"
+                             var="ests1"
+                             paginator="true"
+                             editable="true"
+                             editMode="cell" 
+                             widgetVar="estsPartida"
+                             styleClass="elegant-table"
+                             paginatorPosition="bottom"
+                             paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                             currentPageReportTemplate="{currentPage} de {totalPages}"
+                             rows="10"
+                             rowsPerPageTemplate="5,10,15">
+
+                    <p:column headerText="Opções" width="80px" style="text-align: center;">
                         <p:button title="Visualizar Player"
-                                  icon="ui-icon-search"
+                                  icon="pi pi-eye"
+                                  styleClass="p-button-text p-button-sm"
                                   href="visualizarPlayer.xhtml?id=#{ests1.player.id}"/>
+                    </p:column>
+
+                    <p:column headerText="Nome" width="30%">
+                        <span style="color: var(--text-100);">
+                            #{ests1.player.nome} '#{ests1.player.nick}' #{ests1.player.sobreNome}
+                        </span>
+                    </p:column>                            
+
+                    <p:column headerText="Kills">
+                        <p:cellEditor>
+                            <f:facet name="output">
+                                <h:outputText value="#{ests1.kills}" style="color: var(--text-100);"/>
+                            </f:facet>
+                            <f:facet name="input">
+                                <p:inputText value="#{ests1.kills}" styleClass="dark-input-edit"/>
+                            </f:facet>
+                        </p:cellEditor>
+                    </p:column>               
+
+                    <p:column headerText="Deaths">
+                        <p:cellEditor>
+                            <f:facet name="output">
+                                <h:outputText value="#{ests1.deaths}" style="color: var(--text-100);"/>
+                            </f:facet>
+                            <f:facet name="input">
+                                <p:inputText value="#{ests1.deaths}" styleClass="dark-input-edit"/>
+                            </f:facet>
+                        </p:cellEditor>
+                    </p:column>   
+
+                    <p:column headerText="Assists">
+                        <p:cellEditor>
+                            <f:facet name="output">
+                                <h:outputText value="#{ests1.assists}" style="color: var(--text-100);"/>
+                            </f:facet>
+                            <f:facet name="input">
+                                <p:inputText value="#{ests1.assists}" styleClass="dark-input-edit"/>
+                            </f:facet>
+                        </p:cellEditor>
+                    </p:column>  
+                </p:dataTable>
+            </p:card>
+
+            <!-- Card Time 2 -->
+            <p:card styleClass="glass-card mb-4">
+                <f:facet name="title">
+                    <div class="flex align-items-center">
+                        <i class="pi pi-users mr-2" style="color: var(--accent)"></i>
+                        <span>#{managerPesquisarEstatisticas.itemPartida.team2.nome}</span>
                     </div>
-                </p:column>
-                <p:column headerText="Nome" width="30%">
-                    <p:outputLabel  value="#{ests1.player.nome}   '#{ests1.player.nick}' #{ests1.player.sobreNome} "/>
-                </p:column>                            
-                <p:column headerText="Kills">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{ests1.kills}"/>
-                        </f:facet>
-
-                        <f:facet name="input">
-                            <p:inputText  value="#{ests1.kills}" />
-                        </f:facet>
-                    </p:cellEditor>
-                </p:column>               
-                <p:column headerText="Deaths">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{ests1.deaths}"/>
-                        </f:facet>
-
-                        <f:facet name="input">
-                            <p:inputText  value="#{ests1.deaths}" />
-                        </f:facet>
-                    </p:cellEditor>
-                </p:column>   
-                <p:column headerText="Assists">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{ests1.assists}"/>
-                        </f:facet>
-
-                        <f:facet name="input">
-                            <p:inputText  value="#{ests1.assists}" />
-                        </f:facet>
-                    </p:cellEditor>
-                </p:column>  
-            </p:dataTable>
-
-
-            <p:dataTable id="partidaTime2"
-                         value="#{managerPesquisarEstatisticas.estsTime2Visualizar}"
-                         var="ests2"
-                         paginator="true"
-                         paginatorPosition="bottom"
-                         editable="true"
-                         editMode="cell" widgetVar="estsPartida2"
-                         paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                         currentPageReportTemplate="{currentPage} de {totalPages}"
-                         rows="10"
-                         rowsPerPageTemplate="5,10,15">
-
-                <f:facet name="header">
-                    <p:outputLabel value="#{managerPesquisarEstatisticas.itemPartida.team2.nome}" />
                 </f:facet>
 
-                <p:column headerText="Opções" width="5%">
-                    <div class="options">
+                <p:dataTable id="partidaTime2"
+                             value="#{managerPesquisarEstatisticas.estsTime2Visualizar}"
+                             var="ests2"
+                             paginator="true"
+                             paginatorPosition="bottom"
+                             editable="true"
+                             editMode="cell" 
+                             widgetVar="estsPartida2"
+                             styleClass="elegant-table"
+                             paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                             currentPageReportTemplate="{currentPage} de {totalPages}"
+                             rows="10"
+                             rowsPerPageTemplate="5,10,15">
+
+                    <p:column headerText="Opções" width="80px" style="text-align: center;">
                         <p:button title="Visualizar Player"
-                                  icon="ui-icon-search"
+                                  icon="pi pi-eye"
+                                  styleClass="p-button-text p-button-sm"
                                   href="visualizarPlayer.xhtml?id=#{ests2.player.id}"/>
-                    </div>
-                </p:column>
+                    </p:column>
 
-                <p:column headerText="Nome" width="30%">
-                    <p:outputLabel  value="#{ests2.player.nome}   '#{ests2.player.nick}' #{ests2.player.sobreNome} "/>
-                </p:column>                            
-                <p:column headerText="Kills">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{ests2.kills}"/>
-                        </f:facet>
+                    <p:column headerText="Nome" width="30%">
+                        <span style="color: var(--text-100);">
+                            #{ests2.player.nome} '#{ests2.player.nick}' #{ests2.player.sobreNome}
+                        </span>
+                    </p:column>                            
 
-                        <f:facet name="input">
-                            <p:inputText  value="#{ests2.kills}" />
-                        </f:facet>
-                    </p:cellEditor>
-                </p:column>                        
-                <p:column headerText="Deaths">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{ests2.deaths}"/>
-                        </f:facet>
+                    <p:column headerText="Kills">
+                        <p:cellEditor>
+                            <f:facet name="output">
+                                <h:outputText value="#{ests2.kills}" style="color: var(--text-100);"/>
+                            </f:facet>
+                            <f:facet name="input">
+                                <p:inputText value="#{ests2.kills}" styleClass="dark-input-edit"/>
+                            </f:facet>
+                        </p:cellEditor>
+                    </p:column>                        
 
-                        <f:facet name="input">
-                            <p:inputText  value="#{ests2.deaths}" />
-                        </f:facet>
-                    </p:cellEditor>
-                </p:column>
-                <p:column headerText="Assists">
-                    <p:cellEditor>
-                        <f:facet name="output">
-                            <h:outputText value="#{ests2.assists}"/>
-                        </f:facet>
+                    <p:column headerText="Deaths">
+                        <p:cellEditor>
+                            <f:facet name="output">
+                                <h:outputText value="#{ests2.deaths}" style="color: var(--text-100);"/>
+                            </f:facet>
+                            <f:facet name="input">
+                                <p:inputText value="#{ests2.deaths}" styleClass="dark-input-edit"/>
+                            </f:facet>
+                        </p:cellEditor>
+                    </p:column>
 
-                        <f:facet name="input">
-                            <p:inputText  value="#{ests2.assists}" />
-                        </f:facet>
-                    </p:cellEditor>
-                </p:column>                
+                    <p:column headerText="Assists">
+                        <p:cellEditor>
+                            <f:facet name="output">
+                                <h:outputText value="#{ests2.assists}" style="color: var(--text-100);"/>
+                            </f:facet>
+                            <f:facet name="input">
+                                <p:inputText value="#{ests2.assists}" styleClass="dark-input-edit"/>
+                            </f:facet>
+                        </p:cellEditor>
+                    </p:column>                
+                </p:dataTable>
+            </p:card>
 
-            </p:dataTable>
-
-
-            <div class="actions">   
-                <center>
-                    <p:commandButton value="Salvar" onclick="PF('confirmacaoEdicaoPartida').show();"/>
-                    <p:commandButton value="Cancelar" actionListener="#{managerPesquisarEstatisticas.cancelar()}"/>
-                </center>
+            <!-- Ações -->
+            <div class="flex justify-content-center gap-3 mb-4">   
+                <p:commandButton value="Gerar Estatísticas" 
+                                 icon="pi pi-chart-bar"
+                                 styleClass="p-button-primary"
+                                 action="#{managerPesquisarEstatisticas.gerarEsts()}"
+                                 process="@form"
+                                 update="@form"/>
+                <p:commandButton value="Salvar" 
+                                 icon="pi pi-check"
+                                 styleClass="p-button-success"
+                                 onclick="PF('confirmacaoEdicaoPartida').show();"/>
+                <p:commandButton value="Cancelar" 
+                                 icon="pi pi-times"
+                                 styleClass="p-button-outlined"
+                                 actionListener="#{managerPesquisarEstatisticas.cancelar()}"/>
             </div>
 
-
+            <!-- Dialog de Confirmação -->
             <p:dialog id="confirmacaoEdicaoPartida"
                       widgetVar="confirmacaoEdicaoPartida"
                       header="Placar do mapa"
@@ -159,49 +185,93 @@
                       draggable="false"
                       closeOnEscape="true"
                       showEffect="fade"
-                      hideEffect="fade">
+                      hideEffect="fade"
+                      styleClass="dark-dialog">
 
-
-
-                <center>
-                    <div class="row">
-                        <div class="column2">
-                            <p:outputLabel value="#{managerPesquisarEstatisticas.itemPartida.team1.nome}" for="nomeTime1"/>
-                        </div>
-                        <div class="column2">
-                            <p:inputText id="nomeTime1" value="#{managerPesquisarEstatisticas.itemPartida.scoreT1}"/>
-                        </div>
+                <div class="flex flex-column gap-3" style="padding: 1rem 0;">
+                    <div class="flex align-items-center justify-content-between gap-3">
+                        <p:outputLabel value="#{managerPesquisarEstatisticas.itemPartida.team1.nome}" 
+                                     for="nomeTime1"
+                                     style="color: var(--text-100); font-weight: 600; min-width: 200px;"/>
+                        <p:inputText id="nomeTime1" 
+                                   value="#{managerPesquisarEstatisticas.itemPartida.scoreT1}"
+                                   styleClass="dark-input-edit"
+                                   style="width: 100px; text-align: center;"/>
                     </div>
-                    <div class="row">
-                        <div class="column2">
-                            <p:outputLabel value="#{managerPesquisarEstatisticas.itemPartida.team2.nome}" for="nomeTime2"/>
-                        </div>
-                        <div class="column2">
-                            <p:inputText id="nomeTime2" value="#{managerPesquisarEstatisticas.itemPartida.scoreT2}"/>
-                        </div>
+                    
+                    <div class="flex align-items-center justify-content-between gap-3">
+                        <p:outputLabel value="#{managerPesquisarEstatisticas.itemPartida.team2.nome}" 
+                                     for="nomeTime2"
+                                     style="color: var(--text-100); font-weight: 600; min-width: 200px;"/>
+                        <p:inputText id="nomeTime2" 
+                                   value="#{managerPesquisarEstatisticas.itemPartida.scoreT2}"
+                                   styleClass="dark-input-edit"
+                                   style="width: 100px; text-align: center;"/>
                     </div>
 
-                    <div class="row">
+                    <div class="flex justify-content-end gap-2" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
                         <p:commandButton value="Cancelar"
-                                         title="Cancelar Remoção"
-                                         icon="fa fa-ban"
-                                         oncomplete="PF('confirmacaoEdicaoPartida').hide();"
-                                         styleClass="btn btn-default"/>
+                                         icon="pi pi-times"
+                                         styleClass="p-button-outlined"
+                                         oncomplete="PF('confirmacaoEdicaoPartida').hide();"/>
 
                         <p:commandButton value="Salvar"
-                                         title="Confirmar Remoção"
-                                         icon="fa fa-check"
+                                         icon="pi pi-check"
+                                         styleClass="p-button-success"
                                          process="@form"
                                          update="@form"
                                          actionListener="#{managerPesquisarEstatisticas.salvar()}"
-                                         styleClass="btn btn-info"
-                                         onclick="desabilitarBotoes(true);" oncomplete="desabilitarBotoes(false);"/>
+                                         onclick="desabilitarBotoes(true);" 
+                                         oncomplete="desabilitarBotoes(false); PF('confirmacaoEdicaoPartida').hide();"/>
                     </div>
+                </div>
+            </p:dialog>
 
-                </center>
+            <style>
+                /* Estilos para inputs de edição na tabela (modo dark) */
+                .dark-input-edit.ui-inputtext,
+                .dark-input-edit {
+                    background: rgba(255,255,255,0.08) !important;
+                    border: 1px solid rgba(255,255,255,0.15) !important;
+                    color: var(--text-100) !important;
+                    border-radius: 6px !important;
+                    padding: 0.5rem 0.75rem !important;
+                }
+                
+                .dark-input-edit.ui-inputtext:focus,
+                .dark-input-edit:focus {
+                    background: rgba(255,255,255,0.12) !important;
+                    border-color: var(--accent) !important;
+                    box-shadow: 0 0 0 2px rgba(0,225,255,0.2) !important;
+                    outline: none !important;
+                }
 
-            </p:dialog>          
+                /* Dialog dark */
+                .dark-dialog.ui-dialog {
+                    background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important;
+                    border: 1px solid var(--border) !important;
+                }
 
+                .dark-dialog .ui-dialog-titlebar {
+                    background: rgba(255,255,255,0.04) !important;
+                    border-bottom: 1px solid var(--border) !important;
+                    color: var(--text-100) !important;
+                }
+
+                .dark-dialog .ui-dialog-content {
+                    background: transparent !important;
+                    color: var(--text-100) !important;
+                }
+
+                /* Ajustes para células editáveis */
+                .elegant-table .ui-editable-column {
+                    position: relative;
+                }
+
+                .elegant-table .ui-cell-editor-input {
+                    width: 100%;
+                }
+            </style>
 
         </h:form>
 
