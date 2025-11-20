@@ -766,10 +766,12 @@ public class ManagerCamp extends ManagerBase {
      * Sorteia os times automaticamente baseado nos players inscritos
      * Apenas admin pode executar esta ação
      * Apenas para campeonatos de TIME com gerarTimesPorSorteio = true
+     * Balanceia os times baseado no rating dos players para evitar que players
+     * de rating alto fiquem juntos no mesmo time
      */
     public void sortearTimes() {
         try {
-            System.out.println("====== INICIANDO SORTEIO DE TIMES ======");
+            System.out.println("====== INICIANDO SORTEIO DE TIMES (COM BALANCEAMENTO) ======");
             
             // Verifica se é admin
             if (!isAdmin()) {
@@ -829,26 +831,132 @@ public class ManagerCamp extends ManagerBase {
             }
             System.out.println("✓ Nenhum time foi sorteado ainda");
 
-            // Cria uma cópia da lista de players e embaralha
+            // Cria uma cópia da lista de players
             List<Player> playersParaSortear = new ArrayList<>(this.camp.getPlayers());
-            Collections.shuffle(playersParaSortear);
-            System.out.println("✓ Lista de jogadores embaralhada");
+            
+            // Remove players sem rating e define rating padrão de 5 se não tiver
+            for (Player p : playersParaSortear) {
+                if (p.getRating() == null || p.getRating() <= 0) {
+                    p.setRating(5.0); // Rating padrão para players sem rating
+                    System.out.println("⚠ Player " + p.getNome() + " não possui rating, definido como 5.0");
+                }
+            }
+            
+            // Ordena players por rating (maior para menor)
+            playersParaSortear.sort((p1, p2) -> {
+                Double rating1 = p1.getRating() != null ? p1.getRating() : 5.0;
+                Double rating2 = p2.getRating() != null ? p2.getRating() : 5.0;
+                return Double.compare(rating2, rating1); // Ordem decrescente
+            });
+            
+            System.out.println("✓ Players ordenados por rating (maior para menor)");
+            for (Player p : playersParaSortear) {
+                System.out.println("  - " + p.getNome() + ": Rating " + p.getRating());
+            }
 
             int quantidadePorTime = this.camp.getQuantidadePorTime();
-            List<Team> timesCriados = new ArrayList<>();
-            int numeroTime = 1;
+            int totalTimes = (int) Math.ceil((double) playersParaSortear.size() / quantidadePorTime);
             
-            // HashSet para garantir que nenhum jogador seja usado mais de uma vez
-            Set<Long> jogadoresJaUsados = new HashSet<>();
+            // Lista de times que serão criados (cada time é uma lista de players)
+            List<List<Player>> times = new ArrayList<>();
+            for (int i = 0; i < totalTimes; i++) {
+                times.add(new ArrayList<>());
+            }
+            
+            // Lista para rastrear players já distribuídos
+            boolean[] playersDistribuidos = new boolean[playersParaSortear.size()];
 
-            System.out.println("====== INICIANDO CRIAÇÃO DOS TIMES ======");
+            System.out.println("====== INICIANDO DISTRIBUIÇÃO BALANCEADA ======");
+            System.out.println("Total de times a criar: " + totalTimes);
             
-            // Divide os players em grupos e cria os times
-            for (int i = 0; i < playersParaSortear.size(); i += quantidadePorTime) {
-                int fim = Math.min(i + quantidadePorTime, playersParaSortear.size());
-                List<Player> playersDoTime = new ArrayList<>(playersParaSortear.subList(i, fim));
+            // Algoritmo de balanceamento
+            // Distribui players de forma alternada, mas verificando compatibilidade de rating
+            for (int round = 0; round < quantidadePorTime; round++) {
+                for (int timeIndex = 0; timeIndex < totalTimes; timeIndex++) {
+                    // Se o time já está completo, pula
+                    if (times.get(timeIndex).size() >= quantidadePorTime) {
+                        continue;
+                    }
+                    
+                    // Procura um player compatível para este time
+                    Player playerEscolhido = null;
+                    int playerEscolhidoIndex = -1;
+                    
+                    for (int i = 0; i < playersParaSortear.size(); i++) {
+                        if (playersDistribuidos[i]) {
+                            continue;
+                        }
+                        
+                        Player candidato = playersParaSortear.get(i);
+                        
+                        // Verifica compatibilidade com players já no time
+                        boolean compativel = true;
+                        for (Player playerNoTime : times.get(timeIndex)) {
+                            Double ratingCandidato = candidato.getRating() != null ? candidato.getRating() : 5.0;
+                            Double ratingNoTime = playerNoTime.getRating() != null ? playerNoTime.getRating() : 5.0;
+                            double diferenca = Math.abs(ratingCandidato - ratingNoTime);
+                            
+                            // Se a diferença for menor que 4, não são compatíveis
+                            // Exemplo: rating 8 não pode ficar com rating 6 (diferença 2)
+                            // Mas pode ficar com rating 4 (diferença 4)
+                            if (diferenca < 4.0) {
+                                compativel = false;
+                                break;
+                            }
+                        }
+                        
+                        if (compativel) {
+                            playerEscolhido = candidato;
+                            playerEscolhidoIndex = i;
+                            break;
+                        }
+                    }
+                    
+                    // Se não encontrou player compatível, pega o próximo disponível
+                    // (pode acontecer se não houver mais opções balanceadas)
+                    if (playerEscolhido == null) {
+                        for (int i = 0; i < playersParaSortear.size(); i++) {
+                            if (!playersDistribuidos[i]) {
+                                playerEscolhido = playersParaSortear.get(i);
+                                playerEscolhidoIndex = i;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Adiciona o player ao time
+                    if (playerEscolhido != null) {
+                        times.get(timeIndex).add(playerEscolhido);
+                        playersDistribuidos[playerEscolhidoIndex] = true;
+                        System.out.println("  ✓ Round " + (round + 1) + ", Time " + (timeIndex + 1) + 
+                                         ": " + playerEscolhido.getNome() + " (Rating: " + playerEscolhido.getRating() + ")");
+                    }
+                }
+            }
+
+            // Verifica se todos os players foram distribuídos
+            for (int i = 0; i < playersParaSortear.size(); i++) {
+                if (!playersDistribuidos[i]) {
+                    // Adiciona players restantes ao último time
+                    if (!times.isEmpty()) {
+                        times.get(times.size() - 1).add(playersParaSortear.get(i));
+                        System.out.println("  ⚠ Player restante adicionado: " + playersParaSortear.get(i).getNome());
+                    }
+                }
+            }
+
+            System.out.println("====== CRIANDO TIMES ======");
+            List<Team> timesCriados = new ArrayList<>();
+            Set<Long> jogadoresJaUsados = new HashSet<>();
+            
+            for (int i = 0; i < times.size(); i++) {
+                List<Player> playersDoTime = times.get(i);
                 
-                // Validação extra: verifica se algum jogador já foi usado
+                if (playersDoTime.isEmpty()) {
+                    continue;
+                }
+                
+                // Validação: verifica se algum jogador já foi usado
                 for (Player player : playersDoTime) {
                     if (player.getId() != null && jogadoresJaUsados.contains(player.getId())) {
                         Mensagem.error("Erro: Jogador " + player.getNome() + " foi sorteado mais de uma vez!");
@@ -858,17 +966,24 @@ public class ManagerCamp extends ManagerBase {
                         jogadoresJaUsados.add(player.getId());
                     }
                 }
-
+                
+                // Calcula rating médio do time para log
+                double ratingMedio = playersDoTime.stream()
+                    .mapToDouble(p -> p.getRating() != null ? p.getRating() : 5.0)
+                    .average()
+                    .orElse(5.0);
+                
                 // Cria um novo time
                 Team novoTime = new Team();
                 
                 // Se quantidadePorTime for 2, usa os nicks dos jogadores
-                if (quantidadePorTime == 2 && playersDoTime.size() == 2) {
+                if (quantidadePorTime == 2 && playersDoTime.size() >= 2) {
                     String nick1 = playersDoTime.get(0).getNick() != null ? playersDoTime.get(0).getNick() : playersDoTime.get(0).getNome();
                     String nick2 = playersDoTime.get(1).getNick() != null ? playersDoTime.get(1).getNick() : playersDoTime.get(1).getNome();
                     novoTime.setNome("Time " + nick1 + " e " + nick2);
                 } else {
-                    novoTime.setNome("Time " + playersDoTime.get(0).getNick());
+                    String nick = playersDoTime.get(0).getNick() != null ? playersDoTime.get(0).getNick() : playersDoTime.get(0).getNome();
+                    novoTime.setNome("Time " + nick);
                 }
                 
                 novoTime.setPlayers(playersDoTime);
@@ -884,9 +999,12 @@ public class ManagerCamp extends ManagerBase {
                 // Salva o time
                 Team timeSalvo = teamServico.save(novoTime, null, Url.SALVAR_TIME.getNome());
                 timesCriados.add(timeSalvo);
-                System.out.println("✓ Time " + numeroTime + " criado: " + novoTime.getNome() + " (ID: " + timeSalvo.getId() + ")");
-
-                numeroTime++;
+                
+                System.out.println("✓ Time " + (i + 1) + " criado: " + novoTime.getNome() + 
+                                 " (Rating médio: " + String.format("%.2f", ratingMedio) + ")");
+                for (Player p : playersDoTime) {
+                    System.out.println("    - " + p.getNome() + " (Rating: " + p.getRating() + ")");
+                }
             }
 
             System.out.println("====== FINALIZANDO SORTEIO ======");
@@ -906,7 +1024,7 @@ public class ManagerCamp extends ManagerBase {
             System.out.println("====== SORTEIO CONCLUÍDO COM SUCESSO ======");
             
             Mensagem.successAndRedirect(
-                "Times sorteados com sucesso! " + timesCriados.size() + " times criados.",
+                "Times sorteados com sucesso! " + timesCriados.size() + " times criados com balanceamento por rating.",
                 "visualizarCampeonato.xhtml?id=" + this.camp.getId()
             );
 
