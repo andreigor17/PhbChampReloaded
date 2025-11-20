@@ -347,6 +347,44 @@
                                              update="consoleOutputPanel historyPanel"
                                              oncomplete="scrollConsoleToBottom();"
                                              styleClass="quick-cmd-btn map-btn" />
+
+                            <!-- Mapas Oficiais -->
+                            <h4 class="command-section-title">
+                                <i class="pi pi-map mr-1"></i>
+                                Mapas Oficiais
+                            </h4>
+
+                            <p:commandButton value="Inferno" 
+                                             icon="pi pi-map-marker"
+                                             actionListener="#{managerRcon.setComando('changelevel de_inferno')}"
+                                             action="#{managerRcon.executarComando()}"
+                                             update="consoleOutputPanel historyPanel"
+                                             oncomplete="scrollConsoleToBottom();"
+                                             styleClass="quick-cmd-btn map-btn" />
+
+                            <p:commandButton value="Nuke" 
+                                             icon="pi pi-map-marker"
+                                             actionListener="#{managerRcon.setComando('changelevel de_nuke')}"
+                                             action="#{managerRcon.executarComando()}"
+                                             update="consoleOutputPanel historyPanel"
+                                             oncomplete="scrollConsoleToBottom();"
+                                             styleClass="quick-cmd-btn map-btn" />
+
+                            <p:commandButton value="Overpass" 
+                                             icon="pi pi-map-marker"
+                                             actionListener="#{managerRcon.setComando('changelevel de_overpass')}"
+                                             action="#{managerRcon.executarComando()}"
+                                             update="consoleOutputPanel historyPanel"
+                                             oncomplete="scrollConsoleToBottom();"
+                                             styleClass="quick-cmd-btn map-btn" />
+
+                            <p:commandButton value="Vertigo" 
+                                             icon="pi pi-map-marker"
+                                             actionListener="#{managerRcon.setComando('changelevel de_vertigo')}"
+                                             action="#{managerRcon.executarComando()}"
+                                             update="consoleOutputPanel historyPanel"
+                                             oncomplete="scrollConsoleToBottom();"
+                                             styleClass="quick-cmd-btn map-btn" />
                         </div>
                     </p:card>
                 </div>
