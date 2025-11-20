@@ -2525,7 +2525,7 @@ public class ManagerCamp extends ManagerBase {
         System.out.println("    ✓ Partida salva com ID: " + novaPartida.getId());
         
         // Agora cria os itens da partida COM o ID da partida já definido
-        int qtdItens = 1;
+        int qtdItens = 3;
         List<ItemPartida> itensPartida = PartidaUtils.gerarPartidasTimes(novaPartida, this.camp.getId(), time1, time2, qtdItens);
         
         // Define o partida_id em todos os itens ANTES de salvar
