@@ -1619,7 +1619,7 @@ public class ManagerCamp extends ManagerBase {
                     item.setPartida(novaPartida.getId());
                     // Salva o item (cria novo, não atualiza)
                     try {
-                        itemPartidaServico.salvar(item, null, Url.SALVAR_ITEM_PARTIDA.getNome());
+                        //itemPartidaServico.salvar(item, null, Url.SALVAR_ITEM_PARTIDA.getNome());
                     } catch (Exception e) {
                         System.err.println("Erro ao salvar item de partida suíça: " + e.getMessage());
                     }
@@ -2535,7 +2535,7 @@ public class ManagerCamp extends ManagerBase {
                     item.setPartida(novaPartida.getId());
                     // Salva o item (cria novo, não atualiza)
                     try {
-                        itemPartidaServico.salvar(item, null, Url.SALVAR_ITEM_PARTIDA.getNome());
+                        //itemPartidaServico.salvar(item, null, Url.SALVAR_ITEM_PARTIDA.getNome());
                         System.out.println("    ✓ Item de partida salvo");
                     } catch (Exception e) {
                         System.err.println("    ✗ Erro ao salvar item de partida: " + e.getMessage());
@@ -2991,7 +2991,7 @@ public class ManagerCamp extends ManagerBase {
                     item.setPartida(novaPartida.getId());
                     // Salva o item (cria novo, não atualiza)
                     try {
-                        itemPartidaServico.salvar(item, null, Url.SALVAR_ITEM_PARTIDA.getNome());
+                        //itemPartidaServico.salvar(item, null, Url.SALVAR_ITEM_PARTIDA.getNome());
                     } catch (Exception e) {
                         System.err.println("  Erro ao salvar item de partida: " + e.getMessage());
                     }
