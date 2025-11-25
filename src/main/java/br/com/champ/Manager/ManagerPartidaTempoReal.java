@@ -26,6 +26,9 @@ public class ManagerPartidaTempoReal extends ManagerBase {
 
     @Inject
     private RconService rconService;
+    
+    @Inject
+    private ManagerRcon managerRcon;
 
     private MatchData matchData;
     private boolean monitorando;
@@ -45,12 +48,21 @@ public class ManagerPartidaTempoReal extends ManagerBase {
             // Primeiro tenta get5_status (se o servidor tiver Get5)
             String resultado = rconService.executeCommand("get5_status");
             
+            System.out.println("=== DEBUG: Resultado get5_status ===");
+            System.out.println(resultado);
+            System.out.println("=====================================");
+            
             if (resultado != null && !resultado.startsWith("ERRO") && resultado.contains("{")) {
                 // Parse JSON do Get5
                 parseGet5Status(resultado);
             } else {
                 // Fallback para comando status padrão
                 resultado = rconService.executeCommand("status");
+                
+                System.out.println("=== DEBUG: Resultado status ===");
+                System.out.println(resultado);
+                System.out.println("===============================");
+                
                 if (resultado != null && !resultado.startsWith("ERRO")) {
                     parseStatus(resultado);
                 } else {
@@ -133,40 +145,61 @@ public class ManagerPartidaTempoReal extends ManagerBase {
             for (String linha : linhas) {
                 linha = linha.trim();
                 
-                // Score
-                if (linha.contains("CT:")) {
-                    Pattern scorePattern = Pattern.compile("CT:\\s*(\\d+)");
+                // Mapa - várias formas de capturar
+                if (linha.toLowerCase().contains("map") || linha.toLowerCase().contains("level")) {
+                    // Formato: "map     : de_dust2"
+                    // Formato: "hostname:   Counter-Strike 2 Server"
+                    // Formato: "version : 1.38.7.0/13787 13787/13787 secure"
+                    Pattern mapPattern = Pattern.compile("(?i)(?:map|level)\\s*:?\\s*([a-z0-9_]+)", Pattern.CASE_INSENSITIVE);
+                    Matcher mapMatcher = mapPattern.matcher(linha);
+                    if (mapMatcher.find()) {
+                        String mapa = mapMatcher.group(1).trim();
+                        if (!mapa.isEmpty() && !mapa.equals("version") && !mapa.equals("hostname")) {
+                            matchData.setMapa(mapa);
+                            System.out.println("Mapa encontrado: " + mapa);
+                        }
+                    }
+                }
+                
+                // Score - formato: "CT: 5  T: 3"
+                if (linha.contains("CT:") || linha.contains("T:")) {
+                    Pattern scorePattern = Pattern.compile("CT:\\s*(\\d+).*?T:\\s*(\\d+)", Pattern.CASE_INSENSITIVE);
                     Matcher m = scorePattern.matcher(linha);
                     if (m.find()) {
                         matchData.setScoreCT(Integer.parseInt(m.group(1)));
-                    }
-                }
-                if (linha.contains("T:")) {
-                    Pattern scorePattern = Pattern.compile("T:\\s*(\\d+)");
-                    Matcher m = scorePattern.matcher(linha);
-                    if (m.find()) {
-                        matchData.setScoreT(Integer.parseInt(m.group(1)));
+                        matchData.setScoreT(Integer.parseInt(m.group(2)));
+                        System.out.println("Score encontrado: CT=" + m.group(1) + " T=" + m.group(2));
+                    } else {
+                        // Tenta separado
+                        if (linha.contains("CT:")) {
+                            Pattern ctPattern = Pattern.compile("CT:\\s*(\\d+)", Pattern.CASE_INSENSITIVE);
+                            Matcher ctMatcher = ctPattern.matcher(linha);
+                            if (ctMatcher.find()) {
+                                matchData.setScoreCT(Integer.parseInt(ctMatcher.group(1)));
+                            }
+                        }
+                        if (linha.contains("T:")) {
+                            Pattern tPattern = Pattern.compile("T:\\s*(\\d+)", Pattern.CASE_INSENSITIVE);
+                            Matcher tMatcher = tPattern.matcher(linha);
+                            if (tMatcher.find()) {
+                                matchData.setScoreT(Integer.parseInt(tMatcher.group(1)));
+                            }
+                        }
                     }
                 }
                 
-                // Round
-                if (linha.contains("Round:")) {
-                    Pattern roundPattern = Pattern.compile("Round:\\s*(\\d+)");
+                // Round - formato: "Round: 5"
+                if (linha.toLowerCase().contains("round")) {
+                    Pattern roundPattern = Pattern.compile("(?i)round\\s*:?\\s*(\\d+)", Pattern.CASE_INSENSITIVE);
                     Matcher m = roundPattern.matcher(linha);
                     if (m.find()) {
                         matchData.setRoundAtual(Integer.parseInt(m.group(1)));
-                    }
-                }
-                
-                // Mapa
-                if (linha.contains("map :")) {
-                    String[] partes = linha.split(":");
-                    if (partes.length > 1) {
-                        matchData.setMapa(partes[1].trim());
+                        System.out.println("Round encontrado: " + m.group(1));
                     }
                 }
                 
                 // Players - formato: "# userid name uniqueid connected ping loss state rate adr"
+                // ou formato: "#    1 \"Player Name\" STEAM_1:0:123456 01:23   45    0 active"
                 if (linha.matches("^#\\s+\\d+.*")) {
                     naSecaoPlayers = true;
                     PlayerInfo player = parsePlayerLine(linha);
@@ -185,6 +218,27 @@ public class ManagerPartidaTempoReal extends ManagerBase {
             matchData.setPlayersCT(playersCT);
             matchData.setPlayersT(playersT);
             
+            System.out.println("Players CT: " + playersCT.size());
+            System.out.println("Players T: " + playersT.size());
+            
+            // Se não encontrou o mapa, tenta comando específico
+            if (matchData.getMapa() == null || matchData.getMapa().isEmpty()) {
+                try {
+                    String mapResult = rconService.executeCommand("get5_current_map");
+                    if (mapResult != null && !mapResult.startsWith("ERRO")) {
+                        matchData.setMapa(mapResult.trim());
+                    } else {
+                        // Tenta outro comando
+                        mapResult = rconService.executeCommand("host_map");
+                        if (mapResult != null && !mapResult.startsWith("ERRO")) {
+                            matchData.setMapa(mapResult.trim());
+                        }
+                    }
+                } catch (Exception e) {
+                    // Ignora
+                }
+            }
+            
             // Tenta obter mais informações com outros comandos
             atualizarInformacoesAdicionais();
             
@@ -198,42 +252,55 @@ public class ManagerPartidaTempoReal extends ManagerBase {
      */
     private PlayerInfo parsePlayerLine(String linha) {
         try {
-            // Formato: "# userid name uniqueid connected ping loss state rate adr"
-            String[] partes = linha.split("\\s+");
-            if (partes.length < 3) {
-                return null;
-            }
+            // Formato CS2: "#    1 \"Player Name\" STEAM_1:0:123456 01:23   45    0 active"
+            // ou: "# userid name uniqueid connected ping loss state rate adr"
             
             PlayerInfo player = new PlayerInfo();
             
-            // name (pode ter espaços)
-            StringBuilder nome = new StringBuilder();
-            int i = 2;
-            while (i < partes.length && !partes[i].startsWith("STEAM_") && !partes[i].startsWith("[U:")) {
-                if (nome.length() > 0) {
-                    nome.append(" ");
-                }
-                nome.append(partes[i]);
-                i++;
-            }
-            player.setNome(nome.toString());
+            // Remove o "#" inicial
+            linha = linha.replaceFirst("^#\\s+", "").trim();
             
-            // steamid
-            if (i < partes.length) {
-                player.setSteamId(partes[i]);
-            }
-            
-            // state (contém informações sobre time, health, etc)
-            // Formato: "state" pode conter informações como "CT" ou "TERRORIST"
-            for (int j = i; j < partes.length; j++) {
-                if (partes[j].contains("CT") || partes[j].equals("2")) {
-                    player.setTime(2);
-                    break;
-                } else if (partes[j].contains("TERRORIST") || partes[j].equals("3")) {
-                    player.setTime(3);
-                    break;
+            // Tenta encontrar o nome entre aspas primeiro
+            Pattern namePattern = Pattern.compile("\"([^\"]+)\"");
+            Matcher nameMatcher = namePattern.matcher(linha);
+            if (nameMatcher.find()) {
+                player.setNome(nameMatcher.group(1));
+                // Remove o nome da linha para processar o resto
+                linha = linha.replace("\"" + nameMatcher.group(1) + "\"", "").trim();
+            } else {
+                // Se não tem aspas, pega o primeiro campo que não seja número
+                String[] partes = linha.split("\\s+");
+                if (partes.length > 1) {
+                    // userid é o primeiro, nome pode ser o segundo ou vários campos
+                    StringBuilder nome = new StringBuilder();
+                    int i = 1; // Pula o userid
+                    while (i < partes.length && !partes[i].startsWith("STEAM_") && !partes[i].startsWith("[U:") && !partes[i].matches("\\d{2}:\\d{2}")) {
+                        if (nome.length() > 0) {
+                            nome.append(" ");
+                        }
+                        nome.append(partes[i]);
+                        i++;
+                    }
+                    player.setNome(nome.toString());
                 }
             }
+            
+            // Steam ID
+            Pattern steamPattern = Pattern.compile("(STEAM_[0-9]:[0-9]:[0-9]+|\\[U:[0-9]+:[0-9]+\\])");
+            Matcher steamMatcher = steamPattern.matcher(linha);
+            if (steamMatcher.find()) {
+                player.setSteamId(steamMatcher.group(1));
+            }
+            
+            // Time - procura por "CT" ou "TERRORIST" ou números 2/3
+            if (linha.contains("CT") || linha.matches(".*\\b2\\b.*")) {
+                player.setTime(2);
+            } else if (linha.contains("TERRORIST") || linha.contains("T ") || linha.matches(".*\\b3\\b.*")) {
+                player.setTime(3);
+            }
+            
+            // Se não encontrou o time, tenta pelo contexto (se tem muitos players, assume que é CT ou T baseado na posição)
+            // Por enquanto, deixa sem time se não encontrar
             
             return player;
         } catch (Exception e) {
@@ -332,6 +399,16 @@ public class ManagerPartidaTempoReal extends ManagerBase {
      */
     public void pararMonitoramento() {
         monitorando = false;
+    }
+    
+    /**
+     * Testa a conexão RCON
+     */
+    public void testarConexao() {
+        if (managerRcon != null) {
+            managerRcon.testarConexao();
+        }
+        atualizarDados();
     }
     
     // Getters e Setters

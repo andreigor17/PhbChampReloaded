@@ -249,6 +249,33 @@
                 </div>
             </div>
 
+            <!-- Debug Panel (pode ser removido depois) -->
+            <div class="grid mt-3" rendered="#{managerPartidaTempoReal.matchData.mapa == null or managerPartidaTempoReal.matchData.mapa.isEmpty()}">
+                <div class="col-12">
+                    <p:card styleClass="debug-card">
+                        <f:facet name="title">
+                            <i class="pi pi-info-circle mr-2"></i>
+                            Informações de Debug
+                        </f:facet>
+                        <div class="debug-content">
+                            <p><strong>Status:</strong> Verifique o console do servidor para ver os logs de debug.</p>
+                            <p><strong>Dica:</strong> Se nenhuma informação aparecer, verifique:</p>
+                            <ul>
+                                <li>Se o servidor CS2 está rodando</li>
+                                <li>Se o RCON está configurado corretamente</li>
+                                <li>Se você está conectado ao servidor no jogo</li>
+                                <li>Verifique os logs no console do servidor de aplicação</li>
+                            </ul>
+                            <p:commandButton value="Testar Conexão RCON" 
+                                           icon="pi pi-refresh"
+                                           action="#{managerPartidaTempoReal.testarConexao()}"
+                                           update="@form"
+                                           styleClass="p-button-outlined mt-2" />
+                        </div>
+                    </p:card>
+                </div>
+            </div>
+
             <!-- Polling automático -->
             <p:poll interval="2" 
                    listener="#{managerPartidaTempoReal.atualizarDados()}" 
@@ -563,6 +590,25 @@
                 color: var(--text-300);
                 font-size: 0.875rem;
                 margin: 0;
+            }
+
+            /* Debug Card */
+            .debug-card {
+                background: rgba(255, 193, 7, 0.05) !important;
+                border: 1px solid rgba(255, 193, 7, 0.3) !important;
+            }
+
+            .debug-content {
+                color: var(--text-200);
+            }
+
+            .debug-content ul {
+                margin: 1rem 0;
+                padding-left: 1.5rem;
+            }
+
+            .debug-content li {
+                margin: 0.5rem 0;
             }
 
             /* Animations */
