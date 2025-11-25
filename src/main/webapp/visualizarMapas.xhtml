@@ -10,16 +10,23 @@
     </ui:define>
 
     <ui:define name="content">
-        <div class="section-header">
-            <div>
-                <p:link outcome="/pesquisarMapas" styleClass="mb-3 d-block">
-                    <i class="pi pi-arrow-left mr-2"></i>Voltar para Mapas
-                </p:link>
-                <h1 class="section-title">Visualizar Mapa</h1>
+        <!-- Header -->
+        <div class="glass-card mb-4">
+            <div class="flex align-items-center gap-3">
+                <p:button icon="pi pi-arrow-left"
+                          styleClass="p-button-text"
+                          outcome="pesquisarMapas.xhtml"
+                          title="Voltar" />
+                <div>
+                    <h1 class="m-0 mb-2" style="font-weight: 700; font-size: 2rem; color: var(--text-100);">
+                        <i class="pi pi-map mr-2" style="color: var(--accent);"></i>Visualizar Mapa
+                    </h1>
+                    <p class="m-0" style="color: var(--text-300);">Detalhes e informações do mapa</p>
+                </div>
             </div>
         </div>
 
-        <p:card>
+        <p:card styleClass="glass-card">
             <h:form id="formVisualizarMapa">
                
 
@@ -44,16 +51,18 @@
 
                     <!-- Dados do Mapa -->
                     <div class="col-12 md:col-8">
-                        <p:fieldset legend="Dados do Mapa" toggleable="true" toggleSpeed="500" styleClass="mb-3">
-                            <div class="p-fluid">
-                                <div class="field">
-                                    <p:outputLabel for="nomeMapa" value="Nome do Mapa" styleClass="font-bold"/>
-                                    <p:outputLabel id="nomeMapa" 
-                                                   value="#{managerMapa.mapa.nome}" 
-                                                   styleClass="text-lg"/>
+                        <div class="mapa-info-box">
+                            <h3 class="mapa-info-title">
+                                <i class="pi pi-info-circle mr-2" style="color: var(--accent);"></i>
+                                Informações do Mapa
+                            </h3>
+                            <div class="mapa-info-content">
+                                <div class="mapa-info-item">
+                                    <span class="mapa-info-label">Nome:</span>
+                                    <span class="mapa-info-value">#{managerMapa.mapa.nome}</span>
                                 </div>
                             </div>
-                        </p:fieldset>
+                        </div>
                     </div>
                 </div>
 
@@ -61,18 +70,18 @@
                     <p:button value="Pesquisar" 
                               outcome="pesquisarMapas.xhtml"
                               icon="pi pi-search" 
-                              styleClass="p-button-outlined"/>
+                              styleClass="btn-pesquisar-mapa"/>
 
                     <p:button value="Editar" 
                               outcome="criarMapa.xhtml"
                               icon="pi pi-pencil" 
-                              styleClass="p-button-outlined">
+                              styleClass="btn-editar-mapa">
                         <f:param value="#{managerMapa.mapa.id}" name="id"/>
                     </p:button>
 
                     <p:commandButton value="Excluir"
                                      icon="pi pi-trash" 
-                                     styleClass="p-button-danger"
+                                     styleClass="btn-excluir-mapa"
                                      process="@this"                                
                                      oncomplete="PF('confirmarRemoverMapaDialog').show();"/>
                 </div>
@@ -82,43 +91,55 @@
         <!-- Dialog de Confirmação -->
         <p:dialog id="confirmarRemoverMapaDialog"
                   widgetVar="confirmarRemoverMapaDialog"
-                  header="Deseja remover o mapa?"
+                  header="Confirmar Exclusão"
                   modal="true"
                   resizable="false"
                   draggable="false"
                   closeOnEscape="true"
                   showEffect="fade"
-                  hideEffect="fade">
+                  hideEffect="fade"
+                  styleClass="dark-dialog"
+                  width="400">
 
             <h:form>
-                <div class="flex justify-content-center gap-2 mt-3">
+                <div class="text-center py-4">
+                    <i class="pi pi-exclamation-triangle text-6xl text-orange-500 mb-3"></i>
+                    <h3 class="font-bold mb-2" style="color: var(--text-100)">Deseja realmente excluir?</h3>
+                    <p class="mb-4" style="color: #98a2b3">
+                        Esta ação não pode ser desfeita.
+                    </p>
+                </div>
+                
+                <div class="flex justify-content-end gap-2">
                     <p:commandButton value="Não"
                                      icon="pi pi-times"
                                      oncomplete="PF('confirmarRemoverMapaDialog').hide();"
-                                     styleClass="p-button-outlined"/>
+                                     styleClass="btn-cancelar-item"/>
 
                     <p:commandButton value="Sim"
                                      icon="pi pi-check"
                                      process="@this"
                                      update=":formVisualizarMapa"
                                      actionListener="#{managerMapa.removerMapa()}"
-                                     styleClass="p-button-danger"/>
+                                     styleClass="btn-confirmar-excluir"
+                                     oncomplete="PF('confirmarRemoverMapaDialog').hide();"/>
                 </div>
             </h:form>
         </p:dialog>
 
-        <!-- Estilos específicos para a imagem do mapa -->
         <style type="text/css">
+            /* Estilos para a imagem do mapa */
             .map-image-container {
                 width: 300px;
                 height: 300px;
-                border-radius: 8px;
+                border-radius: 12px;
                 overflow: hidden;
-                background-color: #f8f9fa;
+                background: rgba(255,255,255,0.05);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                border: 1px solid #dee2e6;
+                border: 1px solid rgba(255,255,255,0.1);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             }
 
             .map-image {
@@ -133,7 +154,8 @@
                 justify-content: center;
                 width: 100%;
                 height: 100%;
-                background-color: #f8f9fa;
+                background: rgba(255,255,255,0.03);
+                color: var(--muted);
             }
 
             .p-fluid .field {
@@ -143,6 +165,228 @@
             .p-fluid .field label {
                 display: block;
                 margin-bottom: 0.5rem;
+                color: var(--text-200);
+                font-weight: 600;
+            }
+            
+            /* Info Box do Mapa */
+            .mapa-info-box {
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 12px;
+                padding: 2rem;
+                height: 100%;
+            }
+            
+            .mapa-info-title {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: var(--text-100);
+                margin: 0 0 1.5rem 0;
+                display: flex;
+                align-items: center;
+                padding-bottom: 1rem;
+                border-bottom: 2px solid rgba(0,225,255,0.2);
+            }
+            
+            .mapa-info-content {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .mapa-info-item {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .mapa-info-label {
+                font-size: 0.85rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: var(--text-300);
+                font-weight: 600;
+            }
+            
+            .mapa-info-value {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: var(--text-100);
+            }
+            
+            /* Botões Elegantes */
+            .btn-pesquisar-mapa,
+            .btn-editar-mapa,
+            .btn-excluir-mapa,
+            .btn-confirmar-excluir,
+            .btn-cancelar-item {
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+                padding: 0.625rem 1.25rem !important;
+                border-radius: 16px !important;
+                font-size: 0.8rem !important;
+                font-weight: 600 !important;
+                letter-spacing: 0.3px !important;
+                text-transform: uppercase !important;
+                transition: all 0.3s ease !important;
+                position: relative !important;
+                overflow: hidden !important;
+            }
+            
+            .btn-pesquisar-mapa::before,
+            .btn-editar-mapa::before,
+            .btn-excluir-mapa::before,
+            .btn-confirmar-excluir::before,
+            .btn-cancelar-item::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+                transition: left 0.5s ease;
+            }
+            
+            .btn-pesquisar-mapa:hover::before,
+            .btn-editar-mapa:hover::before,
+            .btn-excluir-mapa:hover::before,
+            .btn-confirmar-excluir:hover::before,
+            .btn-cancelar-item:hover::before {
+                left: 100%;
+            }
+            
+            .btn-pesquisar-mapa .pi,
+            .btn-editar-mapa .pi,
+            .btn-excluir-mapa .pi,
+            .btn-confirmar-excluir .pi,
+            .btn-cancelar-item .pi {
+                font-size: 0.875rem !important;
+            }
+            
+            .btn-pesquisar-mapa .ui-button-text,
+            .btn-editar-mapa .ui-button-text,
+            .btn-excluir-mapa .ui-button-text,
+            .btn-confirmar-excluir .ui-button-text,
+            .btn-cancelar-item .ui-button-text {
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+            }
+            
+            /* Botão Pesquisar */
+            .btn-pesquisar-mapa {
+                background: linear-gradient(135deg, rgba(0, 225, 255, 0.12), rgba(0, 180, 255, 0.08)) !important;
+                border: 1.5px solid rgba(0, 225, 255, 0.3) !important;
+                color: var(--accent) !important;
+                box-shadow: 0 2px 6px rgba(0, 225, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+            }
+            
+            .btn-pesquisar-mapa:hover {
+                background: linear-gradient(135deg, rgba(0, 225, 255, 0.18), rgba(0, 180, 255, 0.12)) !important;
+                border-color: rgba(0, 225, 255, 0.4) !important;
+                box-shadow: 0 4px 10px rgba(0, 225, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+                transform: translateY(-1px) !important;
+            }
+            
+            .btn-pesquisar-mapa .pi {
+                filter: drop-shadow(0 0 2px rgba(0, 225, 255, 0.4));
+            }
+            
+            /* Botão Editar */
+            .btn-editar-mapa {
+                background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(168, 85, 247, 0.1)) !important;
+                border: 1.5px solid rgba(168, 85, 247, 0.35) !important;
+                color: #a855f7 !important;
+                box-shadow: 0 2px 6px rgba(168, 85, 247, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+            }
+            
+            .btn-editar-mapa:hover {
+                background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(168, 85, 247, 0.15)) !important;
+                border-color: rgba(168, 85, 247, 0.45) !important;
+                box-shadow: 0 4px 10px rgba(168, 85, 247, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+                transform: translateY(-1px) !important;
+            }
+            
+            .btn-editar-mapa .pi {
+                filter: drop-shadow(0 0 2px rgba(168, 85, 247, 0.5));
+            }
+            
+            /* Botão Excluir */
+            .btn-excluir-mapa {
+                background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.1)) !important;
+                border: 1.5px solid rgba(239, 68, 68, 0.35) !important;
+                color: #f87171 !important;
+                box-shadow: 0 2px 6px rgba(239, 68, 68, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+            }
+            
+            .btn-excluir-mapa:hover {
+                background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.15)) !important;
+                border-color: rgba(239, 68, 68, 0.45) !important;
+                box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+                transform: translateY(-1px) !important;
+            }
+            
+            .btn-excluir-mapa .pi {
+                filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.5));
+            }
+            
+            /* Botão Confirmar Excluir */
+            .btn-confirmar-excluir {
+                background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.1)) !important;
+                border: 1.5px solid rgba(239, 68, 68, 0.35) !important;
+                color: #f87171 !important;
+                box-shadow: 0 2px 6px rgba(239, 68, 68, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+            }
+            
+            .btn-confirmar-excluir:hover {
+                background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.15)) !important;
+                border-color: rgba(239, 68, 68, 0.45) !important;
+                box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+                transform: translateY(-1px) !important;
+            }
+            
+            .btn-confirmar-excluir .pi {
+                filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.5));
+            }
+            
+            /* Botão Cancelar */
+            .btn-cancelar-item {
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.05)) !important;
+                border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+                color: var(--text-200) !important;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+            }
+            
+            .btn-cancelar-item:hover {
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.08)) !important;
+                border-color: rgba(255, 255, 255, 0.3) !important;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+                transform: translateY(-1px) !important;
+                color: var(--text-100) !important;
+            }
+            
+            .btn-cancelar-item .pi {
+                font-size: 0.875rem !important;
+            }
+            
+            /* Dialog Dark */
+            .dark-dialog.ui-dialog {
+                background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important;
+                border: 1px solid rgba(255,255,255,0.1) !important;
+            }
+
+            .dark-dialog .ui-dialog-titlebar {
+                background: rgba(255,255,255,0.04) !important;
+                border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+                color: var(--text-100) !important;
+            }
+
+            .dark-dialog .ui-dialog-content {
+                background: transparent !important;
+                color: var(--text-100) !important;
             }
         </style>
     </ui:define>

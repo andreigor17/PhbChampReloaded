@@ -66,6 +66,20 @@ public class PickBanUtils {
     }
 
     public static List<ItemPartida> setarMapas(List<Mapas> mapasSelecionados, List<ItemPartida> itens) {
+        if (itens != null && !itens.isEmpty()) {
+            itens.sort((item1, item2) -> {
+                if (item1.getId() == null && item2.getId() == null) {
+                    return 0;
+                }
+                if (item1.getId() == null) {
+                    return 1;
+                }
+                if (item2.getId() == null) {
+                    return -1;
+                }
+                return item1.getId().compareTo(item2.getId());
+            });
+        }
         if (mapasSelecionados.size() == 1) {
             itens.get(0).setMapas(mapasSelecionados.get(0));
             return itens;

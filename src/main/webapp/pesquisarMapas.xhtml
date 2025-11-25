@@ -1,101 +1,449 @@
-<ui:composition template="layout.xhtml"
-                xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:h="http://java.sun.com/jsf/html"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-                xmlns:map="http://xmlns.jcp.org/jsf/composite/map">
-
-    <ui:define name="title">
-        Pesquisar Mapas
-    </ui:define>
+                template="vercel.xhtml">
 
     <ui:define name="content">
-
         <h:form id="formPesquisarMapas"
-                enctype="multipart/form-data"
-                class="form-horizontal">
+                enctype="multipart/form-data">
 
-            <p:growl id="messages"
-                     showDetail="false"/> 
+            <p:growl id="messages" showDetail="false"/>
 
-
-            <div class="actions">
-                <p:button value="Cadastrar" outcome="criarMapa.xhtml"
-                          icon="ui-icon-plus"  />
+            <!-- Header -->
+            <div class="glass-card mb-4">
+                <div class="flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <h1 class="m-0 mb-2" style="font-weight: 700; font-size: 2rem; color: var(--text-100);">
+                            <i class="pi pi-map mr-2" style="color: var(--accent);"></i>Pesquisar Mapas
+                        </h1>
+                        <p class="m-0" style="color: var(--text-300);">Pesquise e visualize os mapas disponíveis</p>
+                    </div>
+                    <p:button value="Cadastrar" 
+                              icon="pi pi-plus"
+                              styleClass="btn-cadastrar-mapa"
+                              outcome="criarMapa.xhtml" />
+                </div>
             </div>
 
-            <p:fieldset legend="Filtros" id="dadosFieldset">                    
-                <div class="row">
-                    <div class="column2">
-                        <p:outputLabel value="Nome do Mapa" for="nomeMapa" />
+            <!-- Filtros -->
+            <p:card styleClass="glass-card mb-4">
+                <f:facet name="title">
+                    <div class="flex align-items-center">
+                        <i class="pi pi-filter mr-2" style="color: var(--accent)"></i>
+                        <span>Filtros</span>
                     </div>
-                    <div class="column9">
-                        <p:inputText id="nomeMapa" value="#{ managerMapa.mapa.nome}"/>
+                </f:facet>
+
+                <div class="grid">
+                    <div class="col-12 md:col-8">
+                        <p:outputLabel value="Nome do Mapa" for="nomeMapa" style="color: var(--text-200); font-weight: 600;"/>
+                        <p:inputText id="nomeMapa" 
+                                     value="#{managerMapa.mapa.nome}"
+                                     styleClass="dark-input-search"
+                                     placeholder="Digite o nome do mapa..." />
+                    </div>
+                    <div class="col-12 md:col-4 flex align-items-end gap-2">
+                        <p:commandButton value="Pesquisar" 
+                                         icon="pi pi-search"
+                                         styleClass="btn-pesquisar-mapa"
+                                         update="@form" 
+                                         actionListener="#{managerMapa.pesquisarMapas()}"  
+                                         onclick="desabilitarBotoes(true);" 
+                                         oncomplete="desabilitarBotoes(false);"/>
+                        <p:commandButton value="Limpar" 
+                                       icon="pi pi-times"
+                                       styleClass="btn-limpar-mapa"
+                                       update="@form" 
+                                       actionListener="#{managerMapa.instanciar()}" />
                     </div>
                 </div>
+            </p:card>
 
-                <div class="command">
-                    <p:commandButton
-                        id="pesquisarcommandButton" value="Pesquisar" icon="ui-icon-search"                                 
-                        update="@form" actionListener="#{ managerMapa.pesquisarMapas() }"  
-                        onclick="desabilitarBotoes(true);" oncomplete="desabilitarBotoes(false);"/>
-                    <p:commandButton value="Limpar" icon="ui-icon-close" update="@form" actionListener="#{ managerPlayer.instanciar() }" />
-                </div>
-
-            </p:fieldset>
-
-            <div class="row" style="display: flex; flex-wrap: wrap; width: 900px; height: 80vh; justify-content: center">
+            <!-- Grid de Mapas -->
+            <div class="grid">
                 <ui:repeat value="#{managerMapa.mapas}" var="mapa">
-                    <div style="display: flex; justify-content: center; flex-direction: column; width: 400px; margin: 10px;">
-                        <div class='row'>
-                            <p:outputLabel id="nomeMapa" style="text-align: center !important" value="#{mapa.nome}" />
+                    <div class="col-12 md:col-6 lg:col-4">
+                        <div class="mapa-card">
+                            <div class="mapa-image-container">
+                                <h:panelGroup rendered="#{mapa.anexo != null and mapa.anexo.nome != null}">
+                                    <p:link outcome="visualizarMapas.xhtml" 
+                                            styleClass="mapa-image-link">
+                                        <f:param name="id" value="#{mapa.id}" />
+                                        <p:graphicImage value="image/#{mapa.anexo.nome}" 
+                                                      styleClass="mapa-image" />
+                                    </p:link>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{mapa.anexo == null or mapa.anexo.nome == null}">
+                                    <p:link outcome="visualizarMapas.xhtml" 
+                                            styleClass="mapa-image-link">
+                                        <f:param name="id" value="#{mapa.id}" />
+                                        <div class="mapa-image-placeholder">
+                                            <i class="pi pi-map"></i>
+                                        </div>
+                                    </p:link>
+                                </h:panelGroup>
+                            </div>
+                            <div class="mapa-info">
+                                <h3 class="mapa-nome">#{mapa.nome}</h3>
+                                <p:button value="Ver Detalhes" 
+                                         icon="pi pi-eye"
+                                         styleClass="btn-ver-mapa"
+                                         outcome="visualizarMapas.xhtml">
+                                    <f:param name="id" value="#{mapa.id}" />
+                                </p:button>
+                            </div>
                         </div>
-                        <div class="row" style="display: flex; justify-items: center; align-items: center">                                
-                            <h:commandButton action="#{managerMapa.visualizarMapa(mapa)}" style="border-radius: 10px;
-                                             margin: 10px; width: 350px !important; height: 175px !important" 
-                                             image="image/#{mapa.anexo.nome}" >
-                                <p:ajax process="@this" update="@form"/>
-                            </h:commandButton>
-                        </div>
-                    </div>                
+                    </div>
                 </ui:repeat>
             </div>
 
+            <!-- Mensagem quando não há mapas -->
+            <h:panelGroup rendered="#{empty managerMapa.mapas}">
+                <p:card styleClass="glass-card">
+                    <div class="text-center py-5">
+                        <i class="pi pi-map mb-3" style="font-size: 3rem; color: var(--muted)"></i>
+                        <p style="color: #d1d8e6">Nenhum mapa encontrado</p>
+                    </div>
+                </p:card>
+            </h:panelGroup>
+
+            <!-- Dialog de Confirmação -->
             <p:dialog id="confirmarRemoverMapaDialog"
                       widgetVar="confirmarRemoverMapaDialog"
-                      header="Deseja realmente excluir ?"
+                      header="Confirmar Exclusão"
                       modal="true"
                       resizable="false"
                       draggable="false"
                       closeOnEscape="true"
                       showEffect="fade"
-                      hideEffect="fade">
+                      hideEffect="fade"
+                      styleClass="dark-dialog"
+                      width="400">
 
-                <div class="commandDialog">
+                <div class="text-center py-4">
+                    <i class="pi pi-exclamation-triangle text-6xl text-orange-500 mb-3"></i>
+                    <h3 class="font-bold mb-2" style="color: var(--text-100)">Deseja realmente excluir?</h3>
+                    <p class="mb-4" style="color: #98a2b3">
+                        Esta ação não pode ser desfeita.
+                    </p>
+                </div>
 
+                <div class="flex justify-content-end gap-2">
                     <p:commandButton value="Não"
-                                     title="Cancelar Remoção"
-                                     icon="ui-icon-close"
-                                     oncomplete="PF('confirmarRemoverMapaDialog').hide();"
-                                     styleClass="btn btn-default"/>
+                                     icon="pi pi-times"
+                                     styleClass="btn-cancelar-item"
+                                     oncomplete="PF('confirmarRemoverMapaDialog').hide();"/>
 
                     <p:commandButton value="Sim"
-                                     title="Confirmar Remoção"
-                                     icon="ui-icon-check"
+                                     icon="pi pi-check"
+                                     styleClass="btn-confirmar-excluir"
                                      process="@this"
                                      update="@form"
                                      actionListener="#{managerMapa.excluir()}"
-                                     styleClass="btn btn-info"/>
-
+                                     oncomplete="PF('confirmarRemoverMapaDialog').hide();"/>
                 </div>
-
-
-
             </p:dialog>
 
         </h:form>
 
+        <style>
+            /* Input de Pesquisa */
+            .dark-input-search.ui-inputtext,
+            .dark-input-search {
+                background: rgba(255,255,255,0.08) !important;
+                border: 1px solid rgba(255,255,255,0.15) !important;
+                color: var(--text-100) !important;
+                border-radius: 8px !important;
+                padding: 0.625rem 1rem !important;
+                width: 100% !important;
+            }
+            
+            .dark-input-search.ui-inputtext:focus,
+            .dark-input-search:focus {
+                background: rgba(255,255,255,0.12) !important;
+                border-color: var(--accent) !important;
+                box-shadow: 0 0 0 2px rgba(0,225,255,0.2) !important;
+                outline: none !important;
+            }
+
+            /* Botões Elegantes */
+            .btn-cadastrar-mapa,
+            .btn-pesquisar-mapa,
+            .btn-limpar-mapa,
+            .btn-ver-mapa,
+            .btn-confirmar-excluir {
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+                padding: 0.625rem 1.25rem !important;
+                border-radius: 16px !important;
+                font-size: 0.8rem !important;
+                font-weight: 600 !important;
+                letter-spacing: 0.3px !important;
+                text-transform: uppercase !important;
+                transition: all 0.3s ease !important;
+                position: relative !important;
+                overflow: hidden !important;
+            }
+            
+            .btn-cadastrar-mapa::before,
+            .btn-pesquisar-mapa::before,
+            .btn-limpar-mapa::before,
+            .btn-ver-mapa::before,
+            .btn-confirmar-excluir::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+                transition: left 0.5s ease;
+            }
+            
+            .btn-cadastrar-mapa:hover::before,
+            .btn-pesquisar-mapa:hover::before,
+            .btn-limpar-mapa:hover::before,
+            .btn-ver-mapa:hover::before,
+            .btn-confirmar-excluir:hover::before {
+                left: 100%;
+            }
+            
+            .btn-cadastrar-mapa .pi,
+            .btn-pesquisar-mapa .pi,
+            .btn-limpar-mapa .pi,
+            .btn-ver-mapa .pi,
+            .btn-confirmar-excluir .pi {
+                font-size: 0.875rem !important;
+            }
+            
+            .btn-cadastrar-mapa .ui-button-text,
+            .btn-pesquisar-mapa .ui-button-text,
+            .btn-limpar-mapa .ui-button-text,
+            .btn-ver-mapa .ui-button-text,
+            .btn-confirmar-excluir .ui-button-text {
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+            }
+            
+            /* Botão Cadastrar */
+            .btn-cadastrar-mapa {
+                background: linear-gradient(135deg, rgba(0, 225, 255, 0.15), rgba(0, 180, 255, 0.1)) !important;
+                border: 1.5px solid rgba(0, 225, 255, 0.35) !important;
+                color: var(--accent) !important;
+                box-shadow: 0 2px 6px rgba(0, 225, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+            }
+            
+            .btn-cadastrar-mapa:hover {
+                background: linear-gradient(135deg, rgba(0, 225, 255, 0.2), rgba(0, 180, 255, 0.15)) !important;
+                border-color: rgba(0, 225, 255, 0.45) !important;
+                box-shadow: 0 4px 10px rgba(0, 225, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+                transform: translateY(-1px) !important;
+            }
+            
+            .btn-cadastrar-mapa .pi {
+                filter: drop-shadow(0 0 2px rgba(0, 225, 255, 0.5));
+            }
+            
+            /* Botão Pesquisar */
+            .btn-pesquisar-mapa {
+                background: linear-gradient(135deg, rgba(0, 225, 255, 0.15), rgba(0, 180, 255, 0.1)) !important;
+                border: 1.5px solid rgba(0, 225, 255, 0.35) !important;
+                color: var(--accent) !important;
+                box-shadow: 0 2px 6px rgba(0, 225, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+            }
+            
+            .btn-pesquisar-mapa:hover {
+                background: linear-gradient(135deg, rgba(0, 225, 255, 0.2), rgba(0, 180, 255, 0.15)) !important;
+                border-color: rgba(0, 225, 255, 0.45) !important;
+                box-shadow: 0 4px 10px rgba(0, 225, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+                transform: translateY(-1px) !important;
+            }
+            
+            .btn-pesquisar-mapa .pi {
+                filter: drop-shadow(0 0 2px rgba(0, 225, 255, 0.5));
+            }
+            
+            /* Botão Limpar */
+            .btn-limpar-mapa {
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.05)) !important;
+                border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+                color: var(--text-200) !important;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+            }
+            
+            .btn-limpar-mapa:hover {
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.08)) !important;
+                border-color: rgba(255, 255, 255, 0.3) !important;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+                transform: translateY(-1px) !important;
+                color: var(--text-100) !important;
+            }
+            
+            /* Botão Confirmar Excluir */
+            .btn-confirmar-excluir {
+                background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.1)) !important;
+                border: 1.5px solid rgba(239, 68, 68, 0.35) !important;
+                color: #f87171 !important;
+                box-shadow: 0 2px 6px rgba(239, 68, 68, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+            }
+            
+            .btn-confirmar-excluir:hover {
+                background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.15)) !important;
+                border-color: rgba(239, 68, 68, 0.45) !important;
+                box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+                transform: translateY(-1px) !important;
+            }
+            
+            .btn-confirmar-excluir .pi {
+                filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.5));
+            }
+
+            /* Cards de Mapas */
+            .mapa-card {
+                background: rgba(255,255,255,0.02);
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 12px;
+                overflow: hidden;
+                transition: all 0.3s ease;
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+            
+            .mapa-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 10px 22px rgba(0,0,0,0.4);
+                border-color: rgba(0,225,255,0.2);
+            }
+            
+            .mapa-image-container {
+                width: 100%;
+                height: 200px;
+                overflow: hidden;
+                background: rgba(255,255,255,0.03);
+                position: relative;
+            }
+            
+            .mapa-image-link {
+                width: 100% !important;
+                height: 100% !important;
+                padding: 0 !important;
+                border: none !important;
+                background: transparent !important;
+                cursor: pointer !important;
+                display: block !important;
+                text-decoration: none !important;
+            }
+            
+            .mapa-image {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.3s ease;
+            }
+            
+            .mapa-image-button:hover .mapa-image {
+                transform: scale(1.05);
+            }
+            
+            .mapa-image-placeholder {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(255,255,255,0.05);
+                color: var(--muted);
+                font-size: 4rem;
+            }
+            
+            .mapa-info {
+                padding: 1.25rem;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .mapa-nome {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: var(--text-100);
+                margin: 0;
+                text-align: center;
+            }
+            
+            .btn-ver-mapa {
+                width: 100% !important;
+                background: linear-gradient(135deg, rgba(0, 225, 255, 0.12), rgba(0, 180, 255, 0.08)) !important;
+                border: 1px solid rgba(0, 225, 255, 0.25) !important;
+                color: var(--accent) !important;
+            }
+            
+            .btn-ver-mapa:hover {
+                background: linear-gradient(135deg, rgba(0, 225, 255, 0.18), rgba(0, 180, 255, 0.12)) !important;
+                border-color: rgba(0, 225, 255, 0.4) !important;
+            }
+            
+            /* Dialog Dark */
+            .dark-dialog.ui-dialog {
+                background: linear-gradient(180deg, var(--bg-800), var(--bg-900)) !important;
+                border: 1px solid rgba(255,255,255,0.1) !important;
+            }
+
+            .dark-dialog .ui-dialog-titlebar {
+                background: rgba(255,255,255,0.04) !important;
+                border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+                color: var(--text-100) !important;
+            }
+
+            .dark-dialog .ui-dialog-content {
+                background: transparent !important;
+                color: var(--text-100) !important;
+            }
+            
+            /* Botão Cancelar (reutilizado do editarItem) */
+            .btn-cancelar-item {
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+                padding: 0.625rem 1.25rem !important;
+                border-radius: 16px !important;
+                font-size: 0.8rem !important;
+                font-weight: 600 !important;
+                letter-spacing: 0.3px !important;
+                text-transform: uppercase !important;
+                transition: all 0.3s ease !important;
+                position: relative !important;
+                overflow: hidden !important;
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.05)) !important;
+                border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+                color: var(--text-200) !important;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+            }
+            
+            .btn-cancelar-item:hover {
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.08)) !important;
+                border-color: rgba(255, 255, 255, 0.3) !important;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+                transform: translateY(-1px) !important;
+                color: var(--text-100) !important;
+            }
+            
+            .btn-cancelar-item .pi {
+                font-size: 0.875rem !important;
+            }
+            
+            .btn-cancelar-item .ui-button-text {
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+            }
+        </style>
     </ui:define>
 
 </ui:composition>

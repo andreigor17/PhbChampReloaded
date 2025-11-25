@@ -53,7 +53,9 @@
                                 <p:commandButton id="removerImagem" 
                                                  value="Remover Imagem" 
                                                  actionListener="#{managerMapa.removerImagem()}" 
-                                                 icon="pi pi-trash"   
+                                                 icon="pi pi-trash"
+                                                 update="mapImagePanel, uploadPanel"
+                                                 styleClass="action-btn-small action-btn-danger"
                                                  rendered="#{managerMapa.fileTemp ne null}"/>
                             </div>
                         </h:panelGroup>
@@ -79,11 +81,13 @@
                 <div class="flex justify-content-end mt-4">
                     <p:button value="Cancelar" 
                               outcome="/pesquisarMapas" 
-                              styleClass="p-button-outlined mr-2" />
+                              icon="pi pi-times"
+                              styleClass="action-btn-small action-btn-secondary mr-2" />
                     <p:commandButton value="Salvar" 
                                      icon="pi pi-check" 
                                      process="@form"
-                                     update="@form"  
+                                     update="@form"
+                                     styleClass="action-btn-small action-btn-success"
                                      actionListener="#{managerMapa.salvar()}"/>
                 </div>
             </h:form>
@@ -105,7 +109,6 @@
             }
 
             .map-image {
-
                 height: 100% !important;
                 object-fit: cover;
             }
@@ -127,6 +130,69 @@
             .p-fluid .field label {
                 display: block;
                 margin-bottom: 0.5rem;
+            }
+
+            /* Estilos para botões elegantes */
+            .action-btn-small {
+                padding: 0.625rem 1.25rem !important;
+                font-size: 0.8rem !important;
+                font-weight: 600 !important;
+                border-radius: 16px !important;
+                border: 1.5px solid !important;
+                gap: 0.4rem !important;
+                transition: all 0.2s ease !important;
+                position: relative !important;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            .action-btn-small .pi {
+                font-size: 0.875rem !important;
+                filter: drop-shadow(0 0 4px rgba(0,0,0,0.3));
+            }
+            .action-btn-small::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+                transform: translateX(-100%);
+                transition: transform 0.5s ease;
+            }
+            .action-btn-small:hover::before {
+                transform: translateX(100%);
+            }
+            .action-btn-small:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            }
+            .action-btn-danger {
+                background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.08)) !important;
+                border-color: rgba(239,68,68,0.3) !important;
+                color: #ef4444 !important;
+            }
+            .action-btn-danger:hover {
+                background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.12)) !important;
+                border-color: rgba(239,68,68,0.4) !important;
+            }
+            .action-btn-success {
+                background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.08)) !important;
+                border-color: rgba(34,197,94,0.3) !important;
+                color: var(--success) !important;
+            }
+            .action-btn-success:hover {
+                background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.12)) !important;
+                border-color: rgba(34,197,94,0.4) !important;
+            }
+            .action-btn-secondary {
+                background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04)) !important;
+                border-color: rgba(255,255,255,0.15) !important;
+                color: var(--text-200) !important;
+            }
+            .action-btn-secondary:hover {
+                background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06)) !important;
+                border-color: rgba(255,255,255,0.25) !important;
             }
         </style>
     </ui:define>

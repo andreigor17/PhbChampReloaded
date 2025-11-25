@@ -163,6 +163,21 @@ public class ManagerPartida extends ManagerBase {
             if (this.partida.getId() != null && !uri.getRequestURI().contains("partida-futebol-view.xhtml")) {
                 try {
                     this.itensPartidas = this.partida.getItemPartida();
+                    // Ordenar itensPartidas por ID
+                    if (this.itensPartidas != null && !this.itensPartidas.isEmpty()) {
+                        this.itensPartidas.sort((item1, item2) -> {
+                            if (item1.getId() == null && item2.getId() == null) {
+                                return 0;
+                            }
+                            if (item1.getId() == null) {
+                                return 1;
+                            }
+                            if (item2.getId() == null) {
+                                return -1;
+                            }
+                            return item1.getId().compareTo(item2.getId());
+                        });
+                    }
                     this.mapas = mapaServico.pesquisar();
 
                     gerarScore();

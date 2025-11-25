@@ -75,6 +75,8 @@ public class ManagerMapa extends ManagerBase {
 
             } else {
                 instanciar();
+                // Carrega os mapas automaticamente ao inicializar a tela de pesquisa
+                pesquisarMapas();
             }
         } catch (IOException ex) {
             System.err.println("Erro ao redirecionar: " + ex.getMessage());
@@ -144,6 +146,13 @@ public class ManagerMapa extends ManagerBase {
         System.err.println("file temp " + this.fileTemp);
         PrimeFaces.current().executeScript("atualizarImagem();");
 
+    }
+
+    public void removerImagem() {
+        this.fileTemp = null;
+        this.mapa.setAnexo(null);
+        this.file = null;
+        PrimeFaces.current().executeScript("atualizarImagem();");
     }
 
     public void salvar() throws Exception {
