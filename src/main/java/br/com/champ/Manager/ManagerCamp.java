@@ -94,6 +94,10 @@ public class ManagerCamp extends ManagerBase {
     private List<Partida> partidasCache;
     private Long campIdCache;
     private boolean partidasCarregadas = false;
+    
+    // Cache para estatísticas de jogadores
+    private List<EstatisticaJogador> estatisticasJogadoresCache;
+    private Long campIdEstatisticasCache;
 
     // Filtro de jogos por checkbox
     private List<Long> jogosSelecionados;
@@ -252,6 +256,12 @@ public class ManagerCamp extends ManagerBase {
 
     public void setCamp(Campeonato camp) {
         this.camp = camp;
+        // Limpa cache de estatísticas quando o campeonato muda
+        if (this.camp == null || this.campIdEstatisticasCache == null 
+            || !this.camp.getId().equals(this.campIdEstatisticasCache)) {
+            this.estatisticasJogadoresCache = null;
+            this.campIdEstatisticasCache = null;
+        }
     }
 
     public List<Campeonato> getCamps() {
@@ -1927,6 +1937,317 @@ public class ManagerCamp extends ManagerBase {
     }
 
     /**
+     * Classe para armazenar estatísticas consolidadas de um jogador no campeonato
+     */
+    public static class EstatisticaJogador {
+
+        private Player player;
+        private int kills;
+        private int assists;
+        private int deaths;
+        private int roundsJogados;
+        private int roundsGanhos;
+        private int roundsPerdidos;
+        private int posicao;
+
+        public EstatisticaJogador(Player player) {
+            this.player = player;
+            this.kills = 0;
+            this.assists = 0;
+            this.deaths = 0;
+            this.roundsJogados = 0;
+            this.roundsGanhos = 0;
+            this.roundsPerdidos = 0;
+            this.posicao = 0;
+        }
+
+        public void adicionarKills(int kills) {
+            this.kills += kills;
+        }
+
+        public void adicionarAssists(int assists) {
+            this.assists += assists;
+        }
+
+        public void adicionarDeaths(int deaths) {
+            this.deaths += deaths;
+        }
+
+        public void adicionarRoundsJogados(int rounds) {
+            this.roundsJogados += rounds;
+        }
+
+        public void setRoundsJogados(int rounds) {
+            this.roundsJogados = rounds;
+        }
+
+        public void adicionarRoundsGanhos(int rounds) {
+            this.roundsGanhos += rounds;
+        }
+
+        public void adicionarRoundsPerdidos(int rounds) {
+            this.roundsPerdidos += rounds;
+        }
+
+        public Player getPlayer() {
+            return player;
+        }
+
+        public int getKills() {
+            return kills;
+        }
+
+        public int getAssists() {
+            return assists;
+        }
+
+        public int getDeaths() {
+            return deaths;
+        }
+
+        public int getRoundsJogados() {
+            return roundsJogados;
+        }
+
+        public int getRoundsGanhos() {
+            return roundsGanhos;
+        }
+
+        public int getRoundsPerdidos() {
+            return roundsPerdidos;
+        }
+
+        public int getPosicao() {
+            return posicao;
+        }
+
+        public void setPosicao(int posicao) {
+            this.posicao = posicao;
+        }
+    }
+
+    /**
+     * Calcula e retorna as estatísticas de todos os jogadores do campeonato
+     * Percorre: Partidas -> ItemPartida -> Times -> Players -> Estatísticas
+     * Ordenado por: Kills, Assistencias, Deaths, rounds jogados, rounds ganhos, rounds perdidos
+     */
+    public List<EstatisticaJogador> getEstatisticasJogadores() {
+        // Verifica cache
+        if (this.camp != null && this.camp.getId() != null 
+            && this.campIdEstatisticasCache != null 
+            && this.campIdEstatisticasCache.equals(this.camp.getId())
+            && this.estatisticasJogadoresCache != null) {
+            return this.estatisticasJogadoresCache;
+        }
+
+        List<EstatisticaJogador> estatisticas = new ArrayList<>();
+
+        if (this.camp == null || this.camp.getId() == null) {
+            return estatisticas;
+        }
+
+        // Mapa para armazenar estatísticas por jogador
+        Map<Long, EstatisticaJogador> statsPorJogador = new HashMap<>();
+
+        // Obtém todas as partidas do campeonato
+        List<Partida> todasPartidas = obterPartidasDoCache();
+        
+        if (todasPartidas != null) {
+            // Percorre cada partida
+            for (Partida partida : todasPartidas) {
+                if (partida.getItemPartida() != null) {
+                    // Percorre cada ItemPartida da partida
+                    for (ItemPartida itemPartida : partida.getItemPartida()) {
+                        // Verifica se o ItemPartida pertence ao campeonato
+                        if (itemPartida.getCamp() != null && itemPartida.getCamp().equals(this.camp.getId())) {
+                            
+                            // Processa team1
+                            if (itemPartida.getTeam1() != null && itemPartida.getTeam1().getPlayers() != null) {
+                                for (Player player : itemPartida.getTeam1().getPlayers()) {
+                                    processarEstatisticasJogador(player, itemPartida, statsPorJogador, true);
+                                }
+                            }
+                            
+                            // Processa team2
+                            if (itemPartida.getTeam2() != null && itemPartida.getTeam2().getPlayers() != null) {
+                                for (Player player : itemPartida.getTeam2().getPlayers()) {
+                                    processarEstatisticasJogador(player, itemPartida, statsPorJogador, false);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Calcula rounds jogados (soma de rounds ganhos e perdidos)
+        for (EstatisticaJogador est : statsPorJogador.values()) {
+            int roundsJogados = est.getRoundsGanhos() + est.getRoundsPerdidos();
+            est.setRoundsJogados(roundsJogados);
+        }
+
+        // Converte para lista e ordena
+        estatisticas = new ArrayList<>(statsPorJogador.values());
+        estatisticas.sort((e1, e2) -> {
+            // 1. Kills (maior primeiro)
+            int compareKills = Integer.compare(e2.getKills(), e1.getKills());
+            if (compareKills != 0) {
+                return compareKills;
+            }
+            // 2. Assists (maior primeiro)
+            int compareAssists = Integer.compare(e2.getAssists(), e1.getAssists());
+            if (compareAssists != 0) {
+                return compareAssists;
+            }
+            // 3. Deaths (menor primeiro)
+            int compareDeaths = Integer.compare(e1.getDeaths(), e2.getDeaths());
+            if (compareDeaths != 0) {
+                return compareDeaths;
+            }
+            // 4. Rounds jogados (maior primeiro)
+            int compareRoundsJogados = Integer.compare(e2.getRoundsJogados(), e1.getRoundsJogados());
+            if (compareRoundsJogados != 0) {
+                return compareRoundsJogados;
+            }
+            // 5. Rounds ganhos (maior primeiro)
+            int compareRoundsGanhos = Integer.compare(e2.getRoundsGanhos(), e1.getRoundsGanhos());
+            if (compareRoundsGanhos != 0) {
+                return compareRoundsGanhos;
+            }
+            // 6. Rounds perdidos (menor primeiro)
+            int compareRoundsPerdidos = Integer.compare(e1.getRoundsPerdidos(), e2.getRoundsPerdidos());
+            if (compareRoundsPerdidos != 0) {
+                return compareRoundsPerdidos;
+            }
+            // 7. Ordem alfabética do nome
+            return e1.getPlayer().getNome().compareTo(e2.getPlayer().getNome());
+        });
+
+        // Define as posições após ordenar
+        for (int i = 0; i < estatisticas.size(); i++) {
+            estatisticas.get(i).setPosicao(i + 1);
+        }
+
+        // Salva no cache
+        this.estatisticasJogadoresCache = estatisticas;
+        this.campIdEstatisticasCache = this.camp.getId();
+
+        return estatisticas;
+    }
+
+    /**
+     * Processa as estatísticas de um jogador em um ItemPartida específico
+     * @param player O jogador
+     * @param itemPartida O ItemPartida
+     * @param statsPorJogador Mapa para armazenar estatísticas consolidadas
+     * @param isTeam1 true se o jogador está no team1, false se está no team2
+     */
+    private void processarEstatisticasJogador(Player player, ItemPartida itemPartida, Map<Long, EstatisticaJogador> statsPorJogador, boolean isTeam1) {
+        if (player == null || player.getId() == null || itemPartida == null || itemPartida.getId() == null) {
+            return;
+        }
+
+        // Cria entrada no mapa se não existir
+        if (!statsPorJogador.containsKey(player.getId())) {
+            statsPorJogador.put(player.getId(), new EstatisticaJogador(player));
+        }
+
+        EstatisticaJogador estatJogador = statsPorJogador.get(player.getId());
+
+        // Busca estatísticas do jogador neste ItemPartida específico
+        try {
+            List<Estatisticas> estsPlayer = estatisticaServico.estatisticaPorItemPartidaPlayer(player.getId(), itemPartida.getId());
+            if (estsPlayer != null) {
+                for (Estatisticas est : estsPlayer) {
+                    if (est != null) {
+                        // Soma kills, assists, deaths
+                        estatJogador.adicionarKills(est.getKills() != null ? est.getKills() : 0);
+                        estatJogador.adicionarAssists(est.getAssists() != null ? est.getAssists() : 0);
+                        estatJogador.adicionarDeaths(est.getDeaths() != null ? est.getDeaths() : 0);
+                        
+                        // Para rounds, usa os valores do ItemPartida
+                        // Se o time do jogador é team1, rounds ganhos = scoreT1, rounds perdidos = scoreT2
+                        // Se o time do jogador é team2, rounds ganhos = scoreT2, rounds perdidos = scoreT1
+                        if (itemPartida.getScoreT1() != null && itemPartida.getScoreT2() != null) {
+                            if (isTeam1) {
+                                estatJogador.adicionarRoundsGanhos(itemPartida.getScoreT1());
+                                estatJogador.adicionarRoundsPerdidos(itemPartida.getScoreT2());
+                            } else {
+                                estatJogador.adicionarRoundsGanhos(itemPartida.getScoreT2());
+                                estatJogador.adicionarRoundsPerdidos(itemPartida.getScoreT1());
+                            }
+                        } else {
+                            // Se não tiver score no ItemPartida, usa os valores da estatística
+                            estatJogador.adicionarRoundsGanhos(est.getRoundsGanhos() != null ? est.getRoundsGanhos() : 0);
+                            estatJogador.adicionarRoundsPerdidos(est.getRoundsPerdidos() != null ? est.getRoundsPerdidos() : 0);
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ManagerCamp.class.getName()).log(Level.WARNING, 
+                "Erro ao buscar estatísticas do jogador " + player.getId() + " no ItemPartida " + itemPartida.getId(), ex);
+        }
+    }
+
+    /**
+     * Retorna o total de ItemPartida do campeonato
+     * Conta todos os ItemPartida que têm o campeonato_id
+     */
+    public int getTotalPartidas() {
+        if (this.camp == null || this.camp.getId() == null) {
+            return 0;
+        }
+
+        int total = 0;
+        List<Partida> todasPartidas = obterPartidasDoCache();
+        
+        if (todasPartidas != null) {
+            for (Partida partida : todasPartidas) {
+                if (partida.getItemPartida() != null) {
+                    for (ItemPartida item : partida.getItemPartida()) {
+                        // Verifica se o ItemPartida pertence ao campeonato
+                        if (item.getCamp() != null && item.getCamp().equals(this.camp.getId())) {
+                            total++;
+                        }
+                    }
+                }
+            }
+        }
+
+        return total;
+    }
+
+    /**
+     * Retorna o total de ItemPartida realizados (jogados) do campeonato
+     * Conta os ItemPartida que estão em partidas finalizadas e pertencem ao campeonato
+     */
+    public int getTotalPartidasRealizadas() {
+        if (this.camp == null || this.camp.getId() == null) {
+            return 0;
+        }
+
+        int total = 0;
+        List<Partida> todasPartidas = obterPartidasDoCache();
+        
+        if (todasPartidas != null) {
+            for (Partida partida : todasPartidas) {
+                // Verifica se a partida está finalizada
+                if (partida.isFinalizada() && partida.getItemPartida() != null) {
+                    for (ItemPartida item : partida.getItemPartida()) {
+                        // Verifica se o ItemPartida pertence ao campeonato e está jogado
+                        if (item.getCamp() != null && item.getCamp().equals(this.camp.getId()) && item.isJogado()) {
+                            total++;
+                        }
+                    }
+                }
+            }
+        }
+
+        return total;
+    }
+
+    /**
      * Calcula e retorna a tabela de classificação ordenada por vitórias Ordem:
      * mais vitórias primeiro, em caso de empate, menos derrotas
      */
@@ -1959,6 +2280,32 @@ public class ManagerCamp extends ManagerBase {
                     if (classVencedor != null && classPerdedor != null) {
                         classVencedor.adicionarVitoria();
                         classPerdedor.adicionarDerrota();
+                        
+                        // Calcula rounds ganhos e rounds perdidos
+                        if (partida.getItemPartida() != null && !partida.getItemPartida().isEmpty()) {
+                            ItemPartida itemPartida = partida.getItemPartida().get(0);
+                            if (itemPartida.getScoreT1() != null && itemPartida.getScoreT2() != null) {
+                                // Verifica qual time é o time1 e qual é o time2
+                                Team time1 = itemPartida.getTeam1();
+                                Team time2 = itemPartida.getTeam2();
+                                
+                                if (time1 != null && time2 != null) {
+                                    if (timeVencedor.getId().equals(time1.getId())) {
+                                        // Time1 venceu
+                                        classVencedor.adicionarRoundsGanhos(itemPartida.getScoreT1());
+                                        classVencedor.adicionarRoundsPerdidos(itemPartida.getScoreT2());
+                                        classPerdedor.adicionarRoundsGanhos(itemPartida.getScoreT2());
+                                        classPerdedor.adicionarRoundsPerdidos(itemPartida.getScoreT1());
+                                    } else if (timeVencedor.getId().equals(time2.getId())) {
+                                        // Time2 venceu
+                                        classVencedor.adicionarRoundsGanhos(itemPartida.getScoreT2());
+                                        classVencedor.adicionarRoundsPerdidos(itemPartida.getScoreT1());
+                                        classPerdedor.adicionarRoundsGanhos(itemPartida.getScoreT1());
+                                        classPerdedor.adicionarRoundsPerdidos(itemPartida.getScoreT2());
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

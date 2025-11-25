@@ -580,13 +580,14 @@
                                         </div>
                                         <div class="team-classificacao-info">
                                             <span class="team-classificacao-name">#{classificacao.team.nome}</span>
-                                            <h:panelGroup rendered="#{classificacao.vitorias >= 3}">
+                                            <!-- Badges de Classificado/Eliminado apenas para formato SUÍÇO -->
+                                            <h:panelGroup rendered="#{managerCamp.camp.tipoCampeonato.nome eq 'SUÍÇO' and classificacao.vitorias >= 3}">
                                                 <span class="badge-classificado">
                                                     <i class="pi pi-check-circle"></i>
                                                     Classificado
                                                 </span>
                                             </h:panelGroup>
-                                            <h:panelGroup rendered="#{classificacao.derrotas >= 3}">
+                                            <h:panelGroup rendered="#{managerCamp.camp.tipoCampeonato.nome eq 'SUÍÇO' and classificacao.derrotas >= 3}">
                                                 <span class="badge-eliminado">
                                                     <i class="pi pi-times-circle"></i>
                                                     Eliminado
@@ -604,11 +605,31 @@
                                     <span class="stat-value-losses">#{classificacao.derrotas}</span>
                                 </p:column>
 
-                                <p:column headerText="Pontos" styleClass="col-stat">
+                                <!-- Coluna de Rounds Ganhos apenas para GRUPO E PLAYOFF -->
+                                <p:column headerText="RG" 
+                                         styleClass="col-stat"
+                                         rendered="#{managerCamp.camp.tipoCampeonato.nome eq 'GRUPO E PLAYOFF'}">
+                                    <span class="stat-value-rounds-won">#{classificacao.roundsGanhos}</span>
+                                </p:column>
+
+                                <!-- Coluna de Rounds Perdidos apenas para GRUPO E PLAYOFF -->
+                                <p:column headerText="RP" 
+                                         styleClass="col-stat"
+                                         rendered="#{managerCamp.camp.tipoCampeonato.nome eq 'GRUPO E PLAYOFF'}">
+                                    <span class="stat-value-rounds-lost">#{classificacao.roundsPerdidos}</span>
+                                </p:column>
+
+                                <!-- Coluna de Pontos apenas para GRUPO E PLAYOFF -->
+                                <p:column headerText="Pontos" 
+                                         styleClass="col-stat"
+                                         rendered="#{managerCamp.camp.tipoCampeonato.nome eq 'GRUPO E PLAYOFF'}">
                                     <span class="stat-value-points">#{classificacao.pontos}</span>
                                 </p:column>
 
-                                <p:column headerText="Record" styleClass="col-record">
+                                <!-- Coluna de Record apenas para SUÍÇO -->
+                                <p:column headerText="Record" 
+                                         styleClass="col-record"
+                                         rendered="#{managerCamp.camp.tipoCampeonato.nome eq 'SUÍÇO'}">
                                     <span class="record-badge">#{classificacao.record}</span>
                                 </p:column>
 
@@ -899,6 +920,120 @@
             <!-- Partidas e Estatísticas -->
             <div class="glass-tab-container mb-4">
                 <p:tabView>
+                    <p:tab title="Estatísticas">
+                        <div class="section-subheader mb-3">
+                            <h2 class="m-0" style="font-weight: 700; color: var(--text-100)">
+                                <i class="pi pi-chart-bar mr-2"></i>Estatísticas dos Jogadores
+                            </h2>
+                        </div>
+
+                        <div class="stats-grid-modern mb-4">
+                            <div class="stat-box-modern">
+                                <div class="stat-icon-box accent-blue">
+                                    <i class="pi pi-calendar"></i>
+                                </div>
+                                <div class="stat-value-modern">#{managerCamp.getTotalPartidas()}</div>
+                                <div class="stat-label-modern">Total de Partidas</div>
+                            </div>
+
+                            <div class="stat-box-modern">
+                                <div class="stat-icon-box accent-green">
+                                    <i class="pi pi-check-circle"></i>
+                                </div>
+                                <div class="stat-value-modern">#{managerCamp.getTotalPartidasRealizadas()}</div>
+                                <div class="stat-label-modern">Realizadas</div>
+                            </div>
+
+                            <div class="stat-box-modern">
+                                <div class="stat-icon-box accent-warning">
+                                    <i class="pi pi-list"></i>
+                                </div>
+                                <div class="stat-value-modern">#{managerCamp.getTimesConfirmados(managerCamp.camp)}</div>
+                                <div class="stat-label-modern">Times</div>
+                            </div>
+                        </div>
+
+                        <!-- Tabela de Estatísticas dos Jogadores -->
+                        <p:card styleClass="glass-card">
+                            <f:facet name="title">
+                                <div class="flex align-items-center">
+                                    <i class="pi pi-users mr-2" style="color: var(--accent)"></i>
+                                    <span>Estatísticas dos Jogadores</span>
+                                </div>
+                            </f:facet>
+
+                            <div class="classificacao-container">
+                                <h:panelGroup rendered="#{not empty managerCamp.getEstatisticasJogadores()}">
+                                    <p:dataTable value="#{managerCamp.getEstatisticasJogadores()}" 
+                                                var="estJogador"
+                                                varStatus="status"
+                                                styleClass="classificacao-table"
+                                                emptyMessage="Nenhuma estatística disponível ainda">
+                                        
+                                        <p:column headerText="Pos" styleClass="col-pos">
+                                            <div class="posicao-badge">
+                                                #{estJogador.posicao}
+                                            </div>
+                                        </p:column>
+
+                                        <p:column headerText="Jogador" styleClass="col-team">
+                                            <div class="team-classificacao-row">
+                                                <div class="team-classificacao-logo">
+                                                    <h:panelGroup rendered="#{estJogador.player.anexo != null}">
+                                                        <p:graphicImage value="image/#{estJogador.player.anexo.nome}" 
+                                                                      styleClass="team-logo-mini" />
+                                                    </h:panelGroup>
+                                                    <h:panelGroup rendered="#{estJogador.player.anexo == null}">
+                                                        #{estJogador.player.nome != null and not empty estJogador.player.nome ? estJogador.player.nome.substring(0,1).toUpperCase() : '?'}
+                                                    </h:panelGroup>
+                                                </div>
+                                                <div class="team-classificacao-info">
+                                                    <span class="team-classificacao-name">#{estJogador.player.nome}</span>
+                                                    <h:panelGroup rendered="#{estJogador.player.nick != null and not empty estJogador.player.nick}">
+                                                        <span style="color: var(--text-300); font-size: 0.85rem;">#{estJogador.player.nick}</span>
+                                                    </h:panelGroup>
+                                                </div>
+                                            </div>
+                                        </p:column>
+
+                                        <p:column headerText="K" styleClass="col-stat">
+                                            <span class="stat-value-wins">#{estJogador.kills}</span>
+                                        </p:column>
+
+                                        <p:column headerText="A" styleClass="col-stat">
+                                            <span class="stat-value-points">#{estJogador.assists}</span>
+                                        </p:column>
+
+                                        <p:column headerText="D" styleClass="col-stat">
+                                            <span class="stat-value-losses">#{estJogador.deaths}</span>
+                                        </p:column>
+
+                                        <p:column headerText="Rounds Jogados" styleClass="col-stat">
+                                            <span class="stat-value-points">#{estJogador.roundsJogados}</span>
+                                        </p:column>
+
+                                        <p:column headerText="Rounds Ganhos" styleClass="col-stat">
+                                            <span class="stat-value-rounds-won">#{estJogador.roundsGanhos}</span>
+                                        </p:column>
+
+                                        <p:column headerText="Rounds Perdidos" styleClass="col-stat">
+                                            <span class="stat-value-rounds-lost">#{estJogador.roundsPerdidos}</span>
+                                        </p:column>
+
+                                    </p:dataTable>
+                                </h:panelGroup>
+
+                                <h:panelGroup rendered="#{empty managerCamp.getEstatisticasJogadores()}">
+                                    <div class="text-center py-5">
+                                        <i class="pi pi-chart-bar mb-3" style="font-size: 3rem; color: var(--muted)"></i>
+                                        <p style="color: #d1d8e6">Nenhuma estatística disponível ainda</p>
+                                        <p style="color: #98a2b3; font-size: 0.9rem;">As estatísticas serão atualizadas conforme as partidas forem finalizadas</p>
+                                    </div>
+                                </h:panelGroup>
+                            </div>
+                        </p:card>
+                    </p:tab>
+
                     <p:tab title="Partidas">
                         <div class="section-subheader mb-3">
                             <h2 class="m-0" style="font-weight: 700; color: var(--text-100)">
@@ -998,40 +1133,6 @@
                                 <p style="color: #d1d8e6">Nenhuma partida registrada</p>
                             </div>
                         </h:panelGroup>
-                    </p:tab>
-
-                    <p:tab title="Estatísticas">
-                        <div class="section-subheader mb-3">
-                            <h2 class="m-0" style="font-weight: 700; color: var(--text-100)">
-                                <i class="pi pi-chart-bar mr-2"></i>Estatísticas
-                            </h2>
-                        </div>
-
-                        <div class="stats-grid-modern">
-                            <div class="stat-box-modern">
-                                <div class="stat-icon-box accent-blue">
-                                    <i class="pi pi-calendar"></i>
-                                </div>
-                                <div class="stat-value-modern">#{managerCamp.partidas.size()}</div>
-                                <div class="stat-label-modern">Total de Partidas</div>
-                            </div>
-
-                            <div class="stat-box-modern">
-                                <div class="stat-icon-box accent-green">
-                                    <i class="pi pi-check-circle"></i>
-                                </div>
-                                <div class="stat-value-modern">0</div>
-                                <div class="stat-label-modern">Realizadas</div>
-                            </div>
-
-                            <div class="stat-box-modern">
-                                <div class="stat-icon-box accent-warning">
-                                    <i class="pi pi-list"></i>
-                                </div>
-                                <div class="stat-value-modern">#{managerCamp.getTimesConfirmados(managerCamp.camp)}</div>
-                                <div class="stat-label-modern">Times</div>
-                            </div>
-                        </div>
                     </p:tab>
                 </p:tabView>
             </div>
@@ -2485,6 +2586,32 @@
                 color: var(--accent);
                 font-weight: 800;
                 font-size: 1rem;
+            }
+            .stat-value-rounds-won {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 32px;
+                padding: 0.4rem 0.6rem;
+                background: rgba(34,197,94,0.12);
+                border: 1px solid rgba(34,197,94,0.25);
+                border-radius: 6px;
+                color: var(--success);
+                font-weight: 700;
+                font-size: 0.95rem;
+            }
+            .stat-value-rounds-lost {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 32px;
+                padding: 0.4rem 0.6rem;
+                background: rgba(239,68,68,0.12);
+                border: 1px solid rgba(239,68,68,0.25);
+                border-radius: 6px;
+                color: #f87171;
+                font-weight: 700;
+                font-size: 0.95rem;
             }
             .record-badge {
                 display: inline-flex;
