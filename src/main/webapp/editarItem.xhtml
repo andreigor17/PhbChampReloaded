@@ -162,17 +162,17 @@
             <div class="flex justify-content-center gap-3 mb-4">   
                 <p:commandButton value="Gerar Estatísticas" 
                                  icon="pi pi-chart-bar"
-                                 styleClass="p-button-primary"
+                                 styleClass="btn-gerar-estatisticas"
                                  action="#{managerPesquisarEstatisticas.gerarEsts()}"
                                  process="@form"
                                  update="@form"/>
                 <p:commandButton value="Salvar" 
                                  icon="pi pi-check"
-                                 styleClass="p-button-success"
+                                 styleClass="btn-salvar-item"
                                  onclick="PF('confirmacaoEdicaoPartida').show();"/>
                 <p:commandButton value="Cancelar" 
                                  icon="pi pi-times"
-                                 styleClass="p-button-outlined"
+                                 styleClass="btn-cancelar-item"
                                  actionListener="#{managerPesquisarEstatisticas.cancelar()}"/>
             </div>
 
@@ -212,12 +212,12 @@
                     <div class="flex justify-content-end gap-2" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
                         <p:commandButton value="Cancelar"
                                          icon="pi pi-times"
-                                         styleClass="p-button-outlined"
+                                         styleClass="btn-cancelar-item"
                                          oncomplete="PF('confirmacaoEdicaoPartida').hide();"/>
 
                         <p:commandButton value="Salvar"
                                          icon="pi pi-check"
-                                         styleClass="p-button-success"
+                                         styleClass="btn-salvar-item"
                                          process="@form"
                                          update="@form"
                                          actionListener="#{managerPesquisarEstatisticas.salvar()}"
@@ -270,6 +270,111 @@
 
                 .elegant-table .ui-cell-editor-input {
                     width: 100%;
+                }
+                
+                /* Botões Elegantes - Estilo Consistente */
+                .btn-gerar-estatisticas,
+                .btn-salvar-item,
+                .btn-cancelar-item {
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    gap: 0.5rem !important;
+                    padding: 0.625rem 1.25rem !important;
+                    border-radius: 16px !important;
+                    font-size: 0.8rem !important;
+                    font-weight: 600 !important;
+                    letter-spacing: 0.3px !important;
+                    text-transform: uppercase !important;
+                    transition: all 0.3s ease !important;
+                    position: relative !important;
+                    overflow: hidden !important;
+                }
+                
+                .btn-gerar-estatisticas::before,
+                .btn-salvar-item::before,
+                .btn-cancelar-item::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+                    transition: left 0.5s ease;
+                }
+                
+                .btn-gerar-estatisticas:hover::before,
+                .btn-salvar-item:hover::before,
+                .btn-cancelar-item:hover::before {
+                    left: 100%;
+                }
+                
+                .btn-gerar-estatisticas .pi,
+                .btn-salvar-item .pi,
+                .btn-cancelar-item .pi {
+                    font-size: 0.875rem !important;
+                }
+                
+                .btn-gerar-estatisticas .ui-button-text,
+                .btn-salvar-item .ui-button-text,
+                .btn-cancelar-item .ui-button-text {
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 0.5rem !important;
+                }
+                
+                /* Botão Gerar Estatísticas */
+                .btn-gerar-estatisticas {
+                    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(168, 85, 247, 0.1)) !important;
+                    border: 1.5px solid rgba(168, 85, 247, 0.35) !important;
+                    color: #a855f7 !important;
+                    box-shadow: 0 2px 6px rgba(168, 85, 247, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+                }
+                
+                .btn-gerar-estatisticas:hover {
+                    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(168, 85, 247, 0.15)) !important;
+                    border-color: rgba(168, 85, 247, 0.45) !important;
+                    box-shadow: 0 4px 10px rgba(168, 85, 247, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+                    transform: translateY(-1px) !important;
+                }
+                
+                .btn-gerar-estatisticas .pi {
+                    filter: drop-shadow(0 0 2px rgba(168, 85, 247, 0.5));
+                }
+                
+                /* Botão Salvar */
+                .btn-salvar-item {
+                    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.1)) !important;
+                    border: 1.5px solid rgba(34, 197, 94, 0.35) !important;
+                    color: var(--success) !important;
+                    box-shadow: 0 2px 6px rgba(34, 197, 94, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+                }
+                
+                .btn-salvar-item:hover {
+                    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.15)) !important;
+                    border-color: rgba(34, 197, 94, 0.45) !important;
+                    box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+                    transform: translateY(-1px) !important;
+                }
+                
+                .btn-salvar-item .pi {
+                    filter: drop-shadow(0 0 2px rgba(34, 197, 94, 0.5));
+                }
+                
+                /* Botão Cancelar */
+                .btn-cancelar-item {
+                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.05)) !important;
+                    border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+                    color: var(--text-200) !important;
+                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+                }
+                
+                .btn-cancelar-item:hover {
+                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.08)) !important;
+                    border-color: rgba(255, 255, 255, 0.3) !important;
+                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+                    transform: translateY(-1px) !important;
+                    color: var(--text-100) !important;
                 }
             </style>
 

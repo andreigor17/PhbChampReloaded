@@ -6,12 +6,14 @@
 package br.com.champ.Manager;
 
 import br.com.champ.Enums.Url;
+import br.com.champ.Modelo.Campeonato;
 import br.com.champ.Modelo.Estatisticas;
 import br.com.champ.Modelo.ItemPartida;
 import br.com.champ.Modelo.Mapas;
 import br.com.champ.Modelo.Partida;
 import br.com.champ.Modelo.Player;
 import br.com.champ.Modelo.Team;
+import br.com.champ.Servico.CampeonatoServico;
 import br.com.champ.Servico.EstatisticaServico;
 import br.com.champ.Servico.ItemPartidaServico;
 import br.com.champ.Servico.MapaServico;
@@ -70,6 +72,8 @@ public class ManagerPartida extends ManagerBase {
     EstatisticaServico estatisticasServico;
     @EJB
     MapaServico mapaServico;
+    @EJB
+    CampeonatoServico campeonatoServico;
     private Partida partida;
     private Partida partidaPesquisar;
     private List<Player> playersTime1;
@@ -121,6 +125,7 @@ public class ManagerPartida extends ManagerBase {
     private Team timeIniciante;
     private List<Partida> historicoTime1;
     private List<Partida> historicoTime2;
+    private Campeonato campeonato;
 
     @PostConstruct
     public void init() {
@@ -162,6 +167,15 @@ public class ManagerPartida extends ManagerBase {
 
                     gerarScore();
                     createRadarModel();
+                    
+                    // Carregar campeonato se houver no itemPartida
+                    if (!this.itensPartidas.isEmpty() && this.itensPartidas.get(0).getCamp() != null) {
+                        try {
+                            this.campeonato = campeonatoServico.buscaCamp(this.itensPartidas.get(0).getCamp());
+                        } catch (Exception ex) {
+                            System.err.println("Erro ao carregar campeonato: " + ex);
+                        }
+                    }
                     
                     // Carregar histórico dos times
                     if (!this.itensPartidas.isEmpty() && this.itensPartidas.get(0).getTeam1() != null && this.itensPartidas.get(0).getTeam2() != null) {
@@ -211,6 +225,7 @@ public class ManagerPartida extends ManagerBase {
         this.timeIniciante = null;
         this.historicoTime1 = new ArrayList<>();
         this.historicoTime2 = new ArrayList<>();
+        this.campeonato = null;
     }
 
     public void createRadarModel() throws Exception {
@@ -1214,6 +1229,63 @@ public class ManagerPartida extends ManagerBase {
 
     public void setHistoricoTime2(List<Partida> historicoTime2) {
         this.historicoTime2 = historicoTime2;
+    }
+
+    public Campeonato getCampeonato() {
+        return campeonato;
+    }
+
+    public void setCampeonato(Campeonato campeonato) {
+        this.campeonato = campeonato;
+    }
+
+    /**
+     * Verifica se o usuário pode atualizar a partida.
+     * Retorna true se:
+     * - A partida ainda não estiver finalizada OU
+     * - O usuário logado for admin OU
+     * - O usuário logado for igual ao usuarioCadastro da partida
+     * 
+     * @return true se pode atualizar, false caso contrário
+     */
+    public boolean podeAtualizarPartida() {
+        if (this.partida == null) {
+            return false;
+        }
+        
+        // Se a partida não está finalizada, pode atualizar
+        if (!this.partida.isFinalizada()) {
+            return true;
+        }
+        
+        // Se é admin, pode atualizar
+        if (isAdmin()) {
+            return true;
+        }
+        
+        // Se é o usuário que cadastrou a partida, pode atualizar
+        Player playerLogado = getPlayerLogado();
+        if (playerLogado != null && this.partida.getUsuarioCadastro() != null) {
+            if (playerLogado.getId() != null && this.partida.getUsuarioCadastro().getId() != null) {
+                return playerLogado.getId().equals(this.partida.getUsuarioCadastro().getId());
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * Retorna a URL de destino para o botão voltar.
+     * Se houver campeonato, retorna para visualizarCampeonato.xhtml com o id do campeonato.
+     * Caso contrário, retorna para indexPartida.xhtml
+     * 
+     * @return String com a outcome e parâmetros
+     */
+    public String getUrlVoltar() {
+        if (this.campeonato != null && this.campeonato.getId() != null) {
+            return "visualizarCampeonato.xhtml?id=" + this.campeonato.getId();
+        }
+        return "indexPartida.xhtml";
     }
 
 }

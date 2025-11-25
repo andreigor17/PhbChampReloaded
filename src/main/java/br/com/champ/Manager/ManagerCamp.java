@@ -1857,12 +1857,16 @@ public class ManagerCamp extends ManagerBase {
         private int derrotas;
         private int pontos;
         private int posicao;
+        private int roundsGanhos;
+        private int roundsPerdidos;
 
         public ClassificacaoTime(Team team) {
             this.team = team;
             this.vitorias = 0;
             this.derrotas = 0;
             this.pontos = 0;
+            this.roundsGanhos = 0;
+            this.roundsPerdidos = 0;
         }
 
         public void adicionarVitoria() {
@@ -1872,6 +1876,14 @@ public class ManagerCamp extends ManagerBase {
 
         public void adicionarDerrota() {
             this.derrotas++;
+        }
+
+        public void adicionarRoundsGanhos(int rounds) {
+            this.roundsGanhos += rounds;
+        }
+
+        public void adicionarRoundsPerdidos(int rounds) {
+            this.roundsPerdidos += rounds;
         }
 
         public Team getTeam() {
@@ -1896,6 +1908,14 @@ public class ManagerCamp extends ManagerBase {
 
         public void setPosicao(int posicao) {
             this.posicao = posicao;
+        }
+
+        public int getRoundsGanhos() {
+            return roundsGanhos;
+        }
+
+        public int getRoundsPerdidos() {
+            return roundsPerdidos;
         }
 
         public String getRecord() {
@@ -3135,6 +3155,62 @@ public class ManagerCamp extends ManagerBase {
                         if (classVencedor != null && classPerdedor != null) {
                             classVencedor.adicionarVitoria();
                             classPerdedor.adicionarDerrota();
+                            
+                            // Calcula rounds ganhos e perdidos baseado nos itemPartida
+                            if (partida.getItemPartida() != null && !partida.getItemPartida().isEmpty()) {
+                                for (ItemPartida item : partida.getItemPartida()) {
+                                    // Verifica se o itemPartida está relacionado com a partida
+                                    if (item.getPartida() != null && item.getPartida().equals(partida.getId())) {
+                                        if (item.getTimeVencedor() != null && item.getTeam1() != null && item.getTeam2() != null) {
+                                            // Se team1 for o vencedor:
+                                            // - team1: rounds ganhos = scoreT1, rounds perdidos = scoreT2
+                                            // - team2: rounds ganhos = scoreT2, rounds perdidos = scoreT1
+                                            // Se team2 for o vencedor:
+                                            // - team2: rounds ganhos = scoreT2, rounds perdidos = scoreT1
+                                            // - team1: rounds ganhos = scoreT1, rounds perdidos = scoreT2
+                                            
+                                            boolean team1Venceu = item.getTimeVencedor().getId().equals(item.getTeam1().getId());
+                                            boolean team2Venceu = item.getTimeVencedor().getId().equals(item.getTeam2().getId());
+                                            
+                                            int scoreT1 = item.getScoreT1() != null ? item.getScoreT1() : 0;
+                                            int scoreT2 = item.getScoreT2() != null ? item.getScoreT2() : 0;
+                                            
+                                            // Verifica qual time da partida é o team1 e qual é o team2 do item
+                                            ClassificacaoTime classTeam1 = null;
+                                            ClassificacaoTime classTeam2 = null;
+                                            
+                                            if (item.getTeam1().getId().equals(timeVencedor.getId())) {
+                                                classTeam1 = classVencedor;
+                                            } else if (item.getTeam1().getId().equals(timePerdedor.getId())) {
+                                                classTeam1 = classPerdedor;
+                                            }
+                                            
+                                            if (item.getTeam2().getId().equals(timeVencedor.getId())) {
+                                                classTeam2 = classVencedor;
+                                            } else if (item.getTeam2().getId().equals(timePerdedor.getId())) {
+                                                classTeam2 = classPerdedor;
+                                            }
+                                            
+                                            if (team1Venceu && classTeam1 != null && classTeam2 != null) {
+                                                // Team1 venceu: team1 ganha scoreT1 rounds e perde scoreT2 rounds
+                                                // Team2 perde: team2 ganha scoreT2 rounds e perde scoreT1 rounds
+                                                classTeam1.adicionarRoundsGanhos(scoreT1);
+                                                classTeam1.adicionarRoundsPerdidos(scoreT2);
+                                                classTeam2.adicionarRoundsGanhos(scoreT2);
+                                                classTeam2.adicionarRoundsPerdidos(scoreT1);
+                                            } else if (team2Venceu && classTeam1 != null && classTeam2 != null) {
+                                                // Team2 venceu: team2 ganha scoreT2 rounds e perde scoreT1 rounds
+                                                // Team1 perde: team1 ganha scoreT1 rounds e perde scoreT2 rounds
+                                                classTeam2.adicionarRoundsGanhos(scoreT2);
+                                                classTeam2.adicionarRoundsPerdidos(scoreT1);
+                                                classTeam1.adicionarRoundsGanhos(scoreT1);
+                                                classTeam1.adicionarRoundsPerdidos(scoreT2);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
                             partidasProcessadas++;
                         }
                     }

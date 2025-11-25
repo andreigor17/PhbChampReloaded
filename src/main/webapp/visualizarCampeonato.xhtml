@@ -68,8 +68,7 @@
                         <!-- Botão para Login (quando não logado) -->
                         <p:button value="Login para se inscrever" 
                                   icon="pi pi-sign-in"
-                                  styleClass="action-btn mt-3"
-                                  style="margin-top: 1rem; background: linear-gradient(135deg, var(--accent), var(--accent-2));"
+                                  styleClass="btn-login-inscrever"
                                   rendered="#{not managerCamp.isUsuarioLogado()}"
                                   outcome="login.xhtml">
                             <f:param name="returnUrl" value="visualizarCampeonato.xhtml?id=#{managerCamp.camp.id}" />
@@ -309,9 +308,15 @@
                                         </div>
                                     </div>
                                     <h:panelGroup rendered="#{managerCamp.isGrupoFinalizado(grupo)}">
-                                        <span class="status-tag" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3);">
-                                            <i class="pi pi-check-circle mr-1"></i>
-                                            Concluído
+                                        <span class="grupo-status-badge grupo-status-concluido">
+                                            <i class="pi pi-check-circle"></i>
+                                            <span>Grupo Finalizado</span>
+                                        </span>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{not managerCamp.isGrupoFinalizado(grupo)}">
+                                        <span class="grupo-status-badge grupo-status-andamento">
+                                            <i class="pi pi-spin pi-spinner"></i>
+                                            <span>Em Andamento</span>
                                         </span>
                                     </h:panelGroup>
                                 </div>
@@ -347,6 +352,12 @@
                                         </p:column>
                                         <p:column headerText="D" style="width: 70px; text-align: center;">
                                             <span class="stat-value defeats">#{classificacao.derrotas}</span>
+                                        </p:column>
+                                        <p:column headerText="RG" style="width: 80px; text-align: center;">
+                                            <span class="stat-value rounds-won">#{classificacao.roundsGanhos}</span>
+                                        </p:column>
+                                        <p:column headerText="RP" style="width: 80px; text-align: center;">
+                                            <span class="stat-value rounds-lost">#{classificacao.roundsPerdidos}</span>
                                         </p:column>
                                     </p:dataTable>
                                 </div>
@@ -2836,9 +2847,161 @@
                 font-weight: 500;
             }
             
+            /* Status Badge dos Grupos - Elegante e Moderno */
+            .grupo-status-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.625rem 1.25rem;
+                border-radius: 20px;
+                font-size: 0.875rem;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .grupo-status-badge::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                transition: left 0.5s ease;
+            }
+            
+            .grupo-status-badge:hover::before {
+                left: 100%;
+            }
+            
+            .grupo-status-badge i {
+                font-size: 1rem;
+                animation: none;
+            }
+            
+            .grupo-status-concluido {
+                background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+                color: #22c55e;
+                border: 2px solid rgba(34, 197, 94, 0.4);
+                box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            }
+            
+            .grupo-status-concluido:hover {
+                background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(34, 197, 94, 0.15));
+                border-color: rgba(34, 197, 94, 0.5);
+                box-shadow: 0 6px 16px rgba(34, 197, 94, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+                transform: translateY(-1px);
+            }
+            
+            .grupo-status-concluido i {
+                color: #22c55e;
+                filter: drop-shadow(0 0 4px rgba(34, 197, 94, 0.5));
+            }
+            
+            .grupo-status-andamento {
+                background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
+                color: #60a5fa;
+                border: 2px solid rgba(59, 130, 246, 0.4);
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                animation: pulse-blue 2s ease-in-out infinite;
+            }
+            
+            .grupo-status-andamento:hover {
+                background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(59, 130, 246, 0.15));
+                border-color: rgba(59, 130, 246, 0.5);
+                box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+                transform: translateY(-1px);
+            }
+            
+            .grupo-status-andamento i {
+                color: #60a5fa;
+                filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.5));
+            }
+            
+            .grupo-status-andamento i.pi-spinner {
+                animation: spin 1s linear infinite;
+            }
+            
+            @keyframes pulse-blue {
+                0%, 100% {
+                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 0 0 rgba(59, 130, 246, 0.4);
+                }
+                50% {
+                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 0 8px rgba(59, 130, 246, 0);
+                }
+            }
+            
+            @keyframes spin {
+                from {
+                    transform: rotate(0deg);
+                }
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+            
+            /* Botão Login para se Inscrever - Estilo Elegante e Discreto */
+            .btn-login-inscrever {
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+                padding: 0.625rem 1.25rem !important;
+                border-radius: 16px !important;
+                font-size: 0.8rem !important;
+                font-weight: 600 !important;
+                letter-spacing: 0.3px !important;
+                text-transform: uppercase !important;
+                transition: all 0.3s ease !important;
+                box-shadow: 0 2px 6px rgba(0, 225, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+                position: relative !important;
+                overflow: hidden !important;
+                background: linear-gradient(135deg, rgba(0, 225, 255, 0.12), rgba(0, 180, 255, 0.08)) !important;
+                border: 1.5px solid rgba(0, 225, 255, 0.3) !important;
+                color: var(--accent) !important;
+                margin-top: 1rem !important;
+            }
+            
+            .btn-login-inscrever::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+                transition: left 0.5s ease;
+            }
+            
+            .btn-login-inscrever:hover {
+                background: linear-gradient(135deg, rgba(0, 225, 255, 0.18), rgba(0, 180, 255, 0.12)) !important;
+                border-color: rgba(0, 225, 255, 0.4) !important;
+                box-shadow: 0 4px 10px rgba(0, 225, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+                transform: translateY(-1px) !important;
+            }
+            
+            .btn-login-inscrever:hover::before {
+                left: 100%;
+            }
+            
+            .btn-login-inscrever .pi {
+                font-size: 0.875rem !important;
+                filter: drop-shadow(0 0 2px rgba(0, 225, 255, 0.4));
+            }
+            
+            .btn-login-inscrever .ui-button-text {
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+            }
+            
             .grupo-content-layout {
-                display: grid;
-                grid-template-columns: 500px 1fr;
+                display: flex;
+                flex-direction: column;
                 gap: 2rem;
                 margin-top: 1rem;
             }
@@ -2850,6 +3013,9 @@
                 padding: 2rem;
                 border: 1px solid rgba(255, 255, 255, 0.06);
                 height: fit-content;
+                max-width: 1000px;
+                margin: 0 auto;
+                width: 100%;
             }
             
             .section-title {
@@ -2970,6 +3136,18 @@
                 background: rgba(239, 68, 68, 0.15);
                 color: var(--error);
                 border: 1px solid rgba(239, 68, 68, 0.3);
+            }
+            
+            .stat-value.rounds-won {
+                background: rgba(34, 197, 94, 0.12);
+                color: var(--success);
+                border: 1px solid rgba(34, 197, 94, 0.25);
+            }
+            
+            .stat-value.rounds-lost {
+                background: rgba(239, 68, 68, 0.12);
+                color: #f87171;
+                border: 1px solid rgba(239, 68, 68, 0.25);
             }
             
             /* Partidas do Grupo */
@@ -3119,16 +3297,9 @@
             }
             
             @media (max-width: 1024px) {
-                .grupo-content-layout {
-                    grid-template-columns: 1fr;
-                }
-                
                 .grupo-classificacao-section {
-                    order: 2;
-                }
-                
-                .grupo-partidas-section {
-                    order: 1;
+                    max-width: 100%;
+                    padding: 1.5rem;
                 }
             }
             
