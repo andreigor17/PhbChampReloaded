@@ -1040,23 +1040,25 @@ public class ManagerPartida extends ManagerBase {
             List<Estatisticas> estsAux = new ArrayList<>();
             if (scoreT1 > scoreT2) {
                 this.partida.setTimeVencedor(this.partida.getItemPartida().get(0).getTeam1());
-                List<Estatisticas> ests = estatisticasServico.estatisticaPorPartidaTeam(this.partida.getItemPartida().get(0).getTeam1().getId(), this.partida.getId());
-                System.err.println("size1 " + ests.size());
-                for (Estatisticas e : ests) {
-                    int pontos = e.getPontos();
-                    e.setPontos(pontos + 3);
-                    estsAux.add(e);
-                    break;
-                }
+                this.partida.setTimePerdedor(this.partida.getItemPartida().get(0).getTeam2());
+//                List<Estatisticas> ests = estatisticasServico.estatisticaPorPartidaTeam(this.partida.getItemPartida().get(0).getTeam1().getId(), this.partida.getId());
+//                System.err.println("size1 " + ests.size());
+//                for (Estatisticas e : ests) {
+//                    //int pontos = e.getPontos();
+//                    //e.setPontos(pontos + 3);
+//                    estsAux.add(e);
+//                    break;
+                //}
             } else {
                 this.partida.setTimeVencedor(this.partida.getItemPartida().get(0).getTeam2());
-                List<Estatisticas> ests = estatisticasServico.estatisticaPorPartidaTeam(this.partida.getItemPartida().get(0).getTeam2().getId(), this.partida.getId());
-                System.err.println("size2 " + ests.size());
-                for (Estatisticas e : ests) {
-                    e.setPontos(e.getPontos() + 3);
-                    estsAux.add(e);
-                    break;
-                }
+                this.partida.setTimePerdedor(this.partida.getItemPartida().get(0).getTeam1());
+//                List<Estatisticas> ests = estatisticasServico.estatisticaPorPartidaTeam(this.partida.getItemPartida().get(0).getTeam2().getId(), this.partida.getId());
+//                System.err.println("size2 " + ests.size());
+//                for (Estatisticas e : ests) {
+//                    //e.setPontos(e.getPontos() + 3);
+//                    estsAux.add(e);
+//                    break;
+//                }
             }
             for (Estatisticas e1 : estsAux) {
                 estatisticasServico.salvar(e1, e1.getId(), Url.ATUALIZAR_ESTATISTICA.getNome());

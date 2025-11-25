@@ -24,20 +24,20 @@
                     <div class="flex gap-2">
                         <p:commandButton value="Sortear Início"
                                          icon="pi pi-refresh"
-                                         styleClass="action-btn"
+                                         styleClass="action-btn-small action-btn-accent"
                                          update="@form"
                                          oncomplete="PF('coinFlipDialog').show();"
                                          rendered="#{empty managerPartida.timeIniciante}" />
 
                         <p:commandButton value="Cancelar"
                                          icon="pi pi-times"
-                                         styleClass="action-btn outlined"
+                                         styleClass="action-btn-small action-btn-secondary"
                                          actionListener="#{managerPartida.retornarPartida()}"
                                          update="@form" />
 
                         <p:commandButton value="Finalizar"
                                          icon="pi pi-check"
-                                         styleClass="action-btn success"
+                                         styleClass="action-btn-small action-btn-success"
                                          actionListener="#{managerPartida.finalizarPicks()}"
                                          update="@form" />
                     </div>
@@ -124,7 +124,7 @@
                                         <h:panelGroup rendered="#{pb.mapas == null}">
                                             <p:commandButton value="Selecionar Mapa"
                                                              icon="pi pi-map-marker"
-                                                             styleClass="action-btn w-full mt-2"
+                                                             styleClass="action-btn-small action-btn-accent w-full mt-2"
                                                              update="@form"
                                                              oncomplete="PF('gerarMapasDialog').show();">
                                                 <f:setPropertyActionListener value="#{pb}"
@@ -227,7 +227,7 @@
                             <p:commandButton id="btnSortear"
                                              value="Sortear"
                                              icon="pi pi-refresh"
-                                             styleClass="action-btn"
+                                             styleClass="action-btn-small action-btn-accent"
                                              onclick="flipCoin(); return false;"
                                              rendered="#{managerPartida.timeIniciante.id eq null}" />
 
@@ -247,7 +247,7 @@
                             <p:commandButton value="Continuar"
                                              id="continuarButton"
                                              icon="pi pi-arrow-right"
-                                             styleClass="action-btn success"
+                                             styleClass="action-btn-small action-btn-success"
                                              update="@form"
                                              oncomplete="PF('coinFlipDialog').hide();"
                                              rendered="#{managerPartida.timeIniciante.id ne null}" />
@@ -326,37 +326,76 @@
                 box-shadow: 0 8px 20px rgba(0,0,0,0.4);
             }
             
-            /* Action buttons - tema dark */
-            .action-btn {
-                background: rgba(0,225,255,0.1) !important;
-                border: 1px solid rgba(0,225,255,0.35) !important;
-                color: var(--text-100) !important;
-                transition: all 0.2s ease;
+            /* Estilos para botões elegantes */
+            .action-btn-small {
+                padding: 0.625rem 1.25rem !important;
+                font-size: 0.8rem !important;
+                font-weight: 600 !important;
+                border-radius: 16px !important;
+                border: 1.5px solid !important;
+                gap: 0.4rem !important;
+                transition: all 0.2s ease !important;
+                position: relative !important;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             }
-            
-            .action-btn:hover {
-                background: rgba(0,225,255,0.15) !important;
-                box-shadow: 0 0 0 1px rgba(0,225,255,0.2), 0 0 22px rgba(0,225,255,0.08);
+            .action-btn-small .pi {
+                font-size: 0.875rem !important;
+                filter: drop-shadow(0 0 4px rgba(0,0,0,0.3));
             }
-            
-            .action-btn.outlined {
-                background: transparent !important;
-                border-color: rgba(255,255,255,0.2) !important;
+            .action-btn-small::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+                transform: translateX(-100%);
+                transition: transform 0.5s ease;
             }
-            
-            .action-btn.outlined:hover {
-                background: rgba(255,255,255,0.04) !important;
+            .action-btn-small:hover::before {
+                transform: translateX(100%);
             }
-            
-            .action-btn.success {
-                background: rgba(34,197,94,0.15) !important;
-                border-color: rgba(34,197,94,0.35) !important;
+            .action-btn-small:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            }
+            .action-btn-accent {
+                background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(59,130,246,0.08)) !important;
+                border-color: rgba(59,130,246,0.3) !important;
+                color: #60a5fa !important;
+            }
+            .action-btn-accent:hover {
+                background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(59,130,246,0.12)) !important;
+                border-color: rgba(59,130,246,0.4) !important;
+            }
+            .action-btn-accent::before {
+                background: linear-gradient(90deg, transparent, rgba(59,130,246,0.1), transparent);
+            }
+            .action-btn-success {
+                background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.08)) !important;
+                border-color: rgba(34,197,94,0.3) !important;
                 color: var(--success) !important;
             }
-            
-            .action-btn.success:hover {
-                background: rgba(34,197,94,0.2) !important;
-                box-shadow: 0 0 0 1px rgba(34,197,94,0.2), 0 0 22px rgba(34,197,94,0.08);
+            .action-btn-success:hover {
+                background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.12)) !important;
+                border-color: rgba(34,197,94,0.4) !important;
+            }
+            .action-btn-success::before {
+                background: linear-gradient(90deg, transparent, rgba(34,197,94,0.1), transparent);
+            }
+            .action-btn-secondary {
+                background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04)) !important;
+                border-color: rgba(255,255,255,0.15) !important;
+                color: var(--text-200) !important;
+            }
+            .action-btn-secondary:hover {
+                background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06)) !important;
+                border-color: rgba(255,255,255,0.25) !important;
+            }
+            .action-btn-secondary::before {
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
             }
 
             /* Animação da Moeda */

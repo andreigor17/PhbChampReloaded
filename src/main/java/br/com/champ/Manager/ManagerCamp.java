@@ -1,5 +1,6 @@
 package br.com.champ.Manager;
 
+import br.com.champ.Enums.StatusCamp;
 import br.com.champ.Enums.Url;
 import br.com.champ.Modelo.Campeonato;
 import br.com.champ.Modelo.Estatisticas;
@@ -88,12 +89,12 @@ public class ManagerCamp extends ManagerBase {
     private List<Partida> semis;
     private List<Partida> finais;
     private List<Partida> terceiroLugar;
-    
+
     // Cache para partidas - evita múltiplas chamadas HTTP
     private List<Partida> partidasCache;
     private Long campIdCache;
     private boolean partidasCarregadas = false;
-    
+
     // Filtro de jogos por checkbox
     private List<Long> jogosSelecionados;
     private List<Jogo> jogos;
@@ -110,7 +111,7 @@ public class ManagerCamp extends ManagerBase {
         if (visualizarCampId != null && !visualizarCampId.isEmpty()) {
             Long campId = Long.parseLong(visualizarCampId);
             this.camp = this.campeonatoServico.buscaCamp(campId);
-            
+
             // Carrega partidas apenas uma vez e cacheia
             this.partidas = carregarPartidasComCache(campId);
         }
@@ -123,7 +124,6 @@ public class ManagerCamp extends ManagerBase {
 
         // MVP só é calculado se necessário (lazy)
         // Removido do init para melhorar performance inicial
-
         HttpServletRequest uri = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 
         if (uri.getRequestURI().contains("indexCampeonato.xhtml") || uri.getRequestURI().contains("campeonatos.xhtml")) {
@@ -137,7 +137,7 @@ public class ManagerCamp extends ManagerBase {
         }
 
     }
-    
+
     /**
      * Carrega partidas com cache - evita múltiplas chamadas HTTP
      */
@@ -146,16 +146,16 @@ public class ManagerCamp extends ManagerBase {
         if (partidasCarregadas && campIdCache != null && campIdCache.equals(campId) && partidasCache != null) {
             return partidasCache;
         }
-        
+
         // Carrega do serviço e cacheia
         List<Partida> partidasCarregadas = partidaServico.partidaPorCamp(campId);
         this.partidasCache = partidasCarregadas != null ? partidasCarregadas : new ArrayList<>();
         this.campIdCache = campId;
         this.partidasCarregadas = true;
-        
+
         return this.partidasCache;
     }
-    
+
     /**
      * Carrega estatísticas de forma otimizada - evita N+1 queries
      */
@@ -163,7 +163,7 @@ public class ManagerCamp extends ManagerBase {
         if (this.camp == null || this.camp.getId() == null || this.camp.getTeams() == null) {
             return;
         }
-        
+
         // Carrega todas as estatísticas de uma vez para todos os times
         // Assumindo que estatisticaServico tem um método batch (se não tiver, mantém o loop mas otimizado)
         try {
@@ -179,7 +179,7 @@ public class ManagerCamp extends ManagerBase {
             Logger.getLogger(ManagerCamp.class.getName()).log(Level.WARNING, "Erro ao carregar estatísticas", e);
         }
     }
-    
+
     /**
      * Limpa o cache quando necessário (ex: após atualizar partidas)
      */
@@ -188,22 +188,22 @@ public class ManagerCamp extends ManagerBase {
         this.partidasCache = null;
         this.campIdCache = null;
     }
-    
+
     /**
-     * Obtém partidas do cache ou carrega se necessário
-     * Centraliza o acesso às partidas para evitar múltiplas chamadas HTTP
-     * Método público para permitir acesso da classe interna SwissRound
+     * Obtém partidas do cache ou carrega se necessário Centraliza o acesso às
+     * partidas para evitar múltiplas chamadas HTTP Método público para permitir
+     * acesso da classe interna SwissRound
      */
     public List<Partida> obterPartidasDoCache() {
         if (camp == null || camp.getId() == null) {
             return new ArrayList<>();
         }
-        
+
         // Se já tem cache válido, retorna do cache
         if (partidasCarregadas && campIdCache != null && campIdCache.equals(camp.getId()) && partidasCache != null) {
             return partidasCache;
         }
-        
+
         // Se não tem cache, carrega e cacheia
         return carregarPartidasComCache(camp.getId());
     }
@@ -361,20 +361,20 @@ public class ManagerCamp extends ManagerBase {
                 this.camp.setNome(null);
                 this.camp.setDataCamp(null);
             }
-            
+
             // Limpa a lista de jogos selecionados
             if (this.jogosSelecionados == null) {
                 this.jogosSelecionados = new ArrayList<>();
             } else {
                 this.jogosSelecionados.clear();
             }
-            
+
             // Mantém a lista de jogos carregada (não limpa)
             // Se não estiver carregada, carrega
             if (this.jogos == null || this.jogos.isEmpty()) {
                 this.jogos = jogoServico.autoCompleteJogos();
             }
-            
+
             // Refaz a consulta como se fosse o carregamento inicial
             this.camps = campeonatoServico.pesquisar();
         } catch (Exception ex) {
@@ -385,7 +385,7 @@ public class ManagerCamp extends ManagerBase {
             }
         }
     }
-    
+
     public List<Long> getJogosSelecionados() {
         return jogosSelecionados;
     }
@@ -393,7 +393,7 @@ public class ManagerCamp extends ManagerBase {
     public void setJogosSelecionados(List<Long> jogosSelecionados) {
         this.jogosSelecionados = jogosSelecionados;
     }
-    
+
     public List<Jogo> getJogos() {
         return jogos;
     }
@@ -599,8 +599,8 @@ public class ManagerCamp extends ManagerBase {
     }
 
     /**
-     * Verifica se o usuário logado é administrador
-     * Método exposto para o JSF
+     * Verifica se o usuário logado é administrador Método exposto para o JSF
+     *
      * @return true se o usuário logado é admin, false caso contrário
      */
     public boolean isAdmin() {
@@ -609,7 +609,9 @@ public class ManagerCamp extends ManagerBase {
 
     /**
      * Verifica se o player logado já está inscrito no campeonato
-     * @return true se o player pode se inscrever (não está inscrito), false caso contrário
+     *
+     * @return true se o player pode se inscrever (não está inscrito), false
+     * caso contrário
      */
     public boolean podeSeInscrever() {
         try {
@@ -633,16 +635,15 @@ public class ManagerCamp extends ManagerBase {
             String categoria = this.camp.getCategoria().getNome();
 
             // Categoria INDIVIDUAL ou TIME com gerarTimesPorSorteio
-            if ("INDIVIDUAL".equals(categoria) || 
-                ("TIME".equals(categoria) && this.camp.isGerarTimesPorSorteio())) {
+            if ("INDIVIDUAL".equals(categoria)
+                    || ("TIME".equals(categoria) && this.camp.isGerarTimesPorSorteio())) {
                 // Verifica se já está na lista de players
                 if (this.camp.getPlayers() != null && this.camp.getPlayers().stream()
                         .anyMatch(p -> p.getId() != null && p.getId().equals(player.getId()))) {
                     return false; // Já está inscrito
                 }
                 return true; // Pode se inscrever
-            }
-            // Categoria TIME sem gerarTimesPorSorteio
+            } // Categoria TIME sem gerarTimesPorSorteio
             else if ("TIME".equals(categoria)) {
                 // Verifica se o player é capitão de um time que já está inscrito
                 Team timeCapitao = teamServico.buscaTeamPorCapitao(player.getId());
@@ -704,8 +705,7 @@ public class ManagerCamp extends ManagerBase {
                 this.camp.getPlayers().add(player);
                 this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
                 Mensagem.successAndRedirect("Inscrição realizada com sucesso!", "visualizarCampeonato.xhtml?id=" + this.camp.getId());
-            }
-            // Categoria TIME
+            } // Categoria TIME
             else if ("TIME".equals(categoria)) {
                 // Verifica se gera times automaticamente
                 if (this.camp.isGerarTimesPorSorteio()) {
@@ -729,7 +729,7 @@ public class ManagerCamp extends ManagerBase {
                 } else {
                     // Não gera times automaticamente - inscreve o time do qual o player é capitão
                     Team timeCapitao = teamServico.buscaTeamPorCapitao(player.getId());
-                    
+
                     if (timeCapitao == null || timeCapitao.getId() == null) {
                         Mensagem.error("Você precisa ser capitão de um time para se inscrever neste campeonato!");
                         return;
@@ -763,16 +763,16 @@ public class ManagerCamp extends ManagerBase {
     }
 
     /**
-     * Sorteia os times automaticamente baseado nos players inscritos
-     * Apenas admin pode executar esta ação
-     * Apenas para campeonatos de TIME com gerarTimesPorSorteio = true
-     * Balanceia os times baseado no rating dos players para evitar que players
-     * de rating alto fiquem juntos no mesmo time
+     * Sorteia os times automaticamente baseado nos players inscritos Apenas
+     * admin pode executar esta ação Apenas para campeonatos de TIME com
+     * gerarTimesPorSorteio = true Balanceia os times baseado no rating dos
+     * players para evitar que players de rating alto fiquem juntos no mesmo
+     * time
      */
     public void sortearTimes() {
         try {
             System.out.println("====== INICIANDO SORTEIO DE TIMES (COM BALANCEAMENTO) ======");
-            
+
             // Verifica se é admin
             if (!isAdmin()) {
                 System.err.println("Erro: Usuário não é admin");
@@ -833,7 +833,7 @@ public class ManagerCamp extends ManagerBase {
 
             // Cria uma cópia da lista de players
             List<Player> playersParaSortear = new ArrayList<>(this.camp.getPlayers());
-            
+
             // Remove players sem rating e define rating padrão de 5 se não tiver
             for (Player p : playersParaSortear) {
                 if (p.getRating() == null || p.getRating() <= 0) {
@@ -841,14 +841,14 @@ public class ManagerCamp extends ManagerBase {
                     System.out.println("⚠ Player " + p.getNome() + " não possui rating, definido como 5.0");
                 }
             }
-            
+
             // Ordena players por rating (maior para menor)
             playersParaSortear.sort((p1, p2) -> {
                 Double rating1 = p1.getRating() != null ? p1.getRating() : 5.0;
                 Double rating2 = p2.getRating() != null ? p2.getRating() : 5.0;
                 return Double.compare(rating2, rating1); // Ordem decrescente
             });
-            
+
             System.out.println("✓ Players ordenados por rating (maior para menor)");
             for (Player p : playersParaSortear) {
                 System.out.println("  - " + p.getNome() + ": Rating " + p.getRating());
@@ -856,19 +856,19 @@ public class ManagerCamp extends ManagerBase {
 
             int quantidadePorTime = this.camp.getQuantidadePorTime();
             int totalTimes = (int) Math.ceil((double) playersParaSortear.size() / quantidadePorTime);
-            
+
             // Lista de times que serão criados (cada time é uma lista de players)
             List<List<Player>> times = new ArrayList<>();
             for (int i = 0; i < totalTimes; i++) {
                 times.add(new ArrayList<>());
             }
-            
+
             // Lista para rastrear players já distribuídos
             boolean[] playersDistribuidos = new boolean[playersParaSortear.size()];
 
             System.out.println("====== INICIANDO DISTRIBUIÇÃO BALANCEADA ======");
             System.out.println("Total de times a criar: " + totalTimes);
-            
+
             // Algoritmo de balanceamento
             // Distribui players de forma alternada, mas verificando compatibilidade de rating
             for (int round = 0; round < quantidadePorTime; round++) {
@@ -877,25 +877,25 @@ public class ManagerCamp extends ManagerBase {
                     if (times.get(timeIndex).size() >= quantidadePorTime) {
                         continue;
                     }
-                    
+
                     // Procura um player compatível para este time
                     Player playerEscolhido = null;
                     int playerEscolhidoIndex = -1;
-                    
+
                     for (int i = 0; i < playersParaSortear.size(); i++) {
                         if (playersDistribuidos[i]) {
                             continue;
                         }
-                        
+
                         Player candidato = playersParaSortear.get(i);
-                        
+
                         // Verifica compatibilidade com players já no time
                         boolean compativel = true;
                         for (Player playerNoTime : times.get(timeIndex)) {
                             Double ratingCandidato = candidato.getRating() != null ? candidato.getRating() : 5.0;
                             Double ratingNoTime = playerNoTime.getRating() != null ? playerNoTime.getRating() : 5.0;
                             double diferenca = Math.abs(ratingCandidato - ratingNoTime);
-                            
+
                             // Se a diferença for menor que 4, não são compatíveis
                             // Exemplo: rating 8 não pode ficar com rating 6 (diferença 2)
                             // Mas pode ficar com rating 4 (diferença 4)
@@ -904,14 +904,14 @@ public class ManagerCamp extends ManagerBase {
                                 break;
                             }
                         }
-                        
+
                         if (compativel) {
                             playerEscolhido = candidato;
                             playerEscolhidoIndex = i;
                             break;
                         }
                     }
-                    
+
                     // Se não encontrou player compatível, pega o próximo disponível
                     // (pode acontecer se não houver mais opções balanceadas)
                     if (playerEscolhido == null) {
@@ -923,13 +923,13 @@ public class ManagerCamp extends ManagerBase {
                             }
                         }
                     }
-                    
+
                     // Adiciona o player ao time
                     if (playerEscolhido != null) {
                         times.get(timeIndex).add(playerEscolhido);
                         playersDistribuidos[playerEscolhidoIndex] = true;
-                        System.out.println("  ✓ Round " + (round + 1) + ", Time " + (timeIndex + 1) + 
-                                         ": " + playerEscolhido.getNome() + " (Rating: " + playerEscolhido.getRating() + ")");
+                        System.out.println("  ✓ Round " + (round + 1) + ", Time " + (timeIndex + 1)
+                                + ": " + playerEscolhido.getNome() + " (Rating: " + playerEscolhido.getRating() + ")");
                     }
                 }
             }
@@ -948,14 +948,14 @@ public class ManagerCamp extends ManagerBase {
             System.out.println("====== CRIANDO TIMES ======");
             List<Team> timesCriados = new ArrayList<>();
             Set<Long> jogadoresJaUsados = new HashSet<>();
-            
+
             for (int i = 0; i < times.size(); i++) {
                 List<Player> playersDoTime = times.get(i);
-                
+
                 if (playersDoTime.isEmpty()) {
                     continue;
                 }
-                
+
                 // Validação: verifica se algum jogador já foi usado
                 for (Player player : playersDoTime) {
                     if (player.getId() != null && jogadoresJaUsados.contains(player.getId())) {
@@ -966,16 +966,16 @@ public class ManagerCamp extends ManagerBase {
                         jogadoresJaUsados.add(player.getId());
                     }
                 }
-                
+
                 // Calcula rating médio do time para log
                 double ratingMedio = playersDoTime.stream()
-                    .mapToDouble(p -> p.getRating() != null ? p.getRating() : 5.0)
-                    .average()
-                    .orElse(5.0);
-                
+                        .mapToDouble(p -> p.getRating() != null ? p.getRating() : 5.0)
+                        .average()
+                        .orElse(5.0);
+
                 // Cria um novo time
                 Team novoTime = new Team();
-                
+
                 // Se quantidadePorTime for 2, usa os nicks dos jogadores
                 if (quantidadePorTime == 2 && playersDoTime.size() >= 2) {
                     String nick1 = playersDoTime.get(0).getNick() != null ? playersDoTime.get(0).getNick() : playersDoTime.get(0).getNome();
@@ -985,7 +985,7 @@ public class ManagerCamp extends ManagerBase {
                     String nick = playersDoTime.get(0).getNick() != null ? playersDoTime.get(0).getNick() : playersDoTime.get(0).getNome();
                     novoTime.setNome("Time " + nick);
                 }
-                
+
                 novoTime.setPlayers(playersDoTime);
                 novoTime.setTimeAmistoso(false);
                 novoTime.setActive(true);
@@ -999,9 +999,9 @@ public class ManagerCamp extends ManagerBase {
                 // Salva o time
                 Team timeSalvo = teamServico.save(novoTime, null, Url.SALVAR_TIME.getNome());
                 timesCriados.add(timeSalvo);
-                
-                System.out.println("✓ Time " + (i + 1) + " criado: " + novoTime.getNome() + 
-                                 " (Rating médio: " + String.format("%.2f", ratingMedio) + ")");
+
+                System.out.println("✓ Time " + (i + 1) + " criado: " + novoTime.getNome()
+                        + " (Rating médio: " + String.format("%.2f", ratingMedio) + ")");
                 for (Player p : playersDoTime) {
                     System.out.println("    - " + p.getNome() + " (Rating: " + p.getRating() + ")");
                 }
@@ -1022,10 +1022,10 @@ public class ManagerCamp extends ManagerBase {
             System.out.println("✓ Campeonato atualizado no banco");
 
             System.out.println("====== SORTEIO CONCLUÍDO COM SUCESSO ======");
-            
+
             Mensagem.successAndRedirect(
-                "Times sorteados com sucesso! " + timesCriados.size() + " times criados com balanceamento por rating.",
-                "visualizarCampeonato.xhtml?id=" + this.camp.getId()
+                    "Times sorteados com sucesso! " + timesCriados.size() + " times criados com balanceamento por rating.",
+                    "visualizarCampeonato.xhtml?id=" + this.camp.getId()
             );
 
         } catch (Exception ex) {
@@ -1034,8 +1034,6 @@ public class ManagerCamp extends ManagerBase {
             Mensagem.error("Erro ao sortear times: " + ex.getMessage());
         }
     }
-
-    
 
     public List<Partida> getOitavas() {
         return oitavas;
@@ -1087,8 +1085,9 @@ public class ManagerCamp extends ManagerBase {
 
     // Helpers para Swiss System
     /**
-     * Retorna todas as rodadas suíças geradas, na ordem sequencial
-     * Busca partidas tanto das listas do campeonato quanto diretamente pelo contadorEsperado
+     * Retorna todas as rodadas suíças geradas, na ordem sequencial Busca
+     * partidas tanto das listas do campeonato quanto diretamente pelo
+     * contadorEsperado
      */
     /**
      * Retorna as partidas de uma rodada agrupadas por recorde antes da rodada
@@ -1099,33 +1098,32 @@ public class ManagerCamp extends ManagerBase {
         }
         return rodada.getPartidasPorRecorde(this.camp, this.partidaServico, this);
     }
-    
+
     public List<SwissRound> getRodadasSuicas() {
         List<SwissRound> rodadas = new ArrayList<>();
         if (camp == null || camp.getId() == null) {
             return rodadas;
         }
-        
+
         // Não recarrega o campeonato desnecessariamente - usa o já carregado
         // Se precisar de dados atualizados, pode recarregar apenas quando necessário
-        
         if (camp.getTipoCampeonato() == null || !"SUÍÇO".equals(camp.getTipoCampeonato().getNome())) {
             return rodadas;
         }
-        
+
         // Usa partidas do cache ao invés de buscar novamente
         List<Partida> todasPartidas = obterPartidasDoCache();
-        
+
         if (todasPartidas == null) {
             todasPartidas = new ArrayList<>();
         }
-        
+
         System.out.println("Total de partidas encontradas para o campeonato: " + todasPartidas.size());
-        
+
         // Mapeamento da ordem das rodadas
         // Rodada 1 -> 00, Rodada 2 -> 10, Rodada 3 -> 01, etc.
         String[] ordemRodadas = {"00", "10", "01", "20", "11", "02", "30", "21", "12", "03", "31", "22", "13", "32", "23", "33"};
-        
+
         // Agrupa partidas por número de rodada (contadorEsperado)
         Map<Integer, List<Partida>> partidasPorRodada = new HashMap<>();
         for (Partida partida : todasPartidas) {
@@ -1135,39 +1133,39 @@ public class ManagerCamp extends ManagerBase {
                 System.out.println("Partida ID " + partida.getId() + " encontrada na rodada " + contadorEsperado);
             }
         }
-        
+
         System.out.println("Partidas agrupadas por rodada: " + partidasPorRodada.keySet());
-        
+
         int numeroRodada = 1;
         for (String codigoRodada : ordemRodadas) {
             List<Partida> partidasRodada = new ArrayList<>();
-            
+
             // Primeiro tenta buscar das listas do campeonato (reflection)
             try {
                 String getterName = "getRodadaSuica" + codigoRodada;
                 java.lang.reflect.Method getter = camp.getClass().getMethod(getterName);
                 List<Partida> partidasLista = (List<Partida>) getter.invoke(camp);
-                
+
                 if (partidasLista != null && !partidasLista.isEmpty()) {
                     partidasRodada.addAll(partidasLista);
                 }
             } catch (Exception e) {
                 // Se não encontrar pelo reflection, continua para buscar por contadorEsperado
             }
-            
+
             // Se não encontrou na lista, busca pelo contadorEsperado do mapa
             if (partidasRodada.isEmpty() && partidasPorRodada.containsKey(numeroRodada)) {
                 partidasRodada.addAll(partidasPorRodada.get(numeroRodada));
             }
-            
+
             // Se encontrou partidas, cria a rodada
             if (!partidasRodada.isEmpty()) {
                 String nomeRodada = "Rodada " + numeroRodada;
                 SwissRound rodada = new SwissRound(numeroRodada, nomeRodada, partidasRodada);
-                
+
                 // Calcula os records dos times até esta rodada
                 rodada.recordsNaRodada = calcularRecordsAteRodada(numeroRodada);
-                
+
                 rodadas.add(rodada);
                 numeroRodada++;
             } else {
@@ -1175,45 +1173,45 @@ public class ManagerCamp extends ManagerBase {
                 break;
             }
         }
-        
+
         System.out.println("Total de rodadas suíças encontradas: " + rodadas.size());
         for (SwissRound rodada : rodadas) {
             System.out.println("  - " + rodada.getNome() + " com " + rodada.getPartidas().size() + " partidas");
         }
-        
+
         return rodadas;
     }
-    
+
     /**
-     * Calcula os records (vitórias:derrotas) de todos os times até determinada rodada
-     * Retorna um mapa com a contagem de times em cada record
+     * Calcula os records (vitórias:derrotas) de todos os times até determinada
+     * rodada Retorna um mapa com a contagem de times em cada record
      */
     private Map<String, Integer> calcularRecordsAteRodada(int ateRodada) {
         Map<String, Integer> recordCount = new HashMap<>();
         Map<Long, String> teamRecords = new HashMap<>();
-        
+
         // Inicializa todos os times
         if (camp.getTeams() != null) {
             for (Team team : camp.getTeams()) {
                 teamRecords.put(team.getId(), "0:0");
             }
         }
-        
+
         // Usa partidas do cache ao invés de buscar novamente
         List<Partida> todasPartidas = obterPartidasDoCache();
         if (todasPartidas == null) {
             return recordCount;
         }
-        
+
         // Processa apenas partidas finalizadas
         for (Partida partida : todasPartidas) {
-            if (partida.isFinalizada() && partida.getTimeVencedor() != null &&
-                partida.getItemPartida() != null && !partida.getItemPartida().isEmpty()) {
-                
+            if (partida.isFinalizada() && partida.getTimeVencedor() != null
+                    && partida.getItemPartida() != null && !partida.getItemPartida().isEmpty()) {
+
                 ItemPartida item = partida.getItemPartida().get(0);
                 Team team1 = item.getTeam1();
                 Team team2 = item.getTeam2();
-                
+
                 if (team1 != null && team2 != null) {
                     // Atualiza o record do vencedor
                     if (partida.getTimeVencedor().getId().equals(team1.getId())) {
@@ -1226,15 +1224,15 @@ public class ManagerCamp extends ManagerBase {
                 }
             }
         }
-        
+
         // Conta quantos times têm cada record
         for (String record : teamRecords.values()) {
             recordCount.put(record, recordCount.getOrDefault(record, 0) + 1);
         }
-        
+
         return recordCount;
     }
-    
+
     /**
      * Atualiza o record de um time (adiciona vitória ou derrota)
      */
@@ -1243,17 +1241,17 @@ public class ManagerCamp extends ManagerBase {
         if (currentRecord == null) {
             currentRecord = "0:0";
         }
-        
+
         String[] parts = currentRecord.split(":");
         int wins = Integer.parseInt(parts[0]);
         int losses = Integer.parseInt(parts[1]);
-        
+
         if (vitoria) {
             wins++;
         } else {
             losses++;
         }
-        
+
         teamRecords.put(teamId, wins + ":" + losses);
     }
 
@@ -1275,9 +1273,9 @@ public class ManagerCamp extends ManagerBase {
     }
 
     /**
-     * Gera a próxima rodada suíça do campeonato
-     * Segue as regras do sistema suíço: emparelhamento por record, evita confrontos repetidos
-     * Apenas admin pode executar esta ação
+     * Gera a próxima rodada suíça do campeonato Segue as regras do sistema
+     * suíço: emparelhamento por record, evita confrontos repetidos Apenas admin
+     * pode executar esta ação
      */
     public void gerarProximaRodada() {
         try {
@@ -1321,7 +1319,7 @@ public class ManagerCamp extends ManagerBase {
             // Calcula quantas rodadas são necessárias (log2 do número de times)
             int numTimes = this.camp.getTeams().size();
             int maxRodadas = (int) Math.ceil(Math.log(numTimes) / Math.log(2)) + 2; // +2 para rodadas extras
-            
+
             if (rodadaAtualNumero >= maxRodadas) {
                 Mensagem.error("Todas as rodadas necessárias já foram geradas!");
                 return;
@@ -1345,8 +1343,8 @@ public class ManagerCamp extends ManagerBase {
             this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
 
             Mensagem.successAndRedirect(
-                "Rodada " + (rodadaAtualNumero + 1) + " gerada com sucesso! " + partidasGeradas.size() + " partidas criadas.",
-                "visualizarCampeonato.xhtml?id=" + this.camp.getId()
+                    "Rodada " + (rodadaAtualNumero + 1) + " gerada com sucesso! " + partidasGeradas.size() + " partidas criadas.",
+                    "visualizarCampeonato.xhtml?id=" + this.camp.getId()
             );
 
         } catch (Exception ex) {
@@ -1354,7 +1352,7 @@ public class ManagerCamp extends ManagerBase {
             Mensagem.error("Erro ao gerar rodada: " + ex.getMessage());
         }
     }
-    
+
     /**
      * Retorna o número da rodada atual (baseado nas partidas existentes)
      * Retorna 0 se não houver rodadas
@@ -1363,7 +1361,7 @@ public class ManagerCamp extends ManagerBase {
         List<SwissRound> rodadas = getRodadasSuicas();
         return rodadas.size();
     }
-    
+
     /**
      * Retorna descrição da rodada atual para exibição
      */
@@ -1372,22 +1370,22 @@ public class ManagerCamp extends ManagerBase {
         if (numRodada == 0) {
             return "Aguardando início";
         }
-        
+
         List<SwissRound> rodadas = getRodadasSuicas();
         if (rodadas.isEmpty()) {
             return "Rodada 1 - Aguardando geração";
         }
-        
+
         SwissRound rodadaAtual = rodadas.get(rodadas.size() - 1);
         boolean finalizada = isRodadaAtualFinalizada(rodadaAtual);
-        
+
         if (finalizada) {
             return "Rodada " + numRodada + " finalizada - Próxima: Rodada " + (numRodada + 1);
         } else {
             return "Rodada " + numRodada + " em andamento";
         }
     }
-    
+
     /**
      * Verifica se todas as partidas da rodada foram finalizadas
      */
@@ -1396,7 +1394,7 @@ public class ManagerCamp extends ManagerBase {
         if (rodadas.isEmpty()) {
             return false;
         }
-        
+
         SwissRound rodadaAtual = rodadas.get(rodadas.size() - 1);
         return !isRodadaAtualFinalizada(rodadaAtual);
     }
@@ -1405,87 +1403,90 @@ public class ManagerCamp extends ManagerBase {
      * Classe auxiliar para representar o record de um time no sistema suíço
      */
     private static class SwissRecord {
+
         int wins;
         int losses;
         Set<Long> opponentIds; // IDs dos times que já enfrentou
-        
+
         public SwissRecord() {
             this.wins = 0;
             this.losses = 0;
             this.opponentIds = new HashSet<>();
         }
-        
+
         public String getRecordString() {
             return wins + ":" + losses;
         }
-        
+
         public int getScore() {
             return wins * 100 - losses * 10; // Score para ordenação
         }
-        
+
         public boolean hasPlayed(Long opponentId) {
             return opponentIds.contains(opponentId);
         }
-        
+
         public void addOpponent(Long opponentId) {
             opponentIds.add(opponentId);
         }
     }
-    
+
     /**
      * Calcula os records de todos os times baseado nas partidas finalizadas
      */
     private Map<Team, SwissRecord> calcularSwissRecords() {
         Map<Long, Team> teamMap = new HashMap<>();
         Map<Team, SwissRecord> records = new HashMap<>();
-        
+
         // Inicializa todos os times com record vazio
         for (Team time : this.camp.getTeams()) {
             teamMap.put(time.getId(), time);
             records.put(time, new SwissRecord());
         }
-        
+
         // Usa partidas do cache ao invés de buscar novamente
         List<Partida> todasPartidas = obterPartidasDoCache();
         if (todasPartidas != null) {
             for (Partida partida : todasPartidas) {
-                if (partida.isFinalizada() && partida.getTimeVencedor() != null && 
-                    partida.getTimePerdedor() != null) {
-                    
+                if (partida.isFinalizada() && partida.getTimeVencedor() != null
+                        && partida.getTimePerdedor() != null) {
+
                     Team timeVencedor = partida.getTimeVencedor();
                     Team timePerdedor = partida.getTimePerdedor();
-                    
+
                     // Encontra os times no mapa local
                     Team localTimeVencedor = teamMap.get(timeVencedor.getId());
                     Team localTimePerdedor = teamMap.get(timePerdedor.getId());
-                    
-                    if (localTimeVencedor == null || localTimePerdedor == null) continue;
-                    
+
+                    if (localTimeVencedor == null || localTimePerdedor == null) {
+                        continue;
+                    }
+
                     SwissRecord recordVencedor = records.get(localTimeVencedor);
                     SwissRecord recordPerdedor = records.get(localTimePerdedor);
-                    
+
                     // Registra que jogaram entre si
                     recordVencedor.addOpponent(timePerdedor.getId());
                     recordPerdedor.addOpponent(timeVencedor.getId());
-                    
+
                     // Atualiza vitórias e derrotas
                     recordVencedor.wins++;
                     recordPerdedor.losses++;
                 }
             }
         }
-        
+
         return records;
     }
 
     /**
-     * Gera os emparelhamentos para a próxima rodada do sistema suíço
-     * Segue as regras: emparelha times com records similares, evita rematches
-     * Times com 3:0 ou 0:3 não jogam mais
+     * Gera os emparelhamentos para a próxima rodada do sistema suíço Segue as
+     * regras: emparelha times com records similares, evita rematches Times com
+     * 3:0 ou 0:3 não jogam mais
      */
     private List<Partida> gerarEmparelhamentosSwiss(Map<Team, SwissRecord> records, int rodadaNumero) throws Exception {
         List<Partida> partidasGeradas = new ArrayList<>();
-        
+
         // Cria lista de times ordenados por score (wins e losses)
         List<Team> timesOrdenados = new ArrayList<>(records.keySet());
         timesOrdenados.sort((t1, t2) -> {
@@ -1493,66 +1494,66 @@ public class ManagerCamp extends ManagerBase {
             SwissRecord r2 = records.get(t2);
             return Integer.compare(r2.getScore(), r1.getScore()); // Ordem decrescente
         });
-        
+
         // Se for a primeira rodada, embaralha os times
         if (rodadaNumero == 1) {
             Collections.shuffle(timesOrdenados);
         }
-        
+
         // Remove times que já alcançaram 3 vitórias (3:0, 3:1, 3:2) ou 3 derrotas (0:3, 1:3, 2:3)
         // Esses times não jogam mais nas próximas rodadas
         timesOrdenados.removeIf(time -> {
             SwissRecord record = records.get(time);
             return record.wins >= 3 || record.losses >= 3;
         });
-        
+
         // Lista de times já emparelhados nesta rodada
         Set<Long> timesEmparelhados = new HashSet<>();
-        
+
         // Algoritmo de emparelhamento suíço
         for (int i = 0; i < timesOrdenados.size(); i++) {
             Team time1 = timesOrdenados.get(i);
-            
+
             // Pula se já foi emparelhado
             if (timesEmparelhados.contains(time1.getId())) {
                 continue;
             }
-            
+
             SwissRecord record1 = records.get(time1);
             Team melhorOponente = null;
             int melhorDistancia = Integer.MAX_VALUE;
-            
+
             // Procura o melhor oponente
             for (int j = i + 1; j < timesOrdenados.size(); j++) {
                 Team time2 = timesOrdenados.get(j);
-                
+
                 // Pula se já foi emparelhado
                 if (timesEmparelhados.contains(time2.getId())) {
                     continue;
                 }
-                
+
                 SwissRecord record2 = records.get(time2);
-                
+
                 // Se já jogaram entre si, pula (exceto se não houver outra opção)
                 if (record1.hasPlayed(time2.getId())) {
                     continue;
                 }
-                
+
                 // Calcula a distância de score
                 int distancia = Math.abs(record1.getScore() - record2.getScore());
-                
+
                 // Se é o primeiro oponente viável ou é melhor que o atual
                 if (melhorOponente == null || distancia < melhorDistancia) {
                     melhorOponente = time2;
                     melhorDistancia = distancia;
                 }
-                
+
                 // Se encontrou um oponente com o mesmo record exato, usa ele
                 if (distancia == 0) {
                     break;
                 }
             }
-            
+
             // Se não encontrou oponente sem rematch, procura qualquer um disponível
             if (melhorOponente == null) {
                 for (int j = i + 1; j < timesOrdenados.size(); j++) {
@@ -1563,7 +1564,7 @@ public class ManagerCamp extends ManagerBase {
                     }
                 }
             }
-            
+
             // Se encontrou oponente, cria a partida
             if (melhorOponente != null) {
                 Partida partida = criarPartidaSwiss(time1, melhorOponente);
@@ -1572,14 +1573,13 @@ public class ManagerCamp extends ManagerBase {
                     timesEmparelhados.add(time1.getId());
                     timesEmparelhados.add(melhorOponente.getId());
                 }
-            }
-            // Se não encontrou oponente, o time recebe BYE (vitória automática)
+            } // Se não encontrou oponente, o time recebe BYE (vitória automática)
             else {
                 // Time recebe BYE - não joga mas ganha a rodada
                 // Isso será implementado ao calcular records na próxima rodada
             }
         }
-        
+
         return partidasGeradas;
     }
 
@@ -1590,28 +1590,28 @@ public class ManagerCamp extends ManagerBase {
         if (time1 == null || time2 == null || time1.getId() == null || time2.getId() == null) {
             return null;
         }
-        
+
         Partida novaPartida = new Partida();
         novaPartida.setJogo(this.camp.getJogo());
         novaPartida.setActive(true);
         novaPartida.setFinalizada(false);
-        
+
         // Salva a partida PRIMEIRO (sem itens ainda)
         novaPartida = partidaServico.salvar(novaPartida, null, Url.SALVAR_PARTIDA.getNome());
-        
+
         if (novaPartida == null || novaPartida.getId() == null) {
             System.err.println("Erro ao salvar partida suíça: partida retornou null");
             return null;
         }
-        
+
         // Cria os itens da partida (mapas) COM o ID da partida já definido
         int qtdItens = 1; // Valor padrão, pode ser ajustado
         if (this.camp.getJogo() != null) {
             // Pode buscar quantidade de mapas do jogo
         }
-        
+
         List<ItemPartida> itensPartida = PartidaUtils.gerarPartidasTimes(novaPartida, this.camp.getId(), time1, time2, qtdItens);
-        
+
         // Define o partida_id em todos os itens ANTES de salvar
         if (itensPartida != null && !itensPartida.isEmpty()) {
             for (ItemPartida item : itensPartida) {
@@ -1626,63 +1626,63 @@ public class ManagerCamp extends ManagerBase {
                 }
             }
         }
-        
+
         // Atualiza a partida com os itens
         novaPartida.setItemPartida(itensPartida);
         novaPartida = partidaServico.salvar(novaPartida, novaPartida.getId(), Url.ATUALIZAR_PARTIDA.getNome());
-        
+
         return novaPartida;
     }
 
     /**
-     * Salva as partidas na rodada correspondente do campeonato
-     * Usa o número da rodada para determinar onde salvar
-     * IMPORTANTE: Salva o contadorEsperado no banco de dados
+     * Salva as partidas na rodada correspondente do campeonato Usa o número da
+     * rodada para determinar onde salvar IMPORTANTE: Salva o contadorEsperado
+     * no banco de dados
      */
     private void salvarPartidasNaRodada(List<Partida> partidas, Map<Team, SwissRecord> records) throws Exception {
         if (partidas.isEmpty()) {
             return;
         }
-        
+
         // Determina o número da próxima rodada (baseado em quantas rodadas já existem + 1)
         int numeroRodada = getRodadaAtualNumero() + 1;
-        
+
         // Mapeamento de número de rodada para nome do campo
         // Rodada 1 -> 00, Rodada 2 -> 10, Rodada 3 -> 01, etc.
         String[] ordemRodadas = {"00", "10", "01", "20", "11", "02", "30", "21", "12", "03", "31", "22", "13", "32", "23", "33"};
-        
+
         if (numeroRodada <= 0 || numeroRodada > ordemRodadas.length) {
             throw new Exception("Número de rodada inválido: " + numeroRodada);
         }
-        
+
         String rodadaNome = ordemRodadas[numeroRodada - 1]; // -1 porque array começa em 0
         String setterName = "setRodadaSuica" + rodadaNome;
         String getterName = "getRodadaSuica" + rodadaNome;
-        
+
         try {
             // Busca a lista atual da rodada
             java.lang.reflect.Method getter = this.camp.getClass().getMethod(getterName);
             List<Partida> rodadaAtual = (List<Partida>) getter.invoke(this.camp);
-            
+
             if (rodadaAtual == null) {
                 rodadaAtual = new ArrayList<>();
             }
-            
+
             // Configura o número da rodada em cada partida E SALVA NO BANCO
             List<Partida> partidasAtualizadas = new ArrayList<>();
             for (Partida partida : partidas) {
                 // Define o contadorEsperado
                 partida.setContadorEsperado(numeroRodada);
-                
+
                 // Define o nome da partida (opcional, mas ajuda na visualização)
                 if (partida.getNome() == null || partida.getNome().isEmpty()) {
-                    partida.setNome("Rodada " + numeroRodada + " - " + 
-                        (partida.getItemPartida() != null && !partida.getItemPartida().isEmpty() 
-                            ? partida.getItemPartida().get(0).getTeam1().getNome() + " vs " + 
-                              partida.getItemPartida().get(0).getTeam2().getNome()
+                    partida.setNome("Rodada " + numeroRodada + " - "
+                            + (partida.getItemPartida() != null && !partida.getItemPartida().isEmpty()
+                            ? partida.getItemPartida().get(0).getTeam1().getNome() + " vs "
+                            + partida.getItemPartida().get(0).getTeam2().getNome()
                             : "Partida"));
                 }
-                
+
                 // Salva a partida novamente para persistir o contadorEsperado
                 if (partida.getId() != null) {
                     partida = partidaServico.salvar(partida, partida.getId(), Url.ATUALIZAR_PARTIDA.getNome());
@@ -1693,16 +1693,16 @@ public class ManagerCamp extends ManagerBase {
                     partidasAtualizadas.add(partida);
                 }
             }
-            
+
             // Adiciona todas as partidas atualizadas à rodada
             rodadaAtual.addAll(partidasAtualizadas);
-            
+
             // Atualiza a rodada no campeonato
             java.lang.reflect.Method setter = this.camp.getClass().getMethod(setterName, List.class);
             setter.invoke(this.camp, rodadaAtual);
-            
+
             System.out.println("Partidas salvas na rodada " + rodadaNome + " (Rodada #" + numeroRodada + ") - Total: " + partidasAtualizadas.size());
-            
+
         } catch (NoSuchMethodException e) {
             throw new Exception("Método " + setterName + " não encontrado no modelo Campeonato");
         } catch (Exception e) {
@@ -1713,6 +1713,7 @@ public class ManagerCamp extends ManagerBase {
 
     // Classe interna para representar uma rodada suíça
     public static class SwissRound {
+
         public int numeroRodada;
         public String nome;
         public List<Partida> partidas;
@@ -1726,7 +1727,7 @@ public class ManagerCamp extends ManagerBase {
             this.finalizada = verificarSeTodasPartidasFinalizadas(partidas);
             this.recordsNaRodada = new HashMap<>();
         }
-        
+
         private boolean verificarSeTodasPartidasFinalizadas(List<Partida> partidas) {
             if (partidas == null || partidas.isEmpty()) {
                 return false;
@@ -1742,7 +1743,7 @@ public class ManagerCamp extends ManagerBase {
         public int getNumeroRodada() {
             return numeroRodada;
         }
-        
+
         public String getNome() {
             return nome;
         }
@@ -1750,11 +1751,11 @@ public class ManagerCamp extends ManagerBase {
         public List<Partida> getPartidas() {
             return partidas;
         }
-        
+
         public boolean isFinalizada() {
             return finalizada;
         }
-        
+
         public String getStatus() {
             if (finalizada) {
                 return "Finalizada";
@@ -1765,29 +1766,30 @@ public class ManagerCamp extends ManagerBase {
         public Map<String, Integer> getRecordsNaRodada() {
             return recordsNaRodada;
         }
-        
+
         /**
-         * Agrupa as partidas desta rodada por recorde antes da rodada
-         * Retorna um Map onde a chave é o recorde (ex: "0:0", "1:0", "0:1") e o valor é a lista de partidas
+         * Agrupa as partidas desta rodada por recorde antes da rodada Retorna
+         * um Map onde a chave é o recorde (ex: "0:0", "1:0", "0:1") e o valor é
+         * a lista de partidas
          */
         public Map<String, List<Partida>> getPartidasPorRecorde(Campeonato camp, PartidaServico partidaServico, ManagerCamp managerCamp) {
             Map<String, List<Partida>> partidasPorRecorde = new HashMap<>();
             Map<Long, String> recordsAntesRodada = calcularRecordsAntesRodada(this.numeroRodada, camp, partidaServico, managerCamp);
-            
+
             if (partidas == null) {
                 return partidasPorRecorde;
             }
-            
+
             for (Partida partida : partidas) {
                 if (partida.getItemPartida() != null && !partida.getItemPartida().isEmpty()) {
                     ItemPartida item = partida.getItemPartida().get(0);
                     Team team1 = item.getTeam1();
                     Team team2 = item.getTeam2();
-                    
+
                     if (team1 != null && team2 != null) {
                         // Pega o recorde do time1 antes desta rodada
                         String recordTeam1 = recordsAntesRodada.getOrDefault(team1.getId(), "0:0");
-                        
+
                         // Agrupa a partida pelo recorde do primeiro time
                         // (ambos os times da partida têm o mesmo recorde antes da rodada)
                         if (!partidasPorRecorde.containsKey(recordTeam1)) {
@@ -1797,41 +1799,41 @@ public class ManagerCamp extends ManagerBase {
                     }
                 }
             }
-            
+
             return partidasPorRecorde;
         }
-        
+
         /**
          * Calcula os records de todos os times ANTES desta rodada
          */
         private Map<Long, String> calcularRecordsAntesRodada(int numeroRodada, Campeonato camp, PartidaServico partidaServico, ManagerCamp managerCamp) {
             Map<Long, String> teamRecords = new HashMap<>();
-            
+
             // Inicializa todos os times com 0:0
             if (camp.getTeams() != null) {
                 for (Team team : camp.getTeams()) {
                     teamRecords.put(team.getId(), "0:0");
                 }
             }
-            
+
             // Usa partidas do cache do ManagerCamp ao invés de buscar novamente
             List<Partida> todasPartidas = managerCamp.obterPartidasDoCache();
             if (todasPartidas == null) {
                 return teamRecords;
             }
-            
+
             // Processa apenas partidas finalizadas de rodadas anteriores
             for (Partida partida : todasPartidas) {
-                if (partida.isFinalizada() && partida.getTimeVencedor() != null &&
-                    partida.getItemPartida() != null && !partida.getItemPartida().isEmpty()) {
-                    
+                if (partida.isFinalizada() && partida.getTimeVencedor() != null
+                        && partida.getItemPartida() != null && !partida.getItemPartida().isEmpty()) {
+
                     // Verifica se a partida pertence a uma rodada anterior
                     int contadorPartida = partida.getContadorEsperado();
                     if (contadorPartida > 0 && contadorPartida < numeroRodada) {
                         ItemPartida item = partida.getItemPartida().get(0);
                         Team team1 = item.getTeam1();
                         Team team2 = item.getTeam2();
-                        
+
                         if (team1 != null && team2 != null) {
                             // Atualiza o record do vencedor
                             if (partida.getTimeVencedor().getId().equals(team1.getId())) {
@@ -1845,13 +1847,14 @@ public class ManagerCamp extends ManagerBase {
                     }
                 }
             }
-            
+
             return teamRecords;
         }
     }
 
     // Classe interna para representar a classificação de um time
     public static class ClassificacaoTime {
+
         private Team team;
         private int vitorias;
         private int derrotas;
@@ -1924,12 +1927,12 @@ public class ManagerCamp extends ManagerBase {
     }
 
     /**
-     * Calcula e retorna a tabela de classificação ordenada por vitórias
-     * Ordem: mais vitórias primeiro, em caso de empate, menos derrotas
+     * Calcula e retorna a tabela de classificação ordenada por vitórias Ordem:
+     * mais vitórias primeiro, em caso de empate, menos derrotas
      */
     public List<ClassificacaoTime> getTabelaClassificacao() {
         List<ClassificacaoTime> tabela = new ArrayList<>();
-        
+
         if (this.camp == null || this.camp.getTeams() == null || this.camp.getTeams().isEmpty()) {
             return tabela;
         }
@@ -1944,15 +1947,15 @@ public class ManagerCamp extends ManagerBase {
         List<Partida> todasPartidas = obterPartidasDoCache();
         if (todasPartidas != null) {
             for (Partida partida : todasPartidas) {
-                if (partida.isFinalizada() && partida.getTimeVencedor() != null && 
-                    partida.getTimePerdedor() != null) {
-                    
+                if (partida.isFinalizada() && partida.getTimeVencedor() != null
+                        && partida.getTimePerdedor() != null) {
+
                     Team timeVencedor = partida.getTimeVencedor();
                     Team timePerdedor = partida.getTimePerdedor();
-                    
+
                     ClassificacaoTime classVencedor = classificacaoPorTime.get(timeVencedor.getId());
                     ClassificacaoTime classPerdedor = classificacaoPorTime.get(timePerdedor.getId());
-                    
+
                     if (classVencedor != null && classPerdedor != null) {
                         classVencedor.adicionarVitoria();
                         classPerdedor.adicionarDerrota();
@@ -1987,8 +1990,8 @@ public class ManagerCamp extends ManagerBase {
     }
 
     /**
-     * Registra o resultado de uma partida do formato suíço
-     * Define time vencedor, perdedor e finaliza a partida
+     * Registra o resultado de uma partida do formato suíço Define time
+     * vencedor, perdedor e finaliza a partida
      */
     public void registrarResultadoPartida(Partida partida, Integer scoreTime1, Integer scoreTime2) {
         try {
@@ -2037,12 +2040,12 @@ public class ManagerCamp extends ManagerBase {
 
             // Limpa o cache para forçar recarregamento na próxima vez
             limparCachePartidas();
-            
+
             // Recarrega partidas do cache (que vai buscar novamente)
             if (this.camp != null && this.camp.getId() != null) {
                 this.partidas = obterPartidasDoCache();
             }
-            
+
             // Verifica se a final foi concluída e finaliza o campeonato se necessário
             finalizarCampeonatoSeNecessario();
 
@@ -2176,9 +2179,9 @@ public class ManagerCamp extends ManagerBase {
      * Obtém o nome do time 1 da partida selecionada
      */
     public String getNomeTime1Partida() {
-        if (partidaParaResultado != null && 
-            partidaParaResultado.getItemPartida() != null && 
-            !partidaParaResultado.getItemPartida().isEmpty()) {
+        if (partidaParaResultado != null
+                && partidaParaResultado.getItemPartida() != null
+                && !partidaParaResultado.getItemPartida().isEmpty()) {
             Team time1 = partidaParaResultado.getItemPartida().get(0).getTeam1();
             return time1 != null ? time1.getNome() : "";
         }
@@ -2186,9 +2189,9 @@ public class ManagerCamp extends ManagerBase {
     }
 
     public Long getIdTime1Partida() {
-        if (partidaParaResultado != null && 
-            partidaParaResultado.getItemPartida() != null && 
-            !partidaParaResultado.getItemPartida().isEmpty()) {
+        if (partidaParaResultado != null
+                && partidaParaResultado.getItemPartida() != null
+                && !partidaParaResultado.getItemPartida().isEmpty()) {
             Team time1 = partidaParaResultado.getItemPartida().get(0).getTeam1();
             return time1 != null ? time1.getId() : null;
         }
@@ -2199,9 +2202,9 @@ public class ManagerCamp extends ManagerBase {
      * Obtém o nome do time 2 da partida selecionada
      */
     public String getNomeTime2Partida() {
-        if (partidaParaResultado != null && 
-            partidaParaResultado.getItemPartida() != null && 
-            !partidaParaResultado.getItemPartida().isEmpty()) {
+        if (partidaParaResultado != null
+                && partidaParaResultado.getItemPartida() != null
+                && !partidaParaResultado.getItemPartida().isEmpty()) {
             Team time2 = partidaParaResultado.getItemPartida().get(0).getTeam2();
             return time2 != null ? time2.getNome() : "";
         }
@@ -2209,9 +2212,9 @@ public class ManagerCamp extends ManagerBase {
     }
 
     public Long getIdTime2Partida() {
-        if (partidaParaResultado != null && 
-            partidaParaResultado.getItemPartida() != null && 
-            !partidaParaResultado.getItemPartida().isEmpty()) {
+        if (partidaParaResultado != null
+                && partidaParaResultado.getItemPartida() != null
+                && !partidaParaResultado.getItemPartida().isEmpty()) {
             Team time2 = partidaParaResultado.getItemPartida().get(0).getTeam2();
             return time2 != null ? time2.getId() : null;
         }
@@ -2221,23 +2224,22 @@ public class ManagerCamp extends ManagerBase {
     // ===========================
     // MÉTODOS DE PLAYOFFS
     // ===========================
-
     /**
      * Verifica se o campeonato é do tipo Suíço
      */
     public boolean isSwiss() {
-        return this.camp != null && 
-               this.camp.getTipoCampeonato() != null && 
-               "SUÍÇO".equals(this.camp.getTipoCampeonato().getNome());
+        return this.camp != null
+                && this.camp.getTipoCampeonato() != null
+                && "SUÍÇO".equals(this.camp.getTipoCampeonato().getNome());
     }
-    
+
     /**
      * Verifica se o campeonato é do tipo Grupo e Playoff
      */
     public boolean isGrupoPlayoff() {
-        return this.camp != null && 
-               this.camp.getTipoCampeonato() != null && 
-               "GRUPO E PLAYOFF".equals(this.camp.getTipoCampeonato().getNome());
+        return this.camp != null
+                && this.camp.getTipoCampeonato() != null
+                && "GRUPO E PLAYOFF".equals(this.camp.getTipoCampeonato().getNome());
     }
 
     /**
@@ -2247,27 +2249,27 @@ public class ManagerCamp extends ManagerBase {
         if (this.camp == null || !isSwiss()) {
             return false;
         }
-        
+
         List<SwissRound> rodadas = getRodadasSuicas();
         if (rodadas.isEmpty()) {
             return false;
         }
-        
+
         // Verifica se a última rodada está finalizada
         SwissRound ultimaRodada = rodadas.get(rodadas.size() - 1);
         if (!ultimaRodada.isFinalizada()) {
             return false;
         }
-        
+
         // Verifica se há times com 3 vitórias ou 3 derrotas
         Map<Team, SwissRecord> records = calcularSwissRecords();
         long timesClassificados = records.values().stream()
                 .filter(r -> r.wins >= 3)
                 .count();
-        
+
         return timesClassificados >= 2; // Pelo menos 2 times classificados
     }
-    
+
     /**
      * Obtém lista de times classificados (3 vitórias) ordenados por vitórias
      */
@@ -2275,205 +2277,207 @@ public class ManagerCamp extends ManagerBase {
         if (this.camp == null) {
             return new ArrayList<>();
         }
-        
+
         Map<Team, SwissRecord> records = calcularSwissRecords();
-        
+
         return records.entrySet().stream()
                 .filter(entry -> entry.getValue().wins >= 3)
                 .sorted((e1, e2) -> {
                     // Ordena por vitórias (maior primeiro)
                     int compareWins = Integer.compare(e2.getValue().wins, e1.getValue().wins);
-                    if (compareWins != 0) return compareWins;
-                    
+                    if (compareWins != 0) {
+                        return compareWins;
+                    }
+
                     // Depois por derrotas (menor primeiro)
                     return Integer.compare(e1.getValue().losses, e2.getValue().losses);
                 })
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
     }
-    
+
     /**
      * Verifica se já existem playoffs criados
      */
     public boolean hasPlayoffs() {
-        return this.camp != null && 
-               this.camp.getFasesCamp() != null && 
-               !this.camp.getFasesCamp().isEmpty();
+        return this.camp != null
+                && this.camp.getFasesCamp() != null
+                && !this.camp.getFasesCamp().isEmpty();
     }
-    
+
     /**
      * Gera os playoffs baseado nos times classificados
      */
     public void gerarPlayoffs() {
         try {
             System.out.println("====== INICIANDO GERAÇÃO DOS PLAYOFFS ======");
-            
+
             // Validações
             if (!isAdmin()) {
                 System.err.println("Erro: Usuário não é admin");
                 Mensagem.error("Apenas administradores podem gerar os playoffs!");
                 return;
             }
-            
+
             if (!isSwiss()) {
                 System.err.println("Erro: Campeonato não é suíço");
                 Mensagem.error("Este campeonato não é do tipo SUÍÇO!");
                 return;
             }
-            
+
             if (!isRodadasSuicasConcluidas()) {
                 System.err.println("Erro: Rodadas suíças não concluídas");
                 Mensagem.error("As rodadas suíças ainda não foram concluídas!");
                 return;
             }
-            
+
             if (hasPlayoffs()) {
                 System.err.println("Erro: Playoffs já foram gerados");
                 Mensagem.error("Os playoffs já foram gerados para este campeonato!");
                 return;
             }
-            
+
             // Atualiza o campeonato
             this.camp = this.campeonatoServico.buscaCamp(this.camp.getId());
-            
+
             List<Team> classificados = getTimesClassificados();
             System.out.println("✓ Times classificados: " + classificados.size());
-            
+
             if (classificados.size() < 2) {
                 Mensagem.error("É necessário pelo menos 2 times classificados para gerar os playoffs!");
                 return;
             }
-            
+
             // Determina o número de times nos playoffs (potência de 2)
             int numeroTimes = getMaiorPotenciaDe2(classificados.size());
             List<Team> timesPlayoffs = classificados.subList(0, Math.min(numeroTimes, classificados.size()));
-            
+
             System.out.println("✓ Times nos playoffs: " + timesPlayoffs.size());
-            
+
             // Inicializa lista de fases se necessário
             if (this.camp.getFasesCamp() == null) {
                 this.camp.setFasesCamp(new ArrayList<>());
             }
-            
+
             // Gera a primeira fase dos playoffs
             Fase primeiraFase = gerarFase(timesPlayoffs, getNomeFase(timesPlayoffs.size()));
             this.camp.getFasesCamp().add(primeiraFase);
-            
-            System.out.println("✓ Fase gerada: " + primeiraFase.getNome() + " com " + 
-                             primeiraFase.getPartidas().size() + " partidas");
-            
+
+            System.out.println("✓ Fase gerada: " + primeiraFase.getNome() + " com "
+                    + primeiraFase.getPartidas().size() + " partidas");
+
             // Salva o campeonato atualizado
             this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
-            
+
             System.out.println("====== PLAYOFFS GERADOS COM SUCESSO ======");
-            
+
             Mensagem.successAndRedirect(
-                "Playoffs gerados com sucesso! " + primeiraFase.getNome() + " criada com " + 
-                primeiraFase.getPartidas().size() + " partidas.",
-                "visualizarCampeonato.xhtml?id=" + this.camp.getId()
+                    "Playoffs gerados com sucesso! " + primeiraFase.getNome() + " criada com "
+                    + primeiraFase.getPartidas().size() + " partidas.",
+                    "visualizarCampeonato.xhtml?id=" + this.camp.getId()
             );
-            
+
         } catch (Exception ex) {
             System.err.println("====== ERRO AO GERAR PLAYOFFS ======");
             ex.printStackTrace();
             Mensagem.error("Erro ao gerar playoffs: " + ex.getMessage());
         }
     }
-    
+
     /**
      * Gera a próxima fase dos playoffs baseado nos vencedores da fase anterior
      */
     public void gerarProximaFasePlayoff() {
         try {
             System.out.println("====== GERANDO PRÓXIMA FASE DOS PLAYOFFS ======");
-            
+
             if (!isAdmin()) {
                 Mensagem.error("Apenas administradores podem gerar fases!");
                 return;
             }
-            
+
             if (!hasPlayoffs()) {
                 Mensagem.error("Não há playoffs criados ainda!");
                 return;
             }
-            
+
             // Atualiza o campeonato
             this.camp = this.campeonatoServico.buscaCamp(this.camp.getId());
-            
+
             List<Fase> fases = this.camp.getFasesCamp();
             Fase ultimaFase = fases.get(fases.size() - 1);
-            
+
             // Verifica se todas as partidas da última fase foram finalizadas
             boolean todasFinalizadas = ultimaFase.getPartidas().stream()
                     .allMatch(Partida::isFinalizada);
-            
+
             if (!todasFinalizadas) {
                 Mensagem.error("Todas as partidas da fase " + ultimaFase.getNome() + " devem estar finalizadas!");
                 return;
             }
-            
+
             // Coleta os vencedores
             List<Team> vencedores = ultimaFase.getPartidas().stream()
                     .map(Partida::getTimeVencedor)
                     .filter(t -> t != null)
                     .collect(Collectors.toList());
-            
+
             System.out.println("✓ Vencedores da fase anterior: " + vencedores.size());
-            
+
             if (vencedores.size() < 2) {
                 Mensagem.error("É necessário pelo menos 2 vencedores para gerar a próxima fase!");
                 return;
             }
-            
+
             // Se houver apenas 2 vencedores e já é a final, declara o campeão
             if (vencedores.size() == 1) {
                 Mensagem.success("Campeonato finalizado! Campeão: " + vencedores.get(0).getNome());
                 return;
             }
-            
+
             // Gera a próxima fase
             String nomeFase = getNomeFase(vencedores.size());
             Fase proximaFase = gerarFase(vencedores, nomeFase);
             this.camp.getFasesCamp().add(proximaFase);
-            
+
             System.out.println("✓ Próxima fase gerada: " + proximaFase.getNome());
-            
+
             // Salva o campeonato
             this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
-            
+
             Mensagem.successAndRedirect(
-                "Próxima fase gerada com sucesso! " + proximaFase.getNome() + " criada.",
-                "visualizarCampeonato.xhtml?id=" + this.camp.getId()
+                    "Próxima fase gerada com sucesso! " + proximaFase.getNome() + " criada.",
+                    "visualizarCampeonato.xhtml?id=" + this.camp.getId()
             );
-            
+
         } catch (Exception ex) {
             System.err.println("====== ERRO AO GERAR PRÓXIMA FASE ======");
             ex.printStackTrace();
             Mensagem.error("Erro ao gerar próxima fase: " + ex.getMessage());
         }
     }
-    
+
     /**
      * Gera uma fase com as partidas entre os times fornecidos
      */
     private Fase gerarFase(List<Team> times, String nomeFase) throws Exception {
         System.out.println("  Gerando fase: " + nomeFase + " com " + times.size() + " times");
-        
+
         // Cria as partidas primeiro
         List<Partida> partidas = new ArrayList<>();
-        
+
         // Emparelha os times (1º vs último, 2º vs penúltimo, etc.)
         for (int i = 0; i < times.size() / 2; i++) {
             Team time1 = times.get(i);
             Team time2 = times.get(times.size() - 1 - i);
-            
+
             if (time1 == null || time1.getId() == null || time2 == null || time2.getId() == null) {
                 System.err.println("  ✗ Time inválido na posição " + i);
                 continue;
             }
-            
+
             System.out.println("  Criando partida: " + time1.getNome() + " vs " + time2.getNome());
-            
+
             Partida partida = criarPartidaPlayoff(time1, time2, nomeFase);
             if (partida != null && partida.getId() != null) {
                 partidas.add(partida);
@@ -2483,32 +2487,32 @@ public class ManagerCamp extends ManagerBase {
                 throw new Exception("Erro ao criar partida entre " + time1.getNome() + " e " + time2.getNome());
             }
         }
-        
+
         if (partidas.isEmpty()) {
             throw new Exception("Nenhuma partida foi criada para a fase " + nomeFase);
         }
-        
+
         // Cria a fase com as partidas já associadas
         Fase fase = new Fase();
         fase.setNome(nomeFase);
         fase.setIdCamp(this.camp.getId());
         fase.setActive(true);
         fase.setPartidas(partidas);
-        
+
         // Salva a fase com as partidas
         System.out.println("  Salvando fase com " + partidas.size() + " partidas...");
         fase = faseServico.save(fase, null, Url.SALVAR_FASE.getNome());
-        
+
         if (fase == null || fase.getId() == null) {
             throw new Exception("Erro ao salvar a fase " + nomeFase);
         }
-        
-        System.out.println("  ✓ Fase salva com ID: " + fase.getId() + " e " + 
-                         (fase.getPartidas() != null ? fase.getPartidas().size() : 0) + " partidas");
-        
+
+        System.out.println("  ✓ Fase salva com ID: " + fase.getId() + " e "
+                + (fase.getPartidas() != null ? fase.getPartidas().size() : 0) + " partidas");
+
         return fase;
     }
-    
+
     /**
      * Cria uma partida de playoff entre dois times
      */
@@ -2517,37 +2521,37 @@ public class ManagerCamp extends ManagerBase {
             System.err.println("  criarPartidaPlayoff: Time inválido");
             return null;
         }
-        
+
         if (time1.getId().equals(time2.getId())) {
             System.err.println("  criarPartidaPlayoff: Times iguais não podem jogar entre si");
             return null;
         }
-        
-        System.out.println("    Criando partida: " + time1.getNome() + " (ID: " + time1.getId() + 
-                         ") vs " + time2.getNome() + " (ID: " + time2.getId() + ")");
-        
+
+        System.out.println("    Criando partida: " + time1.getNome() + " (ID: " + time1.getId()
+                + ") vs " + time2.getNome() + " (ID: " + time2.getId() + ")");
+
         Partida novaPartida = new Partida();
         novaPartida.setJogo(this.camp.getJogo());
         novaPartida.setActive(true);
         novaPartida.setFinalizada(false);
         novaPartida.setNome(nomeFase + " - " + time1.getNome() + " vs " + time2.getNome());
         novaPartida.setDataPartida(new Date());
-        
+
         // Salva a partida PRIMEIRO (sem itens ainda)
         System.out.println("    Salvando partida no servidor...");
         novaPartida = partidaServico.salvar(novaPartida, null, Url.SALVAR_PARTIDA.getNome());
-        
+
         if (novaPartida == null || novaPartida.getId() == null) {
             System.err.println("    ✗ Erro: Partida não foi salva (retornou null)");
             throw new Exception("Erro ao salvar partida entre " + time1.getNome() + " e " + time2.getNome());
         }
-        
+
         System.out.println("    ✓ Partida salva com ID: " + novaPartida.getId());
-        
+
         // Agora cria os itens da partida COM o ID da partida já definido
         int qtdItens = 3;
         List<ItemPartida> itensPartida = PartidaUtils.gerarPartidasTimes(novaPartida, this.camp.getId(), time1, time2, qtdItens);
-        
+
         // Define o partida_id em todos os itens ANTES de salvar
         if (itensPartida != null && !itensPartida.isEmpty()) {
             for (ItemPartida item : itensPartida) {
@@ -2563,14 +2567,14 @@ public class ManagerCamp extends ManagerBase {
                 }
             }
         }
-        
+
         // Atualiza a partida com os itens
         novaPartida.setItemPartida(itensPartida);
         novaPartida = partidaServico.salvar(novaPartida, novaPartida.getId(), Url.ATUALIZAR_PARTIDA.getNome());
-        
+
         return novaPartida;
     }
-    
+
     /**
      * Retorna o nome da fase baseado no número de times
      */
@@ -2588,7 +2592,7 @@ public class ManagerCamp extends ManagerBase {
                 return "Fase de " + numeroTimes + " times";
         }
     }
-    
+
     /**
      * Retorna a maior potência de 2 menor ou igual ao número fornecido
      */
@@ -2599,7 +2603,7 @@ public class ManagerCamp extends ManagerBase {
         }
         return potencia;
     }
-    
+
     /**
      * Obtém as fases dos playoffs
      */
@@ -2609,7 +2613,7 @@ public class ManagerCamp extends ManagerBase {
         }
         return this.camp.getFasesCamp();
     }
-    
+
     /**
      * Verifica se pode gerar a próxima fase dos playoffs
      */
@@ -2617,30 +2621,30 @@ public class ManagerCamp extends ManagerBase {
         if (!hasPlayoffs()) {
             return false;
         }
-        
+
         List<Fase> fases = this.camp.getFasesCamp();
         if (fases.isEmpty()) {
             return false;
         }
-        
+
         Fase ultimaFase = fases.get(fases.size() - 1);
-        
+
         // Verifica se a última fase está completa
         boolean todasFinalizadas = ultimaFase.getPartidas().stream()
                 .allMatch(Partida::isFinalizada);
-        
+
         if (!todasFinalizadas) {
             return false;
         }
-        
+
         // Verifica se não é a final
         long vencedores = ultimaFase.getPartidas().stream()
                 .filter(p -> p.getTimeVencedor() != null)
                 .count();
-        
+
         return vencedores >= 2; // Se houver 2+ vencedores, pode gerar próxima fase
     }
-    
+
     /**
      * Verifica se a final foi concluída
      */
@@ -2648,21 +2652,21 @@ public class ManagerCamp extends ManagerBase {
         if (!hasPlayoffs()) {
             return false;
         }
-        
+
         List<Fase> fases = this.camp.getFasesCamp();
         if (fases.isEmpty()) {
             return false;
         }
-        
+
         Fase ultimaFase = fases.get(fases.size() - 1);
-        
+
         // Verifica se é a final (apenas 1 partida) e está finalizada
-        return "Final".equals(ultimaFase.getNome()) && 
-               ultimaFase.getPartidas() != null &&
-               ultimaFase.getPartidas().size() == 1 &&
-               ultimaFase.getPartidas().get(0).isFinalizada();
+        return "Final".equals(ultimaFase.getNome())
+                && ultimaFase.getPartidas() != null
+                && ultimaFase.getPartidas().size() == 1
+                && ultimaFase.getPartidas().get(0).isFinalizada();
     }
-    
+
     /**
      * Obtém o time campeão (vencedor da final)
      */
@@ -2670,25 +2674,35 @@ public class ManagerCamp extends ManagerBase {
         if (!isFinalConcluida()) {
             return null;
         }
-        
+
         List<Fase> fases = this.camp.getFasesCamp();
         Fase finalFase = fases.get(fases.size() - 1);
-        
+
         if (finalFase.getPartidas() != null && !finalFase.getPartidas().isEmpty()) {
             Partida partidaFinal = finalFase.getPartidas().get(0);
+            if (this.camp.getCampeao() == null) {
+                this.camp.setCampeao(partidaFinal.getTimeVencedor());
+                this.camp.setStatus(StatusCamp.FINALIZADO);
+                try {
+                    this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
+                } catch (Exception ex) {
+                    Logger.getLogger(ManagerCamp.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
             return partidaFinal.getTimeVencedor();
         }
-        
+
         return null;
     }
-    
+
     /**
      * Verifica se uma fase é a final
      */
     public boolean isFaseFinal(Fase fase) {
         return fase != null && "Final".equals(fase.getNome());
     }
-    
+
     /**
      * Finaliza o campeonato quando a final for concluída
      */
@@ -2696,20 +2710,19 @@ public class ManagerCamp extends ManagerBase {
         try {
             if (isFinalConcluida()) {
                 Team campeao = getCampeao();
-                
+
                 if (campeao != null) {
                     // Atualiza o status para Finalizado
                     if (this.camp.getStatus() == null || !"Finalizado".equals(this.camp.getStatus().getNome())) {
                         System.out.println("====== FINALIZANDO CAMPEONATO ======");
                         System.out.println("Campeão: " + campeao.getNome());
-                        
+
                         // Busca o status "Finalizado"
                         // Assumindo que você tenha um enum ou forma de setar o status
                         // Se precisar buscar do banco, ajuste aqui
-                        
                         // Salva o campeonato
                         this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
-                        
+
                         System.out.println("✓ Campeonato finalizado com sucesso!");
                     }
                 }
@@ -2719,110 +2732,109 @@ public class ManagerCamp extends ManagerBase {
             ex.printStackTrace();
         }
     }
-    
+
     // ===========================
     // MÉTODOS DE GRUPOS (GRUPO_PLAYOFF)
     // ===========================
-    
     /**
      * Gera os grupos e suas partidas para campeonato tipo GRUPO_PLAYOFF
      */
     public void gerarGrupos() {
         try {
             System.out.println("====== INICIANDO GERAÇÃO DOS GRUPOS ======");
-            
+
             // Validações
             if (!isAdmin()) {
                 System.err.println("Erro: Usuário não é admin");
                 Mensagem.error("Apenas administradores podem gerar os grupos!");
                 return;
             }
-            
+
             if (!isGrupoPlayoff()) {
                 System.err.println("Erro: Campeonato não é GRUPO_PLAYOFF");
                 Mensagem.error("Este campeonato não é do tipo GRUPO E PLAYOFF!");
                 return;
             }
-            
+
             if (this.camp == null || this.camp.getId() == null) {
                 Mensagem.error("Campeonato não encontrado!");
                 return;
             }
-            
+
             // Atualiza o campeonato
             this.camp = this.campeonatoServico.buscaCamp(this.camp.getId());
-            
+
             if (this.camp.getTeams() == null || this.camp.getTeams().isEmpty()) {
                 Mensagem.error("Não há times inscritos para gerar grupos!");
                 return;
             }
-            
+
             // Verifica se já existem grupos
             if (this.camp.getGrupos() != null && !this.camp.getGrupos().isEmpty()) {
                 Mensagem.error("Os grupos já foram criados para este campeonato!");
                 return;
             }
-            
+
             List<Team> times = new ArrayList<>(this.camp.getTeams());
             int totalTimes = times.size();
-            
+
             if (totalTimes < 4) {
                 Mensagem.error("É necessário pelo menos 4 times para criar grupos!");
                 return;
             }
-            
+
             // Determina número de grupos
             // Menos de 10 times: 2 grupos (A e B)
             // 10 ou mais times: 3 grupos (A, B, C)
             int numeroGrupos = totalTimes < 10 ? 2 : 3;
             System.out.println("✓ Número de grupos: " + numeroGrupos);
             System.out.println("✓ Total de times: " + totalTimes);
-            
+
             // Calcula distribuição
             int timesPorGrupo = totalTimes / numeroGrupos;
             int timesExtras = totalTimes % numeroGrupos;
-            
+
             if (timesExtras > 0) {
-                System.out.println("✓ Distribuição: " + timesExtras + " grupo(s) terá(ão) " + (timesPorGrupo + 1) + 
-                                 " times, e " + (numeroGrupos - timesExtras) + " grupo(s) terá(ão) " + timesPorGrupo + " times");
+                System.out.println("✓ Distribuição: " + timesExtras + " grupo(s) terá(ão) " + (timesPorGrupo + 1)
+                        + " times, e " + (numeroGrupos - timesExtras) + " grupo(s) terá(ão) " + timesPorGrupo + " times");
             } else {
                 System.out.println("✓ Distribuição: Todos os grupos terão " + timesPorGrupo + " times");
             }
-            
+
             // Embaralha os times para distribuição aleatória
             Collections.shuffle(times);
-            
+
             // Divide os times nos grupos
             List<List<Team>> gruposDistribuidos = distribuirTimesEmGrupos(times, numeroGrupos);
-            
+
             // Cria os grupos no banco
             List<Grupo> gruposCriados = new ArrayList<>();
             List<Integer> partidasPorGrupo = new ArrayList<>(); // Armazena número de partidas por grupo
             String[] nomesGrupos = {"Grupo A", "Grupo B", "Grupo C", "Grupo D"};
-            
+
             for (int i = 0; i < gruposDistribuidos.size(); i++) {
                 List<Team> timesDoGrupo = gruposDistribuidos.get(i);
-                
+
                 try {
                     Grupo grupo = new Grupo();
                     grupo.setNome(nomesGrupos[i]);
                     grupo.setTeams(timesDoGrupo);
                     grupo.setActive(true);
                     grupo.setIdCamp(this.camp.getId());
-                    
+
                     // Gera partidas todos contra todos no grupo
                     List<Partida> partidasGrupo = gerarPartidasTodosContraTodos(timesDoGrupo, nomesGrupos[i]);
                     grupo.setPartidas(partidasGrupo);
-                    
+
                     // Armazena número de partidas antes de salvar
                     int numPartidas = partidasGrupo != null ? partidasGrupo.size() : 0;
                     partidasPorGrupo.add(numPartidas);
-                    
+
                     // Salva o grupo
                     System.out.println("  Tentando salvar " + nomesGrupos[i] + "...");
                     System.out.println("    - Times no grupo: " + timesDoGrupo.size());
                     System.out.println("    - Partidas geradas: " + numPartidas);
-                    
+
                     Grupo grupoSalvo = null;
                     try {
                         grupoSalvo = grupoServico.save(grupo, null, Url.SALVAR_GRUPO.getNome());
@@ -2830,7 +2842,7 @@ public class ManagerCamp extends ManagerBase {
                         System.err.println("  EXCEÇÃO ao salvar " + nomesGrupos[i] + ": " + e.getMessage());
                         e.printStackTrace();
                     }
-                    
+
                     // Valida se o grupo foi salvo com sucesso
                     if (grupoSalvo == null) {
                         System.err.println("  AVISO: " + nomesGrupos[i] + " não foi salvo pela API (retornou null)");
@@ -2839,10 +2851,10 @@ public class ManagerCamp extends ManagerBase {
                         // As partidas já foram salvas individualmente, então podemos continuar
                         grupoSalvo = grupo;
                     } else {
-                        System.out.println("  ✓ " + nomesGrupos[i] + " salvo com sucesso (ID: " + 
-                                         (grupoSalvo.getId() != null ? grupoSalvo.getId() : "null") + ")");
+                        System.out.println("  ✓ " + nomesGrupos[i] + " salvo com sucesso (ID: "
+                                + (grupoSalvo.getId() != null ? grupoSalvo.getId() : "null") + ")");
                     }
-                    
+
                     // Garante que o grupo não é null antes de adicionar
                     if (grupoSalvo != null) {
                         gruposCriados.add(grupoSalvo);
@@ -2850,131 +2862,133 @@ public class ManagerCamp extends ManagerBase {
                         System.err.println("  ERRO CRÍTICO: Não foi possível criar " + nomesGrupos[i]);
                         throw new Exception("Não foi possível criar " + nomesGrupos[i] + " - grupo é null");
                     }
-                    
+
                     // Log detalhado
                     StringBuilder timesNomes = new StringBuilder();
                     for (Team t : timesDoGrupo) {
-                        if (timesNomes.length() > 0) timesNomes.append(", ");
+                        if (timesNomes.length() > 0) {
+                            timesNomes.append(", ");
+                        }
                         timesNomes.append(t.getNome());
                     }
-                    System.out.println("✓ " + nomesGrupos[i] + " criado com " + timesDoGrupo.size() + 
-                                     " times e " + numPartidas + " partidas");
+                    System.out.println("✓ " + nomesGrupos[i] + " criado com " + timesDoGrupo.size()
+                            + " times e " + numPartidas + " partidas");
                     System.out.println("  Times: " + timesNomes.toString());
-                    
+
                 } catch (Exception e) {
                     System.err.println("  ERRO ao criar " + nomesGrupos[i] + ": " + e.getMessage());
                     e.printStackTrace();
                     throw new Exception("Erro ao criar " + nomesGrupos[i] + ": " + e.getMessage(), e);
                 }
             }
-            
+
             // Valida se pelo menos um grupo foi criado
             if (gruposCriados.isEmpty()) {
                 throw new Exception("Nenhum grupo foi criado com sucesso!");
             }
-            
+
             // Remove grupos null da lista (caso algum tenha falhado)
             gruposCriados.removeIf(g -> g == null);
-            
+
             if (gruposCriados.size() != gruposDistribuidos.size()) {
-                System.err.println("  AVISO: Apenas " + gruposCriados.size() + " de " + gruposDistribuidos.size() + 
-                                 " grupos foram criados com sucesso!");
+                System.err.println("  AVISO: Apenas " + gruposCriados.size() + " de " + gruposDistribuidos.size()
+                        + " grupos foram criados com sucesso!");
             }
-            
+
             // Atualiza o campeonato com os grupos
             if (this.camp.getGrupos() == null) {
                 this.camp.setGrupos(new ArrayList<>());
             }
-            
+
             // Adiciona apenas grupos não-null
             for (Grupo g : gruposCriados) {
                 if (g != null) {
                     this.camp.getGrupos().add(g);
                 }
             }
-            
+
             System.out.println("  Atualizando campeonato com " + this.camp.getGrupos().size() + " grupos...");
             this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
-            
+
             if (this.camp == null) {
                 throw new Exception("Erro ao atualizar o campeonato após criar os grupos!");
             }
-            
+
             System.out.println("====== GRUPOS CRIADOS COM SUCESSO ======");
-            
+
             // Monta mensagem de sucesso usando a lista de partidas por grupo
             int totalPartidas = partidasPorGrupo.stream()
                     .mapToInt(Integer::intValue)
                     .sum();
-            
+
             String mensagemSucesso = String.format(
-                "%d grupos criados com sucesso! Total de %d partidas geradas (todos contra todos em cada grupo). " +
-                "Os 2 primeiros colocados de cada grupo avançam para os playoffs.",
-                gruposCriados.size(),
-                totalPartidas
+                    "%d grupos criados com sucesso! Total de %d partidas geradas (todos contra todos em cada grupo). "
+                    + "Os 2 primeiros colocados de cada grupo avançam para os playoffs.",
+                    gruposCriados.size(),
+                    totalPartidas
             );
-            
+
             Mensagem.successAndRedirect(
-                mensagemSucesso,
-                "visualizarCampeonato.xhtml?id=" + this.camp.getId()
+                    mensagemSucesso,
+                    "visualizarCampeonato.xhtml?id=" + this.camp.getId()
             );
-            
+
         } catch (Exception ex) {
             System.err.println("====== ERRO AO GERAR GRUPOS ======");
             ex.printStackTrace();
             Mensagem.error("Erro ao gerar grupos: " + ex.getMessage());
         }
     }
-    
+
     /**
-     * Distribui times em grupos de forma balanceada
-     * Permite número ímpar de times - um grupo terá no máximo 1 time a mais
+     * Distribui times em grupos de forma balanceada Permite número ímpar de
+     * times - um grupo terá no máximo 1 time a mais
      */
     private List<List<Team>> distribuirTimesEmGrupos(List<Team> times, int numeroGrupos) {
         List<List<Team>> grupos = new ArrayList<>();
-        
+
         // Inicializa os grupos
         for (int i = 0; i < numeroGrupos; i++) {
             grupos.add(new ArrayList<>());
         }
-        
+
         // Distribui os times de forma circular
         // Se houver número ímpar, os primeiros grupos terão 1 time a mais
         for (int i = 0; i < times.size(); i++) {
             int grupoIndex = i % numeroGrupos;
             grupos.get(grupoIndex).add(times.get(i));
         }
-        
+
         // Log da distribuição
         for (int i = 0; i < grupos.size(); i++) {
             System.out.println("  Grupo " + (i + 1) + " terá " + grupos.get(i).size() + " times");
         }
-        
+
         return grupos;
     }
-    
+
     /**
      * Gera partidas todos contra todos para um grupo
      */
     private List<Partida> gerarPartidasTodosContraTodos(List<Team> times, String nomeGrupo) throws Exception {
         List<Partida> partidas = new ArrayList<>();
-        
+
         // Gera todas as combinações possíveis (todos contra todos)
         for (int i = 0; i < times.size(); i++) {
             for (int j = i + 1; j < times.size(); j++) {
                 Team time1 = times.get(i);
                 Team time2 = times.get(j);
-                
+
                 Partida partida = criarPartidaGrupo(time1, time2, nomeGrupo);
                 if (partida != null) {
                     partidas.add(partida);
                 }
             }
         }
-        
+
         return partidas;
     }
-    
+
     /**
      * Cria uma partida de grupo
      */
@@ -2982,28 +2996,28 @@ public class ManagerCamp extends ManagerBase {
         if (time1 == null || time1.getId() == null || time2 == null || time2.getId() == null) {
             return null;
         }
-        
+
         Partida novaPartida = new Partida();
         novaPartida.setJogo(this.camp.getJogo());
         novaPartida.setActive(true);
         novaPartida.setFinalizada(false);
         novaPartida.setNome(nomeGrupo + " - " + time1.getNome() + " vs " + time2.getNome());
         novaPartida.setDataPartida(new Date());
-        
+
         // Salva a partida PRIMEIRO (sem itens ainda)
         novaPartida = partidaServico.salvar(novaPartida, null, Url.SALVAR_PARTIDA.getNome());
-        
+
         if (novaPartida == null || novaPartida.getId() == null) {
             System.err.println("Erro ao salvar partida do grupo: partida retornou null");
             return null;
         }
-        
+
         System.out.println("  Partida do grupo salva com ID: " + novaPartida.getId());
-        
+
         // Agora cria os itens da partida COM o ID da partida já definido
         int qtdItens = 1;
         List<ItemPartida> itensPartida = PartidaUtils.gerarPartidasTimes(novaPartida, this.camp.getId(), time1, time2, qtdItens);
-        
+
         // Define o partida_id em todos os itens ANTES de salvar
         if (itensPartida != null && !itensPartida.isEmpty()) {
             for (ItemPartida item : itensPartida) {
@@ -3018,23 +3032,23 @@ public class ManagerCamp extends ManagerBase {
                 }
             }
         }
-        
+
         // Atualiza a partida com os itens
         novaPartida.setItemPartida(itensPartida);
         novaPartida = partidaServico.salvar(novaPartida, novaPartida.getId(), Url.ATUALIZAR_PARTIDA.getNome());
-        
+
         return novaPartida;
     }
-    
+
     /**
      * Verifica se há grupos criados
      */
     public boolean hasGrupos() {
-        return this.camp != null && 
-               this.camp.getGrupos() != null && 
-               !this.camp.getGrupos().isEmpty();
+        return this.camp != null
+                && this.camp.getGrupos() != null
+                && !this.camp.getGrupos().isEmpty();
     }
-    
+
     /**
      * Obtém os grupos do campeonato
      */
@@ -3044,7 +3058,7 @@ public class ManagerCamp extends ManagerBase {
         }
         return this.camp.getGrupos();
     }
-    
+
     /**
      * Verifica se todas as partidas de um grupo foram finalizadas
      */
@@ -3052,11 +3066,11 @@ public class ManagerCamp extends ManagerBase {
         if (grupo == null || grupo.getPartidas() == null || grupo.getPartidas().isEmpty()) {
             return false;
         }
-        
+
         return grupo.getPartidas().stream()
                 .allMatch(Partida::isFinalizada);
     }
-    
+
     /**
      * Verifica se todos os grupos foram finalizados
      */
@@ -3064,25 +3078,25 @@ public class ManagerCamp extends ManagerBase {
         if (!hasGrupos()) {
             return false;
         }
-        
+
         return this.camp.getGrupos().stream()
                 .allMatch(this::isGrupoFinalizado);
     }
-    
+
     /**
      * Obtém a classificação de um grupo
      */
     public List<ClassificacaoTime> getClassificacaoGrupo(Grupo grupo) {
         List<ClassificacaoTime> tabela = new ArrayList<>();
-        
+
         if (grupo == null) {
             System.err.println("getClassificacaoGrupo: grupo é null");
             return tabela;
         }
-        
+
         // Inicializa classificação para cada time
         Map<Long, ClassificacaoTime> classificacaoPorTime = new HashMap<>();
-        
+
         // Tenta obter times diretamente do grupo
         List<Team> timesDoGrupo = new ArrayList<>();
         if (grupo.getTeams() != null && !grupo.getTeams().isEmpty()) {
@@ -3093,23 +3107,23 @@ public class ManagerCamp extends ManagerBase {
             timesDoGrupo = grupo.getTimes();
             System.out.println("getClassificacaoGrupo: Encontrados " + timesDoGrupo.size() + " times via método legado");
         }
-        
+
         // Se não encontrou times diretamente, extrai das partidas
         if (timesDoGrupo.isEmpty() && grupo.getPartidas() != null && !grupo.getPartidas().isEmpty()) {
             System.out.println("getClassificacaoGrupo: Extraindo times das partidas...");
             Set<Long> idsTimesJaAdicionados = new HashSet<>();
-            
+
             for (Partida partida : grupo.getPartidas()) {
                 if (partida.getItemPartida() != null && !partida.getItemPartida().isEmpty()) {
                     ItemPartida item = partida.getItemPartida().get(0);
-                    
+
                     if (item.getTeam1() != null && item.getTeam1().getId() != null) {
                         if (!idsTimesJaAdicionados.contains(item.getTeam1().getId())) {
                             timesDoGrupo.add(item.getTeam1());
                             idsTimesJaAdicionados.add(item.getTeam1().getId());
                         }
                     }
-                    
+
                     if (item.getTeam2() != null && item.getTeam2().getId() != null) {
                         if (!idsTimesJaAdicionados.contains(item.getTeam2().getId())) {
                             timesDoGrupo.add(item.getTeam2());
@@ -3118,44 +3132,44 @@ public class ManagerCamp extends ManagerBase {
                     }
                 }
             }
-            
+
             System.out.println("getClassificacaoGrupo: Extraídos " + timesDoGrupo.size() + " times das partidas");
         }
-        
+
         if (timesDoGrupo.isEmpty()) {
             System.err.println("getClassificacaoGrupo: Nenhum time encontrado no grupo " + grupo.getNome());
             return tabela;
         }
-        
+
         // Inicializa classificação para cada time encontrado
         for (Team time : timesDoGrupo) {
             if (time != null && time.getId() != null) {
                 classificacaoPorTime.put(time.getId(), new ClassificacaoTime(time));
             }
         }
-        
+
         System.out.println("getClassificacaoGrupo: Inicializada classificação para " + classificacaoPorTime.size() + " times");
-        
+
         // Processa partidas do grupo
         if (grupo.getPartidas() != null) {
             int partidasProcessadas = 0;
             for (Partida partida : grupo.getPartidas()) {
-                if (partida.isFinalizada() && partida.getTimeVencedor() != null && 
-                    partida.getTimePerdedor() != null) {
-                    
+                if (partida.isFinalizada() && partida.getTimeVencedor() != null
+                        && partida.getTimePerdedor() != null) {
+
                     Team timeVencedor = partida.getTimeVencedor();
                     Team timePerdedor = partida.getTimePerdedor();
-                    
-                    if (timeVencedor != null && timeVencedor.getId() != null &&
-                        timePerdedor != null && timePerdedor.getId() != null) {
-                        
+
+                    if (timeVencedor != null && timeVencedor.getId() != null
+                            && timePerdedor != null && timePerdedor.getId() != null) {
+
                         ClassificacaoTime classVencedor = classificacaoPorTime.get(timeVencedor.getId());
                         ClassificacaoTime classPerdedor = classificacaoPorTime.get(timePerdedor.getId());
-                        
+
                         if (classVencedor != null && classPerdedor != null) {
                             classVencedor.adicionarVitoria();
                             classPerdedor.adicionarDerrota();
-                            
+
                             // Calcula rounds ganhos e perdidos baseado nos itemPartida
                             if (partida.getItemPartida() != null && !partida.getItemPartida().isEmpty()) {
                                 for (ItemPartida item : partida.getItemPartida()) {
@@ -3168,29 +3182,29 @@ public class ManagerCamp extends ManagerBase {
                                             // Se team2 for o vencedor:
                                             // - team2: rounds ganhos = scoreT2, rounds perdidos = scoreT1
                                             // - team1: rounds ganhos = scoreT1, rounds perdidos = scoreT2
-                                            
+
                                             boolean team1Venceu = item.getTimeVencedor().getId().equals(item.getTeam1().getId());
                                             boolean team2Venceu = item.getTimeVencedor().getId().equals(item.getTeam2().getId());
-                                            
+
                                             int scoreT1 = item.getScoreT1() != null ? item.getScoreT1() : 0;
                                             int scoreT2 = item.getScoreT2() != null ? item.getScoreT2() : 0;
-                                            
+
                                             // Verifica qual time da partida é o team1 e qual é o team2 do item
                                             ClassificacaoTime classTeam1 = null;
                                             ClassificacaoTime classTeam2 = null;
-                                            
+
                                             if (item.getTeam1().getId().equals(timeVencedor.getId())) {
                                                 classTeam1 = classVencedor;
                                             } else if (item.getTeam1().getId().equals(timePerdedor.getId())) {
                                                 classTeam1 = classPerdedor;
                                             }
-                                            
+
                                             if (item.getTeam2().getId().equals(timeVencedor.getId())) {
                                                 classTeam2 = classVencedor;
                                             } else if (item.getTeam2().getId().equals(timePerdedor.getId())) {
                                                 classTeam2 = classPerdedor;
                                             }
-                                            
+
                                             if (team1Venceu && classTeam1 != null && classTeam2 != null) {
                                                 // Team1 venceu: team1 ganha scoreT1 rounds e perde scoreT2 rounds
                                                 // Team2 perde: team2 ganha scoreT2 rounds e perde scoreT1 rounds
@@ -3210,7 +3224,7 @@ public class ManagerCamp extends ManagerBase {
                                     }
                                 }
                             }
-                            
+
                             partidasProcessadas++;
                         }
                     }
@@ -3218,7 +3232,7 @@ public class ManagerCamp extends ManagerBase {
             }
             System.out.println("getClassificacaoGrupo: Processadas " + partidasProcessadas + " partidas finalizadas");
         }
-        
+
         // Converte para lista e ordena
         tabela = new ArrayList<>(classificacaoPorTime.values());
         tabela.sort((c1, c2) -> {
@@ -3235,47 +3249,47 @@ public class ManagerCamp extends ManagerBase {
             // Terceiro critério: ordem alfabética do nome
             return c1.getTeam().getNome().compareTo(c2.getTeam().getNome());
         });
-        
+
         // Define as posições
         for (int i = 0; i < tabela.size(); i++) {
             tabela.get(i).setPosicao(i + 1);
         }
-        
+
         System.out.println("getClassificacaoGrupo: Retornando " + tabela.size() + " times na classificação");
-        
+
         return tabela;
     }
-    
+
     /**
      * Obtém os 2 primeiros colocados de um grupo
      */
     public List<Team> getClassificadosGrupo(Grupo grupo) {
         List<ClassificacaoTime> classificacao = getClassificacaoGrupo(grupo);
-        
+
         return classificacao.stream()
                 .limit(2) // Apenas os 2 primeiros
                 .map(ClassificacaoTime::getTeam)
                 .collect(Collectors.toList());
     }
-    
+
     /**
-     * Obtém a quantidade de times de um grupo
-     * Busca diretamente do grupo ou extrai das partidas se necessário
+     * Obtém a quantidade de times de um grupo Busca diretamente do grupo ou
+     * extrai das partidas se necessário
      */
     public int getQuantidadeTimesGrupo(Grupo grupo) {
         if (grupo == null) {
             return 0;
         }
-        
+
         // Tenta obter diretamente do grupo
         if (grupo.getTeams() != null && !grupo.getTeams().isEmpty()) {
             return grupo.getTeams().size();
         }
-        
+
         if (grupo.getTimes() != null && !grupo.getTimes().isEmpty()) {
             return grupo.getTimes().size();
         }
-        
+
         // Se não encontrou, extrai das partidas
         if (grupo.getPartidas() != null && !grupo.getPartidas().isEmpty()) {
             Set<Long> idsTimes = new HashSet<>();
@@ -3292,95 +3306,95 @@ public class ManagerCamp extends ManagerBase {
             }
             return idsTimes.size();
         }
-        
+
         return 0;
     }
-    
+
     /**
-     * Gera os playoffs com os classificados dos grupos
-     * Usa a mesma lógica do método gerarPlayoffs() do suíço
+     * Gera os playoffs com os classificados dos grupos Usa a mesma lógica do
+     * método gerarPlayoffs() do suíço
      */
     public void gerarPlayoffsDeGrupos() {
         try {
             System.out.println("====== INICIANDO GERAÇÃO DOS PLAYOFFS DOS GRUPOS ======");
-            
+
             // Validações
             if (!isAdmin()) {
                 System.err.println("Erro: Usuário não é admin");
                 Mensagem.error("Apenas administradores podem gerar os playoffs!");
                 return;
             }
-            
+
             if (!isGrupoPlayoff()) {
                 System.err.println("Erro: Campeonato não é GRUPO E PLAYOFF");
                 Mensagem.error("Este campeonato não é do tipo GRUPO E PLAYOFF!");
                 return;
             }
-            
+
             if (!isTodosGruposFinalizados()) {
                 System.err.println("Erro: Grupos não finalizados");
                 Mensagem.error("Todas as partidas dos grupos devem estar finalizadas!");
                 return;
             }
-            
+
             if (hasPlayoffs()) {
                 System.err.println("Erro: Playoffs já foram gerados");
                 Mensagem.error("Os playoffs já foram gerados para este campeonato!");
                 return;
             }
-            
+
             // Atualiza o campeonato
             this.camp = this.campeonatoServico.buscaCamp(this.camp.getId());
-            
+
             // Coleta os classificados de cada grupo (2 primeiros de cada grupo)
             List<Team> classificados = new ArrayList<>();
             for (Grupo grupo : this.camp.getGrupos()) {
                 if (grupo != null) {
                     List<Team> classificadosGrupo = getClassificadosGrupo(grupo);
                     classificados.addAll(classificadosGrupo);
-                    System.out.println("✓ Classificados do " + grupo.getNome() + ": " + 
-                                     classificadosGrupo.stream()
-                                         .map(Team::getNome)
-                                         .collect(Collectors.joining(", ")));
+                    System.out.println("✓ Classificados do " + grupo.getNome() + ": "
+                            + classificadosGrupo.stream()
+                                    .map(Team::getNome)
+                                    .collect(Collectors.joining(", ")));
                 }
             }
-            
+
             System.out.println("✓ Total de times classificados: " + classificados.size());
-            
+
             if (classificados.size() < 2) {
                 Mensagem.error("É necessário pelo menos 2 times classificados para gerar os playoffs!");
                 return;
             }
-            
+
             // Determina o número de times nos playoffs (potência de 2) - mesma lógica do suíço
             int numeroTimes = getMaiorPotenciaDe2(classificados.size());
             List<Team> timesPlayoffs = classificados.subList(0, Math.min(numeroTimes, classificados.size()));
-            
+
             System.out.println("✓ Times nos playoffs: " + timesPlayoffs.size() + " (de " + classificados.size() + " classificados)");
-            
+
             // Inicializa lista de fases se necessário
             if (this.camp.getFasesCamp() == null) {
                 this.camp.setFasesCamp(new ArrayList<>());
             }
-            
+
             // Gera a primeira fase dos playoffs - mesma lógica do suíço
             Fase primeiraFase = gerarFase(timesPlayoffs, getNomeFase(timesPlayoffs.size()));
             this.camp.getFasesCamp().add(primeiraFase);
-            
-            System.out.println("✓ Fase gerada: " + primeiraFase.getNome() + " com " + 
-                             primeiraFase.getPartidas().size() + " partidas");
-            
+
+            System.out.println("✓ Fase gerada: " + primeiraFase.getNome() + " com "
+                    + primeiraFase.getPartidas().size() + " partidas");
+
             // Salva o campeonato atualizado - mesma lógica do suíço
             this.camp = campeonatoServico.save(this.camp, this.camp.getId(), Url.ATUALIZAR_CAMPEONATO.getNome());
-            
+
             System.out.println("====== PLAYOFFS DOS GRUPOS GERADOS COM SUCESSO ======");
-            
+
             Mensagem.successAndRedirect(
-                "Playoffs gerados com sucesso! " + primeiraFase.getNome() + " criada com " + 
-                primeiraFase.getPartidas().size() + " partidas.",
-                "visualizarCampeonato.xhtml?id=" + this.camp.getId()
+                    "Playoffs gerados com sucesso! " + primeiraFase.getNome() + " criada com "
+                    + primeiraFase.getPartidas().size() + " partidas.",
+                    "visualizarCampeonato.xhtml?id=" + this.camp.getId()
             );
-            
+
         } catch (Exception ex) {
             System.err.println("====== ERRO AO GERAR PLAYOFFS DOS GRUPOS ======");
             ex.printStackTrace();
@@ -3389,4 +3403,3 @@ public class ManagerCamp extends ManagerBase {
     }
 
 }
-

@@ -15,7 +15,7 @@
                     <div class="flex align-items-center gap-2">
                         <h:panelGroup rendered="#{managerPartida.campeonato != null}">
                             <p:button icon="pi pi-arrow-left"
-                                      styleClass="p-button-text"
+                                      styleClass="action-btn-small action-btn-secondary"
                                       outcome="visualizarCampeonato.xhtml"
                                       title="Voltar">
                                 <f:param name="id" value="#{managerPartida.campeonato.id}" />
@@ -23,7 +23,7 @@
                         </h:panelGroup>
                         <h:panelGroup rendered="#{managerPartida.campeonato == null}">
                             <p:button icon="pi pi-arrow-left"
-                                      styleClass="p-button-text"
+                                      styleClass="action-btn-small action-btn-secondary"
                                       outcome="indexPartida.xhtml"
                                       title="Voltar" />
                         </h:panelGroup>
@@ -36,14 +36,14 @@
                     <div class="flex gap-2">
                         <p:commandButton value="Finalizar Partida"
                                          icon="pi pi-check"
-                                         styleClass="p-button-danger"
-                                         rendered="#{managerPartida.partida.finalizada == false}"
+                                         styleClass="action-btn-small action-btn-danger"
+                                         rendered="#{managerPartida.partida.finalizada == false and managerPartida.podeAtualizarPartida()}"
                                          update="@form"
                                          oncomplete="PF('confirmarFinalizarPartidaDialog').show();" />
                         <p:button value="Gerar Mapas"
                                   icon="pi pi-map"
-                                  styleClass="p-button-outlined"
-                                  rendered="#{managerPartida.partida.finalizada == false}"
+                                  styleClass="action-btn-small action-btn-accent"
+                                  rendered="#{managerPartida.partida.finalizada == false and managerPartida.podeAtualizarPartida()}"
                                   outcome="gerarMapas.xhtml?partidaId=#{managerPartida.partida.id}" />
                     </div>
                 </div>
@@ -170,7 +170,7 @@
 
                                 <p:commandButton value="Ver Estatísticas" 
                                                  icon="pi pi-chart-bar"
-                                                 styleClass="action-btn w-full mt-3"
+                                                 styleClass="action-btn-small action-btn-accent w-full mt-3"
                                                  type="button"
                                                  onclick="PF('tabview').select(0);" />
                             </div>
@@ -382,7 +382,7 @@
                                 
                                 <p:commandButton value="Atualizar Partida"
                                                  icon="pi pi-refresh"
-                                                 styleClass="btn-atualizar-partida"
+                                                 styleClass="action-btn-small action-btn-accent"
                                                  actionListener="#{managerPartida.redirecionarPartida(item)}"
                                                  rendered="#{managerPartida.podeAtualizarPartida()}" />
                             </div>
@@ -676,12 +676,12 @@
                 <div class="flex justify-content-end gap-2">
                     <p:commandButton value="Cancelar"
                                      icon="pi pi-times"
-                                     styleClass="p-button-outlined"
+                                     styleClass="action-btn-small action-btn-secondary"
                                      oncomplete="PF('confirmarFinalizarPartidaDialog').hide();"
                                      process="@this" />
                     <p:commandButton value="Finalizar"
                                      icon="pi pi-check"
-                                     styleClass="full-stats-btn"
+                                     styleClass="action-btn-small action-btn-danger"
                                      actionListener="#{managerPartida.finalizarPartida()}"
                                      update="@form"
                                      oncomplete="PF('confirmarFinalizarPartidaDialog').hide();" />
@@ -963,57 +963,76 @@
             .history-score.win { background: rgba(34,197,94,0.12); color: var(--success); border: 1px solid rgba(34,197,94,0.25); }
             .history-score.loss { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
 
-            /* Botão Atualizar Partida - Estilo Elegante */
-            .btn-atualizar-partida {
-                display: inline-flex !important;
-                align-items: center !important;
-                gap: 0.5rem !important;
+            /* Estilos para botões elegantes */
+            .action-btn-small {
                 padding: 0.625rem 1.25rem !important;
-                border-radius: 16px !important;
                 font-size: 0.8rem !important;
                 font-weight: 600 !important;
-                letter-spacing: 0.3px !important;
-                text-transform: uppercase !important;
-                transition: all 0.3s ease !important;
-                box-shadow: 0 2px 6px rgba(0, 225, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+                border-radius: 16px !important;
+                border: 1.5px solid !important;
+                gap: 0.4rem !important;
+                transition: all 0.2s ease !important;
                 position: relative !important;
-                overflow: hidden !important;
-                background: linear-gradient(135deg, rgba(0, 225, 255, 0.12), rgba(0, 180, 255, 0.08)) !important;
-                border: 1.5px solid rgba(0, 225, 255, 0.3) !important;
-                color: var(--accent) !important;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             }
-            
-            .btn-atualizar-partida::before {
+            .action-btn-small .pi {
+                font-size: 0.875rem !important;
+                filter: drop-shadow(0 0 4px rgba(0,0,0,0.3));
+            }
+            .action-btn-small::before {
                 content: '';
                 position: absolute;
                 top: 0;
-                left: -100%;
+                left: 0;
                 width: 100%;
                 height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-                transition: left 0.5s ease;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+                transform: translateX(-100%);
+                transition: transform 0.5s ease;
             }
-            
-            .btn-atualizar-partida:hover {
-                background: linear-gradient(135deg, rgba(0, 225, 255, 0.18), rgba(0, 180, 255, 0.12)) !important;
-                border-color: rgba(0, 225, 255, 0.4) !important;
-                box-shadow: 0 4px 10px rgba(0, 225, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
-                transform: translateY(-1px) !important;
+            .action-btn-small:hover::before {
+                transform: translateX(100%);
             }
-            
-            .btn-atualizar-partida:hover::before {
-                left: 100%;
+            .action-btn-small:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             }
-            
-            .btn-atualizar-partida .pi {
-                font-size: 0.875rem !important;
-                filter: drop-shadow(0 0 2px rgba(0, 225, 255, 0.4));
+            .action-btn-accent {
+                background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(59,130,246,0.08)) !important;
+                border-color: rgba(59,130,246,0.3) !important;
+                color: #60a5fa !important;
             }
-            
-            .btn-atualizar-partida .ui-button-text {
-                display: flex !important;
-                align-items: center !important;
-                gap: 0.5rem !important;
+            .action-btn-accent:hover {
+                background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(59,130,246,0.12)) !important;
+                border-color: rgba(59,130,246,0.4) !important;
+            }
+            .action-btn-accent::before {
+                background: linear-gradient(90deg, transparent, rgba(59,130,246,0.1), transparent);
+            }
+            .action-btn-danger {
+                background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.08)) !important;
+                border-color: rgba(239,68,68,0.3) !important;
+                color: #ef4444 !important;
+            }
+            .action-btn-danger:hover {
+                background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.12)) !important;
+                border-color: rgba(239,68,68,0.4) !important;
+            }
+            .action-btn-danger::before {
+                background: linear-gradient(90deg, transparent, rgba(239,68,68,0.1), transparent);
+            }
+            .action-btn-secondary {
+                background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04)) !important;
+                border-color: rgba(255,255,255,0.15) !important;
+                color: var(--text-200) !important;
+            }
+            .action-btn-secondary:hover {
+                background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06)) !important;
+                border-color: rgba(255,255,255,0.25) !important;
+            }
+            .action-btn-secondary::before {
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
             }
 
             @media (max-width: 768px) {
