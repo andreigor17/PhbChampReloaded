@@ -145,23 +145,34 @@ public class ManagerPartidaTempoReal extends ManagerBase {
             for (String linha : linhas) {
                 linha = linha.trim();
                 
-                // Mapa - várias formas de capturar
-                if (linha.toLowerCase().contains("map") || linha.toLowerCase().contains("level")) {
-                    // Formato: "map     : de_dust2"
-                    // Formato: "hostname:   Counter-Strike 2 Server"
-                    // Formato: "version : 1.38.7.0/13787 13787/13787 secure"
-                    Pattern mapPattern = Pattern.compile("(?i)(?:map|level)\\s*:?\\s*([a-z0-9_]+)", Pattern.CASE_INSENSITIVE);
+                // Mapa - formato: "loaded spawngroup(  1)  : SV:  [1: de_dust2 | main lump | mapload]"
+                if (linha.contains("loaded spawngroup") && linha.contains("SV:")) {
+                    Pattern mapPattern = Pattern.compile("\\[\\d+:\\s*([a-z0-9_]+)");
                     Matcher mapMatcher = mapPattern.matcher(linha);
                     if (mapMatcher.find()) {
                         String mapa = mapMatcher.group(1).trim();
-                        if (!mapa.isEmpty() && !mapa.equals("version") && !mapa.equals("hostname")) {
+                        if (!mapa.isEmpty() && !mapa.equals("prefabs") && !mapa.equals("maps")) {
                             matchData.setMapa(mapa);
                             System.out.println("Mapa encontrado: " + mapa);
                         }
                     }
                 }
                 
-                // Score - formato: "CT: 5  T: 3"
+                // Mapa alternativo - formato: "map     : de_dust2"
+                if (linha.toLowerCase().contains("map") && linha.contains(":")) {
+                    Pattern mapPattern = Pattern.compile("(?i)map\\s*:?\\s*([a-z0-9_]+)", Pattern.CASE_INSENSITIVE);
+                    Matcher mapMatcher = mapPattern.matcher(linha);
+                    if (mapMatcher.find()) {
+                        String mapa = mapMatcher.group(1).trim();
+                        if (!mapa.isEmpty() && !mapa.equals("version") && !mapa.equals("hostname") && !mapa.equals("load")) {
+                            matchData.setMapa(mapa);
+                            System.out.println("Mapa encontrado (alternativo): " + mapa);
+                        }
+                    }
+                }
+                
+                // Score - formato: "CT: 5  T: 3" (pode não estar no status padrão)
+                // Tenta obter com comando específico depois
                 if (linha.contains("CT:") || linha.contains("T:")) {
                     Pattern scorePattern = Pattern.compile("CT:\\s*(\\d+).*?T:\\s*(\\d+)", Pattern.CASE_INSENSITIVE);
                     Matcher m = scorePattern.matcher(linha);
@@ -198,20 +209,34 @@ public class ManagerPartidaTempoReal extends ManagerBase {
                     }
                 }
                 
-                // Players - formato: "# userid name uniqueid connected ping loss state rate adr"
-                // ou formato: "#    1 \"Player Name\" STEAM_1:0:123456 01:23   45    0 active"
-                if (linha.matches("^#\\s+\\d+.*")) {
+                // Detecta início da seção de players
+                if (linha.contains("id     time ping loss") || linha.contains("---------players--------")) {
                     naSecaoPlayers = true;
+                    continue;
+                }
+                
+                // Detecta fim da seção de players
+                if (linha.equals("#end") || linha.equals("")) {
+                    naSecaoPlayers = false;
+                    continue;
+                }
+                
+                // Players - formato: "   4    06:55   24    0     active 786432 189.13.25.48:55852 'Dede'"
+                // ou: "   7      BOT    0    0     active      0 'Arno'"
+                // ou: "65535 [NoChan]    0    0 challenging      0unknown ''"
+                if (naSecaoPlayers && linha.matches("^\\s*\\d+.*")) {
                     PlayerInfo player = parsePlayerLine(linha);
-                    if (player != null) {
+                    if (player != null && player.getNome() != null && !player.getNome().isEmpty()) {
                         if (player.getTime() == 2) {
                             playersCT.add(player);
                         } else if (player.getTime() == 3) {
                             playersT.add(player);
+                        } else {
+                            // Se não tem time definido, adiciona em ambos para não perder o player
+                            // (pode ser ajustado depois quando souber o time)
+                            playersCT.add(player);
                         }
                     }
-                } else if (naSecaoPlayers && linha.isEmpty()) {
-                    naSecaoPlayers = false;
                 }
             }
             
@@ -222,10 +247,10 @@ public class ManagerPartidaTempoReal extends ManagerBase {
             System.out.println("Players T: " + playersT.size());
             
             // Se não encontrou o mapa, tenta comando específico
-            if (matchData.getMapa() == null || matchData.getMapa().isEmpty()) {
+            if (matchData.getMapa() == null || matchData.getMapa().isEmpty() || matchData.getMapa().equals("load")) {
                 try {
                     String mapResult = rconService.executeCommand("get5_current_map");
-                    if (mapResult != null && !mapResult.startsWith("ERRO")) {
+                    if (mapResult != null && !mapResult.startsWith("ERRO") && !mapResult.contains("Unknown command")) {
                         matchData.setMapa(mapResult.trim());
                     } else {
                         // Tenta outro comando
@@ -239,8 +264,53 @@ public class ManagerPartidaTempoReal extends ManagerBase {
                 }
             }
             
-            // Tenta obter mais informações com outros comandos
+            // Tenta obter score se não encontrou
+            if (matchData.getScoreCT() == 0 && matchData.getScoreT() == 0) {
+                try {
+                    // Tenta vários comandos para obter o score
+                    String scoreCT = rconService.executeCommand("mp_teamscore_1");
+                    String scoreT = rconService.executeCommand("mp_teamscore_2");
+                    
+                    if (scoreCT != null && !scoreCT.startsWith("ERRO")) {
+                        try {
+                            // Remove "mp_teamscore_1" = " do resultado se houver
+                            scoreCT = scoreCT.replaceAll(".*=.*?\"?([0-9]+).*", "$1");
+                            matchData.setScoreCT(Integer.parseInt(scoreCT.trim()));
+                        } catch (Exception e) {
+                            // Ignora
+                        }
+                    }
+                    
+                    if (scoreT != null && !scoreT.startsWith("ERRO")) {
+                        try {
+                            scoreT = scoreT.replaceAll(".*=.*?\"?([0-9]+).*", "$1");
+                            matchData.setScoreT(Integer.parseInt(scoreT.trim()));
+                        } catch (Exception e) {
+                            // Ignora
+                        }
+                    }
+                    
+                    // Se ainda não conseguiu, tenta get5_status
+                    if (matchData.getScoreCT() == 0 && matchData.getScoreT() == 0) {
+                        String scoreResult = rconService.executeCommand("get5_status");
+                        if (scoreResult != null && !scoreResult.startsWith("ERRO") && !scoreResult.contains("Unknown command")) {
+                            // Se retornou JSON, tenta parsear
+                            if (scoreResult.contains("{")) {
+                                parseGet5Status(scoreResult);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // Ignora
+                }
+            }
+            
+            // Tenta obter informações detalhadas dos players usando outros comandos
             atualizarInformacoesAdicionais();
+            
+            // Tenta identificar o time dos players que não têm time definido
+            // usando o comando get5_listplayers ou similar
+            identificarTimesPlayers();
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -249,58 +319,88 @@ public class ManagerPartidaTempoReal extends ManagerBase {
     
     /**
      * Parse de uma linha de player do comando status
+     * Formato: "   4    06:55   24    0     active 786432 189.13.25.48:55852 'Dede'"
+     * ou: "   7      BOT    0    0     active      0 'Arno'"
+     * ou: "65535 [NoChan]    0    0 challenging      0unknown ''"
      */
     private PlayerInfo parsePlayerLine(String linha) {
         try {
-            // Formato CS2: "#    1 \"Player Name\" STEAM_1:0:123456 01:23   45    0 active"
-            // ou: "# userid name uniqueid connected ping loss state rate adr"
+            // Ignora linhas vazias ou com [NoChan]
+            if (linha.contains("[NoChan]") || linha.contains("''") || linha.trim().isEmpty()) {
+                return null;
+            }
             
             PlayerInfo player = new PlayerInfo();
             
-            // Remove o "#" inicial
-            linha = linha.replaceFirst("^#\\s+", "").trim();
-            
-            // Tenta encontrar o nome entre aspas primeiro
-            Pattern namePattern = Pattern.compile("\"([^\"]+)\"");
+            // Extrai o nome entre aspas simples (último campo)
+            Pattern namePattern = Pattern.compile("'([^']+)'");
             Matcher nameMatcher = namePattern.matcher(linha);
             if (nameMatcher.find()) {
-                player.setNome(nameMatcher.group(1));
-                // Remove o nome da linha para processar o resto
-                linha = linha.replace("\"" + nameMatcher.group(1) + "\"", "").trim();
+                String nome = nameMatcher.group(1).trim();
+                if (nome.isEmpty()) {
+                    return null; // Ignora players sem nome
+                }
+                player.setNome(nome);
             } else {
-                // Se não tem aspas, pega o primeiro campo que não seja número
-                String[] partes = linha.split("\\s+");
-                if (partes.length > 1) {
-                    // userid é o primeiro, nome pode ser o segundo ou vários campos
-                    StringBuilder nome = new StringBuilder();
-                    int i = 1; // Pula o userid
-                    while (i < partes.length && !partes[i].startsWith("STEAM_") && !partes[i].startsWith("[U:") && !partes[i].matches("\\d{2}:\\d{2}")) {
-                        if (nome.length() > 0) {
-                            nome.append(" ");
-                        }
-                        nome.append(partes[i]);
-                        i++;
+                return null; // Se não tem nome, ignora
+            }
+            
+            // Divide a linha em campos (separados por múltiplos espaços)
+            String[] partes = linha.trim().split("\\s+");
+            
+            if (partes.length < 3) {
+                return null;
+            }
+            
+            // ID é o primeiro campo
+            try {
+                Integer.parseInt(partes[0]);
+            } catch (NumberFormatException e) {
+                return null; // Se não começa com número, não é um player válido
+            }
+            
+            // Time está no segundo campo - pode ser:
+            // - Número (2 = CT, 3 = T)
+            // - "BOT" (bot)
+            // - Formato de tempo "06:55" (não é time, é algo else)
+            String timeField = partes[1];
+            
+            // Tenta identificar o time
+            if (timeField.equals("2") || timeField.matches("^2$")) {
+                player.setTime(2); // CT
+            } else if (timeField.equals("3") || timeField.matches("^3$")) {
+                player.setTime(3); // T
+            } else if (timeField.equals("BOT")) {
+                // Bot - pode ser CT ou T, mas não sabemos qual
+                // Por enquanto, não define time
+            } else {
+                // Pode ser formato de tempo ou outro campo
+                // Tenta procurar em outros campos
+                for (int i = 2; i < partes.length && i < 5; i++) {
+                    if (partes[i].equals("2")) {
+                        player.setTime(2);
+                        break;
+                    } else if (partes[i].equals("3")) {
+                        player.setTime(3);
+                        break;
                     }
-                    player.setNome(nome.toString());
                 }
             }
             
-            // Steam ID
-            Pattern steamPattern = Pattern.compile("(STEAM_[0-9]:[0-9]:[0-9]+|\\[U:[0-9]+:[0-9]+\\])");
+            // Tenta extrair Steam ID se houver
+            Pattern steamPattern = Pattern.compile("(STEAM_[0-9]:[0-9]:[0-9]+|\\[U:[0-9]+:[0-9]+\\]|\\[G:[0-9]+:[0-9]+\\])");
             Matcher steamMatcher = steamPattern.matcher(linha);
             if (steamMatcher.find()) {
                 player.setSteamId(steamMatcher.group(1));
             }
             
-            // Time - procura por "CT" ou "TERRORIST" ou números 2/3
-            if (linha.contains("CT") || linha.matches(".*\\b2\\b.*")) {
-                player.setTime(2);
-            } else if (linha.contains("TERRORIST") || linha.contains("T ") || linha.matches(".*\\b3\\b.*")) {
-                player.setTime(3);
+            // Estado - se está "active", está vivo
+            if (linha.contains("active")) {
+                player.setAlive(true);
+                player.setHealth(100); // Assume 100 se está ativo (pode ser melhorado depois)
+            } else if (linha.contains("challenging")) {
+                player.setAlive(false);
             }
-            
-            // Se não encontrou o time, tenta pelo contexto (se tem muitos players, assume que é CT ou T baseado na posição)
-            // Por enquanto, deixa sem time se não encontrar
             
             return player;
         } catch (Exception e) {
@@ -384,6 +484,76 @@ public class ManagerPartidaTempoReal extends ManagerBase {
         String status = rconService.executeCommand("status");
         if (status != null) {
             parseStatus(status);
+        }
+    }
+    
+    /**
+     * Tenta identificar o time dos players que não têm time definido
+     */
+    private void identificarTimesPlayers() {
+        try {
+            // Tenta usar o comando get5_listplayers
+            String result = rconService.executeCommand("get5_listplayers");
+            if (result != null && !result.startsWith("ERRO") && !result.contains("Unknown command")) {
+                // Parse do resultado
+                String[] linhas = result.split("\n");
+                for (String linha : linhas) {
+                    // Procura por informações de time
+                    if (linha.contains("CT") || linha.contains("Counter-Terrorist")) {
+                        // Extrai steamid ou nome e atualiza players CT
+                        atualizarTimePlayers(linha, 2);
+                    } else if (linha.contains("T ") || linha.contains("Terrorist")) {
+                        // Extrai steamid ou nome e atualiza players T
+                        atualizarTimePlayers(linha, 3);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Ignora erros
+        }
+    }
+    
+    /**
+     * Atualiza o time de um player baseado em informações adicionais
+     */
+    private void atualizarTimePlayers(String linha, int time) {
+        // Tenta encontrar o nome ou steamid na linha
+        Pattern namePattern = Pattern.compile("'([^']+)'");
+        Matcher nameMatcher = namePattern.matcher(linha);
+        if (nameMatcher.find()) {
+            String nome = nameMatcher.group(1);
+            
+            // Procura nos players CT
+            List<PlayerInfo> playersCTCopy = new ArrayList<>(matchData.getPlayersCT());
+            for (PlayerInfo player : playersCTCopy) {
+                if (player.getNome().equals(nome)) {
+                    if (time == 2) {
+                        player.setTime(2);
+                    } else if (time == 3) {
+                        // Move para T
+                        matchData.getPlayersCT().remove(player);
+                        matchData.getPlayersT().add(player);
+                        player.setTime(3);
+                    }
+                    return;
+                }
+            }
+            
+            // Procura nos players T
+            List<PlayerInfo> playersTCopy = new ArrayList<>(matchData.getPlayersT());
+            for (PlayerInfo player : playersTCopy) {
+                if (player.getNome().equals(nome)) {
+                    if (time == 3) {
+                        player.setTime(3);
+                    } else if (time == 2) {
+                        // Move para CT
+                        matchData.getPlayersT().remove(player);
+                        matchData.getPlayersCT().add(player);
+                        player.setTime(2);
+                    }
+                    return;
+                }
+            }
         }
     }
     
