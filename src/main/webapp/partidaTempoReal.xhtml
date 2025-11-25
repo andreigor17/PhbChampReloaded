@@ -1,0 +1,607 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="vercel.xhtml">
+
+    <ui:define name="content">
+        <h:form id="formPartidaTempoReal">
+            
+            <!-- Header -->
+            <div class="section-header">
+                <div>
+                    <h1 class="section-title">
+                        <i class="pi pi-eye mr-2"></i>
+                        Partida em Tempo Real
+                    </h1>
+                    <p class="section-description">
+                        Monitoramento ao vivo da partida CS2
+                    </p>
+                </div>
+                <div class="header-actions">
+                    <p:outputPanel id="statusPanel">
+                        <div class="connection-badge #{managerPartidaTempoReal.matchData.conectado ? 'connected' : 'disconnected'}">
+                            <span class="status-dot"></span>
+                            <span class="status-text">#{managerPartidaTempoReal.matchData.conectado ? 'Conectado' : 'Desconectado'}</span>
+                        </div>
+                    </p:outputPanel>
+                    <p:commandButton value="Atualizar" 
+                                     icon="pi pi-refresh" 
+                                     action="#{managerPartidaTempoReal.atualizarDados()}"
+                                     update="@form"
+                                     styleClass="p-button-outlined ml-2" />
+                </div>
+            </div>
+
+            <!-- Informações Gerais da Partida -->
+            <div class="grid mb-4">
+                <div class="col-12 md:col-3">
+                    <p:card styleClass="info-card">
+                        <f:facet name="title">
+                            <i class="pi pi-map mr-2"></i>
+                            Mapa
+                        </f:facet>
+                        <div class="info-value">
+                            #{managerPartidaTempoReal.matchData.mapa != null ? managerPartidaTempoReal.matchData.mapa : 'N/A'}
+                        </div>
+                    </p:card>
+                </div>
+                
+                <div class="col-12 md:col-3">
+                    <p:card styleClass="info-card">
+                        <f:facet name="title">
+                            <i class="pi pi-clock mr-2"></i>
+                            Tempo do Round
+                        </f:facet>
+                        <div class="info-value timer-value">
+                            #{managerPartidaTempoReal.matchData.tempoRoundFormatado}
+                        </div>
+                    </p:card>
+                </div>
+                
+                <div class="col-12 md:col-3">
+                    <p:card styleClass="info-card">
+                        <f:facet name="title">
+                            <i class="pi pi-circle mr-2"></i>
+                            Round Atual
+                        </f:facet>
+                        <div class="info-value">
+                            #{managerPartidaTempoReal.matchData.roundAtual}
+                        </div>
+                    </p:card>
+                </div>
+                
+                <div class="col-12 md:col-3">
+                    <p:card styleClass="info-card">
+                        <f:facet name="title">
+                            <i class="pi pi-info-circle mr-2"></i>
+                            Fase
+                        </f:facet>
+                        <div class="info-value">
+                            #{managerPartidaTempoReal.matchData.fase != null ? managerPartidaTempoReal.matchData.fase : 'N/A'}
+                        </div>
+                    </p:card>
+                </div>
+            </div>
+
+            <!-- Placar -->
+            <div class="grid mb-4">
+                <div class="col-12">
+                    <p:card styleClass="score-card">
+                        <div class="score-container">
+                            <div class="team-score team-ct">
+                                <div class="team-header">
+                                    <i class="pi pi-shield"></i>
+                                    <span>Counter-Terrorists</span>
+                                </div>
+                                <div class="score-value">#{managerPartidaTempoReal.matchData.scoreCT}</div>
+                            </div>
+                            
+                            <div class="score-separator">
+                                <span>VS</span>
+                            </div>
+                            
+                            <div class="team-score team-t">
+                                <div class="team-header">
+                                    <i class="pi pi-bomb"></i>
+                                    <span>Terrorists</span>
+                                </div>
+                                <div class="score-value">#{managerPartidaTempoReal.matchData.scoreT}</div>
+                            </div>
+                        </div>
+                    </p:card>
+                </div>
+            </div>
+
+            <!-- Status da Bomba -->
+            <div class="grid mb-4" rendered="#{managerPartidaTempoReal.matchData.estadoBomba != null and managerPartidaTempoReal.matchData.estadoBomba != 'none'}">
+                <div class="col-12">
+                    <p:card styleClass="bomb-card #{managerPartidaTempoReal.matchData.estadoBomba == 'planted' ? 'bomb-planted' : ''}">
+                        <f:facet name="title">
+                            <i class="pi pi-bomb mr-2"></i>
+                            Status da Bomba
+                        </f:facet>
+                        <div class="bomb-status">
+                            <div class="bomb-state">
+                                Estado: <strong>#{managerPartidaTempoReal.matchData.estadoBomba}</strong>
+                            </div>
+                            <div class="bomb-timer" rendered="#{managerPartidaTempoReal.matchData.estadoBomba == 'planted'}">
+                                Tempo Restante: <strong class="timer-danger">#{managerPartidaTempoReal.matchData.tempoBombaFormatado}</strong>
+                            </div>
+                        </div>
+                    </p:card>
+                </div>
+            </div>
+
+            <!-- Players -->
+            <div class="grid">
+                <!-- Time CT -->
+                <div class="col-12 lg:col-6">
+                    <p:card styleClass="team-card team-ct-card">
+                        <f:facet name="title">
+                            <i class="pi pi-shield mr-2"></i>
+                            Counter-Terrorists (#{managerPartidaTempoReal.matchData.playersCT.size()})
+                        </f:facet>
+                        
+                        <div class="players-list">
+                            <ui:repeat value="#{managerPartidaTempoReal.matchData.playersCT}" var="player">
+                                <div class="player-card">
+                                    <div class="player-header">
+                                        <div class="player-name">#{player.nome}</div>
+                                        <div class="player-status #{player.alive ? 'alive' : 'dead'}">
+                                            <i class="pi #{player.alive ? 'pi-heart' : 'pi-times'}"></i>
+                                            <span>#{player.alive ? 'Vivo' : 'Morto'}</span>
+                                        </div>
+                                    </div>
+                                    <div class="player-stats">
+                                        <div class="stat-item">
+                                            <i class="pi pi-heart"></i>
+                                            <span>HP: <strong>#{player.health}</strong></span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <i class="pi pi-shield"></i>
+                                            <span>Armor: <strong>#{player.armor}</strong></span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <i class="pi pi-crosshairs"></i>
+                                            <span>K: <strong>#{player.kills}</strong></span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <i class="pi pi-times-circle"></i>
+                                            <span>D: <strong>#{player.deaths}</strong></span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <i class="pi pi-check-circle"></i>
+                                            <span>A: <strong>#{player.assists}</strong></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ui:repeat>
+                            
+                            <div class="empty-state" rendered="#{empty managerPartidaTempoReal.matchData.playersCT}">
+                                <i class="pi pi-users"></i>
+                                <p>Nenhum jogador CT conectado</p>
+                            </div>
+                        </div>
+                    </p:card>
+                </div>
+
+                <!-- Time T -->
+                <div class="col-12 lg:col-6">
+                    <p:card styleClass="team-card team-t-card">
+                        <f:facet name="title">
+                            <i class="pi pi-bomb mr-2"></i>
+                            Terrorists (#{managerPartidaTempoReal.matchData.playersT.size()})
+                        </f:facet>
+                        
+                        <div class="players-list">
+                            <ui:repeat value="#{managerPartidaTempoReal.matchData.playersT}" var="player">
+                                <div class="player-card">
+                                    <div class="player-header">
+                                        <div class="player-name">#{player.nome}</div>
+                                        <div class="player-status #{player.alive ? 'alive' : 'dead'}">
+                                            <i class="pi #{player.alive ? 'pi-heart' : 'pi-times'}"></i>
+                                            <span>#{player.alive ? 'Vivo' : 'Morto'}</span>
+                                        </div>
+                                    </div>
+                                    <div class="player-stats">
+                                        <div class="stat-item">
+                                            <i class="pi pi-heart"></i>
+                                            <span>HP: <strong>#{player.health}</strong></span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <i class="pi pi-shield"></i>
+                                            <span>Armor: <strong>#{player.armor}</strong></span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <i class="pi pi-crosshairs"></i>
+                                            <span>K: <strong>#{player.kills}</strong></span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <i class="pi pi-times-circle"></i>
+                                            <span>D: <strong>#{player.deaths}</strong></span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <i class="pi pi-check-circle"></i>
+                                            <span>A: <strong>#{player.assists}</strong></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ui:repeat>
+                            
+                            <div class="empty-state" rendered="#{empty managerPartidaTempoReal.matchData.playersT}">
+                                <i class="pi pi-users"></i>
+                                <p>Nenhum jogador T conectado</p>
+                            </div>
+                        </div>
+                    </p:card>
+                </div>
+            </div>
+
+            <!-- Última Atualização -->
+            <div class="grid mt-3">
+                <div class="col-12">
+                    <p class="update-info">
+                        <i class="pi pi-clock mr-2"></i>
+                        Última atualização: #{managerPartidaTempoReal.matchData.ultimaAtualizacao != null ? managerPartidaTempoReal.matchData.ultimaAtualizacao : 'Nunca'}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Polling automático -->
+            <p:poll interval="2" 
+                   listener="#{managerPartidaTempoReal.atualizarDados()}" 
+                   update="@form"
+                   disabled="#{not managerPartidaTempoReal.monitorando}" />
+        </h:form>
+
+        <style type="text/css">
+            /* Section Header */
+            .section-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 2rem;
+                padding: 1.5rem;
+                background: linear-gradient(135deg, var(--bg-800), var(--bg-900));
+                border-radius: var(--radius);
+                border: 1px solid var(--border);
+                box-shadow: var(--shadow);
+            }
+
+            .section-description {
+                color: var(--text-300);
+                margin: 0.5rem 0 0;
+                font-size: 0.9rem;
+            }
+
+            .header-actions {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            /* Connection Badge */
+            .connection-badge {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.5rem 1rem;
+                border-radius: 20px;
+                font-weight: 600;
+                font-size: 0.875rem;
+                transition: all 0.3s;
+            }
+
+            .connection-badge.connected {
+                background: rgba(34, 197, 94, 0.1);
+                border: 2px solid var(--success);
+                color: var(--success);
+            }
+
+            .connection-badge.disconnected {
+                background: rgba(239, 68, 68, 0.1);
+                border: 2px solid #ef4444;
+                color: #ef4444;
+            }
+
+            .status-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                animation: blink 1.5s infinite;
+            }
+
+            .connected .status-dot {
+                background: var(--success);
+                box-shadow: 0 0 8px var(--success);
+            }
+
+            .disconnected .status-dot {
+                background: #ef4444;
+                box-shadow: 0 0 8px #ef4444;
+            }
+
+            /* Info Cards */
+            .info-card {
+                text-align: center;
+            }
+
+            .info-value {
+                font-size: 2rem;
+                font-weight: 700;
+                color: var(--accent);
+                margin-top: 0.5rem;
+            }
+
+            .timer-value {
+                font-family: 'Consolas', 'Monaco', monospace;
+                color: var(--accent-2);
+            }
+
+            /* Score Card */
+            .score-card {
+                background: linear-gradient(135deg, var(--bg-800), var(--bg-900)) !important;
+            }
+
+            .score-container {
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+                padding: 2rem;
+            }
+
+            .team-score {
+                flex: 1;
+                text-align: center;
+            }
+
+            .team-header {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                font-size: 1.1rem;
+                font-weight: 600;
+                margin-bottom: 1rem;
+                color: var(--text-200);
+            }
+
+            .team-ct .team-header {
+                color: #4a9eff;
+            }
+
+            .team-t .team-header {
+                color: #ff6b35;
+            }
+
+            .score-value {
+                font-size: 4rem;
+                font-weight: 800;
+                color: var(--text-100);
+            }
+
+            .team-ct .score-value {
+                color: #4a9eff;
+            }
+
+            .team-t .score-value {
+                color: #ff6b35;
+            }
+
+            .score-separator {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: var(--text-300);
+                padding: 0 2rem;
+            }
+
+            /* Bomb Card */
+            .bomb-card {
+                background: linear-gradient(135deg, var(--bg-800), var(--bg-900)) !important;
+            }
+
+            .bomb-card.bomb-planted {
+                background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), var(--bg-900)) !important;
+                border: 2px solid rgba(255, 107, 53, 0.5) !important;
+                animation: pulse-bomb 2s infinite;
+            }
+
+            .bomb-status {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .bomb-state {
+                font-size: 1.2rem;
+                color: var(--text-100);
+            }
+
+            .bomb-timer {
+                font-size: 1.5rem;
+                color: var(--text-100);
+            }
+
+            .timer-danger {
+                color: #ef4444;
+                font-family: 'Consolas', 'Monaco', monospace;
+                animation: blink 1s infinite;
+            }
+
+            /* Team Cards */
+            .team-card {
+                height: 100%;
+            }
+
+            .team-ct-card {
+                border-left: 4px solid #4a9eff;
+            }
+
+            .team-t-card {
+                border-left: 4px solid #ff6b35;
+            }
+
+            .players-list {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                max-height: 600px;
+                overflow-y: auto;
+            }
+
+            .players-list::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .players-list::-webkit-scrollbar-track {
+                background: rgba(255,255,255,0.02);
+                border-radius: 4px;
+            }
+
+            .players-list::-webkit-scrollbar-thumb {
+                background: rgba(0,225,255,0.3);
+                border-radius: 4px;
+            }
+
+            /* Player Card */
+            .player-card {
+                background: rgba(255,255,255,0.03);
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                padding: 1rem;
+                transition: all 0.2s ease;
+            }
+
+            .player-card:hover {
+                background: rgba(255,255,255,0.06);
+                border-color: var(--accent);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            }
+
+            .player-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0.75rem;
+            }
+
+            .player-name {
+                font-weight: 600;
+                color: var(--text-100);
+                font-size: 1rem;
+            }
+
+            .player-status {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.875rem;
+                padding: 0.25rem 0.75rem;
+                border-radius: 20px;
+                font-weight: 600;
+            }
+
+            .player-status.alive {
+                background: rgba(34, 197, 94, 0.15);
+                color: var(--success);
+                border: 1px solid rgba(34, 197, 94, 0.3);
+            }
+
+            .player-status.dead {
+                background: rgba(239, 68, 68, 0.15);
+                color: #ef4444;
+                border: 1px solid rgba(239, 68, 68, 0.3);
+            }
+
+            .player-stats {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .stat-item {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: var(--text-200);
+                font-size: 0.875rem;
+            }
+
+            .stat-item i {
+                color: var(--accent);
+            }
+
+            .stat-item strong {
+                color: var(--text-100);
+            }
+
+            /* Empty State */
+            .empty-state {
+                text-align: center;
+                padding: 3rem 1rem;
+                color: var(--text-300);
+            }
+
+            .empty-state i {
+                font-size: 3rem;
+                color: var(--text-300);
+                margin-bottom: 1rem;
+            }
+
+            .empty-state p {
+                margin: 0;
+                font-size: 1rem;
+            }
+
+            /* Update Info */
+            .update-info {
+                text-align: center;
+                color: var(--text-300);
+                font-size: 0.875rem;
+                margin: 0;
+            }
+
+            /* Animations */
+            @keyframes blink {
+                0%, 50% {
+                    opacity: 1;
+                }
+                51%, 100% {
+                    opacity: 0.3;
+                }
+            }
+
+            @keyframes pulse-bomb {
+                0%, 100% {
+                    box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.4);
+                }
+                50% {
+                    box-shadow: 0 0 0 10px rgba(255, 107, 53, 0);
+                }
+            }
+
+            /* Responsive */
+            @media (max-width: 768px) {
+                .score-container {
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+
+                .score-separator {
+                    padding: 1rem 0;
+                }
+
+                .section-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 1rem;
+                }
+            }
+        </style>
+    </ui:define>
+</ui:composition>
+
