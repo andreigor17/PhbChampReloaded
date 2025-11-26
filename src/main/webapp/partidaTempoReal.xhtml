@@ -16,7 +16,7 @@
                         Partida em Tempo Real - CS2
                     </h1>
                     <p class="section-description">
-                        Monitoramento ao vivo da partida via Game State Integration
+                        Monitoramento ao vivo da partida via logs do servidor CS2
                     </p>
                 </div>
                 <div class="header-actions">
@@ -92,6 +92,55 @@
                                  managerPartidaTempoReal.matchData.fase == 'over' ? 'ROUND FINALIZADO' :
                                  managerPartidaTempoReal.matchData.fase.toUpperCase()) : 'N/A'}
                         </div>
+                    </p:card>
+                </div>
+            </div>
+
+            <!-- Última Kill -->
+            <div class="grid mb-4">
+                <div class="col-12">
+                    <p:card styleClass="info-card">
+                        <f:facet name="title">
+                            <i class="pi pi-crosshairs mr-2"></i>
+                            Última Kill
+                        </f:facet>
+
+                        <h:panelGroup rendered="#{managerPartidaTempoReal.matchData.ultimaKillKiller != null}">
+                            <div class="bomb-status">
+                                <div class="bomb-info-row">
+                                    <div class="bomb-state">
+                                        <strong>Killer:</strong>
+                                        <span class="bomb-state-text">
+                                            #{managerPartidaTempoReal.matchData.ultimaKillKiller}
+                                        </span>
+                                    </div>
+                                    <div class="bomb-state">
+                                        <strong>Vítima:</strong>
+                                        <span class="bomb-state-text">
+                                            #{managerPartidaTempoReal.matchData.ultimaKillVictim}
+                                        </span>
+                                    </div>
+                                    <div class="bomb-state">
+                                        <strong>Arma:</strong>
+                                        <span class="bomb-state-text">
+                                            #{managerPartidaTempoReal.matchData.ultimaKillWeapon}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="bomb-info-row" rendered="#{managerPartidaTempoReal.matchData.ultimaKillHeadshot}">
+                                    <div class="bomb-state">
+                                        <span class="bomb-state-text">HEADSHOT</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{managerPartidaTempoReal.matchData.ultimaKillKiller == null}">
+                            <div class="empty-state">
+                                <i class="pi pi-crosshairs"></i>
+                                <p>Nenhuma kill registrada ainda</p>
+                            </div>
+                        </h:panelGroup>
                     </p:card>
                 </div>
             </div>

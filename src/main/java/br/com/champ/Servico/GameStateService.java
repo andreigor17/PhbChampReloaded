@@ -73,6 +73,13 @@ public class GameStateService {
             copy.setEventosRecentes(currentMatchData.getEventosRecentes() != null ? 
                 new java.util.ArrayList<>(currentMatchData.getEventosRecentes()) : null);
             
+            // Copia informações da última kill
+            copy.setUltimaKillKiller(currentMatchData.getUltimaKillKiller());
+            copy.setUltimaKillVictim(currentMatchData.getUltimaKillVictim());
+            copy.setUltimaKillWeapon(currentMatchData.getUltimaKillWeapon());
+            copy.setUltimaKillHeadshot(currentMatchData.isUltimaKillHeadshot());
+            copy.setTimestampUltimaKill(currentMatchData.getTimestampUltimaKill());
+            
             // Verifica se ainda está conectado (recebeu dados recentemente)
             long timeSinceLastUpdate = System.currentTimeMillis() - lastUpdateTime;
             copy.setConectado(timeSinceLastUpdate < TIMEOUT_MS && currentMatchData.isConectado());

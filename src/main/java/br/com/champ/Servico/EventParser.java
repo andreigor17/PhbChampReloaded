@@ -156,6 +156,13 @@ public class EventParser {
                 matchData.setEventosRecentes(eventos);
             }
             eventos.add(evento);
+            
+            // Atualiza informações da última kill para exibição dedicada na UI
+            matchData.setUltimaKillKiller(killer);
+            matchData.setUltimaKillVictim(victim);
+            matchData.setUltimaKillWeapon(weapon);
+            matchData.setUltimaKillHeadshot(headshot);
+            matchData.setTimestampUltimaKill(System.currentTimeMillis());
         }
     }
     

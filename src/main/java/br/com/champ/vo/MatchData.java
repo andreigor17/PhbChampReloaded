@@ -31,6 +31,13 @@ public class MatchData implements Serializable {
     private List<String> eventosRecentes; // Últimos eventos para exibir na tela
     private int tempoBombaRestante; // Calculado baseado no timestamp
     
+    // Informações da última kill registrada nos logs
+    private String ultimaKillKiller;
+    private String ultimaKillVictim;
+    private String ultimaKillWeapon;
+    private boolean ultimaKillHeadshot;
+    private long timestampUltimaKill;
+    
     public MatchData() {
         playersCT = new ArrayList<>();
         playersT = new ArrayList<>();
@@ -38,6 +45,11 @@ public class MatchData implements Serializable {
         estadoBomba = "none";
         eventosRecentes = new ArrayList<>();
         tempoBombaRestante = 0;
+        ultimaKillKiller = null;
+        ultimaKillVictim = null;
+        ultimaKillWeapon = null;
+        ultimaKillHeadshot = false;
+        timestampUltimaKill = 0L;
     }
     
     public int getScoreCT() {
@@ -197,6 +209,46 @@ public class MatchData implements Serializable {
     
     public void setTempoBombaRestante(int tempoBombaRestante) {
         this.tempoBombaRestante = tempoBombaRestante;
+    }
+    
+    public String getUltimaKillKiller() {
+        return ultimaKillKiller;
+    }
+    
+    public void setUltimaKillKiller(String ultimaKillKiller) {
+        this.ultimaKillKiller = ultimaKillKiller;
+    }
+    
+    public String getUltimaKillVictim() {
+        return ultimaKillVictim;
+    }
+    
+    public void setUltimaKillVictim(String ultimaKillVictim) {
+        this.ultimaKillVictim = ultimaKillVictim;
+    }
+    
+    public String getUltimaKillWeapon() {
+        return ultimaKillWeapon;
+    }
+    
+    public void setUltimaKillWeapon(String ultimaKillWeapon) {
+        this.ultimaKillWeapon = ultimaKillWeapon;
+    }
+    
+    public boolean isUltimaKillHeadshot() {
+        return ultimaKillHeadshot;
+    }
+    
+    public void setUltimaKillHeadshot(boolean ultimaKillHeadshot) {
+        this.ultimaKillHeadshot = ultimaKillHeadshot;
+    }
+    
+    public long getTimestampUltimaKill() {
+        return timestampUltimaKill;
+    }
+    
+    public void setTimestampUltimaKill(long timestampUltimaKill) {
+        this.timestampUltimaKill = timestampUltimaKill;
     }
     
     /**
