@@ -6,6 +6,8 @@ package br.com.irontech.phbchampreloaded.resources;
 import br.com.champ.Servico.GameStateParser;
 import br.com.champ.Servico.GameStateService;
 import br.com.champ.vo.MatchData;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ejb.EJB;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
@@ -84,24 +86,61 @@ public class GSIResource {
             @Context HttpHeaders headers
     ) {
         try {
-            System.out.println("=== GSI RECEIVED ===");
-            System.out.println("Timestamp: " + new java.util.Date());
-            System.out.println("Remote Address: " + request.getRemoteAddr());
-            System.out.println("Content-Type: " + request.getContentType());
-            System.out.println("Content-Length: " + request.getContentLength());
+            System.out.println("=== EVENTO CS2 RECEBIDO ===");
 
-            // Headers
-            System.out.println("Headers:");
-            for (String headerName : headers.getRequestHeaders().keySet()) {
-                System.out.println("  " + headerName + ": " + headers.getRequestHeader(headerName));
+            // Tentar converter para JSON
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = null;
+
+            try {
+                root = mapper.readTree(payload);
+            } catch (Exception e) {
+                System.out.println("Payload NÃO é JSON. Conteúdo bruto:");
+                System.out.println(payload);
+                System.out.println("=====================================");
+                return Response.ok().build();
             }
 
-            // Payload
-            System.out.println("Payload:");
-            System.out.println(payload);
-            System.out.println("===================");
+            // MAPA
+            if (root.has("map")) {
+                JsonNode map = root.get("map");
+                String mapName = map.has("name") ? map.get("name").asText() : "desconhecido";
+                int round = map.has("round") ? map.get("round").asInt() : -1;
 
+                System.out.println("Mapa: " + mapName);
+                System.out.println("Round atual: " + (round >= 0 ? round : "indisponível"));
+            }
+
+            // PLAYERS
+            if (root.has("players")) {
+                JsonNode players = root.get("players");
+
+                System.out.println("--- Jogadores CT ---");
+                if (players.has("CT")) {
+                    for (JsonNode ct : players.get("CT")) {
+                        String name = ct.has("name") ? ct.get("name").asText() : "n/a";
+                        int hp = ct.has("health") ? ct.get("health").asInt() : -1;
+                        String steam = ct.has("steamid") ? ct.get("steamid").asText() : "n/a";
+
+                        System.out.printf("CT: %s | HP: %d | SteamID: %s%n", name, hp, steam);
+                    }
+                }
+
+                System.out.println("--- Jogadores Terror ---");
+                if (players.has("T")) {
+                    for (JsonNode t : players.get("T")) {
+                        String name = t.has("name") ? t.get("name").asText() : "n/a";
+                        int hp = t.has("health") ? t.get("health").asInt() : -1;
+                        String steam = t.has("steamid") ? t.get("steamid").asText() : "n/a";
+
+                        System.out.printf("TR: %s | HP: %d | SteamID: %s%n", name, hp, steam);
+                    }
+                }
+            }
+
+            System.out.println("=====================================");
             return Response.ok("OK").build();
+
         } catch (Exception e) {
             e.printStackTrace();
             return Response.serverError().build();
