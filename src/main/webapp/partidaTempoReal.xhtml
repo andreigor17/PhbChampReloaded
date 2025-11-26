@@ -352,6 +352,64 @@
                    update="@form" />
         </h:form>
 
+        <!-- Script para manter sessão ativa (evita expiração) -->
+        <script type="text/javascript">
+            // Mantém a sessão ativa fazendo requisições periódicas
+            // Requisições a cada 5 minutos (300000ms) para não sobrecarregar o servidor
+            // Isso garante que a sessão não expire mesmo com 1 hora de timeout configurado
+            (function() {
+                var keepAliveInterval = 5 * 60 * 1000; // 5 minutos em milissegundos
+                
+                function keepSessionAlive() {
+                    try {
+                        // Faz uma requisição AJAX simples para tocar na sessão
+                        // Usa PrimeFaces se disponível, senão usa XMLHttpRequest
+                        if (typeof PrimeFaces !== 'undefined' && PrimeFaces.ajax) {
+                            PrimeFaces.ajax.RequestQueue.add({
+                                source: document.getElementById('formPartidaTempoReal'),
+                                process: '@none',
+                                update: '@none',
+                                async: true,
+                                global: false,
+                                oncomplete: function() {
+                                    console.log('Sessão mantida ativa: ' + new Date().toLocaleTimeString());
+                                }
+                            });
+                        } else {
+                            // Fallback: requisição XMLHttpRequest simples
+                            var xhr = new XMLHttpRequest();
+                            xhr.open('GET', window.location.href.split('?')[0] + '?keepAlive=' + Date.now(), true);
+                            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                            xhr.onreadystatechange = function() {
+                                if (xhr.readyState === 4 && xhr.status === 200) {
+                                    console.log('Sessão mantida ativa: ' + new Date().toLocaleTimeString());
+                                }
+                            };
+                            xhr.send();
+                        }
+                    } catch (e) {
+                        console.warn('Erro ao manter sessão ativa:', e);
+                    }
+                }
+                
+                // Inicia o keep-alive imediatamente e depois a cada 5 minutos
+                keepSessionAlive();
+                var keepAliveTimer = setInterval(keepSessionAlive, keepAliveInterval);
+                
+                // Também mantém ativo quando a página recebe foco (usuário volta à aba)
+                window.addEventListener('focus', function() {
+                    keepSessionAlive();
+                });
+                
+                // Limpa o timer quando a página é fechada (boa prática)
+                window.addEventListener('beforeunload', function() {
+                    if (keepAliveTimer) {
+                        clearInterval(keepAliveTimer);
+                    }
+                });
+            })();
+        </script>
+
         <style type="text/css">
             /* Section Header */
             .section-header {

@@ -91,9 +91,16 @@ public class GSIResource {
                 // Se encontrou JSON, tenta parsear dados estruturados
                 try {
                     MatchData parsedData = customRoundStatsParser.parseRoundStats(originalPayload);
-                    if (parsedData != null && parsedData.getMapa() != null) {
-                        // Atualiza dados principais
-                        matchData.setMapa(parsedData.getMapa());
+                    if (parsedData != null) {
+                        // Atualiza mapa apenas se ainda não estiver definido ou se mudou
+                        if (parsedData.getMapa() != null && !parsedData.getMapa().isEmpty()) {
+                            String mapaAtual = matchData.getMapa();
+                            if (mapaAtual == null || mapaAtual.isEmpty() || !mapaAtual.equals(parsedData.getMapa())) {
+                                matchData.setMapa(parsedData.getMapa());
+                            }
+                        }
+                        
+                        // Atualiza outros dados principais
                         matchData.setScoreCT(parsedData.getScoreCT());
                         matchData.setScoreT(parsedData.getScoreT());
                         matchData.setRoundAtual(parsedData.getRoundAtual());

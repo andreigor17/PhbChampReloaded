@@ -74,11 +74,20 @@ public class CustomRoundStatsParser {
      */
     private void extractFieldsDirectly(String content, MatchData matchData) {
         try {
-            // Mapa
+            // Mapa - só atualiza se ainda não estiver definido ou se mudar
             Pattern pattern = Pattern.compile("\"map\"\\s*:\\s*\"([^\"]+)\"");
             Matcher matcher = pattern.matcher(content);
             if (matcher.find()) {
-                matchData.setMapa(matcher.group(1));
+                String novoMapa = matcher.group(1).trim();
+                String mapaAtual = matchData.getMapa();
+                
+                // Só atualiza se:
+                // 1. Não há mapa definido ainda, OU
+                // 2. O mapa mudou (diferente do atual)
+                if (mapaAtual == null || mapaAtual.isEmpty() || !mapaAtual.equals(novoMapa)) {
+                    matchData.setMapa(novoMapa);
+                    System.out.println("=== MAPA ATUALIZADO: " + novoMapa + " ===");
+                }
             }
             
             // Round number

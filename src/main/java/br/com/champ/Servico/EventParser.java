@@ -128,7 +128,8 @@ public class EventParser {
     
     /**
      * Parse: killed
-     * Exemplo: "Dede<2><[U:1:195353036]><TERRORIST>" [562 2192 -114] killed "Dragomir<12><BOT><CT>" [258 2481 -121] with "glock" (headshot)
+     * Exemplo: "Dede<2><[U:1:195353036]><CT>" [100 -621 4] killed "Enforcer<27><BOT><TERRORIST>" [-428 -843 95] with "usp_silencer" (headshot)
+     * Formato: "Nome<id><steamid><TEAM>" [x y z] killed "Nome<id><BOT/TEAM>" [x y z] with "weapon" (headshot)?
      */
     private void parseKill(String content, MatchData matchData, List<String> eventos) {
         // Procura por "killed" no conteúdo
@@ -136,10 +137,11 @@ public class EventParser {
             return;
         }
         
-        // Pattern para extrair killer, victim, weapon e headshot
+        // Pattern melhorado para extrair killer, victim, weapon e headshot
+        // Aceita tanto com quanto sem espaços extras, e diferentes formatos de coordenadas
         Pattern pattern = Pattern.compile(
-            "\"([^<\"]+)<[^>]*>\"\\s+\\[[^\\]]+\\]\\s+killed\\s+\"([^<\"]+)<[^>]*>\"\\s+\\[[^\\]]+\\]\\s+with\\s+\"([^\"]+)\"\\s*(\\(headshot\\))?",
-            Pattern.CASE_INSENSITIVE
+            "\"([^<\"]+?)<[^>]*>\"\\s+\\[[^\\]]*\\]\\s+killed\\s+\"([^<\"]+?)<[^>]*>\"\\s+\\[[^\\]]*\\]\\s+with\\s+\"([^\"]+?)\"\\s*(\\(headshot\\))?",
+            Pattern.CASE_INSENSITIVE | Pattern.DOTALL
         );
         
         Matcher matcher = pattern.matcher(content);
@@ -149,6 +151,13 @@ public class EventParser {
             String victim = matcher.group(2).trim();
             String weapon = matcher.group(3).trim();
             boolean headshot = matcher.group(4) != null && matcher.group(4).toLowerCase().contains("headshot");
+            
+            // Log para debug
+            System.out.println("=== KILL DETECTADA ===");
+            System.out.println("Killer: " + killer);
+            System.out.println("Victim: " + victim);
+            System.out.println("Weapon: " + weapon);
+            System.out.println("Headshot: " + headshot);
             
             String evento = "⚔️ " + killer + " matou " + victim + " com " + weapon + (headshot ? " (💀 HEADSHOT)" : "");
             if (eventos == null) {
@@ -163,6 +172,12 @@ public class EventParser {
             matchData.setUltimaKillWeapon(weapon);
             matchData.setUltimaKillHeadshot(headshot);
             matchData.setTimestampUltimaKill(System.currentTimeMillis());
+        } else {
+            // Log quando não consegue fazer match (para debug)
+            if (content.contains(" killed ")) {
+                System.out.println("=== KILL NÃO CAPTURADA ===");
+                System.out.println("Conteúdo: " + content.substring(0, Math.min(300, content.length())));
+            }
         }
     }
     
