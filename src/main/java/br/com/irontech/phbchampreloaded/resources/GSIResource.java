@@ -20,21 +20,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 /**
- * Endpoint para receber dados do GSI do Counter-Strike 2
- * O jogo envia dados via HTTP POST neste endpoint
+ * Endpoint para receber dados do GSI do Counter-Strike 2 O jogo envia dados via
+ * HTTP POST neste endpoint
  */
 @Path("/gsi")
 public class GSIResource {
-    
+
     @EJB
     private GameStateService gameStateService;
-    
+
     @EJB
     private GameStateParser gameStateParser;
-    
+
     /**
-     * Recebe dados do GSI via POST
-     * Este endpoint será chamado pelo CS2 sempre que houver mudanças no estado do jogo
+     * Recebe dados do GSI via POST Este endpoint será chamado pelo CS2 sempre
+     * que houver mudanças no estado do jogo
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -43,24 +43,24 @@ public class GSIResource {
         try {
             // Lê o JSON do stream
             String jsonString = new BufferedReader(
-                new InputStreamReader(inputStream, StandardCharsets.UTF_8))
-                .lines()
-                .collect(Collectors.joining("\n"));
-            
+                    new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+                    .lines()
+                    .collect(Collectors.joining("\n"));
+
             // Log para debug (pode remover depois)
             System.out.println("=== GSI Data Received ===");
             System.out.println(jsonString);
             System.out.println("=========================");
-            
+
             // Parse do JSON para MatchData
             MatchData matchData = gameStateParser.parseGSIJson(jsonString);
-            
+
             // Atualiza o serviço com os novos dados
             gameStateService.updateGameState(matchData);
-            
+
             // Retorna 200 OK - o jogo espera uma resposta 2XX
             return Response.ok("OK").build();
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             // Retorna erro mas aceita para não interromper o GSI
@@ -69,7 +69,7 @@ public class GSIResource {
                     .build();
         }
     }
-    
+
     /**
      * Endpoint simples para testar se o serviço está funcionando
      */
@@ -77,9 +77,10 @@ public class GSIResource {
     @Path("/test")
     @Produces(MediaType.TEXT_PLAIN)
     public Response testPOST() {
+        System.out.println("=== GSI TEST Data Received ===");
         return Response.ok("GSI Service is running (POST)").build();
     }
-    
+
     /**
      * Endpoint GET para testar se o serviço está funcionando
      */
@@ -89,7 +90,7 @@ public class GSIResource {
     public Response testGET() {
         return Response.ok("GSI Service is running (GET)").build();
     }
-    
+
     /**
      * Endpoint raiz GET para verificar se o recurso está acessível
      */
@@ -99,4 +100,3 @@ public class GSIResource {
         return Response.ok("GSI Resource is accessible. Use POST /resources/gsi to send game state data.").build();
     }
 }
-
