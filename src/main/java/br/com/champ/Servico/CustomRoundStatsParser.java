@@ -26,48 +26,43 @@ public class CustomRoundStatsParser {
         MatchData matchData = new MatchData();
         
         try {
-            // Extrai o JSON do meio dos logs
+            // Primeiro tenta extrair campos diretamente sem reconstruir JSON completo
+            extractFieldsDirectly(content, matchData);
+            
+            // Tenta extrair players do JSON completo (se conseguir)
+            // Os campos principais já foram extraídos diretamente acima
             String jsonStr = extractRoundStatsJson(content);
-            if (jsonStr == null || jsonStr.trim().isEmpty()) {
-                return matchData;
-            }
+            boolean playersParsed = false;
             
-            // Parse do JSON
-            JSONObject root = new JSONObject(jsonStr);
-            
-            // Mapa
-            if (root.has("map")) {
-                matchData.setMapa(root.getString("map"));
-            }
-            
-            // Scores
-            if (root.has("score_ct")) {
-                matchData.setScoreCT(root.getInt("score_ct"));
-            }
-            
-            if (root.has("score_t")) {
-                matchData.setScoreT(root.getInt("score_t"));
-            }
-            
-            // Round
-            if (root.has("round_number")) {
-                String roundStr = root.getString("round_number");
-                try {
-                    matchData.setRoundAtual(Integer.parseInt(roundStr));
-                } catch (NumberFormatException e) {
-                    // Ignora
+            if (jsonStr != null && !jsonStr.trim().isEmpty()) {
+                String trimmed = jsonStr.trim();
+                // Só tenta parsear se for um JSON válido
+                if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+                    try {
+                        JSONObject root = new JSONObject(jsonStr);
+                        
+                        // Tenta pegar players do JSON
+                        if (root.has("players")) {
+                            JSONObject players = root.getJSONObject("players");
+                            parseCustomPlayers(players, matchData);
+                            playersParsed = true;
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Erro ao parsear JSON completo para players: " + e.getMessage());
+                        // Vai tentar extrair diretamente abaixo
+                    }
                 }
             }
             
-            // Players - formato customizado
-            if (root.has("players")) {
-                JSONObject players = root.getJSONObject("players");
-                parseCustomPlayers(players, matchData);
+            // Se não conseguiu parsear players do JSON, extrai diretamente do conteúdo
+            if (!playersParsed) {
+                extractPlayersDirectly(content, matchData);
             }
             
             matchData.setConectado(true);
             
         } catch (Exception e) {
+            System.out.println("Erro no parseRoundStats: " + e.getMessage());
             e.printStackTrace();
         }
         
@@ -75,7 +70,88 @@ public class CustomRoundStatsParser {
     }
     
     /**
-     * Extrai o JSON round_stats do conteúdo
+     * Extrai campos diretamente do conteúdo usando regex (mais confiável)
+     */
+    private void extractFieldsDirectly(String content, MatchData matchData) {
+        try {
+            // Mapa
+            Pattern pattern = Pattern.compile("\"map\"\\s*:\\s*\"([^\"]+)\"");
+            Matcher matcher = pattern.matcher(content);
+            if (matcher.find()) {
+                matchData.setMapa(matcher.group(1));
+            }
+            
+            // Round number
+            pattern = Pattern.compile("\"round_number\"\\s*:\\s*\"?(\\d+)\"?");
+            matcher = pattern.matcher(content);
+            if (matcher.find()) {
+                try {
+                    matchData.setRoundAtual(Integer.parseInt(matcher.group(1)));
+                } catch (NumberFormatException e) {
+                    // Ignora
+                }
+            }
+            
+            // Score CT
+            pattern = Pattern.compile("\"score_ct\"\\s*:\\s*\"?(\\d+)\"?");
+            matcher = pattern.matcher(content);
+            if (matcher.find()) {
+                try {
+                    matchData.setScoreCT(Integer.parseInt(matcher.group(1)));
+                } catch (NumberFormatException e) {
+                    // Ignora
+                }
+            }
+            
+            // Score T
+            pattern = Pattern.compile("\"score_t\"\\s*:\\s*\"?(\\d+)\"?");
+            matcher = pattern.matcher(content);
+            if (matcher.find()) {
+                try {
+                    matchData.setScoreT(Integer.parseInt(matcher.group(1)));
+                } catch (NumberFormatException e) {
+                    // Ignora
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Erro ao extrair campos diretamente: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Extrai players diretamente do conteúdo usando regex
+     */
+    private void extractPlayersDirectly(String content, MatchData matchData) {
+        List<PlayerInfo> playersCT = new ArrayList<>();
+        List<PlayerInfo> playersT = new ArrayList<>();
+        
+        try {
+            // Procura por "player_X" : "dados..."
+            Pattern playerPattern = Pattern.compile("\"player_(\\d+)\"\\s*:\\s*\"([^\"]+)\"");
+            Matcher playerMatcher = playerPattern.matcher(content);
+            
+            while (playerMatcher.find()) {
+                String playerData = playerMatcher.group(2);
+                PlayerInfo player = parseCustomPlayerData(playerData);
+                
+                if (player != null) {
+                    if (player.getTime() == 2) {
+                        playersCT.add(player);
+                    } else if (player.getTime() == 3) {
+                        playersT.add(player);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Erro ao extrair players diretamente: " + e.getMessage());
+        }
+        
+        matchData.setPlayersCT(playersCT);
+        matchData.setPlayersT(playersT);
+    }
+    
+    /**
+     * Extrai o JSON round_stats do conteúdo e reconstrói um JSON válido
      */
     private String extractRoundStatsJson(String content) {
         if (content == null) {
@@ -86,40 +162,78 @@ public class CustomRoundStatsParser {
         int beginIdx = content.indexOf("JSON_BEGIN{");
         int endIdx = content.indexOf("}JSON_END");
         
-        if (beginIdx >= 0 && endIdx > beginIdx) {
-            String jsonContent = content.substring(beginIdx + "JSON_BEGIN{".length(), endIdx + 1);
+        if (beginIdx < 0 || endIdx <= beginIdx) {
+            return null;
+        }
+        
+        String jsonContent = content.substring(beginIdx + "JSON_BEGIN{".length(), endIdx + 1);
+        
+        // Remove timestamps das linhas (formato: 11/26/2025 - 02:12:21.266 - )
+        jsonContent = jsonContent.replaceAll("(?m)^\\d{2}/\\d{2}/\\d{4} - \\d{2}:\\d{2}:\\d{2}\\.\\d{3} - ", "");
+        
+        // Reconstrói o JSON corretamente, linha por linha
+        StringBuilder json = new StringBuilder();
+        json.append("{\n");
+        
+        String[] lines = jsonContent.split("\n");
+        List<String> processedLines = new ArrayList<>();
+        
+        // Primeiro, coleta todas as linhas válidas
+        for (String line : lines) {
+            line = line.trim();
+            if (line.isEmpty()) continue;
+            processedLines.add(line);
+        }
+        
+        // Agora reconstrói o JSON adicionando vírgulas corretamente
+        for (int i = 0; i < processedLines.size(); i++) {
+            String line = processedLines.get(i);
+            String nextLine = (i + 1 < processedLines.size()) ? processedLines.get(i + 1) : null;
             
-            // Remove timestamps das linhas (formato: 11/26/2025 - 02:12:21.266 - )
-            jsonContent = jsonContent.replaceAll("(?m)^\\d{2}/\\d{2}/\\d{4} - \\d{2}:\\d{2}:\\d{2}\\.\\d{3} - ", "");
+            // Remove vírgula no final se houver (vamos adicionar depois se necessário)
+            line = line.replaceAll(",$", "");
             
-            // Reconstrói o JSON corretamente
-            StringBuilder json = new StringBuilder();
-            json.append("{\n");
-            
-            String[] lines = jsonContent.split("\n");
-            for (String line : lines) {
-                line = line.trim();
-                if (line.isEmpty()) continue;
-                
-                // Se a linha tem : então é um campo JSON
-                if (line.contains(":")) {
-                    // Garante formatação correta do JSON
-                    if (!line.endsWith(",") && !line.endsWith("{") && !line.endsWith("}")) {
-                        // Adiciona vírgula se não for último campo (detecção simples)
-                        if (!line.contains("\"players\"") && !line.contains("\"fields\"")) {
-                            // Adiciona vírgula exceto no último campo antes de }
-                        }
+            // Verifica se precisa adicionar vírgula
+            boolean needsComma = false;
+            if (nextLine != null) {
+                // Não adiciona vírgula se próxima linha fecha objeto/array
+                if (!nextLine.trim().equals("}") && !nextLine.trim().equals("}}")) {
+                    // Não adiciona vírgula se esta linha abre objeto
+                    if (!line.endsWith("{")) {
+                        needsComma = true;
                     }
-                    json.append("  ").append(line).append("\n");
                 }
             }
             
-            json.append("}");
-            
-            return json.toString();
+            // Adiciona a linha com ou sem vírgula
+            json.append("  ").append(line);
+            if (needsComma) {
+                json.append(",");
+            }
+            json.append("\n");
         }
         
-        return null;
+        json.append("}");
+        
+        String result = json.toString();
+        
+        // Valida se é um JSON válido antes de retornar
+        try {
+            // Valida que começa e termina corretamente
+            result = result.trim();
+            if (!result.startsWith("{") || !result.endsWith("}")) {
+                return null;
+            }
+            
+            // Tenta parsear para validar
+            new JSONObject(result);
+            return result;
+        } catch (Exception e) {
+            System.out.println("JSON reconstruído não é válido: " + e.getMessage());
+            // Retorna null em vez de tentar buildSimpleJsonFromContent
+            // Os campos já foram extraídos diretamente no método principal
+            return null;
+        }
     }
     
     /**
