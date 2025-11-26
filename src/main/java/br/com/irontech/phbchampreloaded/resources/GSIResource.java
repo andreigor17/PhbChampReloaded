@@ -46,6 +46,7 @@ public class GSIResource {
     public Response receiveGameState(String payload, @Context HttpServletRequest request) {
         try {
             String jsonString = payload;
+            System.err.println(jsonString);
             
             // Se o payload vier vazio, tenta ler do request
             if (jsonString == null || jsonString.trim().isEmpty()) {
