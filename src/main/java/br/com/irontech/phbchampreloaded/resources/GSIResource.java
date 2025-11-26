@@ -22,10 +22,13 @@ import java.io.BufferedReader;
 import java.util.stream.Collectors;
 
 /**
- * Endpoint para receber dados do GSI do Counter-Strike 2 O jogo envia dados via
- * HTTP POST neste endpoint
+ * Endpoint para receber logs do Counter-Strike 2 via logaddress_add_http
+ * O servidor CS2 envia logs via HTTP POST neste endpoint
+ * 
+ * Comando no servidor CS2:
+ * logaddress_add_http http://seu-servidor:porta/PhbChampReloaded/resources/logs
  */
-@Path("/gsi")
+@Path("/logs")
 public class GSIResource {
 
     @EJB
@@ -41,106 +44,94 @@ public class GSIResource {
     private EventParser eventParser;
 
     /**
-     * Recebe dados do GSI via POST Este endpoint será chamado pelo CS2 sempre
-     * que houver mudanças no estado do jogo
+     * Recebe logs do servidor CS2 via logaddress_add_http
+     * Este endpoint será chamado pelo servidor CS2 sempre que houver eventos
+     * Os logs vêm como texto puro do console do servidor
      */
     @POST
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.WILDCARD})
+    @Consumes({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON, MediaType.WILDCARD})
     @Produces(MediaType.TEXT_PLAIN)
     public Response receiveGameState(String payload, @Context HttpServletRequest request) {
         try {
-            String jsonString = payload;
-            System.err.println(jsonString);
+            // Logs do logaddress_add_http vêm como texto puro
+            String logContent = payload;
+            
+            // Debug: mostra o que recebeu
+            if (logContent != null && !logContent.trim().isEmpty()) {
+                System.out.println("=== CS2 LOG RECEIVED ===");
+                System.out.println(logContent.substring(0, Math.min(500, logContent.length())));
+            }
             
             // Se o payload vier vazio, tenta ler do request
-            if (jsonString == null || jsonString.trim().isEmpty()) {
+            if (logContent == null || logContent.trim().isEmpty()) {
                 try (BufferedReader reader = request.getReader()) {
-                    jsonString = reader.lines().collect(Collectors.joining("\n"));
+                    logContent = reader.lines().collect(Collectors.joining("\n"));
                 }
             }
             
-            // Guarda o payload original para tentar parsear depois
-            String originalPayload = jsonString;
+            // Guarda o payload original (logs brutos)
+            String originalPayload = logContent;
             
-            // Tenta extrair JSON do meio de logs se necessário
-            jsonString = extractJsonFromLogs(jsonString);
-            
-            // Se não conseguiu extrair, usa o payload original
-            if (jsonString == null || jsonString.trim().isEmpty()) {
-                jsonString = originalPayload;
-            }
-            
-            if (jsonString == null || jsonString.trim().isEmpty()) {
+            if (logContent == null || logContent.trim().isEmpty()) {
                 // Se ainda estiver vazio, retorna OK mas não processa
                 return Response.ok("OK").build();
             }
             
-            // Log para debug
-            System.out.println("=== GSI Data Received ===");
-            System.out.println("Payload length: " + jsonString.length());
-            
-            MatchData matchData = null;
-            
-            // Valida se é um JSON válido antes de tentar parsear
-            String trimmed = jsonString.trim();
-            boolean isValidJson = trimmed.startsWith("{") && trimmed.endsWith("}");
-            
-            // Tenta parsear como GSI padrão primeiro (apenas se for JSON válido)
-            if (isValidJson) {
-                try {
-                    matchData = gameStateParser.parseGSIJson(jsonString);
-                    if (matchData != null && matchData.getMapa() != null && !matchData.getMapa().isEmpty()) {
-                        System.out.println("Parsed as standard GSI format");
-                    }
-                } catch (Exception e) {
-                    System.out.println("Failed to parse as standard GSI: " + e.getMessage());
-                    // Continua para tentar formato customizado
-                    matchData = null;
-                }
-            } else {
-                System.out.println("Payload não é JSON válido (não começa com {), tentando formato customizado");
-            }
-            
-            // Se não funcionou ou veio vazio, tenta formato customizado round_stats
-            // Usa o payload original que pode ter logs misturados
-            if (matchData == null || matchData.getMapa() == null || matchData.getMapa().isEmpty()) {
-                try {
-                    MatchData customData = customRoundStatsParser.parseRoundStats(originalPayload);
-                    if (customData != null && (customData.getMapa() != null || customData.getScoreCT() > 0 || customData.getScoreT() > 0)) {
-                        matchData = customData;
-                        System.out.println("Parsed as custom round_stats format");
-                    }
-                } catch (Exception e) {
-                    System.out.println("Failed to parse as custom format: " + e.getMessage());
-                    // Não imprime stack trace completo para não poluir logs
-                }
-            }
-            
-            // Se ainda não conseguiu, cria um objeto vazio mas marca como conectado
+            // Obtém o estado atual do jogo (ou cria um novo)
+            MatchData matchData = gameStateService.getCurrentGameState();
             if (matchData == null) {
                 matchData = new MatchData();
-                matchData.setConectado(true);
             }
             
-            // Parse de eventos do conteúdo original (logs com kills, bomb plant, etc)
+            // Para logaddress_add_http, processamos apenas os eventos dos logs
+            // Primeiro tenta extrair JSON se houver (formato customizado round_stats)
+            String jsonString = extractJsonFromLogs(logContent);
+            
+            if (jsonString != null && !jsonString.trim().isEmpty()) {
+                // Se encontrou JSON, tenta parsear dados estruturados
+                try {
+                    MatchData parsedData = customRoundStatsParser.parseRoundStats(originalPayload);
+                    if (parsedData != null && parsedData.getMapa() != null) {
+                        // Atualiza dados principais
+                        matchData.setMapa(parsedData.getMapa());
+                        matchData.setScoreCT(parsedData.getScoreCT());
+                        matchData.setScoreT(parsedData.getScoreT());
+                        matchData.setRoundAtual(parsedData.getRoundAtual());
+                        if (parsedData.getPlayersCT() != null) {
+                            matchData.setPlayersCT(parsedData.getPlayersCT());
+                        }
+                        if (parsedData.getPlayersT() != null) {
+                            matchData.setPlayersT(parsedData.getPlayersT());
+                        }
+                        System.out.println("Parsed JSON data from logs");
+                    }
+                } catch (Exception e) {
+                    System.out.println("Failed to parse JSON from logs: " + e.getMessage());
+                }
+            }
+            
+            // Parse de eventos dos logs (kills, bomb plant, round start, etc)
             try {
                 eventParser.parseEvents(originalPayload, matchData);
             } catch (Exception e) {
-                System.out.println("Erro ao parsear eventos: " + e.getMessage());
+                System.out.println("Erro ao parsear eventos dos logs: " + e.getMessage());
             }
             
             // Atualiza timers baseados nos timestamps
             matchData.calcularTempoBombaRestante();
             matchData.calcularTempoRoundRestante();
             
+            // Marca como conectado
+            matchData.setConectado(true);
+            
             // Atualiza o serviço com os novos dados
             gameStateService.updateGameState(matchData);
             
-            System.out.println("=== Data Processed - Map: " + matchData.getMapa() + 
+            System.out.println("=== Log Processed - Map: " + (matchData.getMapa() != null ? matchData.getMapa() : "N/A") + 
                              ", CT: " + matchData.getScoreCT() + 
                              ", T: " + matchData.getScoreT() + " ===");
 
-            // Retorna 200 OK - o jogo espera uma resposta 2XX
+            // Retorna 200 OK - o servidor CS2 espera uma resposta 2XX
             return Response.ok("OK").build();
 
         } catch (Exception e) {
@@ -222,12 +213,12 @@ public class GSIResource {
     }
 
     /**
-     * Endpoint de teste - também processa dados como o endpoint principal
+     * Endpoint de teste - também processa logs como o endpoint principal
      * Mantido para compatibilidade
      */
     @POST
     @Path("/test")
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.WILDCARD})
+    @Consumes({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON, MediaType.WILDCARD})
     @Produces(MediaType.TEXT_PLAIN)
     public Response testPOST(String payload, @Context HttpServletRequest request) {
         // Redireciona para o método principal de processamento
@@ -241,7 +232,7 @@ public class GSIResource {
     @Path("/test")
     @Produces(MediaType.TEXT_PLAIN)
     public Response testGET() {
-        return Response.ok("GSI Service is running (GET)").build();
+        return Response.ok("CS2 Logs Service is running (GET). Use POST to send logs.").build();
     }
 
     /**
@@ -250,6 +241,7 @@ public class GSIResource {
     @jakarta.ws.rs.GET
     @Produces(MediaType.TEXT_PLAIN)
     public Response root() {
-        return Response.ok("GSI Resource is accessible. Use POST /resources/gsi to send game state data.").build();
+        return Response.ok("CS2 Logs Resource is accessible. Use POST /resources/logs to send server logs.\n" +
+                          "Configure no servidor CS2: logaddress_add_http http://seu-servidor:porta/PhbChampReloaded/resources/logs").build();
     }
 }
