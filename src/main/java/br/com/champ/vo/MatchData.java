@@ -24,12 +24,20 @@ public class MatchData implements Serializable {
     private List<PlayerInfo> playersT;
     private boolean conectado;
     private String ultimaAtualizacao;
+    private String quemPlantouBomba; // Nome do jogador que plantou
+    private String bombsite; // "A" ou "B"
+    private long timestampBombaPlantada; // Timestamp quando foi plantada (para calcular countdown)
+    private long timestampRoundInicio; // Timestamp quando round começou (para calcular countdown de 2min)
+    private List<String> eventosRecentes; // Últimos eventos para exibir na tela
+    private int tempoBombaRestante; // Calculado baseado no timestamp
     
     public MatchData() {
         playersCT = new ArrayList<>();
         playersT = new ArrayList<>();
         conectado = false;
         estadoBomba = "none";
+        eventosRecentes = new ArrayList<>();
+        tempoBombaRestante = 0;
     }
     
     public int getScoreCT() {
@@ -141,6 +149,111 @@ public class MatchData implements Serializable {
     
     public void setUltimaAtualizacao(String ultimaAtualizacao) {
         this.ultimaAtualizacao = ultimaAtualizacao;
+    }
+    
+    public String getQuemPlantouBomba() {
+        return quemPlantouBomba;
+    }
+    
+    public void setQuemPlantouBomba(String quemPlantouBomba) {
+        this.quemPlantouBomba = quemPlantouBomba;
+    }
+    
+    public String getBombsite() {
+        return bombsite;
+    }
+    
+    public void setBombsite(String bombsite) {
+        this.bombsite = bombsite;
+    }
+    
+    public long getTimestampBombaPlantada() {
+        return timestampBombaPlantada;
+    }
+    
+    public void setTimestampBombaPlantada(long timestampBombaPlantada) {
+        this.timestampBombaPlantada = timestampBombaPlantada;
+    }
+    
+    public long getTimestampRoundInicio() {
+        return timestampRoundInicio;
+    }
+    
+    public void setTimestampRoundInicio(long timestampRoundInicio) {
+        this.timestampRoundInicio = timestampRoundInicio;
+    }
+    
+    public List<String> getEventosRecentes() {
+        return eventosRecentes;
+    }
+    
+    public void setEventosRecentes(List<String> eventosRecentes) {
+        this.eventosRecentes = eventosRecentes;
+    }
+    
+    public int getTempoBombaRestante() {
+        return tempoBombaRestante;
+    }
+    
+    public void setTempoBombaRestante(int tempoBombaRestante) {
+        this.tempoBombaRestante = tempoBombaRestante;
+    }
+    
+    /**
+     * Calcula o tempo restante da bomba baseado no timestamp
+     */
+    public void calcularTempoBombaRestante() {
+        if (timestampBombaPlantada > 0 && "planted".equals(estadoBomba)) {
+            long agora = System.currentTimeMillis();
+            long decorrido = (agora - timestampBombaPlantada) / 1000; // segundos
+            tempoBombaRestante = Math.max(0, 40 - (int) decorrido);
+            
+            if (tempoBombaRestante <= 0) {
+                estadoBomba = "exploded";
+                tempoBombaRestante = 0;
+            }
+        } else {
+            tempoBombaRestante = 0;
+        }
+    }
+    
+    /**
+     * Calcula o tempo restante do round baseado no timestamp
+     */
+    public void calcularTempoRoundRestante() {
+        if (timestampRoundInicio > 0) {
+            long agora = System.currentTimeMillis();
+            long decorrido = (agora - timestampRoundInicio) / 1000; // segundos
+            
+            if ("freezetime".equals(fase)) {
+                // Freeze time = 20 segundos
+                tempoRound = Math.max(0, 20 - (int) decorrido);
+                // Se acabou o freeze time, muda para live
+                if (tempoRound <= 0) {
+                    fase = "live";
+                    timestampRoundInicio = System.currentTimeMillis(); // Reinicia contagem para round
+                    tempoRound = 120; // 2 minutos de round
+                }
+            } else if ("live".equals(fase)) {
+                // Round em andamento = 2 minutos
+                tempoRound = Math.max(0, 120 - (int) decorrido);
+                
+                if (tempoRound <= 0) {
+                    tempoRound = 0;
+                }
+            }
+        }
+    }
+    
+    /**
+     * Retorna o tempo da bomba formatado
+     */
+    public String getTempoBombaRestanteFormatado() {
+        if (tempoBombaRestante <= 0) {
+            return "00:00";
+        }
+        int segundos = tempoBombaRestante;
+        return String.format("00:%02d", segundos);
     }
 }
 

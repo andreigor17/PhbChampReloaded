@@ -53,6 +53,17 @@ public class ManagerPartidaTempoReal extends ManagerBase {
                 matchData.setUltimaAtualizacao(gsiData.getUltimaAtualizacao());
                 matchData.setPlayersCT(gsiData.getPlayersCT());
                 matchData.setPlayersT(gsiData.getPlayersT());
+                
+                // Novos campos adicionados
+                matchData.setQuemPlantouBomba(gsiData.getQuemPlantouBomba());
+                matchData.setBombsite(gsiData.getBombsite());
+                matchData.setTimestampBombaPlantada(gsiData.getTimestampBombaPlantada());
+                matchData.setTimestampRoundInicio(gsiData.getTimestampRoundInicio());
+                matchData.setEventosRecentes(gsiData.getEventosRecentes());
+                
+                // Atualiza timers baseados nos timestamps
+                matchData.calcularTempoBombaRestante();
+                matchData.calcularTempoRoundRestante();
             } else {
                 matchData.setConectado(false);
             }

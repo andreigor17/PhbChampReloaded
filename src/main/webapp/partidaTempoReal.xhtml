@@ -2,8 +2,7 @@
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui"
-                template="vercel.xhtml">
+                xmlns:p="http://primefaces.org/ui">
 
     <ui:define name="content">
         <h:form id="formPartidaTempoReal">
@@ -13,10 +12,10 @@
                 <div>
                     <h1 class="section-title">
                         <i class="pi pi-eye mr-2"></i>
-                        Partida em Tempo Real
+                        Partida em Tempo Real - CS2
                     </h1>
                     <p class="section-description">
-                        Monitoramento ao vivo da partida CS2
+                        Monitoramento ao vivo da partida via Game State Integration
                     </p>
                 </div>
                 <div class="header-actions">
@@ -49,13 +48,20 @@
                 </div>
                 
                 <div class="col-12 md:col-3">
-                    <p:card styleClass="info-card">
+                    <p:card styleClass="info-card #{managerPartidaTempoReal.matchData.fase == 'live' ? 'live-round' : ''}">
                         <f:facet name="title">
                             <i class="pi pi-clock mr-2"></i>
                             Tempo do Round
                         </f:facet>
                         <div class="info-value timer-value">
                             #{managerPartidaTempoReal.matchData.tempoRoundFormatado}
+                        </div>
+                        <div class="fase-badge fase-#{managerPartidaTempoReal.matchData.fase != null ? managerPartidaTempoReal.matchData.fase : 'unknown'}">
+                            #{managerPartidaTempoReal.matchData.fase != null ? 
+                                (managerPartidaTempoReal.matchData.fase == 'freezetime' ? 'FREEZE TIME' : 
+                                 managerPartidaTempoReal.matchData.fase == 'live' ? 'EM ANDAMENTO' :
+                                 managerPartidaTempoReal.matchData.fase == 'over' ? 'FINALIZADO' :
+                                 managerPartidaTempoReal.matchData.fase.toUpperCase()) : 'N/A'}
                         </div>
                     </p:card>
                 </div>
@@ -67,7 +73,7 @@
                             Round Atual
                         </f:facet>
                         <div class="info-value">
-                            #{managerPartidaTempoReal.matchData.roundAtual}
+                            #{managerPartidaTempoReal.matchData.roundAtual != null ? managerPartidaTempoReal.matchData.roundAtual : 'N/A'}
                         </div>
                     </p:card>
                 </div>
@@ -78,8 +84,12 @@
                             <i class="pi pi-info-circle mr-2"></i>
                             Fase
                         </f:facet>
-                        <div class="info-value">
-                            #{managerPartidaTempoReal.matchData.fase != null ? managerPartidaTempoReal.matchData.fase : 'N/A'}
+                        <div class="info-value fase-text">
+                            #{managerPartidaTempoReal.matchData.fase != null ? 
+                                (managerPartidaTempoReal.matchData.fase == 'freezetime' ? 'FREEZE TIME' : 
+                                 managerPartidaTempoReal.matchData.fase == 'live' ? 'ROUND EM ANDAMENTO' :
+                                 managerPartidaTempoReal.matchData.fase == 'over' ? 'ROUND FINALIZADO' :
+                                 managerPartidaTempoReal.matchData.fase.toUpperCase()) : 'N/A'}
                         </div>
                     </p:card>
                 </div>
@@ -123,21 +133,33 @@
                             Status da Bomba
                         </f:facet>
                         <div class="bomb-status">
-                            <div class="bomb-state">
-                                Estado: <strong>#{managerPartidaTempoReal.matchData.estadoBomba}</strong>
+                            <div class="bomb-info-row">
+                                <div class="bomb-state">
+                                    <strong>Estado:</strong> 
+                                    <span class="bomb-state-text">#{managerPartidaTempoReal.matchData.estadoBomba == 'planted' ? 'PLANTADA' : managerPartidaTempoReal.matchData.estadoBomba}</span>
+                                </div>
+                                <div class="bomb-site" rendered="#{managerPartidaTempoReal.matchData.estadoBomba == 'planted' and managerPartidaTempoReal.matchData.bombsite != null}">
+                                    <i class="pi pi-map-marker"></i>
+                                    <span>Bombsite #{managerPartidaTempoReal.matchData.bombsite}</span>
+                                </div>
                             </div>
-                            <div class="bomb-timer" rendered="#{managerPartidaTempoReal.matchData.estadoBomba == 'planted'}">
-                                Tempo Restante: <strong class="timer-danger">#{managerPartidaTempoReal.matchData.tempoBombaFormatado}</strong>
+                            <div class="bomb-timer-container" rendered="#{managerPartidaTempoReal.matchData.estadoBomba == 'planted'}">
+                                <div class="bomb-timer-label">⏱️ Tempo Restante para Explosão:</div>
+                                <div class="bomb-timer-value timer-danger">#{managerPartidaTempoReal.matchData.tempoBombaRestanteFormatado}</div>
+                            </div>
+                            <div class="bomb-planter" rendered="#{managerPartidaTempoReal.matchData.quemPlantouBomba != null}">
+                                <i class="pi pi-user"></i>
+                                <span>Plantada por: <strong>#{managerPartidaTempoReal.matchData.quemPlantouBomba}</strong></span>
                             </div>
                         </div>
                     </p:card>
                 </div>
             </div>
 
-            <!-- Players -->
+            <!-- Players e Eventos -->
             <div class="grid">
                 <!-- Time CT -->
-                <div class="col-12 lg:col-6">
+                <div class="col-12 lg:col-4">
                     <p:card styleClass="team-card team-ct-card">
                         <f:facet name="title">
                             <i class="pi pi-shield mr-2"></i>
@@ -188,7 +210,7 @@
                 </div>
 
                 <!-- Time T -->
-                <div class="col-12 lg:col-6">
+                <div class="col-12 lg:col-4">
                     <p:card styleClass="team-card team-t-card">
                         <f:facet name="title">
                             <i class="pi pi-bomb mr-2"></i>
@@ -237,6 +259,31 @@
                         </div>
                     </p:card>
                 </div>
+
+                <!-- Eventos Recentes -->
+                <div class="col-12 lg:col-4">
+                    <p:card styleClass="events-card">
+                        <f:facet name="title">
+                            <i class="pi pi-list mr-2"></i>
+                            Eventos Recentes
+                        </f:facet>
+                        
+                        <div class="events-list">
+                            <ui:repeat value="#{managerPartidaTempoReal.matchData.eventosRecentes}" var="evento">
+                                <div class="event-item">
+                                    <i class="pi pi-circle-fill event-dot"></i>
+                                    <span class="event-text">#{evento}</span>
+                                </div>
+                            </ui:repeat>
+                            
+                            <div class="empty-state" rendered="#{empty managerPartidaTempoReal.matchData.eventosRecentes}">
+                                <i class="pi pi-bell"></i>
+                                <p>Nenhum evento ainda</p>
+                                <p class="empty-subtext">Os eventos aparecerão aqui em tempo real</p>
+                            </div>
+                        </div>
+                    </p:card>
+                </div>
             </div>
 
             <!-- Última Atualização -->
@@ -246,33 +293,6 @@
                         <i class="pi pi-clock mr-2"></i>
                         Última atualização: #{managerPartidaTempoReal.matchData.ultimaAtualizacao != null ? managerPartidaTempoReal.matchData.ultimaAtualizacao : 'Nunca'}
                     </p>
-                </div>
-            </div>
-
-            <!-- Debug Panel (pode ser removido depois) -->
-            <div class="grid mt-3" rendered="#{managerPartidaTempoReal.matchData.mapa == null or managerPartidaTempoReal.matchData.mapa.isEmpty()}">
-                <div class="col-12">
-                    <p:card styleClass="debug-card">
-                        <f:facet name="title">
-                            <i class="pi pi-info-circle mr-2"></i>
-                            Informações de Debug
-                        </f:facet>
-                        <div class="debug-content">
-                            <p><strong>Status:</strong> Verifique o console do servidor para ver os logs de debug.</p>
-                            <p><strong>Dica:</strong> Se nenhuma informação aparecer, verifique:</p>
-                            <ul>
-                                <li>Se o servidor CS2 está rodando</li>
-                                <li>Se o RCON está configurado corretamente</li>
-                                <li>Se você está conectado ao servidor no jogo</li>
-                                <li>Verifique os logs no console do servidor de aplicação</li>
-                            </ul>
-                            <p:commandButton value="Testar Conexão RCON" 
-                                           icon="pi pi-refresh"
-                                           action="#{managerPartidaTempoReal.testarConexao()}"
-                                           update="@form"
-                                           styleClass="p-button-outlined mt-2" />
-                        </div>
-                    </p:card>
                 </div>
             </div>
 
@@ -352,6 +372,12 @@
             /* Info Cards */
             .info-card {
                 text-align: center;
+                transition: all 0.3s;
+            }
+
+            .info-card.live-round {
+                border: 2px solid rgba(34, 197, 94, 0.5);
+                animation: pulse-live 2s infinite;
             }
 
             .info-value {
@@ -364,6 +390,22 @@
             .timer-value {
                 font-family: 'Consolas', 'Monaco', monospace;
                 color: var(--accent-2);
+            }
+
+            .fase-badge {
+                margin-top: 0.5rem;
+                padding: 0.25rem 0.75rem;
+                border-radius: 12px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                background: rgba(255,255,255,0.1);
+                color: var(--text-200);
+                display: inline-block;
+            }
+
+            .fase-text {
+                text-transform: uppercase;
+                font-size: 1.2rem;
             }
 
             /* Score Card */
@@ -429,8 +471,8 @@
             }
 
             .bomb-card.bomb-planted {
-                background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), var(--bg-900)) !important;
-                border: 2px solid rgba(255, 107, 53, 0.5) !important;
+                background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), var(--bg-900)) !important;
+                border: 2px solid rgba(255, 107, 53, 0.7) !important;
                 animation: pulse-bomb 2s infinite;
             }
 
@@ -441,20 +483,73 @@
                 padding: 1rem;
             }
 
+            .bomb-info-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
             .bomb-state {
                 font-size: 1.2rem;
                 color: var(--text-100);
             }
 
-            .bomb-timer {
-                font-size: 1.5rem;
-                color: var(--text-100);
+            .bomb-state-text {
+                text-transform: uppercase;
+                font-weight: 700;
+                color: #ff6b35;
+            }
+
+            .bomb-site {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.5rem 1rem;
+                background: rgba(255, 107, 53, 0.15);
+                border-radius: 20px;
+                font-weight: 600;
+                color: #ff6b35;
+            }
+
+            .bomb-timer-container {
+                text-align: center;
+                padding: 1rem;
+                background: rgba(0,0,0,0.3);
+                border-radius: 10px;
+            }
+
+            .bomb-timer-label {
+                font-size: 0.9rem;
+                color: var(--text-300);
+                margin-bottom: 0.5rem;
+            }
+
+            .bomb-timer-value {
+                font-size: 2.5rem;
+                font-weight: 800;
+                font-family: 'Consolas', 'Monaco', monospace;
             }
 
             .timer-danger {
                 color: #ef4444;
-                font-family: 'Consolas', 'Monaco', monospace;
                 animation: blink 1s infinite;
+            }
+
+            .bomb-planter {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                padding: 0.75rem;
+                background: rgba(255,255,255,0.05);
+                border-radius: 10px;
+                color: var(--text-200);
+            }
+
+            .bomb-planter strong {
+                color: var(--text-100);
             }
 
             /* Team Cards */
@@ -474,7 +569,7 @@
                 display: flex;
                 flex-direction: column;
                 gap: 0.75rem;
-                max-height: 600px;
+                max-height: 500px;
                 overflow-y: auto;
             }
 
@@ -565,6 +660,64 @@
                 color: var(--text-100);
             }
 
+            /* Events Card */
+            .events-card {
+                height: 100%;
+                border-left: 4px solid var(--accent);
+            }
+
+            .events-list {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                max-height: 500px;
+                overflow-y: auto;
+            }
+
+            .events-list::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .events-list::-webkit-scrollbar-track {
+                background: rgba(255,255,255,0.02);
+                border-radius: 4px;
+            }
+
+            .events-list::-webkit-scrollbar-thumb {
+                background: rgba(0,225,255,0.3);
+                border-radius: 4px;
+            }
+
+            .event-item {
+                display: flex;
+                align-items: flex-start;
+                gap: 0.75rem;
+                padding: 0.75rem;
+                background: rgba(255,255,255,0.03);
+                border-left: 3px solid var(--accent);
+                border-radius: 5px;
+                transition: all 0.2s;
+            }
+
+            .event-item:hover {
+                background: rgba(255,255,255,0.06);
+                transform: translateX(5px);
+            }
+
+            .event-dot {
+                font-size: 0.5rem;
+                color: var(--accent);
+                margin-top: 0.5rem;
+                flex-shrink: 0;
+            }
+
+            .event-text {
+                color: var(--text-200);
+                font-size: 0.875rem;
+                line-height: 1.5;
+                flex: 1;
+            }
+
             /* Empty State */
             .empty-state {
                 text-align: center;
@@ -583,31 +736,18 @@
                 font-size: 1rem;
             }
 
+            .empty-subtext {
+                font-size: 0.875rem !important;
+                margin-top: 0.5rem !important;
+                color: var(--text-400) !important;
+            }
+
             /* Update Info */
             .update-info {
                 text-align: center;
                 color: var(--text-300);
                 font-size: 0.875rem;
                 margin: 0;
-            }
-
-            /* Debug Card */
-            .debug-card {
-                background: rgba(255, 193, 7, 0.05) !important;
-                border: 1px solid rgba(255, 193, 7, 0.3) !important;
-            }
-
-            .debug-content {
-                color: var(--text-200);
-            }
-
-            .debug-content ul {
-                margin: 1rem 0;
-                padding-left: 1.5rem;
-            }
-
-            .debug-content li {
-                margin: 0.5rem 0;
             }
 
             /* Animations */
@@ -629,6 +769,15 @@
                 }
             }
 
+            @keyframes pulse-live {
+                0%, 100% {
+                    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+                }
+                50% {
+                    box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+                }
+            }
+
             /* Responsive */
             @media (max-width: 768px) {
                 .score-container {
@@ -645,8 +794,12 @@
                     align-items: flex-start;
                     gap: 1rem;
                 }
+
+                .bomb-info-row {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
             }
         </style>
     </ui:define>
 </ui:composition>
-

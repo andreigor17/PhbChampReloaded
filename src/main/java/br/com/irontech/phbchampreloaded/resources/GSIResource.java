@@ -4,6 +4,7 @@
 package br.com.irontech.phbchampreloaded.resources;
 
 import br.com.champ.Servico.CustomRoundStatsParser;
+import br.com.champ.Servico.EventParser;
 import br.com.champ.Servico.GameStateParser;
 import br.com.champ.Servico.GameStateService;
 import br.com.champ.vo.MatchData;
@@ -35,6 +36,9 @@ public class GSIResource {
     
     @EJB
     private CustomRoundStatsParser customRoundStatsParser;
+    
+    @EJB
+    private EventParser eventParser;
 
     /**
      * Recebe dados do GSI via POST Este endpoint será chamado pelo CS2 sempre
@@ -117,6 +121,17 @@ public class GSIResource {
                 matchData = new MatchData();
                 matchData.setConectado(true);
             }
+            
+            // Parse de eventos do conteúdo original (logs com kills, bomb plant, etc)
+            try {
+                eventParser.parseEvents(originalPayload, matchData);
+            } catch (Exception e) {
+                System.out.println("Erro ao parsear eventos: " + e.getMessage());
+            }
+            
+            // Atualiza timers baseados nos timestamps
+            matchData.calcularTempoBombaRestante();
+            matchData.calcularTempoRoundRestante();
             
             // Atualiza o serviço com os novos dados
             gameStateService.updateGameState(matchData);

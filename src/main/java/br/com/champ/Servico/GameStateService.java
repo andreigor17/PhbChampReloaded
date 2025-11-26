@@ -65,6 +65,14 @@ public class GameStateService {
             copy.setFase(currentMatchData.getFase());
             copy.setUltimaAtualizacao(currentMatchData.getUltimaAtualizacao());
             
+            // Novos campos
+            copy.setQuemPlantouBomba(currentMatchData.getQuemPlantouBomba());
+            copy.setBombsite(currentMatchData.getBombsite());
+            copy.setTimestampBombaPlantada(currentMatchData.getTimestampBombaPlantada());
+            copy.setTimestampRoundInicio(currentMatchData.getTimestampRoundInicio());
+            copy.setEventosRecentes(currentMatchData.getEventosRecentes() != null ? 
+                new java.util.ArrayList<>(currentMatchData.getEventosRecentes()) : null);
+            
             // Verifica se ainda está conectado (recebeu dados recentemente)
             long timeSinceLastUpdate = System.currentTimeMillis() - lastUpdateTime;
             copy.setConectado(timeSinceLastUpdate < TIMEOUT_MS && currentMatchData.isConectado());
@@ -76,6 +84,10 @@ public class GameStateService {
             if (currentMatchData.getPlayersT() != null) {
                 copy.setPlayersT(new java.util.ArrayList<>(currentMatchData.getPlayersT()));
             }
+            
+            // Atualiza timers antes de retornar
+            copy.calcularTempoBombaRestante();
+            copy.calcularTempoRoundRestante();
             
             return copy;
         } finally {
