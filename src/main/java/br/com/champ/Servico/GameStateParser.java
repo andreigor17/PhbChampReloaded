@@ -22,6 +22,18 @@ public class GameStateParser {
     public MatchData parseGSIJson(String jsonString) {
         MatchData matchData = new MatchData();
         
+        // Validação prévia do JSON
+        if (jsonString == null || jsonString.trim().isEmpty()) {
+            return matchData;
+        }
+        
+        // Garante que começa com { (JSON válido)
+        String trimmed = jsonString.trim();
+        if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) {
+            // Não é um JSON válido
+            return matchData;
+        }
+        
         try {
             JSONObject root = new JSONObject(jsonString);
             

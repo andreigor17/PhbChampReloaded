@@ -54,11 +54,19 @@ public class GSIResource {
                 }
             }
             
+            // Guarda o payload original para tentar parsear depois
+            String originalPayload = jsonString;
+            
             // Tenta extrair JSON do meio de logs se necessário
             jsonString = extractJsonFromLogs(jsonString);
             
+            // Se não conseguiu extrair, usa o payload original
             if (jsonString == null || jsonString.trim().isEmpty()) {
-                // Se não conseguiu extrair JSON, retorna OK mas não processa
+                jsonString = originalPayload;
+            }
+            
+            if (jsonString == null || jsonString.trim().isEmpty()) {
+                // Se ainda estiver vazio, retorna OK mas não processa
                 return Response.ok("OK").build();
             }
             
@@ -68,27 +76,38 @@ public class GSIResource {
             
             MatchData matchData = null;
             
-            // Tenta parsear como GSI padrão primeiro
-            try {
-                matchData = gameStateParser.parseGSIJson(jsonString);
-                if (matchData.getMapa() != null && !matchData.getMapa().isEmpty()) {
-                    System.out.println("Parsed as standard GSI format");
+            // Valida se é um JSON válido antes de tentar parsear
+            String trimmed = jsonString.trim();
+            boolean isValidJson = trimmed.startsWith("{") && trimmed.endsWith("}");
+            
+            // Tenta parsear como GSI padrão primeiro (apenas se for JSON válido)
+            if (isValidJson) {
+                try {
+                    matchData = gameStateParser.parseGSIJson(jsonString);
+                    if (matchData != null && matchData.getMapa() != null && !matchData.getMapa().isEmpty()) {
+                        System.out.println("Parsed as standard GSI format");
+                    }
+                } catch (Exception e) {
+                    System.out.println("Failed to parse as standard GSI: " + e.getMessage());
+                    // Continua para tentar formato customizado
+                    matchData = null;
                 }
-            } catch (Exception e) {
-                System.out.println("Failed to parse as standard GSI, trying custom format");
+            } else {
+                System.out.println("Payload não é JSON válido (não começa com {), tentando formato customizado");
             }
             
             // Se não funcionou ou veio vazio, tenta formato customizado round_stats
+            // Usa o payload original que pode ter logs misturados
             if (matchData == null || matchData.getMapa() == null || matchData.getMapa().isEmpty()) {
                 try {
-                    MatchData customData = customRoundStatsParser.parseRoundStats(jsonString);
+                    MatchData customData = customRoundStatsParser.parseRoundStats(originalPayload);
                     if (customData != null && (customData.getMapa() != null || customData.getScoreCT() > 0 || customData.getScoreT() > 0)) {
                         matchData = customData;
                         System.out.println("Parsed as custom round_stats format");
                     }
                 } catch (Exception e) {
                     System.out.println("Failed to parse as custom format: " + e.getMessage());
-                    e.printStackTrace();
+                    // Não imprime stack trace completo para não poluir logs
                 }
             }
             
@@ -147,13 +166,16 @@ public class GSIResource {
             // Limpa espaços extras
             jsonPart = jsonPart.trim();
             
-            // Tenta validar se é JSON
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.readTree(jsonPart);
-                return jsonPart;
-            } catch (Exception e) {
-                System.out.println("JSON extraído não é válido: " + jsonPart.substring(0, Math.min(200, jsonPart.length())));
+            // Valida se começa com { e tenta parsear
+            jsonPart = jsonPart.trim();
+            if (jsonPart.startsWith("{") && jsonPart.endsWith("}")) {
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.readTree(jsonPart);
+                    return jsonPart;
+                } catch (Exception e) {
+                    System.out.println("JSON extraído não é válido: " + jsonPart.substring(0, Math.min(200, jsonPart.length())));
+                }
             }
         }
         
@@ -168,12 +190,15 @@ public class GSIResource {
             candidate = candidate.replaceAll("(?m)^\\d{2}/\\d{2}/\\d{4} - \\d{2}:\\d{2}:\\d{2}\\.\\d{3} - ", "");
             candidate = candidate.trim();
             
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.readTree(candidate);
-                return candidate;
-            } catch (Exception e) {
-                // Não é JSON válido
+            // Valida se começa com { antes de tentar parsear
+            if (candidate.startsWith("{") && candidate.endsWith("}")) {
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.readTree(candidate);
+                    return candidate;
+                } catch (Exception e) {
+                    // Não é JSON válido
+                }
             }
         }
         
