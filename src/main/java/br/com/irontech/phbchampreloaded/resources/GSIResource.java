@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * Endpoint para receber dados do GSI do Counter-Strike 2
  * O jogo envia dados via HTTP POST neste endpoint
  */
-@Path("gsi")
+@Path("/gsi")
 public class GSIResource {
     
     @EJB
@@ -74,7 +74,7 @@ public class GSIResource {
      * Endpoint simples para testar se o serviço está funcionando
      */
     @POST
-    @Path("test")
+    @Path("/test")
     @Produces(MediaType.TEXT_PLAIN)
     public Response testPOST() {
         return Response.ok("GSI Service is running (POST)").build();
@@ -84,7 +84,7 @@ public class GSIResource {
      * Endpoint GET para testar se o serviço está funcionando
      */
     @jakarta.ws.rs.GET
-    @Path("test")
+    @Path("/test")
     @Produces(MediaType.TEXT_PLAIN)
     public Response testGET() {
         return Response.ok("GSI Service is running (GET)").build();
