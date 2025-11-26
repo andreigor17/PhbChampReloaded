@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * Comando no servidor CS2:
  * logaddress_add_http http://seu-servidor:porta/PhbChampReloaded/resources/logs
  */
-@Path("/logs")
+@Path("/gsi")
 public class GSIResource {
 
     @EJB
