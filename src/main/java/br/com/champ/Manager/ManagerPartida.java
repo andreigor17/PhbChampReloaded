@@ -29,6 +29,7 @@ import br.com.champ.vo.PickBanVo;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,6 +39,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -51,6 +53,13 @@ import org.primefaces.model.charts.optionconfig.elements.ElementsLine;
 import org.primefaces.model.charts.radar.RadarChartDataSet;
 import org.primefaces.model.charts.radar.RadarChartModel;
 import org.primefaces.model.charts.radar.RadarChartOptions;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import jakarta.faces.context.ExternalContext;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  *
@@ -74,6 +83,8 @@ public class ManagerPartida extends ManagerBase {
     MapaServico mapaServico;
     @EJB
     CampeonatoServico campeonatoServico;
+    @Inject
+    private br.com.champ.Servico.RconService rconService;
     private Partida partida;
     private Partida partidaPesquisar;
     private List<Player> playersTime1;
@@ -1303,6 +1314,311 @@ public class ManagerPartida extends ManagerBase {
             return "visualizarCampeonato.xhtml?id=" + this.campeonato.getId();
         }
         return "indexPartida.xhtml";
+    }
+
+    /**
+     * Gera o JSON da partida no formato MatchZy e retorna como String
+     * @return String com o JSON gerado
+     */
+    private String gerarJsonString() throws Exception {
+        if (this.partida == null || this.itensPartidas == null || this.itensPartidas.isEmpty()) {
+            throw new Exception("Partida não encontrada ou sem itens.");
+        }
+
+        ItemPartida primeiroItem = this.itensPartidas.get(0);
+        
+        // Verifica se é partida de times ou de players individuais
+        if (primeiroItem.getTeam1() == null && primeiroItem.getPlayer1() == null) {
+            throw new Exception("Partida inválida: sem times ou players definidos.");
+        }
+
+        // Usa LinkedHashMap para manter a ordem dos campos
+        Map<String, Object> jsonData = new LinkedHashMap<>();
+        
+        // 1. matchid
+        jsonData.put("matchid", this.partida.getId());
+        
+        // 2. team1
+        Map<String, Object> team1Data = new LinkedHashMap<>();
+        int playersPerTeam = 0;
+        if (primeiroItem.getTeam1() != null) {
+            Team team1 = primeiroItem.getTeam1();
+            team1Data.put("name", team1.getNome());
+            
+            // Players do time 1
+            Map<String, String> players1 = new LinkedHashMap<>();
+            if (team1.getPlayers() != null) {
+                for (Player player : team1.getPlayers()) {
+                    String steamId = player.getSteamId64() != null && !player.getSteamId64().isEmpty() 
+                        ? player.getSteamId64() 
+                        : (player.getSteamID() != null ? player.getSteamID() : "");
+                    if (steamId != null && !steamId.isEmpty() && player.getNick() != null) {
+                        players1.put(steamId, player.getNick());
+                    }
+                }
+                playersPerTeam = team1.getPlayers().size();
+            }
+            team1Data.put("players", players1);
+        } else if (primeiroItem.getPlayer1() != null) {
+            // Se for partida individual, usa o nome do player
+            Player player1 = primeiroItem.getPlayer1();
+            team1Data.put("name", player1.getNick() != null ? player1.getNick() : player1.getNome());
+            
+            Map<String, String> players1 = new LinkedHashMap<>();
+            String steamId = player1.getSteamId64() != null && !player1.getSteamId64().isEmpty() 
+                ? player1.getSteamId64() 
+                : (player1.getSteamID() != null ? player1.getSteamID() : "");
+            if (steamId != null && !steamId.isEmpty() && player1.getNick() != null) {
+                players1.put(steamId, player1.getNick());
+            }
+            team1Data.put("players", players1);
+            playersPerTeam = 1;
+        }
+        jsonData.put("team1", team1Data);
+        
+        // 3. team2
+        Map<String, Object> team2Data = new LinkedHashMap<>();
+        if (primeiroItem.getTeam2() != null) {
+            Team team2 = primeiroItem.getTeam2();
+            team2Data.put("name", team2.getNome());
+            
+            // Players do time 2
+            Map<String, String> players2 = new LinkedHashMap<>();
+            if (team2.getPlayers() != null) {
+                for (Player player : team2.getPlayers()) {
+                    String steamId = player.getSteamId64() != null && !player.getSteamId64().isEmpty() 
+                        ? player.getSteamId64() 
+                        : (player.getSteamID() != null ? player.getSteamID() : "");
+                    if (steamId != null && !steamId.isEmpty() && player.getNick() != null) {
+                        players2.put(steamId, player.getNick());
+                    }
+                }
+                if (playersPerTeam == 0) {
+                    playersPerTeam = team2.getPlayers().size();
+                }
+            }
+            team2Data.put("players", players2);
+        } else if (primeiroItem.getPlayer2() != null) {
+            // Se for partida individual, usa o nome do player
+            Player player2 = primeiroItem.getPlayer2();
+            team2Data.put("name", player2.getNick() != null ? player2.getNick() : player2.getNome());
+            
+            Map<String, String> players2 = new LinkedHashMap<>();
+            String steamId = player2.getSteamId64() != null && !player2.getSteamId64().isEmpty() 
+                ? player2.getSteamId64() 
+                : (player2.getSteamID() != null ? player2.getSteamID() : "");
+            if (steamId != null && !steamId.isEmpty() && player2.getNick() != null) {
+                players2.put(steamId, player2.getNick());
+            }
+            team2Data.put("players", players2);
+            if (playersPerTeam == 0) {
+                playersPerTeam = 1;
+            }
+        }
+        jsonData.put("team2", team2Data);
+        
+        // 4. num_maps
+        jsonData.put("num_maps", this.itensPartidas.size());
+        
+        // 5. maplist
+        List<String> maplist = new ArrayList<>();
+        for (ItemPartida item : this.itensPartidas) {
+            if (item.getMapas() != null && item.getMapas().getNome() != null) {
+                maplist.add(item.getMapas().getNome());
+            }
+        }
+        jsonData.put("maplist", maplist);
+        
+        // 6. map_sides - alterna entre team1_ct, team2_ct, knife
+        List<String> mapSides = new ArrayList<>();
+        for (int i = 0; i < this.itensPartidas.size(); i++) {
+            if (i == this.itensPartidas.size() - 1) {
+                // Último mapa usa knife
+                mapSides.add("knife");
+            } else if (i % 2 == 0) {
+                // Mapa par: team1_ct
+                mapSides.add("team1_ct");
+            } else {
+                // Mapa ímpar: team2_ct
+                mapSides.add("team2_ct");
+            }
+        }
+        jsonData.put("map_sides", mapSides);
+        
+        // 7. spectators
+        Map<String, Object> spectators = new LinkedHashMap<>();
+        Map<String, String> spectatorPlayers = new LinkedHashMap<>();
+        // Por enquanto vazio, pode ser preenchido no futuro se houver espectadores
+        spectators.put("players", spectatorPlayers);
+        jsonData.put("spectators", spectators);
+        
+        // 8. clinch_series
+        jsonData.put("clinch_series", true);
+        
+        // 9. players_per_team
+        jsonData.put("players_per_team", playersPerTeam);
+        
+        // 10. cvars
+        Map<String, String> cvars = new LinkedHashMap<>();
+        String nomeTime1 = "";
+        String nomeTime2 = "";
+        if (primeiroItem.getTeam1() != null) {
+            nomeTime1 = primeiroItem.getTeam1().getNome() != null ? primeiroItem.getTeam1().getNome() : "Time1";
+        } else if (primeiroItem.getPlayer1() != null) {
+            nomeTime1 = primeiroItem.getPlayer1().getNick() != null ? primeiroItem.getPlayer1().getNick() 
+                : (primeiroItem.getPlayer1().getNome() != null ? primeiroItem.getPlayer1().getNome() : "Player1");
+        }
+        if (primeiroItem.getTeam2() != null) {
+            nomeTime2 = primeiroItem.getTeam2().getNome() != null ? primeiroItem.getTeam2().getNome() : "Time2";
+        } else if (primeiroItem.getPlayer2() != null) {
+            nomeTime2 = primeiroItem.getPlayer2().getNick() != null ? primeiroItem.getPlayer2().getNick() 
+                : (primeiroItem.getPlayer2().getNome() != null ? primeiroItem.getPlayer2().getNome() : "Player2");
+        }
+        cvars.put("hostname", "MatchZy: " + nomeTime1 + " vs " + nomeTime2 + " #" + this.partida.getId());
+        cvars.put("mp_friendlyfire", "0");
+        jsonData.put("cvars", cvars);
+        
+        // Converte para JSON
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(jsonData);
+    }
+    
+    /**
+     * Gera o nome do arquivo no formato: nometime1_vs_nometime2_idpartida.json
+     */
+    private String gerarNomeArquivo() {
+        ItemPartida primeiroItem = this.itensPartidas.get(0);
+        String nomeTime1 = "";
+        String nomeTime2 = "";
+        
+        if (primeiroItem.getTeam1() != null) {
+            nomeTime1 = primeiroItem.getTeam1().getNome() != null ? primeiroItem.getTeam1().getNome() : "Time1";
+        } else if (primeiroItem.getPlayer1() != null) {
+            nomeTime1 = primeiroItem.getPlayer1().getNick() != null ? primeiroItem.getPlayer1().getNick() 
+                : (primeiroItem.getPlayer1().getNome() != null ? primeiroItem.getPlayer1().getNome() : "Player1");
+        }
+        
+        if (primeiroItem.getTeam2() != null) {
+            nomeTime2 = primeiroItem.getTeam2().getNome() != null ? primeiroItem.getTeam2().getNome() : "Time2";
+        } else if (primeiroItem.getPlayer2() != null) {
+            nomeTime2 = primeiroItem.getPlayer2().getNick() != null ? primeiroItem.getPlayer2().getNick() 
+                : (primeiroItem.getPlayer2().getNome() != null ? primeiroItem.getPlayer2().getNome() : "Player2");
+        }
+        
+        // Remove caracteres especiais e espaços para o nome do arquivo
+        nomeTime1 = nomeTime1.replaceAll("[^a-zA-Z0-9]", "_").replaceAll("_+", "_");
+        nomeTime2 = nomeTime2.replaceAll("[^a-zA-Z0-9]", "_").replaceAll("_+", "_");
+        
+        return nomeTime1 + "_vs_" + nomeTime2 + "_" + this.partida.getId() + ".json";
+    }
+    
+    /**
+     * Gera e faz download do JSON da partida no formato MatchZy
+     */
+    public void baixarJsonPartida() {
+        FacesContext facesContext = null;
+        try {
+            String jsonString = gerarJsonString();
+            String nomeArquivo = gerarNomeArquivo();
+            
+            // Faz o download do arquivo
+            facesContext = FacesContext.getCurrentInstance();
+            if (facesContext == null || facesContext.getResponseComplete()) {
+                return;
+            }
+            
+            ExternalContext externalContext = facesContext.getExternalContext();
+            
+            externalContext.responseReset();
+            externalContext.setResponseContentType("application/json");
+            externalContext.setResponseCharacterEncoding("UTF-8");
+            externalContext.setResponseHeader("Content-Disposition", 
+                "attachment; filename=\"" + nomeArquivo + "\"");
+            
+            try (OutputStream outputStream = externalContext.getResponseOutputStream()) {
+                outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
+                outputStream.flush();
+            }
+            
+            facesContext.responseComplete();
+            
+        } catch (Exception ex) {
+            Logger.getLogger(ManagerPartida.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                if (facesContext != null && !facesContext.getResponseComplete()) {
+                    Mensagem.error("Erro ao baixar JSON da partida: " + ex.getMessage());
+                }
+            } catch (Exception e) {
+                Logger.getLogger(ManagerPartida.class.getName()).log(Level.SEVERE, "Erro ao exibir mensagem de erro", e);
+            }
+        }
+    }
+    
+    /**
+     * Gera o JSON da partida e salva no servidor em /opt/cs/game/csgo/
+     */
+    public void gerarJsonPartida() {
+        try {
+            String jsonString = gerarJsonString();
+            String nomeArquivo = gerarNomeArquivo();
+            
+            // Caminho do servidor
+            String caminhoServidor = "/opt/cs/game/csgo/";
+            File diretorio = new File(caminhoServidor);
+            
+            // Cria o diretório se não existir
+            if (!diretorio.exists()) {
+                diretorio.mkdirs();
+            }
+            
+            // Cria o arquivo
+            File arquivo = new File(diretorio, nomeArquivo);
+            
+            // Escreve o JSON no arquivo
+            try (FileOutputStream fos = new FileOutputStream(arquivo)) {
+                fos.write(jsonString.getBytes(StandardCharsets.UTF_8));
+                fos.flush();
+            }
+            
+            Mensagem.success("JSON gerado com sucesso em: " + caminhoServidor + nomeArquivo);
+            
+        } catch (Exception ex) {
+            Logger.getLogger(ManagerPartida.class.getName()).log(Level.SEVERE, null, ex);
+            Mensagem.error("Erro ao gerar JSON da partida: " + ex.getMessage());
+        }
+    }
+    
+    /**
+     * Inicia a partida no servidor CS2 via RCON usando o arquivo JSON gerado
+     */
+    public void iniciarPartidaRcon() {
+        try {
+            // Verifica se o JSON foi gerado
+            String nomeArquivo = gerarNomeArquivo();
+            String caminhoServidor = "/opt/cs/game/csgo/";
+            File arquivo = new File(caminhoServidor, nomeArquivo);
+            
+            if (!arquivo.exists()) {
+                Mensagem.error("Arquivo JSON não encontrado. Gere o JSON primeiro antes de iniciar a partida.");
+                return;
+            }
+            
+            // Monta o comando RCON
+            String comando = "matchzy_loadmatch " + nomeArquivo;
+            
+            // Executa o comando via RCON
+            String resultado = rconService.executeCommand(comando);
+            
+            if (resultado != null && !resultado.startsWith("ERRO")) {
+                Mensagem.success("Partida iniciada com sucesso! Comando: " + comando);
+            } else {
+                Mensagem.error("Erro ao iniciar partida via RCON: " + (resultado != null ? resultado : "Sem resposta do servidor"));
+            }
+            
+        } catch (Exception ex) {
+            Logger.getLogger(ManagerPartida.class.getName()).log(Level.SEVERE, null, ex);
+            Mensagem.error("Erro ao iniciar partida: " + ex.getMessage());
+        }
     }
 
 }
