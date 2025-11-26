@@ -276,11 +276,10 @@
                 </div>
             </div>
 
-            <!-- Polling automático -->
-            <p:poll interval="2" 
+            <!-- Polling automático - sempre ativo -->
+            <p:poll interval="1" 
                    listener="#{managerPartidaTempoReal.atualizarDados()}" 
-                   update="@form"
-                   disabled="#{not managerPartidaTempoReal.monitorando}" />
+                   update="@form" />
         </h:form>
 
         <style type="text/css">
