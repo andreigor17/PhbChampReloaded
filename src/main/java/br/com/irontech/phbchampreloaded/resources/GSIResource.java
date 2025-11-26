@@ -76,8 +76,27 @@ public class GSIResource {
     @POST
     @Path("test")
     @Produces(MediaType.TEXT_PLAIN)
-    public Response test() {
-        return Response.ok("GSI Service is running").build();
+    public Response testPOST() {
+        return Response.ok("GSI Service is running (POST)").build();
+    }
+    
+    /**
+     * Endpoint GET para testar se o serviço está funcionando
+     */
+    @jakarta.ws.rs.GET
+    @Path("test")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response testGET() {
+        return Response.ok("GSI Service is running (GET)").build();
+    }
+    
+    /**
+     * Endpoint raiz GET para verificar se o recurso está acessível
+     */
+    @jakarta.ws.rs.GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response root() {
+        return Response.ok("GSI Resource is accessible. Use POST /resources/gsi to send game state data.").build();
     }
 }
 
