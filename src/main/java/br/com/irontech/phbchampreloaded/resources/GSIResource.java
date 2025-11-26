@@ -7,10 +7,13 @@ import br.com.champ.Servico.GameStateParser;
 import br.com.champ.Servico.GameStateService;
 import br.com.champ.vo.MatchData;
 import jakarta.ejb.EJB;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.BufferedReader;
@@ -75,10 +78,34 @@ public class GSIResource {
      */
     @POST
     @Path("/test")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response testPOST() {
-        System.out.println("=== GSI TEST Data Received ===");
-        return Response.ok("GSI Service is running (POST)").build();
+    public Response testPOST(
+            String payload,
+            @Context HttpServletRequest request,
+            @Context HttpHeaders headers
+    ) {
+        try {
+            System.out.println("=== GSI RECEIVED ===");
+            System.out.println("Timestamp: " + new java.util.Date());
+            System.out.println("Remote Address: " + request.getRemoteAddr());
+            System.out.println("Content-Type: " + request.getContentType());
+            System.out.println("Content-Length: " + request.getContentLength());
+
+            // Headers
+            System.out.println("Headers:");
+            for (String headerName : headers.getRequestHeaders().keySet()) {
+                System.out.println("  " + headerName + ": " + headers.getRequestHeader(headerName));
+            }
+
+            // Payload
+            System.out.println("Payload:");
+            System.out.println(payload);
+            System.out.println("===================");
+
+            return Response.ok("OK").build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.serverError().build();
+        }
     }
 
     /**
