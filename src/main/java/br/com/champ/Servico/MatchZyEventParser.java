@@ -166,42 +166,54 @@ public class MatchZyEventParser {
      * O MatchZy envia estatísticas dos players neste evento
      * Pode vir em dois formatos:
      * 1. Formato padrão com players no data
-     * 2. Formato com team1/team2 contendo players com stats detalhadas
+     * 2. Formato com team1/team2 contendo players com stats detalhadas (dados no nível raiz ou no data)
      */
     private void parseRoundEnd(MatchZyEventDTO event, MatchData matchData, List<String> eventos) {
         matchData.setFase("over");
         matchData.setEstadoBomba("none");
         matchData.setTimestampBombaPlantada(0);
         
-        // Atualiza scores
-        if (event.getScore_ct() != null) {
-            matchData.setScoreCT(event.getScore_ct());
-        }
-        if (event.getScore_t() != null) {
-            matchData.setScoreT(event.getScore_t());
+        // Atualiza round_number se disponível
+        if (event.getRound_number() != null) {
+            matchData.setRoundAtual(event.getRound_number());
         }
         
         // Processa estatísticas dos players do round_end
         Map<String, Object> data = event.getData();
-        if (data != null) {
-            // Verifica se é o novo formato com team1/team2
-            if (data.containsKey("team1") || data.containsKey("team2")) {
-                parseRoundEndWithTeams(data, matchData, event);
-            } else {
-                // Formato padrão
+        
+        // Verifica se é o novo formato com team1/team2 (pode estar no data ou no nível raiz)
+        boolean hasTeamFormat = (data != null && (data.containsKey("team1") || data.containsKey("team2")));
+        
+        if (hasTeamFormat) {
+            // Formato novo com team1/team2
+            parseRoundEndWithTeams(data, matchData, event);
+        } else {
+            // Formato padrão
+            if (data != null) {
                 parsePlayersFromRoundEnd(data, matchData);
+            }
+        }
+        
+        // Atualiza scores apenas se não foram atualizados pelo formato team1/team2
+        // (os scores dos times têm prioridade)
+        if (!hasTeamFormat) {
+            if (event.getScore_ct() != null) {
+                matchData.setScoreCT(event.getScore_ct());
+            }
+            if (event.getScore_t() != null) {
+                matchData.setScoreT(event.getScore_t());
             }
         }
         
         // Extrai time vencedor do evento se disponível
         String winner = extractWinner(event);
-        String eventoMsg = "🏁 Round finalizado";
+        String eventoMsg = "🏁 Round " + (matchData.getRoundAtual() != 0 ? matchData.getRoundAtual() : "?") + " finalizado";
         if (winner != null) {
             eventoMsg += " - Vencedor: " + winner;
         }
-        if (event.getScore_ct() != null && event.getScore_t() != null) {
-            eventoMsg += " | Placar: CT " + event.getScore_ct() + " x " + event.getScore_t() + " T";
-        }
+        eventoMsg += " | Placar: " + (matchData.getNomeTimeCT() != null ? matchData.getNomeTimeCT() : "CT") + 
+                     " " + matchData.getScoreCT() + " x " + matchData.getScoreT() + 
+                     " " + (matchData.getNomeTimeT() != null ? matchData.getNomeTimeT() : "T");
         
         eventos.add(eventoMsg);
     }
@@ -212,6 +224,11 @@ public class MatchZyEventParser {
      */
     private void parseRoundEndWithTeams(Map<String, Object> data, MatchData matchData, MatchZyEventDTO event) {
         try {
+            // Atualiza round_number se disponível no evento
+            if (event.getRound_number() != null) {
+                matchData.setRoundAtual(event.getRound_number());
+            }
+            
             // Primeiro, verifica se existe match_id e busca partida do sistema
             String matchId = event.getMatch_id();
             if (matchId != null && !matchId.trim().isEmpty()) {
@@ -228,16 +245,16 @@ public class MatchZyEventParser {
                 Map<String, Object> team1 = (Map<String, Object>) team1Obj;
                 processTeamPlayers(team1, playersCT, 2, matchData); // 2 = CT
                 
+                    // Atualiza nome do time (importante fazer antes de processar players)
+                String teamName = getStringFromData(team1, "name");
+                if (teamName != null && !teamName.trim().isEmpty()) {
+                    matchData.setNomeTimeCT(teamName);
+                }
+                
                 // Atualiza scores se disponíveis
                 Integer score = getIntegerFromData(team1, "score");
                 if (score != null) {
                     matchData.setScoreCT(score);
-                }
-                
-                // Atualiza nome do time
-                String teamName = getStringFromData(team1, "name");
-                if (teamName != null && !teamName.trim().isEmpty()) {
-                    matchData.setNomeTimeCT(teamName);
                 }
             }
             
@@ -246,6 +263,13 @@ public class MatchZyEventParser {
             if (team2Obj instanceof Map) {
                 @SuppressWarnings("unchecked")
                 Map<String, Object> team2 = (Map<String, Object>) team2Obj;
+                
+                // Atualiza nome do time (importante fazer antes de processar players)
+                String teamName = getStringFromData(team2, "name");
+                if (teamName != null && !teamName.trim().isEmpty()) {
+                    matchData.setNomeTimeT(teamName);
+                }
+                
                 processTeamPlayers(team2, playersT, 3, matchData); // 3 = T
                 
                 // Atualiza scores se disponíveis
@@ -253,41 +277,31 @@ public class MatchZyEventParser {
                 if (score != null) {
                     matchData.setScoreT(score);
                 }
-                
-                // Atualiza nome do time
-                String teamName = getStringFromData(team2, "name");
-                if (teamName != null && !teamName.trim().isEmpty()) {
-                    matchData.setNomeTimeT(teamName);
-                }
             }
             
-            // Processa winner
-            Object winnerObj = data.get("winner");
-            if (winnerObj instanceof Map) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> winner = (Map<String, Object>) winnerObj;
-                String winnerSide = getStringFromData(winner, "side");
-                if (winnerSide != null) {
-                    if ("2".equals(winnerSide)) {
-                        matchData.setScoreCT(matchData.getScoreCT() + 1);
-                    } else if ("3".equals(winnerSide)) {
-                        matchData.setScoreT(matchData.getScoreT() + 1);
-                    }
-                }
-            }
+            // Processa winner - não incrementa score pois já vem atualizado no team1/team2.score
+            // Os scores já estão atualizados nos times acima
             
-            // Atualiza listas de players
+            // Atualiza listas de players (sempre atualiza, mesmo se vazio para limpar dados antigos)
             matchData.setPlayersCT(playersCT);
             matchData.setPlayersT(playersT);
+            
+            System.out.println("✅ Round_end processado - CT: " + playersCT.size() + " players, T: " + playersT.size() + " players");
+            System.out.println("   Nome CT: " + (matchData.getNomeTimeCT() != null ? matchData.getNomeTimeCT() : "N/A"));
+            System.out.println("   Nome T: " + (matchData.getNomeTimeT() != null ? matchData.getNomeTimeT() : "N/A"));
+            System.out.println("   Score CT: " + matchData.getScoreCT() + " x T: " + matchData.getScoreT());
             
             // Alinha players e times com sistema se partida foi encontrada
             if (matchData.getPartidaId() != null) {
                 matchZyPartidaService.alinharPlayersComSistema(matchData);
                 matchZyPartidaService.alinharNomesTimesComSistema(matchData);
+                System.out.println("   Partida do sistema associada - nomes alinhados");
+            } else {
+                System.out.println("   Partida não encontrada no sistema - usando dados do MatchZy");
             }
             
         } catch (Exception e) {
-            System.out.println("Erro ao processar round_end com teams: " + e.getMessage());
+            System.out.println("❌ Erro ao processar round_end com teams: " + e.getMessage());
             e.printStackTrace();
         }
     }

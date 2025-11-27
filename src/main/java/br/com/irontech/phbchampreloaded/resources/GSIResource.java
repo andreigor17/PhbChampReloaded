@@ -100,10 +100,103 @@ public class GSIResource {
             // Tenta parsear o JSON do MatchZy
             MatchZyEventDTO event;
             try {
-                event = objectMapper.readValue(payload, MatchZyEventDTO.class);
+                // Mapeia o JSON completo como Map primeiro para capturar todos os campos
+                @SuppressWarnings("unchecked")
+                java.util.Map<String, Object> fullJson = objectMapper.readValue(payload, java.util.Map.class);
+                
+                // Cria o DTO e mapeia campos conhecidos
+                event = new MatchZyEventDTO();
+                
+                // Mapeia campos conhecidos do DTO
+                if (fullJson.containsKey("event")) {
+                    event.setEvent(String.valueOf(fullJson.get("event")));
+                }
+                if (fullJson.containsKey("match_id")) {
+                    event.setMatch_id(String.valueOf(fullJson.get("match_id")));
+                }
+                if (fullJson.containsKey("matchid")) {
+                    Object matchidObj = fullJson.get("matchid");
+                    if (matchidObj != null) {
+                        if (matchidObj instanceof Integer) {
+                            event.setMatchid((Integer) matchidObj);
+                        } else if (matchidObj instanceof Number) {
+                            event.setMatchid(((Number) matchidObj).intValue());
+                        } else {
+                            event.setMatchid(Integer.parseInt(String.valueOf(matchidObj)));
+                        }
+                        // Também define match_id se não estiver definido
+                        if (event.getMatch_id() == null || event.getMatch_id().trim().isEmpty()) {
+                            event.setMatch_id(String.valueOf(matchidObj));
+                        }
+                    }
+                }
+                if (fullJson.containsKey("timestamp")) {
+                    Object timestampObj = fullJson.get("timestamp");
+                    if (timestampObj != null) {
+                        if (timestampObj instanceof Long) {
+                            event.setTimestamp((Long) timestampObj);
+                        } else if (timestampObj instanceof Number) {
+                            event.setTimestamp(((Number) timestampObj).longValue());
+                        }
+                    }
+                }
+                if (fullJson.containsKey("map_name")) {
+                    event.setMap_name(String.valueOf(fullJson.get("map_name")));
+                }
+                if (fullJson.containsKey("round_number")) {
+                    Object roundObj = fullJson.get("round_number");
+                    if (roundObj != null) {
+                        if (roundObj instanceof Integer) {
+                            event.setRound_number((Integer) roundObj);
+                        } else if (roundObj instanceof Number) {
+                            event.setRound_number(((Number) roundObj).intValue());
+                        } else {
+                            event.setRound_number(Integer.parseInt(String.valueOf(roundObj)));
+                        }
+                    }
+                }
+                if (fullJson.containsKey("score_ct")) {
+                    Object scoreObj = fullJson.get("score_ct");
+                    if (scoreObj != null) {
+                        if (scoreObj instanceof Integer) {
+                            event.setScore_ct((Integer) scoreObj);
+                        } else if (scoreObj instanceof Number) {
+                            event.setScore_ct(((Number) scoreObj).intValue());
+                        } else {
+                            event.setScore_ct(Integer.parseInt(String.valueOf(scoreObj)));
+                        }
+                    }
+                }
+                if (fullJson.containsKey("score_t")) {
+                    Object scoreObj = fullJson.get("score_t");
+                    if (scoreObj != null) {
+                        if (scoreObj instanceof Integer) {
+                            event.setScore_t((Integer) scoreObj);
+                        } else if (scoreObj instanceof Number) {
+                            event.setScore_t(((Number) scoreObj).intValue());
+                        } else {
+                            event.setScore_t(Integer.parseInt(String.valueOf(scoreObj)));
+                        }
+                    }
+                }
+                
+                // Todos os outros campos (incluindo team1, team2, winner, reason, etc) vão para o Map "data"
+                java.util.Map<String, Object> dataMap = new java.util.HashMap<>();
+                java.util.Set<String> knownFields = java.util.Set.of("event", "match_id", "matchid", "timestamp", 
+                                                                      "map_name", "round_number", "score_ct", "score_t");
+                
+                for (java.util.Map.Entry<String, Object> entry : fullJson.entrySet()) {
+                    if (!knownFields.contains(entry.getKey())) {
+                        dataMap.put(entry.getKey(), entry.getValue());
+                    }
+                }
+                
+                event.setData(dataMap);
+                
             } catch (Exception e) {
                 System.out.println("Erro ao parsear JSON do MatchZy: " + e.getMessage());
                 System.out.println("Payload recebido: " + payload.substring(0, Math.min(500, payload.length())));
+                e.printStackTrace();
                 // Retorna OK para não interromper o MatchZy, mas loga o erro
                 return Response.ok("{\"status\":\"error\",\"message\":\"Invalid JSON format\"}").build();
             }

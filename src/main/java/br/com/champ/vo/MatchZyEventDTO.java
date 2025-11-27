@@ -17,6 +17,7 @@ public class MatchZyEventDTO implements Serializable {
     
     private String event; // Tipo do evento: match_start, round_start, round_end, kill, bomb_planted, etc.
     private String match_id; // ID da partida
+    private Integer matchid; // ID da partida (alternativa)
     private Long timestamp; // Timestamp do evento
     private Map<String, Object> data; // Dados específicos do evento
     
@@ -38,11 +39,26 @@ public class MatchZyEventDTO implements Serializable {
     }
     
     public String getMatch_id() {
-        return match_id;
+        // Retorna match_id se disponível, senão converte matchid para String
+        if (match_id != null && !match_id.trim().isEmpty()) {
+            return match_id;
+        }
+        if (matchid != null) {
+            return String.valueOf(matchid);
+        }
+        return null;
     }
     
     public void setMatch_id(String match_id) {
         this.match_id = match_id;
+    }
+    
+    public Integer getMatchid() {
+        return matchid;
+    }
+    
+    public void setMatchid(Integer matchid) {
+        this.matchid = matchid;
     }
     
     public Long getTimestamp() {
