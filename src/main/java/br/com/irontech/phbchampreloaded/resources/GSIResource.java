@@ -83,7 +83,7 @@ public class GSIResource {
             // Debug: mostra o que recebeu
             if (payload != null && !payload.trim().isEmpty()) {
                 System.out.println("=== MATCHZY EVENT RECEIVED ===");
-                System.out.println(payload.substring(0, Math.min(500, payload.length())));
+                System.out.println(payload);
             }
             
             // Se o payload vier vazio, tenta ler do request
