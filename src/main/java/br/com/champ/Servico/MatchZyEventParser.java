@@ -52,6 +52,9 @@ public class MatchZyEventParser {
             case "round_freeze_end":
                 parseRoundFreezeEnd(event, matchData, eventos);
                 break;
+            case "going_live":
+                parseGoingLive(event, matchData, eventos);
+                break;
             case "kill":
                 parseKill(event, matchData, eventos);
                 break;
@@ -151,8 +154,19 @@ public class MatchZyEventParser {
     }
     
     /**
+     * Processa evento going_live (partida está em andamento)
+     */
+    private void parseGoingLive(MatchZyEventDTO event, MatchData matchData, List<String> eventos) {
+        matchData.setFase("live");
+        eventos.add("🚀 Partida em andamento!");
+    }
+    
+    /**
      * Processa evento round_end
      * O MatchZy envia estatísticas dos players neste evento
+     * Pode vir em dois formatos:
+     * 1. Formato padrão com players no data
+     * 2. Formato com team1/team2 contendo players com stats detalhadas
      */
     private void parseRoundEnd(MatchZyEventDTO event, MatchData matchData, List<String> eventos) {
         matchData.setFase("over");
@@ -170,7 +184,13 @@ public class MatchZyEventParser {
         // Processa estatísticas dos players do round_end
         Map<String, Object> data = event.getData();
         if (data != null) {
-            parsePlayersFromRoundEnd(data, matchData);
+            // Verifica se é o novo formato com team1/team2
+            if (data.containsKey("team1") || data.containsKey("team2")) {
+                parseRoundEndWithTeams(data, matchData, event);
+            } else {
+                // Formato padrão
+                parsePlayersFromRoundEnd(data, matchData);
+            }
         }
         
         // Extrai time vencedor do evento se disponível
@@ -184,6 +204,194 @@ public class MatchZyEventParser {
         }
         
         eventos.add(eventoMsg);
+    }
+    
+    /**
+     * Processa round_end com formato team1/team2
+     * Formato: {"reason":1,"winner":{"side":"2","team":"team2"},"team1":{...},"team2":{...}}
+     */
+    private void parseRoundEndWithTeams(Map<String, Object> data, MatchData matchData, MatchZyEventDTO event) {
+        try {
+            // Primeiro, verifica se existe match_id e busca partida do sistema
+            String matchId = event.getMatch_id();
+            if (matchId != null && !matchId.trim().isEmpty()) {
+                matchZyPartidaService.associarPartidaSistema(matchData, matchId);
+            }
+            
+            List<br.com.champ.vo.PlayerInfo> playersCT = new ArrayList<>();
+            List<br.com.champ.vo.PlayerInfo> playersT = new ArrayList<>();
+            
+            // Processa team1 (geralmente CT)
+            Object team1Obj = data.get("team1");
+            if (team1Obj instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> team1 = (Map<String, Object>) team1Obj;
+                processTeamPlayers(team1, playersCT, 2, matchData); // 2 = CT
+                
+                // Atualiza scores se disponíveis
+                Integer score = getIntegerFromData(team1, "score");
+                if (score != null) {
+                    matchData.setScoreCT(score);
+                }
+                
+                // Atualiza nome do time
+                String teamName = getStringFromData(team1, "name");
+                if (teamName != null && !teamName.trim().isEmpty()) {
+                    matchData.setNomeTimeCT(teamName);
+                }
+            }
+            
+            // Processa team2 (geralmente T)
+            Object team2Obj = data.get("team2");
+            if (team2Obj instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> team2 = (Map<String, Object>) team2Obj;
+                processTeamPlayers(team2, playersT, 3, matchData); // 3 = T
+                
+                // Atualiza scores se disponíveis
+                Integer score = getIntegerFromData(team2, "score");
+                if (score != null) {
+                    matchData.setScoreT(score);
+                }
+                
+                // Atualiza nome do time
+                String teamName = getStringFromData(team2, "name");
+                if (teamName != null && !teamName.trim().isEmpty()) {
+                    matchData.setNomeTimeT(teamName);
+                }
+            }
+            
+            // Processa winner
+            Object winnerObj = data.get("winner");
+            if (winnerObj instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> winner = (Map<String, Object>) winnerObj;
+                String winnerSide = getStringFromData(winner, "side");
+                if (winnerSide != null) {
+                    if ("2".equals(winnerSide)) {
+                        matchData.setScoreCT(matchData.getScoreCT() + 1);
+                    } else if ("3".equals(winnerSide)) {
+                        matchData.setScoreT(matchData.getScoreT() + 1);
+                    }
+                }
+            }
+            
+            // Atualiza listas de players
+            matchData.setPlayersCT(playersCT);
+            matchData.setPlayersT(playersT);
+            
+            // Alinha players e times com sistema se partida foi encontrada
+            if (matchData.getPartidaId() != null) {
+                matchZyPartidaService.alinharPlayersComSistema(matchData);
+                matchZyPartidaService.alinharNomesTimesComSistema(matchData);
+            }
+            
+        } catch (Exception e) {
+            System.out.println("Erro ao processar round_end com teams: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Processa players de um team (team1 ou team2)
+     */
+    private void processTeamPlayers(Map<String, Object> teamData, List<br.com.champ.vo.PlayerInfo> playersList, 
+                                     int teamNumber, MatchData matchData) {
+        try {
+            Object playersObj = teamData.get("players");
+            if (playersObj == null || !(playersObj instanceof List)) {
+                return;
+            }
+            
+            @SuppressWarnings("unchecked")
+            List<Object> players = (List<Object>) playersObj;
+            
+            for (Object playerObj : players) {
+                if (playerObj instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> playerData = (Map<String, Object>) playerObj;
+                    
+                    br.com.champ.vo.PlayerInfo player = createPlayerInfoFromTeamFormat(playerData, teamNumber);
+                    if (player != null) {
+                        playersList.add(player);
+                    }
+                }
+            }
+            
+        } catch (Exception e) {
+            System.out.println("Erro ao processar players do team: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Cria PlayerInfo a partir do formato team1/team2 (com stats dentro)
+     */
+    private br.com.champ.vo.PlayerInfo createPlayerInfoFromTeamFormat(Map<String, Object> playerData, int teamNumber) {
+        br.com.champ.vo.PlayerInfo player = new br.com.champ.vo.PlayerInfo();
+        
+        try {
+            // Nome
+            String name = getStringFromData(playerData, "name");
+            if (name != null) {
+                player.setNome(name);
+            }
+            
+            // Steam ID
+            String steamId = getStringFromData(playerData, "steamid");
+            if (steamId != null) {
+                player.setSteamId(steamId);
+            }
+            
+            // Time
+            player.setTime(teamNumber);
+            
+            // Stats (estatísticas dentro de um objeto "stats")
+            Object statsObj = playerData.get("stats");
+            if (statsObj instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> stats = (Map<String, Object>) statsObj;
+                
+                // Kills
+                Integer kills = getIntegerFromData(stats, "kills");
+                if (kills != null) {
+                    player.setKills(kills);
+                }
+                
+                // Deaths
+                Integer deaths = getIntegerFromData(stats, "deaths");
+                if (deaths != null) {
+                    player.setDeaths(deaths);
+                }
+                
+                // Assists
+                Integer assists = getIntegerFromData(stats, "assists");
+                if (assists != null) {
+                    player.setAssists(assists);
+                }
+                
+                // Damage
+                Integer damage = getIntegerFromData(stats, "damage");
+                if (damage != null) {
+                    player.setDamage(damage);
+                }
+                
+                // Health (opcional)
+                Integer health = getIntegerFromData(stats, "health");
+                if (health != null) {
+                    player.setHealth(health);
+                    player.setAlive(health > 0);
+                } else {
+                    player.setAlive(true);
+                    player.setHealth(100);
+                }
+            }
+            
+        } catch (Exception e) {
+            System.out.println("Erro ao criar PlayerInfo do formato team: " + e.getMessage());
+            return null;
+        }
+        
+        return player;
     }
     
     /**

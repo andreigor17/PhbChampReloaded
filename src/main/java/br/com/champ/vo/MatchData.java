@@ -50,6 +50,10 @@ public class MatchData implements Serializable {
     private java.util.List<br.com.champ.Modelo.Player> partidaPlayers; // Jogadores da partida
     private java.util.Map<String, br.com.champ.Modelo.Player> playersPorSteamId64; // Mapa de players por steamId64
     
+    // Nomes dos times (do JSON do MatchZy ou do sistema)
+    private String nomeTimeCT; // Nome do time CT
+    private String nomeTimeT; // Nome do time T
+    
     public MatchData() {
         playersCT = new ArrayList<>();
         playersT = new ArrayList<>();
@@ -381,9 +385,25 @@ public class MatchData implements Serializable {
     public java.util.Map<String, br.com.champ.Modelo.Player> getPlayersPorSteamId64() {
         return playersPorSteamId64;
     }
-    
+
     public void setPlayersPorSteamId64(java.util.Map<String, br.com.champ.Modelo.Player> playersPorSteamId64) {
         this.playersPorSteamId64 = playersPorSteamId64;
+    }
+    
+    public String getNomeTimeCT() {
+        return nomeTimeCT;
+    }
+
+    public void setNomeTimeCT(String nomeTimeCT) {
+        this.nomeTimeCT = nomeTimeCT;
+    }
+
+    public String getNomeTimeT() {
+        return nomeTimeT;
+    }
+
+    public void setNomeTimeT(String nomeTimeT) {
+        this.nomeTimeT = nomeTimeT;
     }
 }
 

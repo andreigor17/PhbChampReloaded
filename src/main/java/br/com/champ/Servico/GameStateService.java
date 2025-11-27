@@ -95,6 +95,8 @@ public class GameStateService {
             if (currentMatchData.getPlayersPorSteamId64() != null) {
                 copy.setPlayersPorSteamId64(new java.util.HashMap<>(currentMatchData.getPlayersPorSteamId64()));
             }
+            copy.setNomeTimeCT(currentMatchData.getNomeTimeCT());
+            copy.setNomeTimeT(currentMatchData.getNomeTimeT());
             
             // Verifica se ainda está conectado (recebeu dados recentemente)
             long timeSinceLastUpdate = System.currentTimeMillis() - lastUpdateTime;

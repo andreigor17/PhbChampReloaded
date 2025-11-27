@@ -82,26 +82,7 @@
                     </p:card>
                 </div>
                 
-                <div class="col-12 md:col-3">
-                    <p:card styleClass="info-card #{managerPartidaTempoReal.matchData.fase == 'live' ? 'live-round' : ''}">
-                        <f:facet name="title">
-                            <i class="pi pi-clock mr-2"></i>
-                            Tempo do Round
-                        </f:facet>
-                        <div class="info-value timer-value">
-                            #{managerPartidaTempoReal.matchData.tempoRoundFormatado}
-                        </div>
-                        <div class="fase-badge fase-#{managerPartidaTempoReal.matchData.fase != null ? managerPartidaTempoReal.matchData.fase : 'unknown'}">
-                            #{managerPartidaTempoReal.matchData.fase != null ? 
-                                (managerPartidaTempoReal.matchData.fase == 'freezetime' ? 'FREEZE TIME' : 
-                                 managerPartidaTempoReal.matchData.fase == 'live' ? 'EM ANDAMENTO' :
-                                 managerPartidaTempoReal.matchData.fase == 'over' ? 'FINALIZADO' :
-                                 managerPartidaTempoReal.matchData.fase.toUpperCase()) : 'N/A'}
-                        </div>
-                    </p:card>
-                </div>
-                
-                <div class="col-12 md:col-3">
+                <div class="col-12 md:col-4">
                     <p:card styleClass="info-card">
                         <f:facet name="title">
                             <i class="pi pi-circle mr-2"></i>
@@ -113,8 +94,8 @@
                     </p:card>
                 </div>
                 
-                <div class="col-12 md:col-3">
-                    <p:card styleClass="info-card">
+                <div class="col-12 md:col-4">
+                    <p:card styleClass="info-card #{managerPartidaTempoReal.matchData.fase == 'live' ? 'live-round' : ''}">
                         <f:facet name="title">
                             <i class="pi pi-info-circle mr-2"></i>
                             Fase
@@ -122,8 +103,8 @@
                         <div class="info-value fase-text">
                             #{managerPartidaTempoReal.matchData.fase != null ? 
                                 (managerPartidaTempoReal.matchData.fase == 'freezetime' ? 'FREEZE TIME' : 
-                                 managerPartidaTempoReal.matchData.fase == 'live' ? 'ROUND EM ANDAMENTO' :
-                                 managerPartidaTempoReal.matchData.fase == 'over' ? 'ROUND FINALIZADO' :
+                                 managerPartidaTempoReal.matchData.fase == 'live' ? 'EM ANDAMENTO' :
+                                 managerPartidaTempoReal.matchData.fase == 'over' ? 'FINALIZADO' :
                                  managerPartidaTempoReal.matchData.fase.toUpperCase()) : 'N/A'}
                         </div>
                     </p:card>
@@ -138,7 +119,7 @@
                             <div class="team-score team-ct">
                                 <div class="team-header">
                                     <i class="pi pi-shield"></i>
-                                    <span>Counter-Terrorists</span>
+                                    <span>#{managerPartidaTempoReal.matchData.nomeTimeCT != null ? managerPartidaTempoReal.matchData.nomeTimeCT : 'Counter-Terrorists'}</span>
                                 </div>
                                 <div class="score-value">#{managerPartidaTempoReal.matchData.scoreCT}</div>
                             </div>
@@ -150,7 +131,7 @@
                             <div class="team-score team-t">
                                 <div class="team-header">
                                     <i class="pi pi-bomb"></i>
-                                    <span>Terrorists</span>
+                                    <span>#{managerPartidaTempoReal.matchData.nomeTimeT != null ? managerPartidaTempoReal.matchData.nomeTimeT : 'Terrorists'}</span>
                                 </div>
                                 <div class="score-value">#{managerPartidaTempoReal.matchData.scoreT}</div>
                             </div>
@@ -166,7 +147,7 @@
                     <p:card styleClass="team-card team-ct-card">
                         <f:facet name="title">
                             <i class="pi pi-shield mr-2"></i>
-                            Counter-Terrorists (#{managerPartidaTempoReal.matchData.playersCT.size()})
+                            #{managerPartidaTempoReal.matchData.nomeTimeCT != null ? managerPartidaTempoReal.matchData.nomeTimeCT : 'Counter-Terrorists'} (#{managerPartidaTempoReal.matchData.playersCT.size()})
                         </f:facet>
                         
                         <div class="players-list">
@@ -216,7 +197,7 @@
                     <p:card styleClass="team-card team-t-card">
                         <f:facet name="title">
                             <i class="pi pi-bomb mr-2"></i>
-                            Terrorists (#{managerPartidaTempoReal.matchData.playersT.size()})
+                            #{managerPartidaTempoReal.matchData.nomeTimeT != null ? managerPartidaTempoReal.matchData.nomeTimeT : 'Terrorists'} (#{managerPartidaTempoReal.matchData.playersT.size()})
                         </f:facet>
                         
                         <div class="players-list">

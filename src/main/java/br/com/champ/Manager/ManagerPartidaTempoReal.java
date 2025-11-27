@@ -117,6 +117,8 @@ public class ManagerPartidaTempoReal extends ManagerBase {
                 matchData.setPartidaTimePerdedor(gsiData.getPartidaTimePerdedor());
                 matchData.setPartidaTeams(gsiData.getPartidaTeams());
                 matchData.setPartidaPlayers(gsiData.getPartidaPlayers());
+                matchData.setNomeTimeCT(gsiData.getNomeTimeCT());
+                matchData.setNomeTimeT(gsiData.getNomeTimeT());
                 
                 // Atualiza timers baseados nos timestamps
                 matchData.calcularTempoBombaRestante();

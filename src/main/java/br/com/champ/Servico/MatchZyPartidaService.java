@@ -140,5 +140,33 @@ public class MatchZyPartidaService {
             // Não interrompe o processamento - continua com dados do MatchZy
         }
     }
+    
+    /**
+     * Alinha nomes dos times do MatchZy com nomes dos times do sistema
+     * Se a partida foi encontrada no sistema, substitui os nomes dos times
+     */
+    public void alinharNomesTimesComSistema(MatchData matchData) {
+        if (matchData.getPartidaId() == null || matchData.getPartidaTeams() == null || matchData.getPartidaTeams().isEmpty()) {
+            // Sem partida do sistema ou sem times - mantém nomes do MatchZy
+            return;
+        }
+        
+        try {
+            java.util.List<br.com.champ.Modelo.Team> teams = matchData.getPartidaTeams();
+            
+            // Geralmente o primeiro time é CT e o segundo é T
+            // Mas vamos verificar se há alguma forma de identificar melhor
+            if (teams.size() >= 1 && teams.get(0) != null && teams.get(0).getNome() != null) {
+                matchData.setNomeTimeCT(teams.get(0).getNome());
+            }
+            
+            if (teams.size() >= 2 && teams.get(1) != null && teams.get(1).getNome() != null) {
+                matchData.setNomeTimeT(teams.get(1).getNome());
+            }
+            
+        } catch (Exception e) {
+            System.out.println("⚠️ Erro ao alinhar nomes dos times (mantendo nomes do MatchZy): " + e.getMessage());
+        }
+    }
 }
 
