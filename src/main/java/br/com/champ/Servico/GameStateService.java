@@ -80,6 +80,22 @@ public class GameStateService {
             copy.setUltimaKillHeadshot(currentMatchData.isUltimaKillHeadshot());
             copy.setTimestampUltimaKill(currentMatchData.getTimestampUltimaKill());
             
+            // Copia informações do MatchZy e partida do sistema
+            copy.setMatchZyMatchId(currentMatchData.getMatchZyMatchId());
+            copy.setPartidaId(currentMatchData.getPartidaId());
+            copy.setPartidaNome(currentMatchData.getPartidaNome());
+            copy.setPartidaTimeVencedor(currentMatchData.getPartidaTimeVencedor());
+            copy.setPartidaTimePerdedor(currentMatchData.getPartidaTimePerdedor());
+            if (currentMatchData.getPartidaTeams() != null) {
+                copy.setPartidaTeams(new java.util.ArrayList<>(currentMatchData.getPartidaTeams()));
+            }
+            if (currentMatchData.getPartidaPlayers() != null) {
+                copy.setPartidaPlayers(new java.util.ArrayList<>(currentMatchData.getPartidaPlayers()));
+            }
+            if (currentMatchData.getPlayersPorSteamId64() != null) {
+                copy.setPlayersPorSteamId64(new java.util.HashMap<>(currentMatchData.getPlayersPorSteamId64()));
+            }
+            
             // Verifica se ainda está conectado (recebeu dados recentemente)
             long timeSinceLastUpdate = System.currentTimeMillis() - lastUpdateTime;
             copy.setConectado(timeSinceLastUpdate < TIMEOUT_MS && currentMatchData.isConectado());

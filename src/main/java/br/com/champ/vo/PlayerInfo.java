@@ -18,6 +18,7 @@ public class PlayerInfo implements Serializable {
     private int kills;
     private int deaths;
     private int assists;
+    private int damage; // Damage total do jogador
     private boolean alive;
     private String weapon;
     
@@ -107,6 +108,15 @@ public class PlayerInfo implements Serializable {
     public void setWeapon(String weapon) {
         this.weapon = weapon;
     }
+    
+    public int getDamage() {
+        return damage;
+    }
+    
+    public void setDamage(int damage) {
+        this.damage = damage;
+    }
 }
+
 
 

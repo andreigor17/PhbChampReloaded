@@ -12,6 +12,7 @@ import jakarta.inject.Named;
 
 /**
  * Manager para monitorar partida em tempo real usando dados do GSI
+ * Usa @ViewScoped mas com tratamento especial para evitar ViewExpiredException
  */
 @Named
 @ViewScoped
@@ -25,18 +26,65 @@ public class ManagerPartidaTempoReal extends ManagerBase {
     
     @PostConstruct
     public void init() {
-        matchData = new MatchData();
-        monitorando = false;
-        atualizarDados();
+        try {
+            matchData = new MatchData();
+            monitorando = true; // Sempre monitorando desde o início
+            atualizarDados();
+        } catch (Exception e) {
+            System.err.println("Erro no init do ManagerPartidaTempoReal: " + e.getMessage());
+            if (matchData == null) {
+                matchData = new MatchData();
+            }
+        }
+    }
+    
+    /**
+     * Verifica se a view JSF está válida e pode ser usada
+     */
+    private boolean isViewValid() {
+        try {
+            jakarta.faces.context.FacesContext facesContext = jakarta.faces.context.FacesContext.getCurrentInstance();
+            if (facesContext == null) {
+                return false;
+            }
+            
+            jakarta.faces.component.UIViewRoot viewRoot = facesContext.getViewRoot();
+            if (viewRoot == null) {
+                return false;
+            }
+            
+            // Verifica se a view ainda está ativa
+            String viewId = viewRoot.getViewId();
+            if (viewId == null || !viewId.contains("partidaTempoReal.xhtml")) {
+                return false;
+            }
+            
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
     
     /**
      * Atualiza os dados da partida via GSI
      * Os dados são recebidos automaticamente pelo GSIResource quando o jogo envia atualizações
+     * Método protegido contra ViewExpiredException
      */
     public void atualizarDados() {
+        // Verifica se a view está válida ANTES de qualquer processamento
+        if (!isViewValid()) {
+            // View não está válida - retorna silenciosamente
+            // O JavaScript detectará e recarregará a página
+            return;
+        }
+        
         try {
-            // Obtém o estado atual do jogo do serviço GSI
+            // Inicializa matchData se necessário
+            if (matchData == null) {
+                matchData = new MatchData();
+            }
+            
+            // Obtém o estado atual do jogo do serviço GSI (não depende da view)
             MatchData gsiData = gameStateService.getCurrentGameState();
             
             if (gsiData != null) {
@@ -61,16 +109,42 @@ public class ManagerPartidaTempoReal extends ManagerBase {
                 matchData.setTimestampRoundInicio(gsiData.getTimestampRoundInicio());
                 matchData.setEventosRecentes(gsiData.getEventosRecentes());
                 
+                // Novos campos da partida do sistema
+                matchData.setMatchZyMatchId(gsiData.getMatchZyMatchId());
+                matchData.setPartidaId(gsiData.getPartidaId());
+                matchData.setPartidaNome(gsiData.getPartidaNome());
+                matchData.setPartidaTimeVencedor(gsiData.getPartidaTimeVencedor());
+                matchData.setPartidaTimePerdedor(gsiData.getPartidaTimePerdedor());
+                matchData.setPartidaTeams(gsiData.getPartidaTeams());
+                matchData.setPartidaPlayers(gsiData.getPartidaPlayers());
+                
                 // Atualiza timers baseados nos timestamps
                 matchData.calcularTempoBombaRestante();
                 matchData.calcularTempoRoundRestante();
             } else {
+                if (matchData == null) {
+                    matchData = new MatchData();
+                }
                 matchData.setConectado(false);
             }
             
+        } catch (jakarta.faces.application.ViewExpiredException e) {
+            // View expirada - não faz nada, o JavaScript tratará
+            System.out.println("ViewExpiredException capturada em atualizarDados");
+            return;
+        } catch (IllegalStateException e) {
+            // Contexto JSF não disponível
+            if (e.getMessage() != null && (e.getMessage().contains("ViewRoot") || e.getMessage().contains("FacesContext"))) {
+                System.out.println("View não disponível - ignorando atualização");
+                return;
+            }
+            throw e;
         } catch (Exception e) {
-            e.printStackTrace();
-            matchData.setConectado(false);
+            System.err.println("Erro ao atualizar dados: " + e.getMessage());
+            // Não inicializa matchData aqui para evitar problemas com view expirada
+            if (matchData != null && isViewValid()) {
+                matchData.setConectado(false);
+            }
         }
     }
     

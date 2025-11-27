@@ -13,17 +13,17 @@
                 <div>
                     <h1 class="section-title">
                         <i class="pi pi-eye mr-2"></i>
-                        Partida em Tempo Real - CS2
+                        Partida em Tempo Real
                     </h1>
                     <p class="section-description">
-                        Monitoramento ao vivo da partida via logs do servidor CS2
+                        Monitoramento ao vivo via MatchZy - Eventos e dados da partida em tempo real
                     </p>
                 </div>
                 <div class="header-actions">
                     <p:outputPanel id="statusPanel">
                         <div class="connection-badge #{managerPartidaTempoReal.matchData.conectado ? 'connected' : 'disconnected'}">
                             <span class="status-dot"></span>
-                            <span class="status-text">#{managerPartidaTempoReal.matchData.conectado ? 'Conectado' : 'Desconectado'}</span>
+                            <span class="status-text">#{managerPartidaTempoReal.matchData.conectado ? 'Recebendo eventos do MatchZy' : 'Aguardando eventos do MatchZy'}</span>
                         </div>
                     </p:outputPanel>
                     <p:commandButton value="Atualizar" 
@@ -31,6 +31,40 @@
                                      action="#{managerPartidaTempoReal.atualizarDados()}"
                                      update="@form"
                                      styleClass="p-button-outlined ml-2" />
+                </div>
+            </div>
+
+            <!-- Informações da Partida do Sistema (quando associada) -->
+            <div class="grid mb-4" rendered="#{managerPartidaTempoReal.matchData.partidaId != null}">
+                <div class="col-12">
+                    <p:card styleClass="system-match-card">
+                        <f:facet name="title">
+                            <i class="pi pi-info-circle mr-2"></i>
+                            Partida do Sistema
+                        </f:facet>
+                        <div class="system-match-info">
+                            <div class="system-match-row">
+                                <div class="system-match-item">
+                                    <strong>ID:</strong> #{managerPartidaTempoReal.matchData.partidaId}
+                                </div>
+                                <div class="system-match-item" rendered="#{managerPartidaTempoReal.matchData.partidaNome != null}">
+                                    <strong>Nome:</strong> #{managerPartidaTempoReal.matchData.partidaNome}
+                                </div>
+                                <div class="system-match-item" rendered="#{managerPartidaTempoReal.matchData.matchZyMatchId != null}">
+                                    <strong>MatchZy ID:</strong> #{managerPartidaTempoReal.matchData.matchZyMatchId}
+                                </div>
+                            </div>
+                            <div class="system-match-row" rendered="#{managerPartidaTempoReal.matchData.partidaTimeVencedor != null or managerPartidaTempoReal.matchData.partidaTimePerdedor != null}">
+                                <div class="system-match-item" rendered="#{managerPartidaTempoReal.matchData.partidaTimeVencedor != null}">
+                                    <strong>Time Vencedor:</strong> 
+                                    <span class="winner-badge">#{managerPartidaTempoReal.matchData.partidaTimeVencedor}</span>
+                                </div>
+                                <div class="system-match-item" rendered="#{managerPartidaTempoReal.matchData.partidaTimePerdedor != null}">
+                                    <strong>Time Perdedor:</strong> #{managerPartidaTempoReal.matchData.partidaTimePerdedor}
+                                </div>
+                            </div>
+                        </div>
+                    </p:card>
                 </div>
             </div>
 
@@ -96,55 +130,6 @@
                 </div>
             </div>
 
-            <!-- Última Kill -->
-            <div class="grid mb-4">
-                <div class="col-12">
-                    <p:card styleClass="info-card">
-                        <f:facet name="title">
-                            <i class="pi pi-crosshairs mr-2"></i>
-                            Última Kill
-                        </f:facet>
-
-                        <h:panelGroup rendered="#{managerPartidaTempoReal.matchData.ultimaKillKiller != null}">
-                            <div class="bomb-status">
-                                <div class="bomb-info-row">
-                                    <div class="bomb-state">
-                                        <strong>Killer:</strong>
-                                        <span class="bomb-state-text">
-                                            #{managerPartidaTempoReal.matchData.ultimaKillKiller}
-                                        </span>
-                                    </div>
-                                    <div class="bomb-state">
-                                        <strong>Vítima:</strong>
-                                        <span class="bomb-state-text">
-                                            #{managerPartidaTempoReal.matchData.ultimaKillVictim}
-                                        </span>
-                                    </div>
-                                    <div class="bomb-state">
-                                        <strong>Arma:</strong>
-                                        <span class="bomb-state-text">
-                                            #{managerPartidaTempoReal.matchData.ultimaKillWeapon}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="bomb-info-row" rendered="#{managerPartidaTempoReal.matchData.ultimaKillHeadshot}">
-                                    <div class="bomb-state">
-                                        <span class="bomb-state-text">HEADSHOT</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </h:panelGroup>
-
-                        <h:panelGroup rendered="#{managerPartidaTempoReal.matchData.ultimaKillKiller == null}">
-                            <div class="empty-state">
-                                <i class="pi pi-crosshairs"></i>
-                                <p>Nenhuma kill registrada ainda</p>
-                            </div>
-                        </h:panelGroup>
-                    </p:card>
-                </div>
-            </div>
-
             <!-- Placar -->
             <div class="grid mb-4">
                 <div class="col-12">
@@ -174,42 +159,10 @@
                 </div>
             </div>
 
-            <!-- Status da Bomba -->
-            <div class="grid mb-4" rendered="#{managerPartidaTempoReal.matchData.estadoBomba != null and managerPartidaTempoReal.matchData.estadoBomba != 'none'}">
-                <div class="col-12">
-                    <p:card styleClass="bomb-card #{managerPartidaTempoReal.matchData.estadoBomba == 'planted' ? 'bomb-planted' : ''}">
-                        <f:facet name="title">
-                            <i class="pi pi-bomb mr-2"></i>
-                            Status da Bomba
-                        </f:facet>
-                        <div class="bomb-status">
-                            <div class="bomb-info-row">
-                                <div class="bomb-state">
-                                    <strong>Estado:</strong> 
-                                    <span class="bomb-state-text">#{managerPartidaTempoReal.matchData.estadoBomba == 'planted' ? 'PLANTADA' : managerPartidaTempoReal.matchData.estadoBomba}</span>
-                                </div>
-                                <div class="bomb-site" rendered="#{managerPartidaTempoReal.matchData.estadoBomba == 'planted' and managerPartidaTempoReal.matchData.bombsite != null}">
-                                    <i class="pi pi-map-marker"></i>
-                                    <span>Bombsite #{managerPartidaTempoReal.matchData.bombsite}</span>
-                                </div>
-                            </div>
-                            <div class="bomb-timer-container" rendered="#{managerPartidaTempoReal.matchData.estadoBomba == 'planted'}">
-                                <div class="bomb-timer-label">⏱️ Tempo Restante para Explosão:</div>
-                                <div class="bomb-timer-value timer-danger">#{managerPartidaTempoReal.matchData.tempoBombaRestanteFormatado}</div>
-                            </div>
-                            <div class="bomb-planter" rendered="#{managerPartidaTempoReal.matchData.quemPlantouBomba != null}">
-                                <i class="pi pi-user"></i>
-                                <span>Plantada por: <strong>#{managerPartidaTempoReal.matchData.quemPlantouBomba}</strong></span>
-                            </div>
-                        </div>
-                    </p:card>
-                </div>
-            </div>
-
             <!-- Players e Eventos -->
             <div class="grid">
                 <!-- Time CT -->
-                <div class="col-12 lg:col-4">
+                <div class="col-12">
                     <p:card styleClass="team-card team-ct-card">
                         <f:facet name="title">
                             <i class="pi pi-shield mr-2"></i>
@@ -220,21 +173,15 @@
                             <ui:repeat value="#{managerPartidaTempoReal.matchData.playersCT}" var="player">
                                 <div class="player-card">
                                     <div class="player-header">
-                                        <div class="player-name">#{player.nome}</div>
-                                        <div class="player-status #{player.alive ? 'alive' : 'dead'}">
-                                            <i class="pi #{player.alive ? 'pi-heart' : 'pi-times'}"></i>
-                                            <span>#{player.alive ? 'Vivo' : 'Morto'}</span>
+                                        <div class="player-name-container">
+                                            <div class="player-name">#{player.nome}</div>
+                                            <div class="player-steam-id" rendered="#{player.steamId != null}">
+                                                <i class="pi pi-user"></i>
+                                                <span>#{player.steamId}</span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="player-stats">
-                                        <div class="stat-item">
-                                            <i class="pi pi-heart"></i>
-                                            <span>HP: <strong>#{player.health}</strong></span>
-                                        </div>
-                                        <div class="stat-item">
-                                            <i class="pi pi-shield"></i>
-                                            <span>Armor: <strong>#{player.armor}</strong></span>
-                                        </div>
                                         <div class="stat-item">
                                             <i class="pi pi-crosshairs"></i>
                                             <span>K: <strong>#{player.kills}</strong></span>
@@ -247,20 +194,25 @@
                                             <i class="pi pi-check-circle"></i>
                                             <span>A: <strong>#{player.assists}</strong></span>
                                         </div>
+                                        <div class="stat-item">
+                                            <i class="pi pi-bolt"></i>
+                                            <span>DMG: <strong>#{player.damage}</strong></span>
+                                        </div>
                                     </div>
                                 </div>
                             </ui:repeat>
                             
                             <div class="empty-state" rendered="#{empty managerPartidaTempoReal.matchData.playersCT}">
                                 <i class="pi pi-users"></i>
-                                <p>Nenhum jogador CT conectado</p>
+                                <p>Nenhum jogador CT</p>
+                                <p class="empty-subtext">Aguardando dados do MatchZy</p>
                             </div>
                         </div>
                     </p:card>
                 </div>
 
                 <!-- Time T -->
-                <div class="col-12 lg:col-4">
+                <div class="col-12">
                     <p:card styleClass="team-card team-t-card">
                         <f:facet name="title">
                             <i class="pi pi-bomb mr-2"></i>
@@ -271,21 +223,15 @@
                             <ui:repeat value="#{managerPartidaTempoReal.matchData.playersT}" var="player">
                                 <div class="player-card">
                                     <div class="player-header">
-                                        <div class="player-name">#{player.nome}</div>
-                                        <div class="player-status #{player.alive ? 'alive' : 'dead'}">
-                                            <i class="pi #{player.alive ? 'pi-heart' : 'pi-times'}"></i>
-                                            <span>#{player.alive ? 'Vivo' : 'Morto'}</span>
+                                        <div class="player-name-container">
+                                            <div class="player-name">#{player.nome}</div>
+                                            <div class="player-steam-id" rendered="#{player.steamId != null}">
+                                                <i class="pi pi-user"></i>
+                                                <span>#{player.steamId}</span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="player-stats">
-                                        <div class="stat-item">
-                                            <i class="pi pi-heart"></i>
-                                            <span>HP: <strong>#{player.health}</strong></span>
-                                        </div>
-                                        <div class="stat-item">
-                                            <i class="pi pi-shield"></i>
-                                            <span>Armor: <strong>#{player.armor}</strong></span>
-                                        </div>
                                         <div class="stat-item">
                                             <i class="pi pi-crosshairs"></i>
                                             <span>K: <strong>#{player.kills}</strong></span>
@@ -298,20 +244,25 @@
                                             <i class="pi pi-check-circle"></i>
                                             <span>A: <strong>#{player.assists}</strong></span>
                                         </div>
+                                        <div class="stat-item">
+                                            <i class="pi pi-bolt"></i>
+                                            <span>DMG: <strong>#{player.damage}</strong></span>
+                                        </div>
                                     </div>
                                 </div>
                             </ui:repeat>
                             
                             <div class="empty-state" rendered="#{empty managerPartidaTempoReal.matchData.playersT}">
                                 <i class="pi pi-users"></i>
-                                <p>Nenhum jogador T conectado</p>
+                                <p>Nenhum jogador T</p>
+                                <p class="empty-subtext">Aguardando dados do MatchZy</p>
                             </div>
                         </div>
                     </p:card>
                 </div>
 
                 <!-- Eventos Recentes -->
-                <div class="col-12 lg:col-4">
+                <div class="col-12">
                     <p:card styleClass="events-card">
                         <f:facet name="title">
                             <i class="pi pi-list mr-2"></i>
@@ -329,7 +280,7 @@
                             <div class="empty-state" rendered="#{empty managerPartidaTempoReal.matchData.eventosRecentes}">
                                 <i class="pi pi-bell"></i>
                                 <p>Nenhum evento ainda</p>
-                                <p class="empty-subtext">Os eventos aparecerão aqui em tempo real</p>
+                                <p class="empty-subtext">Eventos do MatchZy aparecerão aqui em tempo real</p>
                             </div>
                         </div>
                     </p:card>
@@ -347,64 +298,162 @@
             </div>
 
             <!-- Polling automático - sempre ativo -->
-            <p:poll interval="1" 
+            <p:poll id="pollPartidaTempoReal"
+                   interval="2" 
                    listener="#{managerPartidaTempoReal.atualizarDados()}" 
-                   update="@form" />
+                   update="@form"
+                   async="true"
+                   autoStart="true"
+                   onerror="handleViewExpired(); return false;" />
         </h:form>
 
-        <!-- Script para manter sessão ativa (evita expiração) -->
+        <!-- Script para manter sessão/view ativa e tratar erros -->
         <script type="text/javascript">
-            // Mantém a sessão ativa fazendo requisições periódicas
-            // Requisições a cada 5 minutos (300000ms) para não sobrecarregar o servidor
-            // Isso garante que a sessão não expire mesmo com 1 hora de timeout configurado
+            var viewExpiredHandled = false;
+            
+            // Tratamento de ViewExpiredException
+            function handleViewExpired() {
+                if (viewExpiredHandled) {
+                    return; // Evita múltiplos recarregamentos
+                }
+                viewExpiredHandled = true;
+                console.warn('ViewExpiredException detectada - recarregando página...');
+                setTimeout(function() {
+                    window.location.href = window.location.pathname + '?reload=' + Date.now();
+                }, 500);
+            }
+            
+            // Intercepta erros AJAX do PrimeFaces ANTES do polling
+            if (typeof PrimeFaces !== 'undefined') {
+                // Intercepta todos os erros AJAX
+                PrimeFaces.ajax.addOnError(function(xhr, status, error) {
+                    var shouldReload = false;
+                    
+                    // Verifica se é ViewExpiredException ou erro de UIViewRoot
+                    if (xhr.responseText) {
+                        var responseText = xhr.responseText.toLowerCase();
+                        if (responseText.indexOf('viewexpiredexception') !== -1 || 
+                            responseText.indexOf('viewid') !== -1 ||
+                            responseText.indexOf('uiviewroot') !== -1 ||
+                            responseText.indexOf('addremovelistener') !== -1 ||
+                            (responseText.indexOf('view') !== -1 &amp;&amp; responseText.indexOf('não pode ser restaurada') !== -1) ||
+                            responseText.indexOf('cannot be restored') !== -1) {
+                            shouldReload = true;
+                        }
+                    }
+                    
+                    // Verifica status HTTP que pode indicar view expirada
+                    if (!shouldReload &amp;&amp; (xhr.status === 500 || xhr.status === 403)) {
+                        if (xhr.responseText) {
+                            var responseText = xhr.responseText.toLowerCase();
+                            if (responseText.indexOf('view') !== -1 || responseText.indexOf('expired') !== -1) {
+                                shouldReload = true;
+                            }
+                        }
+                    }
+                    
+                    if (shouldReload) {
+                        console.warn('Erro de view detectado via AJAX - parando polling e recarregando...');
+                        // Para o polling antes de recarregar
+                        try {
+                            var pollWidget = PrimeFaces.getWidgetById('formPartidaTempoReal:pollPartidaTempoReal');
+                            if (pollWidget &amp;&amp; typeof pollWidget.stop === 'function') {
+                                pollWidget.stop();
+                            }
+                        } catch(e) {
+                            // Ignora erro ao parar polling
+                        }
+                        handleViewExpired();
+                        return false; // Previne o tratamento padrão
+                    }
+                });
+            }
+            
+            // Mantém a view/sessão ativa fazendo requisições periódicas
+            // Requisições a cada 30 segundos para manter a view ativa
             (function() {
-                var keepAliveInterval = 5 * 60 * 1000; // 5 minutos em milissegundos
+                var keepAliveInterval = 30 * 1000; // 30 segundos em milissegundos
                 
-                function keepSessionAlive() {
+                function keepViewAlive() {
                     try {
-                        // Faz uma requisição AJAX simples para tocar na sessão
-                        // Usa PrimeFaces se disponível, senão usa XMLHttpRequest
+                        // Usa PrimeFaces para fazer uma requisição que mantém a view ativa
                         if (typeof PrimeFaces !== 'undefined' &amp;&amp; PrimeFaces.ajax) {
+                            // Faz uma requisição AJAX simples que toca na view
                             PrimeFaces.ajax.RequestQueue.add({
                                 source: document.getElementById('formPartidaTempoReal'),
                                 process: '@none',
                                 update: '@none',
                                 async: true,
                                 global: false,
-                                oncomplete: function() {
-                                    console.log('Sessão mantida ativa: ' + new Date().toLocaleTimeString());
+                                onerror: function(xhr, status, error) {
+                                    // Se der erro de view expirada, recarrega
+                                    if (xhr.responseText &amp;&amp; (xhr.responseText.indexOf('ViewExpiredException') !== -1)) {
+                                        handleViewExpired();
+                                    }
+                                },
+                                oncomplete: function(xhr, status) {
+                                    // Verifica se a resposta contém erro de view expirada
+                                    if (xhr.responseText &amp;&amp; (xhr.responseText.indexOf('ViewExpiredException') !== -1)) {
+                                        handleViewExpired();
+                                    } else {
+                                        console.log('View mantida ativa: ' + new Date().toLocaleTimeString());
+                                    }
                                 }
                             });
                         } else {
                             // Fallback: requisição XMLHttpRequest simples
                             var xhr = new XMLHttpRequest();
-                            xhr.open('GET', window.location.href.split('?')[0] + '?keepAlive=' + Date.now(), true);
+                            var url = window.location.href.split('?')[0] + '?keepAlive=' + Date.now();
+                            xhr.open('GET', url, true);
                             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                             xhr.onreadystatechange = function() {
-                                if (xhr.readyState === 4 &amp;&amp; xhr.status === 200) {
-                                    console.log('Sessão mantida ativa: ' + new Date().toLocaleTimeString());
+                                if (xhr.readyState === 4) {
+                                    if (xhr.status === 200) {
+                                        // Verifica se a resposta contém erro
+                                        if (xhr.responseText &amp;&amp; (xhr.responseText.indexOf('ViewExpiredException') !== -1)) {
+                                            handleViewExpired();
+                                        } else {
+                                            console.log('View mantida ativa: ' + new Date().toLocaleTimeString());
+                                        }
+                                    } else if (xhr.status === 500 || xhr.status === 403) {
+                                        // Pode ser ViewExpiredException
+                                        handleViewExpired();
+                                    }
                                 }
                             };
                             xhr.send();
                         }
                     } catch (e) {
-                        console.warn('Erro ao manter sessão ativa:', e);
+                        console.warn('Erro ao manter view ativa:', e);
                     }
                 }
                 
-                // Inicia o keep-alive imediatamente e depois a cada 5 minutos
-                keepSessionAlive();
-                var keepAliveTimer = setInterval(keepSessionAlive, keepAliveInterval);
+                // Inicia o keep-alive imediatamente e depois a cada 30 segundos
+                keepViewAlive();
+                var keepAliveTimer = setInterval(keepViewAlive, keepAliveInterval);
                 
                 // Também mantém ativo quando a página recebe foco (usuário volta à aba)
                 window.addEventListener('focus', function() {
-                    keepSessionAlive();
+                    keepViewAlive();
+                });
+                
+                // Mantém ativo quando há atividade do usuário (scroll, click, etc)
+                var activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+                activityEvents.forEach(function(eventName) {
+                    document.addEventListener(eventName, function() {
+                        // Faz keep-alive após 1 minuto de inatividade
+                        clearTimeout(window.activityTimeout);
+                        window.activityTimeout = setTimeout(keepViewAlive, 60000);
+                    }, true);
                 });
                 
                 // Limpa o timer quando a página é fechada (boa prática)
                 window.addEventListener('beforeunload', function() {
                     if (keepAliveTimer) {
                         clearInterval(keepAliveTimer);
+                    }
+                    if (window.activityTimeout) {
+                        clearTimeout(window.activityTimeout);
                     }
                 });
             })();
@@ -573,96 +622,9 @@
                 padding: 0 2rem;
             }
 
-            /* Bomb Card */
-            .bomb-card {
-                background: linear-gradient(135deg, var(--bg-800), var(--bg-900)) !important;
-            }
-
-            .bomb-card.bomb-planted {
-                background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), var(--bg-900)) !important;
-                border: 2px solid rgba(255, 107, 53, 0.7) !important;
-                animation: pulse-bomb 2s infinite;
-            }
-
-            .bomb-status {
-                display: flex;
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem;
-            }
-
-            .bomb-info-row {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                flex-wrap: wrap;
-                gap: 1rem;
-            }
-
-            .bomb-state {
-                font-size: 1.2rem;
-                color: var(--text-100);
-            }
-
-            .bomb-state-text {
-                text-transform: uppercase;
-                font-weight: 700;
-                color: #ff6b35;
-            }
-
-            .bomb-site {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                padding: 0.5rem 1rem;
-                background: rgba(255, 107, 53, 0.15);
-                border-radius: 20px;
-                font-weight: 600;
-                color: #ff6b35;
-            }
-
-            .bomb-timer-container {
-                text-align: center;
-                padding: 1rem;
-                background: rgba(0,0,0,0.3);
-                border-radius: 10px;
-            }
-
-            .bomb-timer-label {
-                font-size: 0.9rem;
-                color: var(--text-300);
-                margin-bottom: 0.5rem;
-            }
-
-            .bomb-timer-value {
-                font-size: 2.5rem;
-                font-weight: 800;
-                font-family: 'Consolas', 'Monaco', monospace;
-            }
-
-            .timer-danger {
-                color: #ef4444;
-                animation: blink 1s infinite;
-            }
-
-            .bomb-planter {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 0.5rem;
-                padding: 0.75rem;
-                background: rgba(255,255,255,0.05);
-                border-radius: 10px;
-                color: var(--text-200);
-            }
-
-            .bomb-planter strong {
-                color: var(--text-100);
-            }
-
             /* Team Cards */
             .team-card {
-                height: 100%;
+                margin-bottom: 2rem;
             }
 
             .team-ct-card {
@@ -718,10 +680,24 @@
                 margin-bottom: 0.75rem;
             }
 
+            .player-name-container {
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
             .player-name {
                 font-weight: 600;
                 color: var(--text-100);
                 font-size: 1rem;
+            }
+
+            .player-steam-id {
+                font-size: 0.75rem;
+                color: var(--text-400);
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
             }
 
             .player-status {
@@ -747,17 +723,23 @@
             }
 
             .player-stats {
-                display: flex;
-                flex-wrap: wrap;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
                 gap: 1rem;
+                margin-top: 1rem;
             }
 
             .stat-item {
                 display: flex;
                 align-items: center;
+                justify-content: center;
                 gap: 0.5rem;
                 color: var(--text-200);
-                font-size: 0.875rem;
+                font-size: 1rem;
+                padding: 0.5rem;
+                background: rgba(255,255,255,0.03);
+                border-radius: 8px;
+                border: 1px solid rgba(255,255,255,0.05);
             }
 
             .stat-item i {
@@ -868,15 +850,6 @@
                 }
             }
 
-            @keyframes pulse-bomb {
-                0%, 100% {
-                    box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.4);
-                }
-                50% {
-                    box-shadow: 0 0 0 10px rgba(255, 107, 53, 0);
-                }
-            }
-
             @keyframes pulse-live {
                 0%, 100% {
                     box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
@@ -884,6 +857,45 @@
                 50% {
                     box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
                 }
+            }
+
+            /* System Match Card */
+            .system-match-card {
+                background: linear-gradient(135deg, rgba(0, 225, 255, 0.1), var(--bg-900)) !important;
+                border-left: 4px solid var(--accent) !important;
+            }
+
+            .system-match-info {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .system-match-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1.5rem;
+                align-items: center;
+            }
+
+            .system-match-item {
+                color: var(--text-200);
+                font-size: 0.95rem;
+            }
+
+            .system-match-item strong {
+                color: var(--text-100);
+                margin-right: 0.5rem;
+            }
+
+            .winner-badge {
+                padding: 0.25rem 0.75rem;
+                background: rgba(34, 197, 94, 0.2);
+                border: 1px solid var(--success);
+                border-radius: 12px;
+                color: var(--success);
+                font-weight: 600;
             }
 
             /* Responsive */
@@ -901,11 +913,6 @@
                     flex-direction: column;
                     align-items: flex-start;
                     gap: 1rem;
-                }
-
-                .bomb-info-row {
-                    flex-direction: column;
-                    align-items: flex-start;
                 }
             }
         </style>

@@ -38,6 +38,18 @@ public class MatchData implements Serializable {
     private boolean ultimaKillHeadshot;
     private long timestampUltimaKill;
     
+    // Informações do MatchZy
+    private String matchZyMatchId; // ID da partida do MatchZy
+    
+    // Informações da partida do sistema (quando associada)
+    private Long partidaId; // ID da partida no sistema
+    private String partidaNome; // Nome da partida
+    private String partidaTimeVencedor; // Nome do time vencedor
+    private String partidaTimePerdedor; // Nome do time perdedor
+    private java.util.List<br.com.champ.Modelo.Team> partidaTeams; // Times da partida
+    private java.util.List<br.com.champ.Modelo.Player> partidaPlayers; // Jogadores da partida
+    private java.util.Map<String, br.com.champ.Modelo.Player> playersPorSteamId64; // Mapa de players por steamId64
+    
     public MatchData() {
         playersCT = new ArrayList<>();
         playersT = new ArrayList<>();
@@ -306,6 +318,72 @@ public class MatchData implements Serializable {
         }
         int segundos = tempoBombaRestante;
         return String.format("00:%02d", segundos);
+    }
+    
+    // Getters e Setters para campos da partida do sistema
+    
+    public String getMatchZyMatchId() {
+        return matchZyMatchId;
+    }
+    
+    public void setMatchZyMatchId(String matchZyMatchId) {
+        this.matchZyMatchId = matchZyMatchId;
+    }
+    
+    public Long getPartidaId() {
+        return partidaId;
+    }
+    
+    public void setPartidaId(Long partidaId) {
+        this.partidaId = partidaId;
+    }
+    
+    public String getPartidaNome() {
+        return partidaNome;
+    }
+    
+    public void setPartidaNome(String partidaNome) {
+        this.partidaNome = partidaNome;
+    }
+    
+    public String getPartidaTimeVencedor() {
+        return partidaTimeVencedor;
+    }
+    
+    public void setPartidaTimeVencedor(String partidaTimeVencedor) {
+        this.partidaTimeVencedor = partidaTimeVencedor;
+    }
+    
+    public String getPartidaTimePerdedor() {
+        return partidaTimePerdedor;
+    }
+    
+    public void setPartidaTimePerdedor(String partidaTimePerdedor) {
+        this.partidaTimePerdedor = partidaTimePerdedor;
+    }
+    
+    public java.util.List<br.com.champ.Modelo.Team> getPartidaTeams() {
+        return partidaTeams;
+    }
+    
+    public void setPartidaTeams(java.util.List<br.com.champ.Modelo.Team> partidaTeams) {
+        this.partidaTeams = partidaTeams;
+    }
+    
+    public java.util.List<br.com.champ.Modelo.Player> getPartidaPlayers() {
+        return partidaPlayers;
+    }
+    
+    public void setPartidaPlayers(java.util.List<br.com.champ.Modelo.Player> partidaPlayers) {
+        this.partidaPlayers = partidaPlayers;
+    }
+    
+    public java.util.Map<String, br.com.champ.Modelo.Player> getPlayersPorSteamId64() {
+        return playersPorSteamId64;
+    }
+    
+    public void setPlayersPorSteamId64(java.util.Map<String, br.com.champ.Modelo.Player> playersPorSteamId64) {
+        this.playersPorSteamId64 = playersPorSteamId64;
     }
 }
 
