@@ -556,20 +556,120 @@
         .ui-chkbox-box, .p-checkbox-box,
         .ui-radiobutton-box, .p-radiobutton-box { 
             background: var(--bg-700) !important; 
-            border: 1px solid var(--border) !important; 
+            border: 2px solid var(--border) !important; 
             color: var(--text-100) !important; 
+            border-radius: 50% !important;
+            width: 20px !important;
+            height: 20px !important;
+            min-width: 20px !important;
+            min-height: 20px !important;
+            max-width: 20px !important;
+            max-height: 20px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+            transition: all 0.2s ease !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
         .ui-chkbox-box:hover, .p-checkbox-box:hover,
         .ui-radiobutton-box:hover, .p-radiobutton-box:hover { 
-            background: var(--bg-700) !important; 
+            background: var(--bg-600) !important; 
             border-color: var(--accent) !important; 
         }
         .ui-chkbox-checked .ui-chkbox-box, 
         .p-checkbox-checked .p-checkbox-box,
         .ui-radiobutton-checked .ui-radiobutton-box, 
-        .p-radiobutton-checked .p-radiobutton-box { 
+        .p-radiobutton-checked .p-radiobutton-box,
+        .ui-radiobutton-box.ui-state-active,
+        .p-radiobutton-box.p-highlight,
+        .ui-radiobutton-box.p-highlight,
+        .p-radiobutton-box.ui-state-active { 
             background: var(--accent) !important; 
             border-color: var(--accent) !important; 
+            box-shadow: 0 0 0 3px rgba(0, 225, 255, 0.2) !important;
+        }
+        
+        /* Ícone interno do radio button quando selecionado */
+        .ui-radiobutton-icon, .p-radiobutton-icon {
+            width: 12px !important;
+            height: 12px !important;
+            border-radius: 50% !important;
+            background-color: transparent !important;
+        }
+        .ui-radiobutton-checked .ui-radiobutton-icon,
+        .p-radiobutton-checked .p-radiobutton-icon,
+        .ui-radiobutton-box.ui-state-active .ui-radiobutton-icon,
+        .p-radiobutton-box.p-highlight .p-radiobutton-icon,
+        .ui-radiobutton-box.p-highlight .ui-radiobutton-icon,
+        .p-radiobutton-box.ui-state-active .p-radiobutton-icon {
+            background-color: var(--bg-900) !important;
+            display: block !important;
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            z-index: 2 !important;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        /* Container do radio button - posição relativa para o :after funcionar */
+        .ui-radiobutton-box, .p-radiobutton-box {
+            position: relative !important;
+        }
+        
+        /* Forçar exibição do ponto central quando selecionado - apenas quando selecionado */
+        .ui-radiobutton-box.ui-state-active:after,
+        .p-radiobutton-box.p-highlight:after,
+        .ui-radiobutton-box.p-highlight:after,
+        .p-radiobutton-box.ui-state-active:after,
+        .ui-radiobutton-checked .ui-radiobutton-box:after,
+        .p-radiobutton-checked .p-radiobutton-box:after {
+            content: '' !important;
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: 12px !important;
+            height: 12px !important;
+            background-color: var(--bg-900) !important;
+            border-radius: 50% !important;
+            display: block !important;
+            z-index: 2 !important;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        /* SelectOneRadio - estilos específicos */
+        .ui-selectoneradio, .p-selectoneradio {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .ui-selectoneradio .ui-radiobutton,
+        .p-selectoneradio .p-radiobutton {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .ui-selectoneradio label,
+        .p-selectoneradio label {
+            color: var(--text-100) !important;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        /* Label destacado quando radio está selecionado */
+        .ui-selectoneradio .ui-radiobutton-checked + label,
+        .p-selectoneradio .p-radiobutton-checked + label,
+        .ui-selectoneradio .ui-radiobutton-box.ui-state-active ~ label,
+        .p-selectoneradio .p-radiobutton-box.p-highlight ~ label {
+            color: var(--accent) !important;
+            font-weight: 600 !important;
         }
         
         /* ToggleSwitch */
