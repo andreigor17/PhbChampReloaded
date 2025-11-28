@@ -71,7 +71,7 @@
                         <p:column>
                             <div class="flex align-items-center gap-2">
                                 <div class="participant-avatar" style="width: 35px; height: 35px; font-size: 14px; margin: 0;">
-                                    #{player.nome != null ? player.nome.substring(0,1) : 'P'}
+                                    #{player.nome != null and player.nome.length() > 0 ? player.nome.substring(0,1) : 'P'}
                                 </div>
                                 <div>
                                     <div class="font-semibold">#{player.nick}</div>
