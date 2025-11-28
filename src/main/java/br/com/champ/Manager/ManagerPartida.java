@@ -745,8 +745,56 @@ public class ManagerPartida extends ManagerBase {
         this.pickedPlayers = pickedPlayers;
     }
 
+    public void adicionarPlayer() {
+        adicionarPlayer(this.player);
+    }
+    
+    public void adicionarPlayer(Player playerToAdd) {
+        if (playerToAdd != null && this.playerGroupList != null) {
+            // Verifica se já tem 10 jogadores selecionados
+            if (this.playerGroupList.getTarget().size() >= 10) {
+                Mensagem.warn("Já existem 10 jogadores selecionados. Remova um jogador antes de adicionar outro.");
+                return;
+            }
+            
+            // Verifica se o jogador não está já na lista de selecionados
+            if (this.playerGroupList.getTarget().contains(playerToAdd)) {
+                return;
+            }
+            
+            // Adiciona ao target
+            this.playerGroupList.getTarget().add(playerToAdd);
+            
+            // Remove do source
+            this.playerGroupList.getSource().remove(playerToAdd);
+            
+            // Atualiza o DualListModel
+            this.playerGroupList = new DualListModel<>(
+                this.playerGroupList.getSource(),
+                this.playerGroupList.getTarget()
+            );
+        }
+    }
+    
     public void excluir() {
-
+        if (this.selectedPlayer != null && this.playerGroupList != null) {
+            // Remove do target
+            this.playerGroupList.getTarget().remove(this.selectedPlayer);
+            
+            // Adiciona de volta ao source
+            if (!this.playerGroupList.getSource().contains(this.selectedPlayer)) {
+                this.playerGroupList.getSource().add(this.selectedPlayer);
+            }
+            
+            // Atualiza o DualListModel
+            this.playerGroupList = new DualListModel<>(
+                this.playerGroupList.getSource(),
+                this.playerGroupList.getTarget()
+            );
+            
+            // Limpa o selectedPlayer
+            this.selectedPlayer = null;
+        }
     }
 
     public void pickarMapa(Mapas mapa) {

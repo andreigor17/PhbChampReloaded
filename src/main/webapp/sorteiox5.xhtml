@@ -9,113 +9,178 @@
         <h:form id="formSorteioX5" enctype="multipart/form-data">
 
             <!-- Header -->
-            <div class="surface-card shadow-2 border-round mb-4 p-4">
-                <div class="flex justify-content-between align-items-center flex-wrap gap-3">
-                    <div class="flex-1">
-                        <div class="flex align-items-center mb-2">
-                            <i class="pi pi-bolt text-4xl mr-3"></i>
-                            <h1 class="text-900 font-bold text-4xl m-0">Sorteio x5</h1>
+            <div class="header-container">
+                <div class="header-content">
+                    <div class="header-left">
+                        <div class="header-icon-wrapper">
+                            <i class="pi pi-bolt header-icon"></i>
                         </div>
-                        <p class="text-600 text-lg m-0">Selecione os jogadores para sortear os times automaticamente</p>
+                        <div>
+                            <h1 class="header-title">Sorteio x5</h1>
+                            <p class="header-subtitle">Selecione os jogadores para sortear os times automaticamente</p>
+                        </div>
                     </div>
-                    <div class="flex gap-2">
-                        <p:commandButton value="Cadastrar Player" 
-                                         icon="pi pi-user-plus"
-                                         styleClass="p-button-outlined"
-                                         action="/criarPlayer?faces-redirect=true" />
-                    </div>
+                    <p:commandButton value="Cadastrar Player" 
+                                     icon="pi pi-user-plus"
+                                     styleClass="btn-outline"
+                                     action="/criarPlayer?faces-redirect=true" />
                 </div>
             </div>
 
-            
-
-            <!-- Card: Seleção de Jogadores -->
-            <div class="surface-card shadow-2 border-round mb-4 p-4">
-                <h2 class="text-900 font-bold text-2xl mb-4">
-                    <i class="pi pi-users mr-2"></i>Seleção de Jogadores
-                </h2>
-
-                <p class="text-600 mb-4">
-                    Arraste os jogadores da esquerda para a direita para incluí-los no sorteio. 
-                    São necessários 10 jogadores para um sorteio x5.
-                </p>
-
-                <div class="flex justify-content-center w-full">
-                    <p:pickList id="grupoPickList" 
-                                value="#{managerPartida.playerGroupList}" 
-                                var="player"
-                                filterMatchMode="contains" 
-                                showSourceFilter="true" 
-                                showTargetFilter="true"
-                                itemValue="#{player}" 
-                                itemLabel="#{player.nick}" 
-                                converter="player_converter"
-                                responsive="true"                                
-                                style="width: 100%; max-width: 1200px;">
-
-                        <f:facet name="sourceCaption">
-                            <div class="flex align-items-center gap-2">
-                                <i class="pi pi-list"></i>
-                                <span>Players Disponíveis</span>
+           
+            <!-- Main Content Grid -->
+            <div class="main-grid">
+                
+                <!-- Available Players -->
+                <div class="players-section">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-icon-wrapper">
+                                <i class="pi pi-users"></i>
                             </div>
-                        </f:facet>
+                            <h2 class="section-title">Players Disponíveis</h2>
+                            <span class="section-badge">#{managerPartida.playerGroupList.source.size()}</span>
+                        </div>
 
-                        <f:facet name="targetCaption">
-                            <div class="flex align-items-center gap-2">
-                                <i class="pi pi-check-circle"></i>
-                                <span>Players Selecionados</span>
-                            </div>
-                        </f:facet>
+                        <div class="search-wrapper">
+                            <p:inputText id="searchAvailable" 
+                                         placeholder="Buscar por nick ou nome..."
+                                         styleClass="search-input">
+                                <p:ajax event="keyup" 
+                                        update="availablePlayersList" 
+                                        process="@this" />
+                            </p:inputText>
+                        </div>
 
-                        <p:column>
-                            <div class="flex align-items-center gap-2">
-                                <div class="participant-avatar" style="width: 45px; height: 45px; font-size: 16px; margin: 0; flex-shrink: 0;">
-                                    <h:panelGroup rendered="#{player.anexo ne null}">
-                                        <p:graphicImage value="image/#{player.anexo.nome}" 
-                                                        styleClass="participant-avatar-image" />
-                                    </h:panelGroup>
-                                    <h:panelGroup rendered="#{player.anexo eq null}">
-                                        <div class="participant-avatar-placeholder">
-                                            #{player.nome != null and player.nome.length() > 0 ? player.nome.substring(0,1) : 'P'}
+                        <div class="players-list-wrapper">
+                            <p:dataList id="availablePlayersList"
+                                        value="#{managerPartida.playerGroupList.source}"
+                                        var="player"
+                                        type="none"
+                                        styleClass="players-data-list">
+                                <div class="player-card-wrapper">
+                                    <p:commandLink styleClass="player-card-link"
+                                                   process="@form"
+                                                   update="@form"
+                                                   actionListener="#{managerPartida.adicionarPlayer(player)}">
+                                        <div class="player-card">
+                                            <div class="player-avatar-wrapper">
+                                                <h:panelGroup rendered="#{player.anexo ne null}">
+                                                    <p:graphicImage value="image/#{player.anexo.nome}" 
+                                                                    styleClass="player-avatar-img" />
+                                                </h:panelGroup>
+                                                <h:panelGroup rendered="#{player.anexo eq null}">
+                                                    <div class="player-avatar-placeholder">
+                                                        #{player.nome != null and player.nome.length() > 0 ? player.nome.substring(0,1) : 'P'}
+                                                    </div>
+                                                </h:panelGroup>
+                                                <div class="player-add-icon">
+                                                    <i class="pi pi-plus"></i>
+                                                </div>
+                                            </div>
+                                            <div class="player-info">
+                                                <div class="player-nick">#{player.nick}</div>
+                                                <div class="player-name">#{player.nome} #{player.sobreNome}</div>
+                                            </div>
                                         </div>
-                                    </h:panelGroup>
+                                    </p:commandLink>
                                 </div>
-                                <div class="flex-1">
-                                    <div class="font-semibold text-900">#{player.nick}</div>
-                                    <small class="text-600">#{player.nome} #{player.sobreNome}</small>
-                                </div>
-                            </div>
-                        </p:column>
-                    </p:pickList>
-                </div>
-
-                <div class="flex justify-content-center mt-4">
-                    <div class="surface-100 border-round p-3 flex align-items-center gap-2">
-                        <i class="pi pi-info-circle text-primary"></i>
-                        <span class="text-700">
-                            <strong>Jogadores selecionados:</strong> 
-                            #{managerPartida.playerGroupList.target.size()}/10
-                        </span>
+                            </p:dataList>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Rodapé com Botões -->
-            <div class="surface-card shadow-2 border-round p-4">
-                <div class="flex justify-content-end gap-2">
-                    <p:commandButton value="Cancelar" 
-                                     icon="pi pi-times"
-                                     styleClass="p-button-outlined p-button-secondary"
-                                     action="/indexPartida?faces-redirect=true"
-                                     immediate="true"
-                                     process="@this" />
-                    <p:commandButton value="Avançar" 
-                                     icon="pi pi-arrow-right"
-                                     styleClass="p-button-success"
-                                     actionListener="#{managerPartida.verificarPlayers()}"
-                                     process="@form"
-                                     update="@form" />
+                <!-- Selected Players -->
+                <div class="players-section">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-icon-wrapper selected">
+                                <i class="pi pi-check-circle"></i>
+                            </div>
+                            <h2 class="section-title">Players Selecionados</h2>
+                            <span class="section-badge selected">#{managerPartida.playerGroupList.target.size()}/10</span>
+                        </div>
+
+                        <div class="players-list-wrapper">
+                            <h:panelGroup rendered="#{managerPartida.playerGroupList.target.size() eq 0}">
+                                <div class="empty-state">
+                                    <i class="pi pi-check-circle empty-icon"></i>
+                                    <p class="empty-title">Nenhum jogador selecionado</p>
+                                    <p class="empty-subtitle">Selecione jogadores da lista ao lado</p>
+                                </div>
+                            </h:panelGroup>
+
+                            <p:dataList id="selectedPlayersList"
+                                        value="#{managerPartida.playerGroupList.target}"
+                                        var="player"
+                                        type="none"
+                                        styleClass="players-data-list"
+                                        rendered="#{managerPartida.playerGroupList.target.size() gt 0}">
+                                <div class="selected-player-card">
+                                    <div class="player-avatar-wrapper">
+                                        <h:panelGroup rendered="#{player.anexo ne null}">
+                                            <p:graphicImage value="image/#{player.anexo.nome}" 
+                                                            styleClass="player-avatar-img" />
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{player.anexo eq null}">
+                                            <div class="player-avatar-placeholder selected">
+                                                #{player.nome != null and player.nome.length() > 0 ? player.nome.substring(0,1) : 'P'}
+                                            </div>
+                                        </h:panelGroup>
+                                        <div class="player-number">
+                                            #{managerPartida.playerGroupList.target.indexOf(player) + 1}
+                                        </div>
+                                    </div>
+                                    <div class="player-info">
+                                        <div class="player-nick">#{player.nick}</div>
+                                        <div class="player-name">#{player.nome} #{player.sobreNome}</div>
+                                    </div>
+                                    <p:commandButton icon="pi pi-times"
+                                                     styleClass="btn-remove"
+                                                     process="@this"
+                                                     update="@form"
+                                                     actionListener="#{managerPartida.excluir()}">
+                                        <f:setPropertyActionListener target="#{managerPartida.selectedPlayer}" 
+                                                                     value="#{player}" />
+                                    </p:commandButton>
+                                </div>
+                            </p:dataList>
+
+                            <h:panelGroup rendered="#{managerPartida.playerGroupList.target.size() gt 0 and managerPartida.playerGroupList.target.size() lt 10}">
+                                <div class="info-message warning">
+                                    Adicione mais <strong>#{10 - managerPartida.playerGroupList.target.size()}</strong> 
+                                    jogador#{10 - managerPartida.playerGroupList.target.size() ne 1 ? 'es' : ''} para continuar
+                                </div>
+                            </h:panelGroup>
+
+                            <h:panelGroup rendered="#{managerPartida.playerGroupList.target.size() eq 10}">
+                                <div class="info-message success">
+                                    ✓ Todos os jogadores selecionados! Você pode avançar.
+                                </div>
+                            </h:panelGroup>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="actions-card">
+                        <div class="actions-buttons">
+                            <p:commandButton value="Cancelar" 
+                                             icon="pi pi-times"
+                                             styleClass="btn-outline"
+                                             action="/indexPartida?faces-redirect=true"
+                                             immediate="true"
+                                             process="@this" />
+                            <p:commandButton value="Avançar" 
+                                             icon="pi pi-arrow-right"
+                                             styleClass="btn-primary"
+                                             actionListener="#{managerPartida.verificarPlayers()}"
+                                             disabled="#{managerPartida.playerGroupList.target.size() ne 10}"
+                                             process="@form"
+                                             update="@form" />
+                        </div>
+                    </div>
                 </div>
+
             </div>
 
             <!-- Dialog: Configurar Sorteio -->
@@ -129,93 +194,87 @@
                       showEffect="fade"
                       hideEffect="fade"
                       width="600"
-                      styleClass="config-sorteio-dialog">
+                      styleClass="modern-dialog">
 
-                <div class="dialog-content-wrapper">
+                <div class="dialog-content">
                     <!-- Info Box -->
-                    <div class="info-box mb-4">
-                        <div class="info-box-icon">
+                    <div class="dialog-info-box">
+                        <div class="dialog-info-icon">
                             <i class="pi pi-info-circle"></i>
                         </div>
-                        <div class="info-box-content">
-                            <h4 class="info-box-title">Como funciona?</h4>
-                            <p class="info-box-text">
-                                Os jogadores selecionados serão divididos aleatoriamente em dois times equilibrados. 
-                                Você pode escolher o formato da partida (MD1, MD3 ou MD5).
+                        <div>
+                            <h4 class="dialog-info-title">Como funciona?</h4>
+                            <p class="dialog-info-text">
+                                Os jogadores selecionados serão divididos aleatoriamente em dois times 
+                                equilibrados. Você pode escolher o formato da partida (MD1, MD3 ou MD5).
                             </p>
                         </div>
                     </div>
 
-                    <!-- Formulário -->
-                    <div class="dialog-form">
-                        <!-- Nomes dos Times -->
-                        <div class="form-section">
-                            <h5 class="section-title">
-                                <i class="pi pi-users mr-2"></i>
-                                Nomes dos Times
-                            </h5>
-                            <div class="grid">
-                                <div class="col-12 md:col-6">
-                                    <div class="field-wrapper">
-                                        <label for="nomeTime1Sorteio" class="field-label">
-                                            <i class="pi pi-circle-fill mr-2"></i>
-                                            Time 1
-                                        </label>
-                                        <p:inputText id="nomeTime1Sorteio" 
-                                                     value="#{managerPartida.nomeTime1}"
-                                                     placeholder="Ex: Time Azul"
-                                                     styleClass="dialog-input" />
-                                    </div>
-                                </div>
-                                <div class="col-12 md:col-6">
-                                    <div class="field-wrapper">
-                                        <label for="nomeTime2Sorteio" class="field-label">
-                                            <i class="pi pi-circle-fill mr-2"></i>
-                                            Time 2
-                                        </label>
-                                        <p:inputText id="nomeTime2Sorteio" 
-                                                     value="#{managerPartida.nomeTime2}"
-                                                     placeholder="Ex: Time Vermelho"
-                                                     styleClass="dialog-input" />
-                                    </div>
-                                </div>
-                            </div>
+                    <!-- Nomes dos Times -->
+                    <div class="dialog-section">
+                        <div class="dialog-section-header">
+                            <i class="pi pi-users"></i>
+                            <h3>Nomes dos Times</h3>
                         </div>
-
-                        <!-- Formato da Partida -->
-                        <div class="form-section">
-                            <h5 class="section-title">
-                                <i class="pi pi-calendar mr-2"></i>
-                                Formato da Partida
-                            </h5>
-                            <div class="field-wrapper">
-                                <p:selectOneRadio id="formatoPartida" 
-                                                  value="#{managerPartida.qtdItensPartidas}" 
-                                                  unselectable="true"
-                                                  layout="responsive"
-                                                  styleClass="formato-radio-group">
-                                    <f:selectItem itemLabel="MD1 (Melhor de 1)" itemValue="1" />
-                                    <f:selectItem itemLabel="MD3 (Melhor de 3)" itemValue="3" />
-                                    <f:selectItem itemLabel="MD5 (Melhor de 5)" itemValue="5" />
-                                </p:selectOneRadio>
-                                <div class="field-hint">
-                                    <i class="pi pi-question-circle mr-2"></i>
-                                    <span>MD = Melhor de X mapas. O vencedor será quem ganhar mais mapas.</span>
-                                </div>
+                        <div class="dialog-grid">
+                            <div class="dialog-field">
+                                <label for="nomeTime1" class="dialog-label">
+                                    <span class="team-color blue"></span>
+                                    Time 1
+                                </label>
+                                <p:inputText id="nomeTime1" 
+                                             value="#{managerPartida.nomeTime1}"
+                                             placeholder="Ex: Time Azul"
+                                             styleClass="dialog-input" />
+                            </div>
+                            <div class="dialog-field">
+                                <label for="nomeTime2" class="dialog-label">
+                                    <span class="team-color red"></span>
+                                    Time 2
+                                </label>
+                                <p:inputText id="nomeTime2" 
+                                             value="#{managerPartida.nomeTime2}"
+                                             placeholder="Ex: Time Vermelho"
+                                             styleClass="dialog-input" />
                             </div>
                         </div>
                     </div>
 
-                    <!-- Botões de Ação -->
+                    <!-- Formato da Partida -->
+                    <div class="dialog-section">
+                        <div class="dialog-section-header">
+                            <i class="pi pi-calendar"></i>
+                            <h3>Formato da Partida</h3>
+                        </div>
+                        
+                        <p:selectOneRadio id="formatoPartida" 
+                                          value="#{managerPartida.qtdItensPartidas}"
+                                          styleClass="modern-radio-group">
+                            <f:selectItem itemLabel="MD1 (Melhor de 1)" itemValue="1" 
+                                          itemDescription="Partida única decisiva" />
+                            <f:selectItem itemLabel="MD3 (Melhor de 3)" itemValue="3" 
+                                          itemDescription="Vence quem ganhar 2 mapas primeiro" />
+                            <f:selectItem itemLabel="MD5 (Melhor de 5)" itemValue="5" 
+                                          itemDescription="Vence quem ganhar 3 mapas primeiro" />
+                        </p:selectOneRadio>
+
+                        <div class="dialog-hint">
+                            <i class="pi pi-question-circle"></i>
+                            <span>MD = Melhor de X mapas. O vencedor será quem ganhar mais mapas.</span>
+                        </div>
+                    </div>
+
+                    <!-- Dialog Actions -->
                     <div class="dialog-actions">
                         <p:commandButton value="Cancelar"
                                          icon="pi pi-times"
-                                         styleClass="dialog-btn dialog-btn-cancel"
+                                         styleClass="btn-dialog-cancel"
                                          oncomplete="PF('confirmarCriacaoX5Dialog').hide();"
                                          process="@this" />
                         <p:commandButton value="Sortear Times"
                                          icon="pi pi-random"
-                                         styleClass="dialog-btn dialog-btn-primary"
+                                         styleClass="btn-dialog-primary"
                                          process="@form"
                                          update="@form"
                                          actionListener="#{managerPartida.sorteioX5()}" />
@@ -226,733 +285,858 @@
         </h:form>
 
         <style>
-            .participant-avatar {
-                border-radius: 50%;
-                background-color: var(--bg-700);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: bold;
-                color: var(--text-300);
-                overflow: hidden;
-                border: 2px solid var(--border);
+            :root {
+                --bg-primary: #0f1419;
+                --bg-secondary: #1a1f26;
+                --bg-card: #1e2430;
+                --bg-hover: #252b38;
+                
+                --text-primary: #f5f7fa;
+                --text-secondary: #9ca3af;
+                --text-muted: #6b7280;
+                
+                --accent: #00e1ff;
+                --accent-dark: #00b8d4;
+                --accent-light: #33e7ff;
+                
+                --border: #2d3340;
+                --border-light: #3d4452;
+                
+                --success: #22c55e;
+                --warning: #f59e0b;
+                --danger: #ef4444;
+                
+                --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+                --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+                --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+                --shadow-accent: 0 4px 16px rgba(0, 225, 255, 0.2);
+                
+                --radius: 12px;
+                --radius-sm: 8px;
+                --radius-lg: 16px;
             }
 
-            .participant-avatar-image {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                border-radius: 50%;
+            body {
+                background: var(--bg-primary);
+                color: var(--text-primary);
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             }
 
-            .participant-avatar-placeholder {
-                width: 100%;
-                height: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            /* Ajustes no PickList - Tamanho maior */
-            .p-picklist {
-                display: flex;
-                gap: 1.5rem;
-                width: 100%;
-            }
-
-            .p-picklist-list,
-            .ui-picklist .ui-picklist-list {
-                min-height: 800px;
-                max-height: 900px;
-                height: 800px;
-                background-color: var(--bg-800);
-                border: 1px solid var(--border);
-                border-radius: var(--radius);
-            }
-
-            .p-picklist-item {
-                padding: 1rem;
+            /* Header */
+            .header-container {
+                background: var(--bg-card);
                 border-bottom: 1px solid var(--border);
-                background-color: var(--bg-800);
-                color: var(--text-100);
-                transition: background-color 0.2s ease;
+                box-shadow: var(--shadow-md);
+                margin-bottom: 2rem;
             }
 
-            .p-picklist-item:hover {
-                background-color: var(--bg-700);
-            }
-
-            .p-picklist-item.ui-state-highlight {
-                background-color: var(--bg-700);
-                border-color: var(--accent);
-            }
-
-            .p-picklist-filter-container {
-                margin-bottom: 0.5rem;
-            }
-
-            .p-picklist-filter-container .p-inputtext {
-                background-color: var(--bg-700);
-                border: 1px solid var(--border);
-                color: var(--text-100);
-                border-radius: 8px;
-                padding: 0.5rem 0.75rem;
-            }
-
-            .p-picklist-filter-container .p-inputtext:focus {
-                border-color: var(--accent);
-                box-shadow: 0 0 0 2px rgba(0, 225, 255, 0.1);
-            }
-
-            .p-picklist-filter-container .p-inputtext::placeholder {
-                color: var(--muted);
-            }
-
-            /* Botões do PickList */
-            .p-picklist-buttons,
-            .ui-picklist-buttons-cell {
+            .header-content {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 1.5rem 2rem;
                 display: flex;
-                flex-direction: column;
-                justify-content: center;
-                gap: 0.75rem;
-                padding: 0 0.75rem;
+                justify-content: space-between;
+                align-items: center;
+                gap: 1.5rem;
+                flex-wrap: wrap;
             }
 
-            .p-picklist-buttons .p-button,
-            .ui-picklist-buttons-cell .p-button,
-            .ui-picklist-buttons-cell .ui-button {
+            .header-left {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                flex: 1;
+            }
+
+            .header-icon-wrapper {
+                padding: 0.75rem;
+                background: rgba(0, 225, 255, 0.1);
+                border-radius: var(--radius-sm);
+            }
+
+            .header-icon {
+                font-size: 2rem;
+                color: var(--accent);
+            }
+
+            .header-title {
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin: 0 0 0.25rem 0;
+                color: var(--text-primary);
+            }
+
+            .header-subtitle {
+                font-size: 1.125rem;
+                color: var(--text-secondary);
                 margin: 0;
-                background: linear-gradient(135deg, rgba(0, 225, 255, 0.12), rgba(0, 225, 255, 0.06)) !important;
-                border: 1px solid rgba(0, 225, 255, 0.25) !important;
-                color: var(--text-100) !important;
-                transition: all 0.2s ease !important;
-            }
-            
-            /* Forçar visibilidade dos ícones - TODOS os seletores possíveis */
-            .p-picklist-buttons *,
-            .ui-picklist-buttons-cell * {
-                color: var(--text-100) !important;
-            }
-            
-            .p-picklist-buttons .p-button *,
-            .p-picklist-buttons .p-button i,
-            .p-picklist-buttons .p-button .pi,
-            .p-picklist-buttons .p-button span,
-            .p-picklist-buttons .p-button span i,
-            .p-picklist-buttons .p-button span .pi,
-            .p-picklist-buttons .p-button .p-button-icon,
-            .p-picklist-buttons .p-button .p-button-icon-left,
-            .p-picklist-buttons .p-button .p-button-icon-right,
-            .ui-picklist-buttons-cell .p-button *,
-            .ui-picklist-buttons-cell .p-button i,
-            .ui-picklist-buttons-cell .p-button .pi,
-            .ui-picklist-buttons-cell .p-button span,
-            .ui-picklist-buttons-cell .p-button span i,
-            .ui-picklist-buttons-cell .p-button span .pi,
-            .ui-picklist-buttons-cell .ui-button *,
-            .ui-picklist-buttons-cell .ui-button i,
-            .ui-picklist-buttons-cell .ui-button .pi,
-            .ui-picklist-buttons-cell .ui-button span,
-            .ui-picklist-buttons-cell .ui-button span i,
-            .ui-picklist-buttons-cell .ui-button span .pi,
-            .ui-picklist-buttons-cell .ui-button .ui-button-icon,
-            .ui-picklist-buttons-cell .ui-button .ui-button-icon-left,
-            .ui-picklist-buttons-cell .ui-button .ui-button-icon-right,
-            .ui-picklist-buttons-cell .ui-button .ui-button-text {
-                color: var(--text-100) !important;
-                opacity: 1 !important;
-                visibility: visible !important;
-                display: inline-block !important;
-            }
-            
-            /* Garantir que ícones PrimeIcons apareçam */
-            .p-picklist-buttons .pi,
-            .ui-picklist-buttons-cell .pi {
-                color: var(--text-100) !important;
-                opacity: 1 !important;
-                visibility: visible !important;
-                display: inline-block !important;
-                font-family: 'PrimeIcons' !important;
             }
 
-            .p-picklist-buttons .p-button:hover,
-            .ui-picklist-buttons-cell .p-button:hover,
-            .ui-picklist-buttons-cell .ui-button:hover {
-                background: linear-gradient(135deg, rgba(0, 225, 255, 0.18), rgba(0, 225, 255, 0.10)) !important;
-                border-color: rgba(0, 225, 255, 0.4) !important;
-                color: var(--text-100) !important;
-                transform: translateY(-1px);
-                box-shadow: 0 8px 20px rgba(0, 225, 255, 0.2) !important;
-            }
-            
-            .p-picklist-buttons .p-button:hover *,
-            .p-picklist-buttons .p-button:hover i,
-            .p-picklist-buttons .p-button:hover .pi,
-            .ui-picklist-buttons-cell .p-button:hover *,
-            .ui-picklist-buttons-cell .p-button:hover i,
-            .ui-picklist-buttons-cell .p-button:hover .pi,
-            .ui-picklist-buttons-cell .ui-button:hover *,
-            .ui-picklist-buttons-cell .ui-button:hover i,
-            .ui-picklist-buttons-cell .ui-button:hover .pi {
-                color: var(--text-100) !important;
-                opacity: 1 !important;
-            }
-            
-            .p-picklist-buttons .p-button:active,
-            .ui-picklist-buttons-cell .p-button:active,
-            .ui-picklist-buttons-cell .ui-button:active {
-                background: linear-gradient(135deg, rgba(0, 225, 255, 0.15), rgba(0, 225, 255, 0.08)) !important;
+            /* Progress Card */
+            .progress-card {
+                max-width: 1400px;
+                margin: 0 auto 2rem;
+                padding: 1.5rem 2rem;
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-lg);
+                box-shadow: var(--shadow-md);
             }
 
-            /* Captions */
-            .p-picklist-caption {
-                background-color: var(--bg-700);
-                padding: 1rem;
-                border-bottom: 2px solid var(--border);
+            .progress-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.5rem;
+                gap: 1.5rem;
+                flex-wrap: wrap;
+            }
+
+            .progress-info {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                flex: 1;
+            }
+
+            .progress-icon-wrapper {
+                padding: 0.5rem;
+                background: rgba(0, 225, 255, 0.1);
+                border-radius: var(--radius-sm);
+            }
+
+            .progress-icon-wrapper i {
+                font-size: 1.25rem;
+                color: var(--accent);
+            }
+
+            .progress-title {
+                font-size: 1.25rem;
                 font-weight: 600;
-                color: var(--text-100);
+                margin: 0 0 0.25rem 0;
+                color: var(--text-primary);
             }
 
-            /* Scrollbar personalizado */
-            .p-picklist-list::-webkit-scrollbar {
+            .progress-subtitle {
+                font-size: 0.875rem;
+                color: var(--text-secondary);
+                margin: 0;
+            }
+
+            .progress-counter {
+                text-align: right;
+            }
+
+            .counter-number {
+                font-size: 2rem;
+                font-weight: 700;
+                color: var(--accent);
+                line-height: 1;
+            }
+
+            .counter-label {
+                font-size: 0.875rem;
+                color: var(--text-secondary);
+            }
+
+            .progress-bar-wrapper {
+                width: 100%;
+                height: 12px;
+                background: var(--bg-secondary);
+                border-radius: 999px;
+                overflow: hidden;
+            }
+
+            .progress-bar-fill {
+                height: 100%;
+                background: linear-gradient(90deg, var(--accent), var(--accent-light));
+                border-radius: 999px;
+                transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            /* Main Grid */
+            .main-grid {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 0 2rem 2rem;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 2rem;
+            }
+
+            @media (max-width: 1024px) {
+                .main-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            /* Section Card */
+            .section-card {
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-lg);
+                padding: 1.5rem;
+                box-shadow: var(--shadow-md);
+            }
+
+            .section-header {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .section-icon-wrapper {
+                padding: 0.5rem;
+                background: var(--bg-secondary);
+                border-radius: var(--radius-sm);
+            }
+
+            .section-icon-wrapper.selected {
+                background: rgba(0, 225, 255, 0.1);
+            }
+
+            .section-icon-wrapper i {
+                font-size: 1.25rem;
+                color: var(--text-primary);
+            }
+
+            .section-icon-wrapper.selected i {
+                color: var(--accent);
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+                font-weight: 700;
+                margin: 0;
+                flex: 1;
+                color: var(--text-primary);
+            }
+
+            .section-badge {
+                font-size: 0.875rem;
+                font-weight: 500;
+                padding: 0.375rem 0.75rem;
+                background: var(--bg-secondary);
+                color: var(--text-secondary);
+                border-radius: 999px;
+            }
+
+            .section-badge.selected {
+                background: rgba(0, 225, 255, 0.1);
+                color: var(--accent);
+            }
+
+            /* Search */
+            .search-wrapper {
+                margin-bottom: 1.5rem;
+            }
+
+            .search-input {
+                width: 100%;
+                padding: 0.75rem 1rem;
+                background: var(--bg-primary);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                color: var(--text-primary);
+                font-size: 0.9375rem;
+                transition: all 0.2s ease;
+            }
+
+            .search-input:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px rgba(0, 225, 255, 0.1);
+                outline: none;
+            }
+
+            .search-input::placeholder {
+                color: var(--text-muted);
+            }
+
+            /* Players List */
+            .players-list-wrapper {
+                max-height: 600px;
+                overflow-y: auto;
+                padding-right: 0.5rem;
+            }
+
+            .players-list-wrapper::-webkit-scrollbar {
                 width: 8px;
             }
 
-            .p-picklist-list::-webkit-scrollbar-track {
-                background: var(--bg-900);
+            .players-list-wrapper::-webkit-scrollbar-track {
+                background: var(--bg-secondary);
                 border-radius: 4px;
             }
 
-            .p-picklist-list::-webkit-scrollbar-thumb {
-                background: var(--bg-600);
+            .players-list-wrapper::-webkit-scrollbar-thumb {
+                background: rgba(0, 225, 255, 0.3);
                 border-radius: 4px;
             }
 
-            .p-picklist-list::-webkit-scrollbar-thumb:hover {
+            .players-list-wrapper::-webkit-scrollbar-thumb:hover {
                 background: var(--accent);
             }
 
-            /* ============================================
-               ESTILOS DO DIALOG DE CONFIGURAÇÃO
-               ============================================ */
-            
-            /* Container principal do dialog */
-            .config-sorteio-dialog .ui-dialog-content {
-                padding: 2rem !important;
+            .players-data-list {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            /* Player Card Wrapper */
+            .player-card-wrapper {
+                width: 100%;
+            }
+
+            /* Player Card Link - Estilização completa */
+            .player-card-link,
+            a.player-card-link {
+                display: block;
+                width: 100%;
+                text-decoration: none;
+                color: inherit;
+                cursor: pointer;
             }
             
-            .dialog-content-wrapper {
+            .player-card-link:link,
+            .player-card-link:visited,
+            .player-card-link:hover,
+            .player-card-link:active,
+            a.player-card-link:link,
+            a.player-card-link:visited,
+            a.player-card-link:hover,
+            a.player-card-link:active {
+                text-decoration: none;
+                color: inherit;
+            }
+
+            /* Player Card */
+            .player-card {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 1rem;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                cursor: pointer;
+                transition: all 0.3s ease;
+                position: relative;
+                width: 100%;
+            }
+
+            .player-card-link:hover .player-card {
+                border-color: rgba(0, 225, 255, 0.5);
+                box-shadow: 0 4px 12px rgba(0, 225, 255, 0.15);
+                transform: translateY(-2px);
+            }
+
+            .player-avatar-wrapper {
+                position: relative;
+                flex-shrink: 0;
+            }
+
+            .player-avatar-img,
+            .player-avatar-placeholder {
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            .player-avatar-placeholder {
+                background: linear-gradient(135deg, rgba(0, 225, 255, 0.2), rgba(0, 225, 255, 0.05));
+                border: 2px solid rgba(0, 225, 255, 0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                font-size: 1.25rem;
+                color: var(--text-primary);
+            }
+
+            .player-avatar-placeholder.selected {
+                background: linear-gradient(135deg, rgba(0, 225, 255, 0.3), rgba(0, 225, 255, 0.1));
+                border-color: rgba(0, 225, 255, 0.5);
+            }
+
+            .player-add-icon {
+                position: absolute;
+                bottom: -4px;
+                right: -4px;
+                width: 24px;
+                height: 24px;
+                background: var(--accent);
+                border: 2px solid var(--bg-card);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .player-card-link:hover .player-add-icon {
+                opacity: 1;
+            }
+
+            .player-add-icon i {
+                font-size: 0.75rem;
+                color: var(--bg-primary);
+            }
+
+            .player-info {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .player-nick {
+                font-size: 1.125rem;
+                font-weight: 600;
+                color: var(--text-primary);
+                margin-bottom: 0.25rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .player-name {
+                font-size: 0.875rem;
+                color: var(--text-secondary);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            /* Selected Player Card */
+            .selected-player-card {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 1rem;
+                background: linear-gradient(90deg, rgba(0, 225, 255, 0.05), transparent);
+                border: 1px solid rgba(0, 225, 255, 0.2);
+                border-radius: var(--radius);
+                transition: all 0.3s ease;
+                animation: slideIn 0.3s ease;
+            }
+
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            .selected-player-card:hover {
+                border-color: rgba(0, 225, 255, 0.5);
+                box-shadow: var(--shadow-accent);
+            }
+
+            .player-number {
+                position: absolute;
+                top: -4px;
+                right: -4px;
+                width: 24px;
+                height: 24px;
+                background: var(--accent);
+                border: 2px solid var(--bg-card);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: var(--bg-primary);
+            }
+
+            /* Empty State */
+            .empty-state {
+                text-align: center;
+                padding: 3rem 1.5rem;
+                border: 2px dashed var(--border);
+                border-radius: var(--radius);
+            }
+
+            .empty-icon {
+                font-size: 3rem;
+                color: var(--text-muted);
+                margin-bottom: 1rem;
+                opacity: 0.5;
+            }
+
+            .empty-title {
+                font-size: 1rem;
+                font-weight: 600;
+                color: var(--text-primary);
+                margin: 0 0 0.5rem 0;
+            }
+
+            .empty-subtitle {
+                font-size: 0.875rem;
+                color: var(--text-secondary);
+                margin: 0;
+            }
+
+            /* Info Messages */
+            .info-message {
+                margin-top: 1rem;
+                padding: 0.875rem 1rem;
+                border-radius: var(--radius-sm);
+                font-size: 0.875rem;
+                text-align: center;
+            }
+
+            .info-message.warning {
+                background: rgba(245, 158, 11, 0.1);
+                border: 1px solid rgba(245, 158, 11, 0.3);
+                color: var(--warning);
+            }
+
+            .info-message.success {
+                background: rgba(34, 197, 94, 0.1);
+                border: 1px solid rgba(34, 197, 94, 0.3);
+                color: var(--success);
+            }
+
+            /* Actions Card */
+            .actions-card {
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-lg);
+                padding: 1.5rem;
+                box-shadow: var(--shadow-md);
+                margin-top: 1rem;
+            }
+
+            .actions-buttons {
+                display: flex;
+                justify-content: flex-end;
+                gap: 0.75rem;
+            }
+
+            /* Buttons */
+            .btn-outline,
+            .ui-button.btn-outline {
+                padding: 0.625rem 1.25rem;
+                background: transparent;
+                border: 1px solid var(--border);
+                color: var(--text-primary);
+                border-radius: var(--radius-sm);
+                font-weight: 600;
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+
+            .btn-outline:hover,
+            .ui-button.btn-outline:hover {
+                background: var(--bg-hover);
+                border-color: var(--accent);
+                transform: translateY(-1px);
+            }
+
+            .btn-primary,
+            .ui-button.btn-primary {
+                padding: 0.625rem 1.25rem;
+                background: linear-gradient(135deg, rgba(0, 225, 255, 0.15), rgba(0, 225, 255, 0.08));
+                border: 1px solid rgba(0, 225, 255, 0.3);
+                color: var(--text-primary);
+                border-radius: var(--radius-sm);
+                font-weight: 600;
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+
+            .btn-primary:hover:not(:disabled),
+            .ui-button.btn-primary:hover:not(.ui-state-disabled) {
+                background: linear-gradient(135deg, rgba(0, 225, 255, 0.25), rgba(0, 225, 255, 0.15));
+                border-color: rgba(0, 225, 255, 0.5);
+                box-shadow: var(--shadow-accent);
+                transform: translateY(-1px);
+            }
+
+            .btn-primary:disabled,
+            .ui-button.btn-primary.ui-state-disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+            .btn-remove,
+            .ui-button.btn-remove {
+                width: 32px;
+                height: 32px;
+                padding: 0;
+                background: transparent;
+                border: none;
+                color: var(--danger);
+                border-radius: var(--radius-sm);
+                transition: all 0.2s ease;
+                cursor: pointer;
+                opacity: 0;
+            }
+
+            .selected-player-card:hover .btn-remove,
+            .selected-player-card:hover .ui-button.btn-remove {
+                opacity: 1;
+            }
+
+            .btn-remove:hover,
+            .ui-button.btn-remove:hover {
+                background: rgba(239, 68, 68, 0.1);
+            }
+
+            /* Dialog */
+            .modern-dialog .ui-dialog-content {
+                background: var(--bg-card);
+                padding: 2rem;
+            }
+
+            .modern-dialog .ui-dialog-titlebar {
+                background: var(--bg-card);
+                border-bottom: 1px solid var(--border);
+                padding: 1.5rem 2rem;
+            }
+
+            .modern-dialog .ui-dialog-title {
+                color: var(--text-primary);
+                font-size: 1.5rem;
+                font-weight: 700;
+            }
+
+            .dialog-content {
                 display: flex;
                 flex-direction: column;
                 gap: 1.5rem;
             }
-            
-            /* Info Box */
-            .info-box {
-                background: linear-gradient(135deg, rgba(0, 225, 255, 0.08), rgba(0, 225, 255, 0.03));
-                border: 1px solid rgba(0, 225, 255, 0.2);
-                border-radius: 12px;
-                padding: 1.25rem;
+
+            .dialog-info-box {
                 display: flex;
                 gap: 1rem;
-                align-items: flex-start;
+                padding: 1.25rem;
+                background: rgba(0, 225, 255, 0.08);
+                border: 1px solid rgba(0, 225, 255, 0.2);
+                border-radius: var(--radius);
             }
-            
-            .info-box-icon {
-                flex-shrink: 0;
+
+            .dialog-info-icon {
                 width: 40px;
                 height: 40px;
+                flex-shrink: 0;
                 background: rgba(0, 225, 255, 0.15);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                color: var(--accent);
+            }
+
+            .dialog-info-icon i {
                 font-size: 1.25rem;
+                color: var(--accent);
             }
-            
-            .info-box-content {
-                flex: 1;
-            }
-            
-            .info-box-title {
-                color: var(--text-100);
+
+            .dialog-info-title {
                 font-size: 1rem;
                 font-weight: 700;
+                color: var(--text-primary);
                 margin: 0 0 0.5rem 0;
             }
-            
-            .info-box-text {
-                color: var(--text-300);
+
+            .dialog-info-text {
                 font-size: 0.875rem;
+                color: var(--text-secondary);
                 line-height: 1.6;
                 margin: 0;
             }
-            
-            /* Formulário */
-            .dialog-form {
-                display: flex;
-                flex-direction: column;
-                gap: 2rem;
-            }
-            
-            /* Seções do formulário */
-            .form-section {
+
+            .dialog-section {
                 display: flex;
                 flex-direction: column;
                 gap: 1rem;
             }
-            
-            .section-title {
-                color: var(--text-100);
-                font-size: 1rem;
-                font-weight: 600;
-                margin: 0;
+
+            .dialog-section-header {
                 display: flex;
                 align-items: center;
+                gap: 0.5rem;
                 padding-bottom: 0.75rem;
                 border-bottom: 1px solid var(--border);
             }
-            
-            .section-title i {
+
+            .dialog-section-header i {
                 color: var(--accent);
                 font-size: 1.1rem;
             }
-            
-            /* Field Wrapper */
-            .field-wrapper {
+
+            .dialog-section-header h3 {
+                font-size: 1rem;
+                font-weight: 600;
+                color: var(--text-primary);
+                margin: 0;
+            }
+
+            .dialog-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+
+            .dialog-field {
                 display: flex;
                 flex-direction: column;
                 gap: 0.5rem;
             }
-            
-            .field-label {
-                color: var(--text-200);
+
+            .dialog-label {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
                 font-size: 0.875rem;
                 font-weight: 600;
+                color: var(--text-secondary);
+            }
+
+            .team-color {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+            }
+
+            .team-color.blue {
+                background: #3b82f6;
+            }
+
+            .team-color.red {
+                background: #ef4444;
+            }
+
+            .dialog-input {
+                width: 100%;
+                padding: 0.75rem 1rem;
+                background: var(--bg-primary);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                color: var(--text-primary);
+                font-size: 0.9375rem;
+                transition: all 0.2s ease;
+            }
+
+            .dialog-input:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px rgba(0, 225, 255, 0.1);
+                outline: none;
+            }
+
+            .modern-radio-group {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .modern-radio-group .ui-radiobutton-label {
                 display: flex;
                 align-items: center;
-                margin-bottom: 0.25rem;
-            }
-            
-            .field-label i {
-                color: var(--accent);
-                font-size: 0.75rem;
-            }
-            
-            /* Inputs */
-            .dialog-input {
-                width: 100% !important;
-                background-color: var(--bg-700) !important;
-                border: 1px solid var(--border) !important;
-                color: var(--text-100) !important;
-                border-radius: 8px !important;
-                padding: 0.75rem 1rem !important;
-                font-size: 0.9375rem !important;
-                transition: all 0.2s ease !important;
-            }
-            
-            .dialog-input:focus {
-                border-color: var(--accent) !important;
-                box-shadow: 0 0 0 3px rgba(0, 225, 255, 0.1) !important;
-                outline: none !important;
-            }
-            
-            .dialog-input::placeholder {
-                color: var(--muted) !important;
-            }
-            
-            /* SelectOneRadio - Formato da Partida */
-            .formato-radio-group {
-                padding: 1.5rem;
-                background: rgba(255, 255, 255, 0.02);
+                padding: 1rem 1.25rem;
+                background: rgba(255, 255, 255, 0.03);
                 border: 1px solid var(--border);
-                border-radius: 12px;
-            }
-            
-            /* Tabela do SelectOneRadio */
-            .formato-radio-group table {
-                width: 100% !important;
-                border-collapse: separate !important;
-                border-spacing: 0 1.75rem !important;
-            }
-            
-            .formato-radio-group tbody {
-                display: table-row-group !important;
-            }
-            
-            .formato-radio-group tr {
-                display: table-row !important;
-                background: rgba(255, 255, 255, 0.03) !important;
-                border: 1px solid var(--border) !important;
-                border-radius: 10px !important;
-                transition: all 0.2s ease !important;
-                cursor: pointer !important;
-                margin-bottom: 1rem !important;
-            }
-            
-            .formato-radio-group tr:hover {
-                background: rgba(255, 255, 255, 0.06) !important;
-                border-color: var(--accent) !important;
-                transform: translateX(4px);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            }
-            
-            .formato-radio-group tr td {
-                padding: 1.5rem 1.75rem !important;
-                border: none !important;
-                vertical-align: middle !important;
-            }
-            
-            .formato-radio-group tr td:first-child {
-                width: 70px !important;
-                min-width: 70px !important;
-                max-width: 70px !important;
-                padding-right: 1.25rem !important;
-                padding-left: 1.5rem !important;
-                text-align: center !important;
-                white-space: nowrap !important;
-            }
-            
-            .formato-radio-group tr td:last-child {
-                padding-left: 0 !important;
-                padding-right: 1.5rem !important;
-                width: auto !important;
-                white-space: normal !important;
-            }
-            
-            .formato-radio-group .p-radiobutton,
-            .formato-radio-group .ui-radiobutton {
-                margin: 0 !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-            }
-            
-            .formato-radio-group label {
-                color: var(--text-100) !important;
-                font-size: 1rem !important;
-                font-weight: 500 !important;
+                border-radius: var(--radius);
                 cursor: pointer;
                 transition: all 0.2s ease;
-                margin: 0 !important;
-                padding: 0 !important;
-                display: block !important;
-                line-height: 1.6 !important;
-                white-space: normal !important;
-                word-wrap: break-word !important;
-                width: 100% !important;
             }
-            
-            /* Estado selecionado */
-            .formato-radio-group tr:has(.p-radiobutton-box.p-highlight),
-            .formato-radio-group tr:has(.ui-radiobutton-box.ui-state-active),
-            .formato-radio-group tr.ui-state-active {
-                background: rgba(0, 225, 255, 0.1) !important;
-                border-color: var(--accent) !important;
-                border-width: 2px !important;
-                box-shadow: 0 0 0 2px rgba(0, 225, 255, 0.1) !important;
+
+            .modern-radio-group .ui-radiobutton-label:hover {
+                background: rgba(255, 255, 255, 0.06);
+                border-color: var(--accent);
             }
-            
-            .formato-radio-group tr:has(.p-radiobutton-box.p-highlight) label,
-            .formato-radio-group tr:has(.ui-radiobutton-box.ui-state-active) label,
-            .formato-radio-group tr.ui-state-active label {
-                color: var(--accent) !important;
-                font-weight: 700 !important;
-            }
-            
-            /* Fallback para navegadores que não suportam :has() */
-            .formato-radio-group .p-radiobutton-box.p-highlight ~ label,
-            .formato-radio-group .ui-radiobutton-box.ui-state-active ~ label {
-                color: var(--accent) !important;
-                font-weight: 700 !important;
-            }
-            
-            /* Garantir que cada linha tenha espaço suficiente */
-            .formato-radio-group tbody tr {
-                min-height: 80px !important;
-                height: auto !important;
-                margin-bottom: 1.75rem !important;
-            }
-            
-            /* Espaçamento extra para evitar sobreposição */
-            .formato-radio-group tbody tr + tr {
-                margin-top: 1.75rem !important;
-            }
-            
-            /* Espaçamento adicional entre elementos */
-            .formato-radio-group .p-radiobutton-box,
-            .formato-radio-group .ui-radiobutton-box {
-                margin-right: 0 !important;
-            }
-            
-            /* Container do selectOneRadio quando usa layout responsive - LAYOUT HORIZONTAL */
-            .formato-radio-group .p-selectoneradio,
-            .formato-radio-group .ui-selectoneradio {
-                display: flex !important;
-                flex-direction: row !important;
-                flex-wrap: wrap !important;
-                gap: 1.5rem !important;
-                width: 100% !important;
-                justify-content: flex-start !important;
-            }
-            
-            /* Estilos para divs com role="radio" geradas pelo PrimeFaces (layout responsive) */
-            .formato-radio-group div[role="radio"],
-            .formato-radio-group .col-12[role="radio"],
-            .formato-radio-group .md\:col-1[role="radio"] {
-                flex: 0 0 auto !important;
-                width: auto !important;
-                min-width: 140px !important;
-                margin: 0 !important;
-                padding: 1rem 1.5rem !important;
-                background: rgba(255, 255, 255, 0.03) !important;
-                border: 1px solid var(--border) !important;
-                border-radius: 10px !important;
-                transition: all 0.2s ease !important;
-                cursor: pointer !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                gap: 0.75rem !important;
-                text-align: center !important;
-                white-space: nowrap !important;
-            }
-            
-            .formato-radio-group div[role="radio"]:hover,
-            .formato-radio-group .col-12[role="radio"]:hover,
-            .formato-radio-group .md\:col-1[role="radio"]:hover {
-                background: rgba(255, 255, 255, 0.06) !important;
-                border-color: var(--accent) !important;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            }
-            
-            .formato-radio-group div[role="radio"][aria-checked="true"],
-            .formato-radio-group .col-12[role="radio"][aria-checked="true"],
-            .formato-radio-group .md\:col-1[role="radio"][aria-checked="true"] {
-                background: rgba(0, 225, 255, 0.1) !important;
-                border-color: var(--accent) !important;
-                border-width: 2px !important;
-                box-shadow: 0 0 0 2px rgba(0, 225, 255, 0.1) !important;
-            }
-            
-            /* Remover classes do PrimeFlex que podem estar interferindo */
-            .formato-radio-group .col-12,
-            .formato-radio-group .md\:col-1 {
-                width: auto !important;
-                flex: 0 0 auto !important;
-            }
-            
-            /* Field Hint */
-            .field-hint {
+
+            .dialog-hint {
                 display: flex;
-                align-items: center;
-                margin-top: 0.75rem;
+                align-items: start;
+                gap: 0.5rem;
                 padding: 0.75rem;
                 background: rgba(255, 255, 255, 0.03);
-                border-left: 3px solid var(--accent);
-                border-radius: 6px;
-                color: var(--text-300);
+                border-left: 2px solid var(--accent);
+                border-radius: var(--radius-sm);
                 font-size: 0.8125rem;
-                line-height: 1.5;
+                color: var(--text-secondary);
             }
-            
-            .field-hint i {
+
+            .dialog-hint i {
                 color: var(--accent);
                 font-size: 0.875rem;
-                flex-shrink: 0;
+                margin-top: 2px;
             }
-            
-            /* Botões de Ação */
+
             .dialog-actions {
                 display: flex;
                 justify-content: flex-end;
                 gap: 0.75rem;
                 padding-top: 1.5rem;
                 border-top: 1px solid var(--border);
-                margin-top: 0.5rem;
             }
-            
-            .dialog-btn {
-                min-width: 140px !important;
-                padding: 0.75rem 1.5rem !important;
-                font-weight: 600 !important;
-                font-size: 0.9375rem !important;
-                border-radius: 8px !important;
-                transition: all 0.2s ease !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                gap: 0.5rem !important;
+
+            .btn-dialog-cancel,
+            .ui-button.btn-dialog-cancel {
+                min-width: 140px;
+                padding: 0.75rem 1.5rem;
+                background: transparent;
+                border: 1px solid var(--border);
+                color: var(--text-secondary);
+                border-radius: var(--radius-sm);
+                font-weight: 600;
+                transition: all 0.2s ease;
             }
-            
-            .dialog-btn i {
-                font-size: 1rem !important;
+
+            .btn-dialog-cancel:hover,
+            .ui-button.btn-dialog-cancel:hover {
+                background: var(--bg-hover);
+                border-color: var(--text-secondary);
+                color: var(--text-primary);
             }
-            
-            .dialog-btn-cancel {
-                background: transparent !important;
-                border: 1px solid var(--border) !important;
-                color: var(--text-200) !important;
+
+            .btn-dialog-primary,
+            .ui-button.btn-dialog-primary {
+                min-width: 140px;
+                padding: 0.75rem 1.5rem;
+                background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.08));
+                border: 1px solid rgba(34, 197, 94, 0.3);
+                color: var(--text-primary);
+                border-radius: var(--radius-sm);
+                font-weight: 600;
+                transition: all 0.2s ease;
             }
-            
-            .dialog-btn-cancel:hover {
-                background: rgba(255, 255, 255, 0.06) !important;
-                border-color: var(--text-300) !important;
-                color: var(--text-100) !important;
-                transform: translateY(-1px);
+
+            .btn-dialog-primary:hover,
+            .ui-button.btn-dialog-primary:hover {
+                background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(34, 197, 94, 0.15));
+                border-color: rgba(34, 197, 94, 0.5);
+                box-shadow: 0 8px 20px rgba(34, 197, 94, 0.2);
             }
-            
-            .dialog-btn-primary {
-                background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.08)) !important;
-                border: 1px solid rgba(34, 197, 94, 0.3) !important;
-                color: var(--text-100) !important;
-            }
-            
-            .dialog-btn-primary:hover {
-                background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(34, 197, 94, 0.15)) !important;
-                border-color: rgba(34, 197, 94, 0.5) !important;
-                transform: translateY(-1px);
-                box-shadow: 0 8px 20px rgba(34, 197, 94, 0.2) !important;
-            }
-            
+
             /* Responsividade */
             @media (max-width: 768px) {
-                .config-sorteio-dialog .ui-dialog-content {
-                    padding: 1.5rem !important;
-                }
-                
+                .header-content,
+                .actions-buttons,
                 .dialog-actions {
                     flex-direction: column;
                 }
-                
-                .dialog-btn {
-                    width: 100% !important;
-                }
-                
-                .info-box {
-                    flex-direction: column;
-                    text-align: center;
-                }
-                
-                .info-box-icon {
-                    margin: 0 auto;
-                }
-            }
 
-            /* Inputs no dialog */
-            #confirmarCriacaoX5Dialog .p-inputtext {
-                background-color: var(--bg-700);
-                border: 1px solid var(--border);
-                color: var(--text-100);
-                border-radius: 8px;
-                padding: 0.625rem 0.875rem;
-                transition: all 0.2s ease;
-            }
-
-            #confirmarCriacaoX5Dialog .p-inputtext:focus {
-                border-color: var(--accent);
-                box-shadow: 0 0 0 2px rgba(0, 225, 255, 0.1);
-                outline: none;
-            }
-
-            #confirmarCriacaoX5Dialog .p-inputtext::placeholder {
-                color: var(--muted);
-            }
-
-            /* Labels no dialog */
-            #confirmarCriacaoX5Dialog label {
-                color: var(--text-100);
-            }
-
-            /* Divider no dialog */
-            #confirmarCriacaoX5Dialog .p-divider {
-                border-color: var(--border);
-            }
-
-            /* Botões no dialog - garantir estilo padrão */
-            #confirmarCriacaoX5Dialog .p-button {
-                transition: all 0.2s ease;
-                border-radius: 8px;
-                font-weight: 600;
-            }
-
-            #confirmarCriacaoX5Dialog .p-button-outlined {
-                background: transparent !important;
-                border: 1px solid var(--border) !important;
-                color: var(--text-100) !important;
-            }
-
-            #confirmarCriacaoX5Dialog .p-button-outlined:hover {
-                background: rgba(255,255,255,0.06) !important;
-                border-color: var(--accent) !important;
-                transform: translateY(-1px);
-            }
-
-            #confirmarCriacaoX5Dialog .p-button-success {
-                background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.08)) !important;
-                border: 1px solid rgba(34,197,94,0.3) !important;
-                color: var(--text-100) !important;
-            }
-
-            #confirmarCriacaoX5Dialog .p-button-success:hover {
-                background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(34,197,94,0.15)) !important;
-                border-color: rgba(34,197,94,0.5) !important;
-                transform: translateY(-1px);
-                box-shadow: 0 8px 20px rgba(34,197,94,0.2) !important;
-            }
-
-            /* Botões principais da página */
-            #formSorteioX5 .p-button {
-                transition: all 0.2s ease;
-                border-radius: 8px;
-                font-weight: 600;
-            }
-
-            #formSorteioX5 .p-button-outlined {
-                background: transparent !important;
-                border: 1px solid var(--border) !important;
-                color: var(--text-100) !important;
-            }
-
-            #formSorteioX5 .p-button-outlined:hover {
-                background: rgba(255,255,255,0.06) !important;
-                border-color: var(--accent) !important;
-                transform: translateY(-1px);
-            }
-
-            #formSorteioX5 .p-button-success {
-                background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.08)) !important;
-                border: 1px solid rgba(34,197,94,0.3) !important;
-                color: var(--text-100) !important;
-            }
-
-            #formSorteioX5 .p-button-success:hover {
-                background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(34,197,94,0.15)) !important;
-                border-color: rgba(34,197,94,0.5) !important;
-                transform: translateY(-1px);
-                box-shadow: 0 8px 20px rgba(34,197,94,0.2) !important;
-            }
-
-            /* Responsividade */
-            @media (max-width: 768px) {
-                .p-picklist {
-                    flex-direction: column;
-                    gap: 1rem;
+                .dialog-grid {
+                    grid-template-columns: 1fr;
                 }
 
-                .p-picklist-buttons {
-                    flex-direction: row;
-                    padding: 0.75rem 0;
-                    justify-content: center;
-                }
-
-                .p-picklist-list,
-                .ui-picklist .ui-picklist-list {
-                    min-height: 500px;
-                    max-height: 600px;
-                    height: 500px;
+                .btn-outline,
+                .btn-primary,
+                .btn-dialog-cancel,
+                .btn-dialog-primary {
+                    width: 100%;
                 }
             }
         </style>
