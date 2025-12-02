@@ -18,6 +18,8 @@ import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.primefaces.event.FileUploadEvent;
 
 /**
@@ -87,7 +89,11 @@ public class ManagerVersaoJogo implements Serializable {
     }
 
     public void doUpload(FileUploadEvent event) {
-        this.versao.setAnexo(anexoServico.fileUpload(event));
+        try {
+            this.versao.setAnexo(anexoServico.fileUpload(event));
+        } catch (Exception ex) {
+            Logger.getLogger(ManagerVersaoJogo.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }
 
