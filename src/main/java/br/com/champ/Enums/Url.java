@@ -59,6 +59,8 @@ public enum Url {
     BUSCAR_JOGO_NOME("/api/jogo/"),
     SALVAR_ANEXO("/api/anexo"),
     ATUALIZAR_ANEXO("/api/anexo"),
+    BUSCAR_ANEXO("/api/anexo/"),
+    BUSCAR_TODOS_ANEXO("/api/anexo/todos"),
     EXCLUIR_ANEXO("/api/anexo/excluir/"),
     SALVAR_VERSAO("/versao"),
     ATUALIZAR_VERSAO("/versao"),
