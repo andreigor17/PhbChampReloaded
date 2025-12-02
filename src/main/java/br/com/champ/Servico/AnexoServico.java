@@ -76,7 +76,7 @@ public class AnexoServico {
         }
     }
 
-    public Anexo fileUpload(FileUploadEvent event) {
+    public Anexo fileUpload(FileUploadEvent event) throws Exception {
 
         Anexo a = new Anexo();
         File tempFile = null;
@@ -303,8 +303,6 @@ public class AnexoServico {
             Logger.getLogger(AnexoServico.class.getName()).log(Level.SEVERE, "Erro ao fazer upload direto para API", e);
             throw e;
         }
-        
-        return null;
     }
     
     /**
