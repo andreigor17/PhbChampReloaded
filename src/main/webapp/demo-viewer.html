@@ -610,6 +610,7 @@
             html += '<th style="padding: 12px; text-align: left;">Jogador</th>';
             html += '<th style="padding: 12px; text-align: center;">K</th>';
             html += '<th style="padding: 12px; text-align: center;">D</th>';
+            html += '<th style="padding: 12px; text-align: center;">Dano</th>';
             html += '<th style="padding: 12px; text-align: center;">K/D</th>';
             html += '<th style="padding: 12px; text-align: center;">HS%</th>';
             html += '<th style="padding: 12px; text-align: center;">Arma</th>';
@@ -618,13 +619,14 @@
             html += '<tbody>';
             
             if (ctPlayers.length === 0) {
-                html += '<tr><td colspan="6" style="padding: 20px; text-align: center; color: #718096;">Nenhum jogador CT encontrado</td></tr>';
+                html += '<tr><td colspan="7" style="padding: 20px; text-align: center; color: #718096;">Nenhum jogador CT encontrado</td></tr>';
             } else {
                 ctPlayers.forEach(player => {
                     html += '<tr style="border-bottom: 1px solid #e2e8f0; transition: all 0.2s;" onmouseover="this.style.background=\'#ebf8ff\'" onmouseout="this.style.background=\'transparent\'">';
                     html += '<td style="padding: 12px;"><strong>' + (player.playerName || 'Unknown') + '</strong></td>';
                     html += '<td style="padding: 12px; text-align: center;">' + (player.kills || 0) + '</td>';
-                    html += '<td style="padding: 12px; text-align: center;">' + (player.deaths || 0) + '</td>';
+                    html += '<td style="padding: 12px; text-align: center;"><span style="color: #e53e3e; font-weight: bold;">' + (player.deaths || 0) + '</span></td>';
+                    html += '<td style="padding: 12px; text-align: center;"><span style="color: #38a169; font-weight: bold;">' + (player.damage || 0) + '</span></td>';
                     html += '<td style="padding: 12px; text-align: center;">' + (player.kdr ? player.kdr.toFixed(2) : '0.00') + '</td>';
                     html += '<td style="padding: 12px; text-align: center;">' + (player.headshotPercentage ? player.headshotPercentage.toFixed(1) : '0.0') + '%</td>';
                     html += '<td style="padding: 12px; text-align: center;"><code style="background: #3182ce; color: white; padding: 4px 8px; border-radius: 5px; font-size: 0.85em;">' + (player.favoriteWeapon || 'N/A') + '</code></td>';
@@ -643,6 +645,7 @@
             html += '<th style="padding: 12px; text-align: left;">Jogador</th>';
             html += '<th style="padding: 12px; text-align: center;">K</th>';
             html += '<th style="padding: 12px; text-align: center;">D</th>';
+            html += '<th style="padding: 12px; text-align: center;">Dano</th>';
             html += '<th style="padding: 12px; text-align: center;">K/D</th>';
             html += '<th style="padding: 12px; text-align: center;">HS%</th>';
             html += '<th style="padding: 12px; text-align: center;">Arma</th>';
@@ -651,13 +654,14 @@
             html += '<tbody>';
             
             if (tPlayers.length === 0) {
-                html += '<tr><td colspan="6" style="padding: 20px; text-align: center; color: #718096;">Nenhum jogador Terrorist encontrado</td></tr>';
+                html += '<tr><td colspan="7" style="padding: 20px; text-align: center; color: #718096;">Nenhum jogador Terrorist encontrado</td></tr>';
             } else {
                 tPlayers.forEach(player => {
                     html += '<tr style="border-bottom: 1px solid #e2e8f0; transition: all 0.2s;" onmouseover="this.style.background=\'#fff5f5\'" onmouseout="this.style.background=\'transparent\'">';
                     html += '<td style="padding: 12px;"><strong>' + (player.playerName || 'Unknown') + '</strong></td>';
                     html += '<td style="padding: 12px; text-align: center;">' + (player.kills || 0) + '</td>';
-                    html += '<td style="padding: 12px; text-align: center;">' + (player.deaths || 0) + '</td>';
+                    html += '<td style="padding: 12px; text-align: center;"><span style="color: #e53e3e; font-weight: bold;">' + (player.deaths || 0) + '</span></td>';
+                    html += '<td style="padding: 12px; text-align: center;"><span style="color: #38a169; font-weight: bold;">' + (player.damage || 0) + '</span></td>';
                     html += '<td style="padding: 12px; text-align: center;">' + (player.kdr ? player.kdr.toFixed(2) : '0.00') + '</td>';
                     html += '<td style="padding: 12px; text-align: center;">' + (player.headshotPercentage ? player.headshotPercentage.toFixed(1) : '0.0') + '%</td>';
                     html += '<td style="padding: 12px; text-align: center;"><code style="background: #e53e3e; color: white; padding: 4px 8px; border-radius: 5px; font-size: 0.85em;">' + (player.favoriteWeapon || 'N/A') + '</code></td>';
@@ -698,19 +702,26 @@
                 if (kills.length > 0) {
                     html += '<div style="margin-top: 15px;"><strong>Kills (' + kills.length + '):</strong><ul style="list-style: none; padding: 0; margin-top: 10px;">';
                     
-                    kills.slice(0, 10).forEach(kill => {
+                    kills.slice(0, 20).forEach(kill => {
                         const headshotBadge = kill.headshot ? '<span style="background: #e53e3e; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.8em; font-weight: bold; margin-left: 5px;">HS</span>' : '';
-                        html += '<li style="padding: 10px; margin: 5px 0; background: #f7fafc; border-radius: 5px; display: flex; align-items: center; gap: 10px;">' +
-                            '<span style="font-weight: bold;">' + (kill.killerName || 'Unknown') + '</span>' +
-                            '<span style="background: #667eea; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">' + (kill.weapon || 'unknown') + '</span>' +
+                        
+                        // Define cor do time do killer
+                        const killerTeamColor = (kill.killerTeam || '').toUpperCase() === 'CT' ? '#3182ce' : '#e53e3e';
+                        const victimTeamColor = (kill.victimTeam || '').toUpperCase() === 'CT' ? '#3182ce' : '#e53e3e';
+                        
+                        html += '<li style="padding: 12px; margin: 5px 0; background: #f7fafc; border-radius: 5px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">' +
+                            '<span style="font-weight: bold; color: ' + killerTeamColor + '; min-width: 120px;">' + (kill.killerName || 'Unknown') + '</span>' +
+                            '<span style="background: ' + killerTeamColor + '; color: white; padding: 2px 8px; border-radius: 3px; font-size: 0.75em; font-weight: bold;">' + (kill.killerTeam || '?') + '</span>' +
+                            '<span style="background: #667eea; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em; font-weight: 600;">' + (kill.weapon || 'unknown') + '</span>' +
                             headshotBadge +
-                            '<span>→</span>' +
-                            '<span>' + (kill.victimName || 'Unknown') + '</span>' +
+                            '<span style="font-size: 1.2em;">→</span>' +
+                            '<span style="background: ' + victimTeamColor + '; color: white; padding: 2px 8px; border-radius: 3px; font-size: 0.75em; font-weight: bold;">' + (kill.victimTeam || '?') + '</span>' +
+                            '<span style="color: ' + victimTeamColor + '; min-width: 120px;">' + (kill.victimName || 'Unknown') + '</span>' +
                         '</li>';
                     });
                     
-                    if (kills.length > 10) {
-                        html += '<li style="padding: 10px; text-align: center; color: #718096; font-style: italic;">... e mais ' + (kills.length - 10) + ' kills</li>';
+                    if (kills.length > 20) {
+                        html += '<li style="padding: 10px; text-align: center; color: #718096; font-style: italic;">... e mais ' + (kills.length - 20) + ' kills</li>';
                     }
                     
                     html += '</ul></div>';
