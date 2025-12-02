@@ -1,0 +1,486 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="vercel.xhtml">
+
+    <ui:define name="content">
+        <div class="section-header">
+            <h1 class="section-title">Gerenciar Demos CS2</h1>
+            <p:button outcome="demo-viewer.xhtml" 
+                      styleClass="btn-primary nav-action-btn">
+                <i class="pi pi-eye"></i>
+                <span>Visualizador</span>
+            </p:button>
+        </div>
+
+        <!-- Seção de Upload -->
+        <p:card styleClass="glass-card" style="margin-bottom: 1.5rem;">
+            <f:facet name="header">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="pi pi-upload" style="color: var(--accent); font-size: 1.2rem;"></i>
+                    <span style="font-weight: 600; color: var(--text-100);">Upload de Demo</span>
+                </div>
+            </f:facet>
+            
+            <h:form id="uploadForm" enctype="multipart/form-data">
+                <p:fileUpload 
+                    mode="advanced" 
+                    listener="#{managerDemo.uploadDemo}"
+                    update="@form :growl uploadMessages"
+                    auto="true"
+                    multiple="false"
+                    allowTypes="/(\.|\/)(dem|zip)$/"
+                    fileLimit="1"
+                    sizeLimit="524288000"
+                    label="Selecionar Demo"
+                    uploadLabel="Enviar"
+                    cancelLabel="Cancelar"
+                    chooseIcon="pi pi-folder-open"
+                    uploadIcon="pi pi-upload"
+                    cancelIcon="pi pi-times"
+                    disabled="#{managerDemo.uploading}"
+                    invalidFileMessage="Apenas arquivos .dem ou .zip são permitidos"
+                    invalidSizeMessage="Arquivo muito grande. Tamanho máximo: 500 MB"
+                    styleClass="demo-upload">
+                </p:fileUpload>
+                
+                <p:messages id="uploadMessages" showDetail="true" closable="true" style="margin-top: 1rem;">
+                    <p:autoUpdate/>
+                </p:messages>
+                
+                <div style="margin-top: 1rem; padding: 1rem; background: rgba(0,225,255,0.08); border-radius: 10px; border-left: 4px solid var(--accent);">
+                    <p style="margin: 0; color: var(--text-200); display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="pi pi-info-circle" style="color: var(--accent);"></i>
+                        <span><strong>Dica:</strong> Você pode fazer upload de arquivos .dem ou .zip contendo demos do CS2. Os demos serão automaticamente processados e estarão disponíveis para análise.</span>
+                    </p>
+                </div>
+            </h:form>
+        </p:card>
+
+        <!-- Lista de Demos -->
+        <p:card styleClass="glass-card">
+            <f:facet name="header">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="pi pi-video" style="color: var(--accent); font-size: 1.2rem;"></i>
+                    <span style="font-weight: 600; color: var(--text-100);">Demos Disponíveis</span>
+                </div>
+            </f:facet>
+            
+            <h:form id="formDemos">
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+                    <p:commandButton 
+                        value="Atualizar" 
+                        icon="pi pi-refresh"
+                        action="#{managerDemo.carregarDemos()}"
+                        update="tableDemos"
+                        styleClass="p-button-outlined"
+                        title="Atualizar lista de demos"/>
+                </div>
+                <p:dataTable 
+                    id="tableDemos"
+                    var="demo" 
+                    value="#{managerDemo.demos}"
+                    emptyMessage="Nenhum demo encontrado. Faça upload de um demo para começar."
+                    paginator="true" 
+                    rows="10"
+                    paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                    rowsPerPageTemplate="5,10,15,20"
+                    styleClass="elegant-table"
+                    rowKey="#{demo.id}"
+                    selection="#{managerDemo.demoSelecionado}"
+                    selectionMode="single"
+                    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} demos">
+                    
+                    <f:facet name="header">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-200);">
+                            <i class="pi pi-list"></i>
+                            <span>Total: <strong style="color: var(--text-100);">#{managerDemo.demos != null ? managerDemo.demos.size() : 0}</strong> demos</span>
+                        </div>
+                    </f:facet>
+                    
+                    <p:column headerText="Tipo" style="width: 60px; text-align: center;">
+                        <i class="#{managerDemo.getIconeArquivo(demo.nome)}" 
+                           style="font-size: 1.5rem; color: var(--accent);"></i>
+                    </p:column>
+                    
+                    <p:column headerText="Nome do Arquivo" sortBy="#{demo.nomeExibicao}" filterBy="#{demo.nomeExibicao}">
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <span style="font-weight: 600; color: var(--text-100);">
+                                <h:outputText value="#{demo.nomeExibicao}"/>
+                            </span>
+                            <span style="font-size: 0.85rem; color: var(--text-300);">
+                                <h:outputText value="#{demo.nome}"/>
+                            </span>
+                        </div>
+                    </p:column>
+                    
+                    <p:column headerText="Data de Upload" sortBy="#{demo.dataArquivo}" style="width: 150px;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-200);">
+                            <i class="pi pi-calendar" style="color: var(--accent);"></i>
+                            <h:outputText value="#{demo.dataArquivo}">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Sao_Paulo"/>
+                            </h:outputText>
+                        </div>
+                    </p:column>
+                    
+                    <p:column headerText="Tamanho" style="width: 120px;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-200);">
+                            <i class="pi pi-database" style="color: var(--accent);"></i>
+                            <h:outputText value="#{managerDemo.formatarTamanho(demo.imagem)}"/>
+                        </div>
+                    </p:column>
+                    
+                    <p:column headerText="Ações" style="width: 300px; text-align: center;">
+                        <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center; flex-wrap: wrap;">
+                            <p:commandButton 
+                                value="Visualizar" 
+                                icon="pi pi-eye"
+                                action="#{managerDemo.visualizarDemo(demo)}"
+                                styleClass="p-button-outlined action-btn"
+                                title="Abrir visualizador de demo"/>
+                            
+                            <p:commandButton 
+                                value="Download" 
+                                icon="pi pi-download"
+                                actionListener="#{managerDemo.downloadDemo(demo)}"
+                                ajax="false"
+                                styleClass="p-button-outlined action-btn"
+                                title="Baixar arquivo demo"/>
+                            
+                            <p:commandButton 
+                                value="Excluir" 
+                                icon="pi pi-trash"
+                                actionListener="#{managerDemo.excluirDemo(demo)}"
+                                update="tableDemos :growl"
+                                styleClass="p-button-outlined p-button-danger action-btn"
+                                title="Excluir demo">
+                                <p:confirm header="Confirmação" 
+                                          message="Deseja realmente excluir este demo?" 
+                                          icon="pi pi-exclamation-triangle"/>
+                            </p:commandButton>
+                        </div>
+                    </p:column>
+                </p:dataTable>
+            </h:form>
+        </p:card>
+
+        <!-- Form para dialogs e componentes globais -->
+        <h:form id="globalForm" style="display: none;">
+            <!-- Dialog de Confirmação -->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
+                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times"/>
+            </p:confirmDialog>
+        </h:form>
+        
+        <!-- Growl para mensagens -->
+        <p:growl id="growl" showDetail="true" sticky="false" life="5000">
+            <p:autoUpdate/>
+        </p:growl>
+        
+        <style type="text/css">
+            /* Form global oculto */
+            #globalForm {
+                display: none !important;
+                visibility: hidden !important;
+                position: absolute !important;
+                left: -9999px !important;
+            }
+            
+            /* Section Header */
+            .section-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.5rem;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            
+            .section-title {
+                margin: 0;
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: var(--text-100);
+                letter-spacing: 0.3px;
+            }
+            
+            /* Card padding */
+            .glass-card .ui-card-body,
+            .glass-card .p-card-body {
+                padding: 1.75rem 1.5rem !important;
+            }
+            
+            /* Buttons */
+            .btn-primary,
+            .nav-action-btn {
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                padding: 0.75rem 1.5rem !important;
+                border-radius: 10px !important;
+                font-size: 0.95rem !important;
+                font-weight: 600 !important;
+                text-decoration: none !important;
+                transition: all 0.25s ease !important;
+                border: none;
+                cursor: pointer;
+                min-height: 44px;
+                background: linear-gradient(135deg, var(--accent), var(--accent-dark)) !important;
+                color: var(--text-100) !important;
+                box-shadow: 0 4px 12px rgba(0,225,255,0.25);
+            }
+            
+            .btn-primary:hover,
+            .nav-action-btn:hover {
+                background: linear-gradient(135deg, var(--accent-light), var(--accent)) !important;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0,225,255,0.35);
+            }
+            
+            .btn-primary i,
+            .nav-action-btn i {
+                color: var(--text-100) !important;
+            }
+            
+            /* File Upload Styling */
+            .demo-upload .ui-fileupload-buttonbar,
+            .demo-upload .p-fileupload-buttonbar {
+                background: rgba(255,255,255,0.03) !important;
+                border: 1px solid rgba(255,255,255,0.08) !important;
+                border-radius: 10px !important;
+                padding: 1rem !important;
+            }
+            
+            .demo-upload .ui-fileupload-choose,
+            .demo-upload .p-fileupload-choose {
+                background: linear-gradient(135deg, var(--accent), var(--accent-dark)) !important;
+                border: none !important;
+                color: var(--text-100) !important;
+                border-radius: 10px !important;
+                padding: 0.75rem 1.5rem !important;
+                font-weight: 600 !important;
+                transition: all 0.25s ease !important;
+            }
+            
+            .demo-upload .ui-fileupload-choose:hover,
+            .demo-upload .p-fileupload-choose:hover {
+                background: linear-gradient(135deg, var(--accent-light), var(--accent)) !important;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,225,255,0.3);
+            }
+            
+            .demo-upload .ui-fileupload-upload,
+            .demo-upload .p-fileupload-upload {
+                background: transparent !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                color: var(--text-100) !important;
+                border-radius: 10px !important;
+                padding: 0.75rem 1.5rem !important;
+                font-weight: 600 !important;
+            }
+            
+            .demo-upload .ui-fileupload-upload:hover,
+            .demo-upload .p-fileupload-upload:hover {
+                background: rgba(255,255,255,0.06) !important;
+                border-color: var(--accent) !important;
+                color: var(--accent) !important;
+            }
+            
+            .demo-upload .ui-fileupload-cancel,
+            .demo-upload .p-fileupload-cancel {
+                background: transparent !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                color: var(--text-300) !important;
+                border-radius: 10px !important;
+                padding: 0.75rem 1.5rem !important;
+                font-weight: 600 !important;
+            }
+            
+            .demo-upload .ui-fileupload-cancel:hover,
+            .demo-upload .p-fileupload-cancel:hover {
+                background: rgba(255,255,255,0.06) !important;
+                border-color: #ef4444 !important;
+                color: #ef4444 !important;
+            }
+            
+            /* Table Styling */
+            .elegant-table {
+                width: 100%;
+            }
+            
+            .elegant-table .ui-datatable-header,
+            .elegant-table .p-datatable-header {
+                background: rgba(255,255,255,0.02) !important;
+                border: 1px solid rgba(255,255,255,0.06) !important;
+                border-radius: 10px 10px 0 0 !important;
+                padding: 1rem 1.25rem !important;
+            }
+            
+            .elegant-table .ui-datatable-thead > tr > th,
+            .elegant-table .p-datatable-thead > tr > th {
+                background: rgba(255,255,255,0.03) !important;
+                border: none !important;
+                border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+                color: var(--text-200) !important;
+                font-weight: 600 !important;
+                font-size: 0.875rem !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+                padding: 1rem 1.25rem !important;
+            }
+            
+            .elegant-table .ui-datatable-data > tr,
+            .elegant-table .p-datatable-data > tr {
+                background: transparent !important;
+                border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+                transition: all 0.2s ease !important;
+            }
+            
+            .elegant-table .ui-datatable-data > tr:hover,
+            .elegant-table .p-datatable-data > tr:hover {
+                background: rgba(255,255,255,0.03) !important;
+            }
+            
+            .elegant-table .ui-datatable-data > tr > td,
+            .elegant-table .p-datatable-data > tr > td {
+                border: none !important;
+                padding: 1rem 1.25rem !important;
+                color: var(--text-200) !important;
+            }
+            
+            .elegant-table .ui-datatable-empty-message,
+            .elegant-table .p-datatable-emptymessage {
+                padding: 3rem 1rem !important;
+                text-align: center !important;
+                color: var(--text-300) !important;
+            }
+            
+            /* Paginator */
+            .elegant-table .ui-paginator,
+            .elegant-table .p-paginator {
+                background: rgba(255,255,255,0.02) !important;
+                border: 1px solid rgba(255,255,255,0.06) !important;
+                border-top: none !important;
+                border-radius: 0 0 10px 10px !important;
+                padding: 0.75rem 1.25rem !important;
+            }
+            
+            .elegant-table .ui-paginator .ui-paginator-page,
+            .elegant-table .p-paginator .p-paginator-page {
+                background: transparent !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                color: var(--text-200) !important;
+                border-radius: 6px !important;
+                min-width: 2.5rem !important;
+                height: 2.5rem !important;
+                transition: all 0.2s ease !important;
+            }
+            
+            .elegant-table .ui-paginator .ui-paginator-page:hover,
+            .elegant-table .p-paginator .p-paginator-page:hover {
+                background: rgba(255,255,255,0.06) !important;
+                border-color: var(--accent) !important;
+                color: var(--accent) !important;
+            }
+            
+            .elegant-table .ui-paginator .ui-paginator-page.ui-state-active,
+            .elegant-table .p-paginator .p-paginator-page.p-highlight {
+                background: linear-gradient(135deg, var(--accent), var(--accent-dark)) !important;
+                border-color: var(--accent) !important;
+                color: var(--text-100) !important;
+            }
+            
+            /* Button Outlined */
+            .p-button-outlined {
+                background: transparent !important;
+                border: 1px solid rgba(255,255,255,0.12) !important;
+                color: var(--text-100) !important;
+                padding: 0.65rem 1.25rem !important;
+                border-radius: 10px !important;
+                font-weight: 600 !important;
+                font-size: 0.9rem !important;
+                transition: all 0.25s ease !important;
+                min-height: 38px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 0.5rem !important;
+            }
+            
+            .p-button-outlined:hover {
+                background: rgba(255,255,255,0.06) !important;
+                border-color: var(--accent) !important;
+                color: var(--accent) !important;
+                transform: translateY(-2px);
+            }
+            
+            .p-button-outlined.p-button-danger {
+                border-color: rgba(239,68,68,0.3) !important;
+                color: #ef4444 !important;
+            }
+            
+            .p-button-outlined.p-button-danger:hover {
+                background: rgba(239,68,68,0.1) !important;
+                border-color: #ef4444 !important;
+                color: #ef4444 !important;
+            }
+            
+            /* Action buttons in table */
+            .action-btn {
+                white-space: nowrap !important;
+                min-width: 100px !important;
+                padding: 0.5rem 1rem !important;
+                font-size: 0.85rem !important;
+            }
+            
+            .action-btn .ui-button-text,
+            .action-btn .p-button-label {
+                padding: 0 !important;
+                line-height: 1.2 !important;
+            }
+            
+            .action-btn .ui-button-icon-left,
+            .action-btn .p-button-icon-left {
+                margin-right: 0.4rem !important;
+            }
+            
+            /* Alinhamento dos botões na coluna de ações */
+            .elegant-table .ui-datatable-data > tr > td:last-child,
+            .elegant-table .p-datatable-data > tr > td:last-child {
+                vertical-align: middle !important;
+            }
+            
+            .elegant-table .ui-datatable-data > tr > td:last-child > div,
+            .elegant-table .p-datatable-data > tr > td:last-child > div {
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                flex-wrap: wrap !important;
+                gap: 0.5rem !important;
+            }
+            
+            /* Responsividade */
+            @media (max-width: 768px) {
+                .section-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                
+                .elegant-table .ui-datatable-data > tr > td:nth-child(2),
+                .elegant-table .p-datatable-data > tr > td:nth-child(2) {
+                    min-width: 200px;
+                }
+                
+                .elegant-table .ui-datatable-data > tr > td:last-child .p-button,
+                .elegant-table .p-datatable-data > tr > td:last-child .p-button {
+                    font-size: 0.8rem;
+                    padding: 0.5rem 0.75rem;
+                }
+            }
+        </style>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,36 @@
+{
+  "name": "phbchamp-frontend",
+  "version": "1.0.0",
+  "description": "PhbChamp - Sistema de gerenciamento de campeonatos de CS2",
+  "main": "index.js",
+  "scripts": {
+    "install-parser": "npm install demoparser2",
+    "build": "echo 'Build frontend assets'",
+    "test": "echo 'No tests configured'"
+  },
+  "keywords": [
+    "cs2",
+    "counter-strike",
+    "demo",
+    "parser",
+    "esports"
+  ],
+  "author": "PhbChamp Team",
+  "license": "MIT",
+  "dependencies": {
+    "demoparser2": "^0.7.0"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {
+    "@laihoe/demoparser2": "^0.7.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "bugs": {
+    "url": ""
+  },
+  "homepage": ""
+}
+

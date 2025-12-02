@@ -4,6 +4,7 @@ import br.com.champ.Enums.Url;
 import br.com.champ.Modelo.Anexo;
 import br.com.champ.Utilitario.APIPath;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import java.io.BufferedReader;
@@ -16,10 +17,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -75,6 +79,7 @@ public class AnexoServico {
     public Anexo fileUpload(FileUploadEvent event) {
 
         Anexo a = new Anexo();
+        File tempFile = null;
         try {
             String osPath = null;
 
@@ -82,22 +87,208 @@ public class AnexoServico {
 
             File path = new File(osPath);
             if (!path.exists()) {
-                path.mkdir();
+                path.mkdirs();
+            }
+
+            this.nome = event.getFile().getFileName();
+            String fileName = generateFileNameWithTimestamp() + this.nome;
+            tempFile = new File(path, fileName);
+            
+            // Salva o arquivo em disco usando streaming (evita OutOfMemoryError)
+            try (InputStream inputStream = event.getFile().getInputStream();
+                 FileOutputStream outputStream = new FileOutputStream(tempFile)) {
+                
+                byte[] buffer = new byte[8192]; // Buffer de 8KB
+                int bytesRead;
+                long totalBytes = 0;
+                
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                    totalBytes += bytesRead;
+                    
+                    // Log a cada 10MB para monitorar progresso
+                    if (totalBytes % (10 * 1024 * 1024) == 0) {
+                        System.out.println("Upload progresso: " + (totalBytes / 1024 / 1024) + " MB");
+                    }
+                }
+                
+                System.out.println("Arquivo salvo em disco: " + tempFile.getAbsolutePath() + " (" + (totalBytes / 1024 / 1024) + " MB)");
             }
 
             this.caminho = path.getAbsolutePath() + "/";
-            this.arquivo = event.getFile().getContent();
-            this.nome = event.getFile().getFileName();
+            
+            // Para arquivos grandes, faz upload direto para a API usando multipart
+            long fileSize = tempFile.length();
+            
+            if (fileSize > 10 * 1024 * 1024) { // Arquivos maiores que 10MB
+                // Upload direto para API usando multipart/form-data (streaming)
+                a = uploadFileToAPI(tempFile, this.nome, fileName);
+            } else {
+                // Para arquivos menores, lê na memória normalmente
+                byte[] fileContent = readFileToByteArray(tempFile);
+                this.arquivo = fileContent;
+                
+                a.setNome(REAL_PATH_OPT + fileName);
+                a.setNomeExibicao(this.nome);
+                a.setImagem(fileContent);
+                
+                // Salva na API
+                a = save(a, null, Url.SALVAR_ANEXO.getNome());
+            }
+            
+            // Se salvou com sucesso, mantém o arquivo em disco
+            // Se não, remove o arquivo temporário
+            if (a == null || a.getId() == null) {
+                if (tempFile.exists()) {
+                    tempFile.delete();
+                }
+            }
 
-            a.setNome(REAL_PATH_OPT + event.getFile().getFileName());
-            a.setNomeExibicao(this.nome);
-            a = save(a, null, Url.SALVAR_ANEXO.getNome());
-            gravar();
-
+        } catch (OutOfMemoryError e) {
+            System.err.println("Erro de memória ao processar arquivo muito grande: " + e.getMessage());
+            if (tempFile != null && tempFile.exists()) {
+                tempFile.delete();
+            }
+            throw new RuntimeException("Arquivo muito grande para processar. Tente um arquivo menor ou aumente a memória do servidor.", e);
         } catch (Exception ex) {
-            System.out.println("Erro no upload do arquivo" + ex);
+            System.err.println("Erro no upload do arquivo: " + ex.getMessage());
+            ex.printStackTrace();
+            if (tempFile != null && tempFile.exists()) {
+                tempFile.delete();
+            }
         }
         return a;
+    }
+    
+    /**
+     * Lê arquivo do disco em chunks para evitar OutOfMemoryError
+     * Limite: 10MB para evitar problemas de memória
+     */
+    private byte[] readFileToByteArray(File file) throws IOException {
+        long fileSize = file.length();
+        
+        // Para arquivos maiores que 10MB, lança exceção
+        if (fileSize > 10 * 1024 * 1024) {
+            throw new IOException("Arquivo muito grande (" + (fileSize / 1024 / 1024) + " MB). " +
+                    "Use upload direto para a API.");
+        }
+        
+        try (FileInputStream fis = new FileInputStream(file);
+             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                baos.write(buffer, 0, bytesRead);
+            }
+            
+            return baos.toByteArray();
+        }
+    }
+    
+    /**
+     * Faz upload direto do arquivo para a API usando multipart/form-data com streaming
+     * Evita carregar o arquivo inteiro na memória
+     */
+    private Anexo uploadFileToAPI(File file, String originalFileName, String fileName) throws Exception {
+        try {
+            String url = pathToAPI() + "/api/demo/upload";
+            String boundary = "----WebKitFormBoundary" + System.currentTimeMillis();
+            
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+            connection.setRequestProperty("Connection", "keep-alive");
+            
+            try (OutputStream outputStream = connection.getOutputStream();
+                 FileInputStream fileInputStream = new FileInputStream(file)) {
+                
+                // Escreve o campo do arquivo
+                String fileField = "--" + boundary + "\r\n" +
+                    "Content-Disposition: form-data; name=\"file\"; filename=\"" + originalFileName + "\"\r\n" +
+                    "Content-Type: application/octet-stream\r\n\r\n";
+                
+                outputStream.write(fileField.getBytes("UTF-8"));
+                
+                // Copia o arquivo em chunks (streaming)
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                long totalBytes = 0;
+                
+                while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                    totalBytes += bytesRead;
+                }
+                
+                // Fecha o multipart
+                String endBoundary = "\r\n--" + boundary + "--\r\n";
+                outputStream.write(endBoundary.getBytes("UTF-8"));
+                
+                System.out.println("Arquivo enviado para API: " + (totalBytes / 1024 / 1024) + " MB");
+            }
+            
+            // Lê a resposta
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
+                String response = readResponse(connection);
+                Gson gson = new Gson();
+                
+                // A resposta pode vir como um Map com o anexo dentro
+                java.util.Map<String, Object> responseMap = gson.fromJson(response, 
+                    new TypeToken<java.util.Map<String, Object>>() {}.getType());
+                
+                if (responseMap != null) {
+                    Object anexoIdObj = responseMap.get("anexoId");
+                    if (anexoIdObj != null) {
+                        // Busca o anexo criado
+                        Long anexoId;
+                        if (anexoIdObj instanceof Double) {
+                            anexoId = ((Double) anexoIdObj).longValue();
+                        } else if (anexoIdObj instanceof Integer) {
+                            anexoId = ((Integer) anexoIdObj).longValue();
+                        } else {
+                            anexoId = Long.parseLong(anexoIdObj.toString());
+                        }
+                        
+                        Anexo anexo = new Anexo();
+                        anexo.setId(anexoId);
+                        anexo.setNome(REAL_PATH_OPT + fileName);
+                        anexo.setNomeExibicao(originalFileName);
+                        return anexo;
+                    }
+                }
+            } else {
+                String errorResponse = readErrorResponse(connection);
+                throw new Exception("Erro ao fazer upload: HTTP " + responseCode + " - " + errorResponse);
+            }
+            
+        } catch (Exception e) {
+            Logger.getLogger(AnexoServico.class.getName()).log(Level.SEVERE, "Erro ao fazer upload direto para API", e);
+            throw e;
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Lê resposta de erro da conexão HTTP
+     */
+    private String readErrorResponse(HttpURLConnection connection) throws IOException {
+        try (InputStream errorStream = connection.getErrorStream()) {
+            if (errorStream != null) {
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = errorStream.read(buffer)) != -1) {
+                    os.write(buffer, 0, bytesRead);
+                }
+                return new String(os.toByteArray());
+            }
+        }
+        return "Sem detalhes do erro";
     }
 
     public Anexo fileUploadTemp(FileUploadEvent event) {
@@ -300,6 +491,93 @@ public class AnexoServico {
             }
         }
         return new String(os.toByteArray());
+    }
+
+    /**
+     * Busca todos os anexos
+     */
+    public List<Anexo> findAll(Anexo anexo, String uri) throws Exception {
+        try {
+            String url = pathToAPI() + uri;
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("GET");
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
+            
+            int responseCode = con.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                String inputLine;
+                StringBuffer response = new StringBuffer();
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+                
+                Gson gson = new Gson();
+                Type listType = new TypeToken<ArrayList<Anexo>>() {}.getType();
+                List<Anexo> anexos = gson.fromJson(response.toString(), listType);
+                return anexos != null ? anexos : new ArrayList<>();
+            }
+        } catch (IOException | JSONException e) {
+            Logger.getLogger(AnexoServico.class.getName()).log(Level.SEVERE, "Erro ao buscar anexos", e);
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * Busca um anexo por ID
+     */
+    public Anexo find(Anexo anexo, Long id, String uri) throws Exception {
+        try {
+            String url = pathToAPI() + uri + (id != null ? id : anexo.getId());
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("GET");
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
+            
+            int responseCode = con.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                String inputLine;
+                StringBuffer response = new StringBuffer();
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+                
+                Gson gson = new Gson();
+                return gson.fromJson(response.toString(), Anexo.class);
+            }
+        } catch (IOException | JSONException e) {
+            Logger.getLogger(AnexoServico.class.getName()).log(Level.SEVERE, "Erro ao buscar anexo", e);
+        }
+        return null;
+    }
+
+    /**
+     * Deleta um anexo
+     */
+    public void delete(Anexo anexo, Long id, String uri) throws Exception {
+        try {
+            String url = pathToAPI() + uri + (id != null ? id : anexo.getId());
+            HttpURLConnection request = (HttpURLConnection) new URL(url).openConnection();
+            request.setRequestMethod("DELETE");
+            request.setRequestProperty("Content-Type", "application/json");
+            request.connect();
+            
+            int responseCode = request.getResponseCode();
+            if (responseCode != HttpURLConnection.HTTP_OK && responseCode != HttpURLConnection.HTTP_NO_CONTENT) {
+                throw new Exception("Erro ao deletar anexo. Código: " + responseCode);
+            }
+            
+            request.disconnect();
+        } catch (IOException e) {
+            Logger.getLogger(AnexoServico.class.getName()).log(Level.SEVERE, "Erro ao deletar anexo", e);
+            throw new Exception("Erro ao deletar anexo: " + e.getMessage());
+        }
     }
 
 }
