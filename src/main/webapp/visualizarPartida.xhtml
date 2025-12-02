@@ -45,6 +45,22 @@
                                   styleClass="action-btn-small action-btn-accent"
                                   rendered="#{managerPartida.partida.finalizada == false and managerPartida.podeAtualizarPartida()}"
                                   outcome="gerarMapas.xhtml?partidaId=#{managerPartida.partida.id}" />
+                        <p:commandButton value="Baixar JSON"
+                                         icon="pi pi-download"
+                                         styleClass="action-btn-small action-btn-accent"
+                                         action="#{managerPartida.baixarJsonPartida()}"
+                                         ajax="false"
+                                         process="@this" />
+                        <p:commandButton value="Gerar JSON"
+                                         icon="pi pi-file"
+                                         styleClass="action-btn-small action-btn-accent"
+                                         action="#{managerPartida.gerarJsonPartida()}"
+                                         update="@form" />
+                        <p:commandButton value="Iniciar Partida"
+                                         icon="pi pi-play"
+                                         styleClass="action-btn-small action-btn-accent"
+                                         action="#{managerPartida.iniciarPartidaRcon()}"
+                                         update="@form" />
                     </div>
                 </div>
 

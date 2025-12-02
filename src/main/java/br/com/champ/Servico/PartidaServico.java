@@ -336,6 +336,11 @@ public class PartidaServico {
             int responseCode = con.getResponseCode();
             System.out.println("\nSending 'GET' request to URL : " + url);
             System.out.println("Response Code : " + responseCode);
+            
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                return null;
+            }
+            
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(con.getInputStream()));
             String inputLine;
@@ -363,6 +368,35 @@ public class PartidaServico {
         }
         return null;
 
+    }
+    
+    /**
+     * Busca partida por match_id do MatchZy
+     * Tenta converter o match_id para Long e buscar por ID
+     * Se não encontrar, retorna null sem erros (comportamento esperado)
+     */
+    public Partida buscarPorMatchZyId(String matchZyMatchId) {
+        if (matchZyMatchId == null || matchZyMatchId.trim().isEmpty()) {
+            return null;
+        }
+        
+        try {
+            // Tenta converter para Long e buscar por ID
+            Long partidaId = Long.parseLong(matchZyMatchId.trim());
+            Partida partida = pesquisar(partidaId);
+            
+            // Retorna null se não encontrou (comportamento normal)
+            return partida;
+            
+        } catch (NumberFormatException e) {
+            // Se não for numérico, retorna null (comportamento esperado)
+            System.out.println("ℹ️ MatchZy match_id não é numérico (não é ID de partida do sistema): " + matchZyMatchId);
+            return null;
+        } catch (Exception e) {
+            // Em caso de erro na busca, retorna null e loga de forma não crítica
+            System.out.println("⚠️ Erro ao buscar partida por MatchZy ID (continuando normalmente): " + e.getMessage());
+            return null;
+        }
     }
 
 }

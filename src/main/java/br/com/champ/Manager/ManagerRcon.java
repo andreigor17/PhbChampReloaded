@@ -34,7 +34,7 @@ public class ManagerRcon extends ManagerBase {
 
     @PostConstruct
     public void init() {
-        FacesContext context = FacesContext.getCurrentInstance();
+        //FacesContext context = FacesContext.getCurrentInstance();
         
         // Verifica se contexto já foi released ou response já foi committed
 //        if (context == null || context.getResponseComplete()) {
