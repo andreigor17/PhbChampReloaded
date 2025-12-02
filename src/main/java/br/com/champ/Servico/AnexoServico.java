@@ -147,15 +147,26 @@ public class AnexoServico {
         } catch (OutOfMemoryError e) {
             System.err.println("Erro de memória ao processar arquivo muito grande: " + e.getMessage());
             if (tempFile != null && tempFile.exists()) {
-                tempFile.delete();
+                try {
+                    tempFile.delete();
+                } catch (Exception deleteEx) {
+                    System.err.println("Erro ao deletar arquivo temporário: " + deleteEx.getMessage());
+                }
             }
             throw new RuntimeException("Arquivo muito grande para processar. Tente um arquivo menor ou aumente a memória do servidor.", e);
         } catch (Exception ex) {
             System.err.println("Erro no upload do arquivo: " + ex.getMessage());
             ex.printStackTrace();
+            Logger.getLogger(AnexoServico.class.getName()).log(Level.SEVERE, "Erro detalhado no upload", ex);
             if (tempFile != null && tempFile.exists()) {
-                tempFile.delete();
+                try {
+                    tempFile.delete();
+                } catch (Exception deleteEx) {
+                    System.err.println("Erro ao deletar arquivo temporário: " + deleteEx.getMessage());
+                }
             }
+            // Re-lança a exceção para que o ManagerDemo possa tratá-la
+            throw ex;
         }
         return a;
     }
@@ -193,7 +204,14 @@ public class AnexoServico {
      */
     private Anexo uploadFileToAPI(File file, String originalFileName, String fileName) throws Exception {
         try {
-            String url = pathToAPI() + "/api/demo/upload";
+            String apiPath = pathToAPI();
+            if (apiPath == null || apiPath.isEmpty()) {
+                throw new Exception("Caminho da API não configurado. Verifique o arquivo apipath.json");
+            }
+            
+            String url = apiPath + "/api/demo/upload";
+            System.out.println("Fazendo upload para: " + url);
+            
             String boundary = "----WebKitFormBoundary" + System.currentTimeMillis();
             
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
@@ -202,6 +220,10 @@ public class AnexoServico {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
             connection.setRequestProperty("Connection", "keep-alive");
+            
+            // Timeouts aumentados para arquivos grandes
+            connection.setConnectTimeout(30000); // 30 segundos
+            connection.setReadTimeout(300000); // 5 minutos para uploads grandes
             
             try (OutputStream outputStream = connection.getOutputStream();
                  FileInputStream fileInputStream = new FileInputStream(file)) {
@@ -232,8 +254,12 @@ public class AnexoServico {
             
             // Lê a resposta
             int responseCode = connection.getResponseCode();
+            System.out.println("Resposta da API: HTTP " + responseCode);
+            
             if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
                 String response = readResponse(connection);
+                System.out.println("Resposta da API: " + response);
+                
                 Gson gson = new Gson();
                 
                 // A resposta pode vir como um Map com o anexo dentro
@@ -257,11 +283,19 @@ public class AnexoServico {
                         anexo.setId(anexoId);
                         anexo.setNome(REAL_PATH_OPT + fileName);
                         anexo.setNomeExibicao(originalFileName);
+                        System.out.println("Upload concluído com sucesso! Anexo ID: " + anexoId);
                         return anexo;
+                    } else {
+                        System.err.println("Resposta da API não contém anexoId");
+                        throw new Exception("Resposta da API não contém anexoId. Resposta: " + response);
                     }
+                } else {
+                    System.err.println("Resposta da API é null ou inválida");
+                    throw new Exception("Resposta inválida da API: " + response);
                 }
             } else {
                 String errorResponse = readErrorResponse(connection);
+                System.err.println("Erro HTTP " + responseCode + ": " + errorResponse);
                 throw new Exception("Erro ao fazer upload: HTTP " + responseCode + " - " + errorResponse);
             }
             

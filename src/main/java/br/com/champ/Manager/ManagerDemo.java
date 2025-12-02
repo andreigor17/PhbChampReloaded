@@ -85,29 +85,35 @@ public class ManagerDemo extends ManagerBase {
      * Faz upload de um novo demo
      */
     public void uploadDemo(FileUploadEvent event) {
+        uploading = true;
         try {
-            uploading = true;
-            
             UploadedFile file = event.getFile();
-            String fileName = file.getFileName();
-            long fileSize = file.getSize();
             
-            // Valida extensão do arquivo
-            if (!fileName.toLowerCase().endsWith(".dem") && 
-                !fileName.toLowerCase().endsWith(".zip")) {
-                Mensagem.error("Apenas arquivos .dem ou .zip são permitidos");
-                uploading = false;
+            if (file == null) {
+                Mensagem.error("Nenhum arquivo foi selecionado");
                 return;
             }
             
-            // Valida tamanho do arquivo (máximo 50MB)
-            long maxSize = 500 * 1024 * 1024; // 50 MB
-            System.err.println("max size " + maxSize);
-            System.err.println("size " + fileSize);
+            String fileName = file.getFileName();
+            long fileSize = file.getSize();
+            
+            System.out.println("=== INÍCIO DO UPLOAD ===");
+            System.out.println("Nome do arquivo: " + fileName);
+            System.out.println("Tamanho: " + String.format("%.2f MB", fileSize / (1024.0 * 1024.0)));
+            
+            // Valida extensão do arquivo
+            if (fileName == null || 
+                (!fileName.toLowerCase().endsWith(".dem") && 
+                 !fileName.toLowerCase().endsWith(".zip"))) {
+                Mensagem.error("Apenas arquivos .dem ou .zip são permitidos");
+                return;
+            }
+            
+            // Valida tamanho do arquivo (máximo 500MB)
+            long maxSize = 500 * 1024 * 1024; // 500 MB
             if (fileSize > maxSize) {
-                Mensagem.error("Arquivo muito grande. Tamanho máximo permitido: 50 MB. " +
+                Mensagem.error("Arquivo muito grande. Tamanho máximo permitido: 500 MB. " +
                         "Arquivo atual: " + String.format("%.2f MB", fileSize / (1024.0 * 1024.0)));
-                uploading = false;
                 return;
             }
             
@@ -118,20 +124,41 @@ public class ManagerDemo extends ManagerBase {
             }
             
             // Salva o anexo
+            System.out.println("Iniciando processamento do demo: " + fileName);
             Anexo demo = anexoServico.fileUpload(event);
             
             if (demo != null && demo.getId() != null) {
-                Mensagem.success("Demo enviado com sucesso!");
+                System.out.println("Demo salvo com sucesso! ID: " + demo.getId());
+                Mensagem.success("Demo enviado com sucesso! ID: " + demo.getId());
                 carregarDemos();
             } else {
-                Mensagem.error("Erro ao salvar demo");
+                System.err.println("Erro: Demo não foi salvo corretamente (retornou null ou sem ID)");
+                Mensagem.error("Erro ao salvar demo. Verifique os logs do servidor para mais detalhes.");
             }
             
+        } catch (OutOfMemoryError e) {
+            Logger.getLogger(ManagerDemo.class.getName()).log(Level.SEVERE, "Erro de memória no upload", e);
+            Mensagem.error("Arquivo muito grande. Tente um arquivo menor ou aumente a memória do servidor.");
+        } catch (RuntimeException e) {
+            Logger.getLogger(ManagerDemo.class.getName()).log(Level.SEVERE, "Erro de runtime no upload", e);
+            String errorMsg = e.getMessage();
+            if (errorMsg == null || errorMsg.isEmpty()) {
+                errorMsg = "Erro ao processar arquivo";
+            }
+            System.err.println("Erro de runtime: " + errorMsg);
+            Mensagem.error(errorMsg);
         } catch (Exception e) {
             Logger.getLogger(ManagerDemo.class.getName()).log(Level.SEVERE, "Erro no upload do demo", e);
-            Mensagem.error("Erro ao fazer upload do demo: " + e.getMessage());
+            String errorMsg = e.getMessage();
+            if (errorMsg == null || errorMsg.isEmpty()) {
+                errorMsg = "Erro desconhecido ao fazer upload";
+            }
+            System.err.println("Erro detalhado: " + errorMsg);
+            e.printStackTrace();
+            Mensagem.error("Erro ao fazer upload do demo: " + errorMsg);
         } finally {
             uploading = false;
+            System.out.println("=== FIM DO UPLOAD ===");
         }
     }
 

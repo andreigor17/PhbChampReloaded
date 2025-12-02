@@ -304,6 +304,39 @@
     <script>
         let currentDemoData = null;
         
+        // Detecta a URL da API automaticamente
+        function getApiBaseUrl() {
+            // Tenta obter da variável global (se definida por JSF)
+            if (window.API_BASE_URL) {
+                return window.API_BASE_URL;
+            }
+            
+            // Detecta automaticamente baseado na URL atual
+            const currentUrl = window.location.origin;
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+            
+            // Se estiver em localhost, assume que a API está na porta 9090
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return protocol + '//' + hostname + ':9090';
+            }
+            
+            // Caso contrário, tenta inferir a partir da URL atual
+            // Assumindo que a API está no mesmo domínio mas porta diferente
+            // ou em um subdomínio /api
+            const port = window.location.port;
+            if (port && port !== '80' && port !== '443') {
+                // Se houver porta, tenta porta 9090
+                return protocol + '//' + hostname + ':9090';
+            }
+            
+            // Fallback: tenta localhost:9090
+            return 'http://localhost:9090';
+        }
+        
+        const API_BASE_URL = getApiBaseUrl();
+        console.log('API Base URL:', API_BASE_URL);
+        
         // Configuração de drag and drop
         const uploadSection = document.getElementById('uploadSection');
         const fileInput = document.getElementById('fileInput');
@@ -334,8 +367,17 @@
         });
         
         async function handleFile(file) {
+            // Valida extensão
             if (!file.name.endsWith('.dem') && !file.name.endsWith('.zip')) {
                 showError('Por favor, selecione um arquivo .dem ou .zip');
+                return;
+            }
+            
+            // Valida tamanho (500MB)
+            const maxSize = 500 * 1024 * 1024; // 500 MB
+            if (file.size > maxSize) {
+                showError('Arquivo muito grande. Tamanho máximo: 500 MB. Arquivo atual: ' + 
+                    (file.size / (1024 * 1024)).toFixed(2) + ' MB');
                 return;
             }
             
@@ -344,54 +386,114 @@
             
             // Mostra progresso do upload
             const progressText = document.getElementById('progressText');
-            progressText.textContent = 'Enviando arquivo...';
+            progressText.textContent = 'Enviando arquivo... (' + (file.size / (1024 * 1024)).toFixed(2) + ' MB)';
             
             try {
                 const formData = new FormData();
                 formData.append('file', file);
                 
-                progressText.textContent = 'Processando demo...';
+                progressText.textContent = 'Enviando arquivo para o servidor...';
                 
-                // Caminho para a API
-                const response = await fetch('http://localhost:9090/api/demo/upload', {
+                // Faz upload para a API
+                const uploadUrl = API_BASE_URL + '/api/demo/upload';
+                console.log('Fazendo upload para:', uploadUrl);
+                
+                const response = await fetch(uploadUrl, {
                     method: 'POST',
                     body: formData
                 });
                 
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorMessage = 'Erro ao processar demo';
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        errorMessage = errorData.message || errorMessage;
+                    } catch (e) {
+                        errorMessage = `HTTP ${response.status}: ${errorText}`;
+                    }
+                    throw new Error(errorMessage);
+                }
+                
+                progressText.textContent = 'Processando demo...';
+                
                 const data = await response.json();
+                console.log('Resposta da API:', data);
                 
                 if (data.success) {
                     progressText.textContent = 'Análise concluída!';
-                    currentDemoData = data.analysis;
-                    displayDemoInfo(data.analysis);
+                    
+                    // A resposta pode ter 'analysis' ou ser o próprio objeto de análise
+                    const analysisData = data.analysis || data;
+                    currentDemoData = analysisData;
+                    displayDemoInfo(analysisData);
                 } else {
                     showError(data.message || 'Erro ao processar demo');
                 }
             } catch (error) {
-                console.error('Erro:', error);
-                showError('Erro ao enviar arquivo: ' + error.message);
+                console.error('Erro detalhado:', error);
+                let errorMessage = 'Erro ao enviar arquivo';
+                
+                if (error.message) {
+                    errorMessage = error.message;
+                } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    errorMessage = 'Erro de conexão. Verifique se a API está rodando em ' + API_BASE_URL;
+                }
+                
+                showError(errorMessage);
             } finally {
                 showLoading(false);
             }
         }
         
         async function loadDemoById(anexoId) {
+            if (!anexoId) {
+                showError('ID do anexo não fornecido');
+                return;
+            }
+            
             showLoading(true);
             hideError();
             
+            const progressText = document.getElementById('progressText');
+            progressText.textContent = 'Carregando demo...';
+            
             try {
-                const response = await fetch(`http://localhost:9090/api/demo/analyze/${anexoId}`);
+                const analyzeUrl = API_BASE_URL + `/api/demo/analyze/${anexoId}`;
+                console.log('Carregando demo de:', analyzeUrl);
                 
-                if (response.ok) {
-                    const data = await response.json();
-                    currentDemoData = data;
-                    displayDemoInfo(data);
-                } else {
-                    showError('Erro ao carregar demo');
+                const response = await fetch(analyzeUrl);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorMessage = 'Erro ao carregar demo';
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        errorMessage = errorData.error || errorData.message || errorMessage;
+                    } catch (e) {
+                        errorMessage = `HTTP ${response.status}: ${errorText}`;
+                    }
+                    throw new Error(errorMessage);
                 }
+                
+                progressText.textContent = 'Processando análise...';
+                
+                const data = await response.json();
+                console.log('Dados do demo:', data);
+                
+                currentDemoData = data;
+                displayDemoInfo(data);
             } catch (error) {
-                console.error('Erro:', error);
-                showError('Erro ao carregar demo: ' + error.message);
+                console.error('Erro ao carregar demo:', error);
+                let errorMessage = 'Erro ao carregar demo';
+                
+                if (error.message) {
+                    errorMessage = error.message;
+                } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    errorMessage = 'Erro de conexão. Verifique se a API está rodando em ' + API_BASE_URL;
+                }
+                
+                showError(errorMessage);
             } finally {
                 showLoading(false);
             }
@@ -588,8 +690,13 @@
         
         function showError(message) {
             const errorSection = document.getElementById('errorSection');
-            errorSection.textContent = '❌ ' + message;
+            errorSection.innerHTML = '<strong>❌ Erro:</strong> ' + message + 
+                '<br/><small style="color: #718096; margin-top: 10px; display: block;">' +
+                'Verifique se a API está rodando em ' + API_BASE_URL + '</small>';
             errorSection.style.display = 'block';
+            
+            // Scroll para o erro
+            errorSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
         
         function hideError() {

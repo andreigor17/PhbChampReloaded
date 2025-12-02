@@ -44,6 +44,18 @@
         <!-- Configuração para manter sessão ativa com requisições AJAX -->
         <tracking-mode>COOKIE</tracking-mode>
     </session-config>
+    
+    <!-- Configuração do PrimeFaces FileUpload -->
+    <context-param>
+        <param-name>primefaces.UPLOADER</param-name>
+        <param-value>native</param-value>
+    </context-param>
+    
+    <!-- Tamanho máximo de upload (500MB) -->
+    <context-param>
+        <param-name>primefaces.UPLOAD_MAX_FILE_SIZE</param-name>
+        <param-value>524288000</param-value>
+    </context-param>
     <welcome-file-list>
         <welcome-file>index.xhtml</welcome-file>
     </welcome-file-list>
