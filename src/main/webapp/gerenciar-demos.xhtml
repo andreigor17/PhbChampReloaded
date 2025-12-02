@@ -8,11 +8,11 @@
     <ui:define name="content">
         <div class="section-header">
             <h1 class="section-title">Gerenciar Demos CS2</h1>
-            <p:button outcome="demo-viewer.xhtml" 
+            <h:button outcome="demo-viewer.html" 
                       styleClass="btn-primary nav-action-btn">
                 <i class="pi pi-eye"></i>
                 <span>Visualizador</span>
-            </p:button>
+            </h:button>
         </div>
 
         <!-- Seção de Upload -->
@@ -134,12 +134,13 @@
                     
                     <p:column headerText="Ações" style="width: 300px; text-align: center;">
                         <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center; flex-wrap: wrap;">
-                            <p:commandButton 
-                                value="Visualizar" 
-                                icon="pi pi-eye"
-                                action="#{managerDemo.visualizarDemo(demo)}"
-                                styleClass="p-button-outlined action-btn"
-                                title="Abrir visualizador de demo"/>
+                            <h:link outcome="demo-viewer.html" 
+                                    styleClass="p-button p-button-outlined action-btn"
+                                    style="text-decoration: none;">
+                                <i class="pi pi-eye"></i>
+                                <span>Visualizar</span>
+                                <f:param name="anexoId" value="#{demo.id}"/>
+                            </h:link>
                             
                             <p:commandButton 
                                 value="Download" 

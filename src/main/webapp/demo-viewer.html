@@ -1,13 +1,9 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:p="http://primefaces.org/ui">
-
-<h:head>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PhbChamp - Visualizador de Demos CS2</title>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     
     <style>
         * {
@@ -170,108 +166,6 @@
             border-bottom: 3px solid #667eea;
         }
         
-        .table-container {
-            overflow-x: auto;
-            margin-bottom: 30px;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        
-        thead {
-            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
-            color: white;
-        }
-        
-        th, td {
-            padding: 15px;
-            text-align: left;
-        }
-        
-        tbody tr {
-            border-bottom: 1px solid #e2e8f0;
-            transition: all 0.2s;
-        }
-        
-        tbody tr:hover {
-            background: #f7fafc;
-            transform: scale(1.01);
-        }
-        
-        .team-ct {
-            color: #3182ce;
-            font-weight: bold;
-        }
-        
-        .team-t {
-            color: #e53e3e;
-            font-weight: bold;
-        }
-        
-        .round-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-left: 5px solid #667eea;
-        }
-        
-        .round-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .round-number {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #2d3748;
-        }
-        
-        .round-score {
-            font-size: 1.2em;
-        }
-        
-        .kills-list {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .kill-item {
-            padding: 10px;
-            margin: 5px 0;
-            background: #f7fafc;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .weapon-icon {
-            background: #667eea;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.9em;
-        }
-        
-        .headshot-badge {
-            background: #e53e3e;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-        
         .error {
             background: #fff5f5;
             color: #c53030;
@@ -328,10 +222,20 @@
             display: block;
             animation: fadeIn 0.3s;
         }
+        
+        .team-ct {
+            color: #3182ce;
+            font-weight: bold;
+        }
+        
+        .team-t {
+            color: #e53e3e;
+            font-weight: bold;
+        }
     </style>
-</h:head>
+</head>
 
-<h:body>
+<body>
     <div class="container">
         <div class="header">
             <h1>🎮 Visualizador de Demos CS2</h1>
@@ -349,24 +253,13 @@
                 <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
                     📁 Selecionar Arquivo
                 </button>
-                
-                <h:form style="margin-top: 30px;">
-                    <p style="margin-bottom: 15px; color: #718096;">Ou selecione um demo já carregado:</p>
-                    <p:selectOneMenu id="demoSelect" style="width: 300px;">
-                        <f:selectItem itemLabel="Selecione um demo..." itemValue="" />
-                        <!-- Aqui virão os demos do banco -->
-                    </p:selectOneMenu>
-                    <p:commandButton value="Carregar" 
-                                     styleClass="btn-secondary" 
-                                     style="margin-left: 10px;"
-                                     onclick="loadSelectedDemo(); return false;" />
-                </h:form>
             </div>
             
             <!-- Loading -->
             <div class="loading" id="loadingSection">
                 <div class="spinner"></div>
                 <p>Analisando demo... Isso pode levar alguns segundos.</p>
+                <p id="progressText" style="color: #718096; margin-top: 10px;"></p>
             </div>
             
             <!-- Informações do Demo -->
@@ -378,7 +271,6 @@
                     <button class="tab active" onclick="showTab('overview')">📊 Visão Geral</button>
                     <button class="tab" onclick="showTab('players')">👥 Jogadores</button>
                     <button class="tab" onclick="showTab('rounds')">🔄 Rounds</button>
-                    <button class="tab" onclick="showTab('timeline')">⏱️ Linha do Tempo</button>
                 </div>
                 
                 <!-- Tab: Visão Geral -->
@@ -390,40 +282,13 @@
                 <!-- Tab: Jogadores -->
                 <div id="tab-players" class="tab-content">
                     <h2 class="section-title">👥 Estatísticas dos Jogadores</h2>
-                    <div class="table-container">
-                        <table id="playersTable">
-                            <thead>
-                                <tr>
-                                    <th>Jogador</th>
-                                    <th>Time</th>
-                                    <th>K</th>
-                                    <th>D</th>
-                                    <th>A</th>
-                                    <th>K/D</th>
-                                    <th>HS%</th>
-                                    <th>MVP</th>
-                                </tr>
-                            </thead>
-                            <tbody id="playersTableBody"></tbody>
-                        </table>
-                    </div>
+                    <div id="playersContent"></div>
                 </div>
                 
                 <!-- Tab: Rounds -->
                 <div id="tab-rounds" class="tab-content">
                     <h2 class="section-title">🔄 Detalhes dos Rounds</h2>
                     <div id="roundsContent"></div>
-                </div>
-                
-                <!-- Tab: Timeline -->
-                <div id="tab-timeline" class="tab-content">
-                    <h2 class="section-title">⏱️ Linha do Tempo</h2>
-                    <div id="timelineContent">
-                        <p style="color: #718096; font-style: italic;">
-                            Visualização interativa da linha do tempo será implementada aqui.
-                            Mostrará eventos importantes como kills, plant/defuse da bomba, etc.
-                        </p>
-                    </div>
                 </div>
                 
                 <div style="text-align: center; margin-top: 30px;">
@@ -436,8 +301,7 @@
         </div>
     </div>
 
-    <script type="text/javascript">
-        //<![CDATA[
+    <script>
         let currentDemoData = null;
         
         // Configuração de drag and drop
@@ -470,7 +334,7 @@
         });
         
         async function handleFile(file) {
-            if (!file.name.endsWith('.dem') &amp;#38;&amp;#38; !file.name.endsWith('.zip')) {
+            if (!file.name.endsWith('.dem') && !file.name.endsWith('.zip')) {
                 showError('Por favor, selecione um arquivo .dem ou .zip');
                 return;
             }
@@ -478,11 +342,18 @@
             showLoading(true);
             hideError();
             
+            // Mostra progresso do upload
+            const progressText = document.getElementById('progressText');
+            progressText.textContent = 'Enviando arquivo...';
+            
             try {
                 const formData = new FormData();
                 formData.append('file', file);
                 
-                const response = await fetch('/PhbChampAPI/api/demo/upload', {
+                progressText.textContent = 'Processando demo...';
+                
+                // Caminho para a API
+                const response = await fetch('http://localhost:9090/api/demo/upload', {
                     method: 'POST',
                     body: formData
                 });
@@ -490,6 +361,7 @@
                 const data = await response.json();
                 
                 if (data.success) {
+                    progressText.textContent = 'Análise concluída!';
                     currentDemoData = data.analysis;
                     displayDemoInfo(data.analysis);
                 } else {
@@ -508,7 +380,7 @@
             hideError();
             
             try {
-                const response = await fetch(`/PhbChampAPI/api/demo/analyze/${anexoId}`);
+                const response = await fetch(`http://localhost:9090/api/demo/analyze/${anexoId}`);
                 
                 if (response.ok) {
                     const data = await response.json();
@@ -529,24 +401,23 @@
             const headerInfo = document.getElementById('headerInfo');
             const header = data.header || {};
             
-            headerInfo.innerHTML = `
-                <div class="info-card">
-                    <h3>Mapa</h3>
-                    <div class="value">${header.mapName || 'N/A'}</div>
-                </div>
-                <div class="info-card">
-                    <h3>Duração</h3>
-                    <div class="value">${formatDuration(header.duration)}</div>
-                </div>
-                <div class="info-card">
-                    <h3>Tick Rate</h3>
-                    <div class="value">${header.tickRate || 'N/A'}</div>
-                </div>
-                <div class="info-card">
-                    <h3>Servidor</h3>
-                    <div class="value" style="font-size: 1.2em;">${truncate(header.serverName || 'N/A', 20)}</div>
-                </div>
-            `;
+            headerInfo.innerHTML = 
+                '<div class="info-card">' +
+                    '<h3>Mapa</h3>' +
+                    '<div class="value">' + (header.mapName || 'N/A') + '</div>' +
+                '</div>' +
+                '<div class="info-card">' +
+                    '<h3>Duração</h3>' +
+                    '<div class="value">' + formatDuration(header.duration) + '</div>' +
+                '</div>' +
+                '<div class="info-card">' +
+                    '<h3>Tick Rate</h3>' +
+                    '<div class="value">' + (header.tickRate || 'N/A') + '</div>' +
+                '</div>' +
+                '<div class="info-card">' +
+                    '<h3>Servidor</h3>' +
+                    '<div class="value" style="font-size: 1.2em;">' + truncate(header.serverName || 'N/A', 20) + '</div>' +
+                '</div>';
             
             // Mostra a seção de informações
             document.getElementById('demoInfo').classList.add('active');
@@ -561,116 +432,140 @@
         function populateOverview(data) {
             const content = document.getElementById('overviewContent');
             const header = data.header || {};
+            const additionalInfo = data.additionalInfo || {};
+            const isFallback = data.fallback || false;
             
-            content.innerHTML = `
-                <div class="info-grid">
-                    <div class="info-card">
-                        <h3>Total de Rounds</h3>
-                        <div class="value">${header.totalRounds || 'N/A'}</div>
-                    </div>
-                    <div class="info-card">
-                        <h3>Tamanho do Arquivo</h3>
-                        <div class="value">${formatBytes(data.fileSize)}</div>
-                    </div>
-                    <div class="info-card">
-                        <h3>Nome do Arquivo</h3>
-                        <div class="value" style="font-size: 1em;">${truncate(data.fileName, 25)}</div>
-                    </div>
-                </div>
-                
-                <div style="background: #f7fafc; padding: 20px; border-radius: 10px; margin-top: 20px;">
-                    <h3 style="margin-bottom: 15px; color: #2d3748;">ℹ️ Informação</h3>
-                    <p style="color: #718096;">
-                        Esta é uma análise básica do demo. Para análise completa com todas as estatísticas,
-                        posições dos jogadores e replay 3D, será necessário usar o parser completo demoparser2.
-                    </p>
-                    <p style="color: #718096; margin-top: 10px;">
-                        <strong>Servidor:</strong> ${header.serverName || 'N/A'}<br/>
-                        <strong>Tipo de Jogo:</strong> ${header.gameType || 'Competitivo'}
-                    </p>
-                </div>
-            `;
+            let html = '<div class="info-grid">' +
+                    '<div class="info-card">' +
+                        '<h3>Tamanho do Arquivo</h3>' +
+                        '<div class="value">' + formatBytes(data.fileSize) + '</div>' +
+                    '</div>' +
+                    '<div class="info-card">' +
+                        '<h3>Total de Mortes</h3>' +
+                        '<div class="value">' + (data.totalDeaths || 'N/A') + '</div>' +
+                    '</div>' +
+                    '<div class="info-card">' +
+                        '<h3>Total de Disparos</h3>' +
+                        '<div class="value">' + (data.totalShots || 'N/A') + '</div>' +
+                    '</div>' +
+                '</div>';
+            
+            if (isFallback) {
+                html += '<div style="background: #fff5f5; padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #ef4444;">' +
+                    '<h3 style="margin-bottom: 15px; color: #c53030;">⚠️ Análise Limitada</h3>' +
+                    '<p style="color: #c53030;">' + (data.error || 'Análise detalhada não disponível') + '</p>' +
+                    '<p style="color: #718096; margin-top: 10px;"><strong>Instale o demoparser2:</strong> pip install demoparser2</p>' +
+                '</div>';
+            } else {
+                html += '<div style="background: #e6fffa; padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #00e1ff;">' +
+                    '<h3 style="margin-bottom: 15px; color: #2d3748;">✅ Análise Completa</h3>' +
+                    '<p style="color: #718096;">Análise detalhada usando <strong>demoparser2</strong> (Python)</p>' +
+                '</div>';
+            }
+            
+            html += '<div style="background: #f7fafc; padding: 20px; border-radius: 10px; margin-top: 20px;">' +
+                '<h3 style="margin-bottom: 15px; color: #2d3748;">ℹ️ Informação</h3>' +
+                '<p style="color: #718096;">' +
+                    '<strong>Servidor:</strong> ' + (header.serverName || 'N/A') + '<br/>' +
+                    '<strong>Protocolo:</strong> ' + (header.protocol || 'N/A') + '<br/>' +
+                    '<strong>Caminho:</strong> ' + (additionalInfo.filePath ? truncate(additionalInfo.filePath, 50) : 'N/A') +
+                '</p>' +
+            '</div>';
+            
+            content.innerHTML = html;
         }
         
         function populatePlayers(data) {
-            const tbody = document.getElementById('playersTableBody');
+            const content = document.getElementById('playersContent');
+            const playerStats = data.playerStats || [];
             
-            if (!data.playerStats || data.playerStats.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="8" style="text-align: center; color: #718096; font-style: italic;">
-                            Estatísticas de jogadores não disponíveis. 
-                            Para análise completa, use o parser JavaScript no lado do cliente.
-                        </td>
-                    </tr>
-                `;
+            if (playerStats.length === 0) {
+                content.innerHTML = '<div style="background: #f7fafc; padding: 40px; border-radius: 10px; text-align: center; color: #718096; font-style: italic;">' +
+                    'Estatísticas de jogadores não disponíveis.' +
+                '</div>';
                 return;
             }
             
-            tbody.innerHTML = data.playerStats.map(player => `
-                <tr>
-                    <td><strong>${player.playerName}</strong></td>
-                    <td class="team-${player.team.toLowerCase()}">${player.team}</td>
-                    <td>${player.kills}</td>
-                    <td>${player.deaths}</td>
-                    <td>${player.assists}</td>
-                    <td>${player.kdr.toFixed(2)}</td>
-                    <td>${((player.headshotKills / player.kills) * 100).toFixed(1)}%</td>
-                    <td>${player.mvps}</td>
-                </tr>
-            `).join('');
+            let html = '<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">' +
+                '<thead style="background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%); color: white;">' +
+                    '<tr>' +
+                        '<th style="padding: 15px; text-align: left;">Jogador</th>' +
+                        '<th style="padding: 15px;">Time</th>' +
+                        '<th style="padding: 15px;">K</th>' +
+                        '<th style="padding: 15px;">D</th>' +
+                        '<th style="padding: 15px;">K/D</th>' +
+                        '<th style="padding: 15px;">HS%</th>' +
+                        '<th style="padding: 15px;">Arma Favorita</th>' +
+                    '</tr>' +
+                '</thead>' +
+                '<tbody>';
+            
+            playerStats.forEach(player => {
+                const teamClass = player.team.toLowerCase().includes('ct') ? 'team-ct' : 'team-t';
+                html += '<tr style="border-bottom: 1px solid #e2e8f0; transition: all 0.2s;" onmouseover="this.style.background=\'#f7fafc\'" onmouseout="this.style.background=\'transparent\'">' +
+                    '<td style="padding: 15px;"><strong>' + (player.playerName || 'Unknown') + '</strong></td>' +
+                    '<td style="padding: 15px; text-align: center;"><span class="' + teamClass + '" style="font-weight: bold;">' + (player.team || 'N/A') + '</span></td>' +
+                    '<td style="padding: 15px; text-align: center;">' + (player.kills || 0) + '</td>' +
+                    '<td style="padding: 15px; text-align: center;">' + (player.deaths || 0) + '</td>' +
+                    '<td style="padding: 15px; text-align: center;">' + (player.kdr ? player.kdr.toFixed(2) : '0.00') + '</td>' +
+                    '<td style="padding: 15px; text-align: center;">' + (player.headshotPercentage ? player.headshotPercentage.toFixed(1) : '0.0') + '%</td>' +
+                    '<td style="padding: 15px; text-align: center;"><code style="background: #667eea; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">' + (player.favoriteWeapon || 'N/A') + '</code></td>' +
+                '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            content.innerHTML = html;
         }
         
         function populateRounds(data) {
             const content = document.getElementById('roundsContent');
+            const rounds = data.rounds || [];
             
-            if (!data.rounds || data.rounds.length === 0) {
-                content.innerHTML = `
-                    <div style="background: #f7fafc; padding: 20px; border-radius: 10px; text-align: center;">
-                        <p style="color: #718096; font-style: italic;">
-                            Informações detalhadas dos rounds não disponíveis.
-                            Para análise completa, use o parser JavaScript no lado do cliente.
-                        </p>
-                    </div>
-                `;
+            if (rounds.length === 0) {
+                content.innerHTML = '<div style="background: #f7fafc; padding: 40px; border-radius: 10px; text-align: center; color: #718096; font-style: italic;">' +
+                    'Informações de rounds não disponíveis.' +
+                '</div>';
                 return;
             }
             
-            content.innerHTML = data.rounds.map(round => `
-                <div class="round-card">
-                    <div class="round-header">
-                        <div class="round-number">Round ${round.roundNumber}</div>
-                        <div class="round-score">
-                            <span class="team-ct">CT ${round.ctScore}</span> - 
-                            <span class="team-t">${round.tScore} T</span>
-                        </div>
-                    </div>
-                    <div>
-                        <strong>Vencedor:</strong> 
-                        <span class="team-${round.winner.toLowerCase()}">${round.winner}</span>
-                        <span style="color: #718096; margin-left: 10px;">(${round.winReason})</span>
-                    </div>
-                    <div style="margin-top: 10px;">
-                        <strong>Duração:</strong> ${round.roundDuration.toFixed(1)}s
-                    </div>
-                    ${round.kills &amp;#38;&amp;#38; round.kills.length > 0 ? `
-                        <div style="margin-top: 15px;">
-                            <strong>Kills:</strong>
-                            <ul class="kills-list">
-                                ${round.kills.map(kill => `
-                                    <li class="kill-item">
-                                        <span class="team-${kill.killerTeam.toLowerCase()}">${kill.killerName}</span>
-                                        <span class="weapon-icon">${kill.weapon}</span>
-                                        ${kill.headshot ? '<span class="headshot-badge">HS</span>' : ''}
-                                        <span>→</span>
-                                        <span class="team-${kill.victimTeam.toLowerCase()}">${kill.victimName}</span>
-                                    </li>
-                                `).join('')}
-                            </ul>
-                        </div>
-                    ` : ''}
-                </div>
-            `).join('');
+            let html = '';
+            rounds.forEach(round => {
+                const kills = round.kills || [];
+                html += '<div style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-left: 5px solid #667eea;">' +
+                    '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">' +
+                        '<div style="font-size: 1.3em; font-weight: bold; color: #2d3748;">Round ' + (round.roundNumber || 0) + '</div>' +
+                        '<div><strong>Vencedor:</strong> <span style="color: #667eea; font-weight: bold;">' + (round.winner || 'N/A') + '</span></div>' +
+                    '</div>';
+                
+                if (round.winReason) {
+                    html += '<div style="margin-bottom: 10px; color: #718096;"><strong>Motivo:</strong> ' + round.winReason + '</div>';
+                }
+                
+                if (kills.length > 0) {
+                    html += '<div style="margin-top: 15px;"><strong>Kills (' + kills.length + '):</strong><ul style="list-style: none; padding: 0; margin-top: 10px;">';
+                    
+                    kills.slice(0, 10).forEach(kill => {
+                        const headshotBadge = kill.headshot ? '<span style="background: #e53e3e; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.8em; font-weight: bold; margin-left: 5px;">HS</span>' : '';
+                        html += '<li style="padding: 10px; margin: 5px 0; background: #f7fafc; border-radius: 5px; display: flex; align-items: center; gap: 10px;">' +
+                            '<span style="font-weight: bold;">' + (kill.killerName || 'Unknown') + '</span>' +
+                            '<span style="background: #667eea; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">' + (kill.weapon || 'unknown') + '</span>' +
+                            headshotBadge +
+                            '<span>→</span>' +
+                            '<span>' + (kill.victimName || 'Unknown') + '</span>' +
+                        '</li>';
+                    });
+                    
+                    if (kills.length > 10) {
+                        html += '<li style="padding: 10px; text-align: center; color: #718096; font-style: italic;">... e mais ' + (kills.length - 10) + ' kills</li>';
+                    }
+                    
+                    html += '</ul></div>';
+                }
+                
+                html += '</div>';
+            });
+            
+            content.innerHTML = html;
         }
         
         function showTab(tabName) {
@@ -684,7 +579,7 @@
             
             // Ativa a tab selecionada
             event.target.classList.add('active');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
         }
         
         function showLoading(show) {
@@ -709,21 +604,12 @@
             hideError();
         }
         
-        function loadSelectedDemo() {
-            // Implementar carregamento de demo selecionado
-            const select = document.getElementById('demoSelect');
-            const anexoId = select.value;
-            if (anexoId) {
-                loadDemoById(anexoId);
-            }
-        }
-        
         // Funções utilitárias
         function formatDuration(seconds) {
             if (!seconds) return 'N/A';
             const mins = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs.toString().padStart(2, '0')}`;
+            return mins + ':' + (secs < 10 ? '0' : '') + secs;
         }
         
         function formatBytes(bytes) {
@@ -745,8 +631,7 @@
         if (anexoId) {
             loadDemoById(anexoId);
         }
-        //]]>
     </script>
-</h:body>
+</body>
 </html>
 
