@@ -689,13 +689,33 @@
             let html = '';
             rounds.forEach(round => {
                 const kills = round.kills || [];
-                html += '<div style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-left: 5px solid #667eea;">' +
-                    '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">' +
-                        '<div style="font-size: 1.3em; font-weight: bold; color: #2d3748;">Round ' + (round.roundNumber || 0) + '</div>' +
-                        '<div><strong>Vencedor:</strong> <span style="color: #667eea; font-weight: bold;">' + (round.winner || 'N/A') + '</span></div>' +
+                const roundNum = round.roundNumber !== undefined ? round.roundNumber : round.roundNumberRaw || 0;
+                const isKnifeRound = round.isKnifeRound || false;
+                const roundType = round.roundType || (isKnifeRound ? 'Knife Round' : 'Normal');
+                
+                // Cor do border baseado no vencedor
+                let borderColor = '#667eea'; // Default
+                if (round.winner === 'CT') {
+                    borderColor = '#3182ce';
+                } else if (round.winner === 'TERRORIST') {
+                    borderColor = '#e53e3e';
+                }
+                
+                html += '<div style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-left: 5px solid ' + borderColor + ';">' +
+                    '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">' +
+                        '<div style="display: flex; align-items: center; gap: 10px;">' +
+                            '<div style="font-size: 1.3em; font-weight: bold; color: #2d3748;">Round ' + roundNum + '</div>' +
+                            (isKnifeRound ? '<span style="background: #fbbf24; color: white; padding: 4px 10px; border-radius: 5px; font-size: 0.8em; font-weight: bold;">🔪 KNIFE</span>' : '') +
+                            '<a href="round-player.html?anexoId=' + getAnexoIdFromUrl() + '&round=' + roundNum + '" target="_blank" style="background: #667eea; color: white; padding: 4px 10px; border-radius: 5px; font-size: 0.8em; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">🎬 Assistir</a>' +
+                        '</div>' +
+                        '<div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">' +
+                            '<div><strong>Vencedor:</strong> <span style="color: ' + borderColor + '; font-weight: bold;">' + (round.winner || 'Unknown') + '</span></div>' +
+                            (round.bombPlanted ? '<span style="background: #e53e3e; color: white; padding: 4px 10px; border-radius: 5px; font-size: 0.85em;">💣 Plantada' + (round.bombPlanter ? ' por ' + round.bombPlanter : '') + '</span>' : '') +
+                            (round.bombDefused ? '<span style="background: #38a169; color: white; padding: 4px 10px; border-radius: 5px; font-size: 0.85em;">✂️ Desarmada' + (round.bombDefuser ? ' por ' + round.bombDefuser : '') + '</span>' : '') +
+                        '</div>' +
                     '</div>';
                 
-                if (round.winReason) {
+                if (round.winReason && round.winReason !== 'Unknown') {
                     html += '<div style="margin-bottom: 10px; color: #718096;"><strong>Motivo:</strong> ' + round.winReason + '</div>';
                 }
                 
@@ -745,6 +765,11 @@
             // Ativa a tab selecionada
             event.target.classList.add('active');
             document.getElementById('tab-' + tabName).classList.add('active');
+        }
+        
+        function getAnexoIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('anexoId') || '';
         }
         
         function showLoading(show) {

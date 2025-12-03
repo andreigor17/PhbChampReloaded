@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Round Player - PhbChamp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .canvas-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        #minimapCanvas {
+            width: 100%;
+            height: auto;
+            border: 3px solid #2d3748;
+            border-radius: 10px;
+            background: #1a202c;
+            cursor: crosshair;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .info-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .info-panel h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .team-section {
+            margin-bottom: 15px;
+        }
+
+        .team-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .team-ct {
+            background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+            color: white;
+        }
+
+        .team-t {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            color: white;
+        }
+
+        .player-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .player-item {
+            padding: 10px;
+            background: #f7fafc;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+
+        .player-item.alive {
+            border-left-color: #38a169;
+        }
+
+        .player-item.dead {
+            border-left-color: #e53e3e;
+            opacity: 0.5;
+        }
+
+        .player-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .player-name {
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .player-health {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .health-bar {
+            width: 60px;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #38a169 0%, #48bb78 100%);
+            transition: width 0.3s;
+        }
+
+        .health-text {
+            font-size: 0.9em;
+            color: #4a5568;
+            font-weight: bold;
+            min-width: 35px;
+        }
+
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls-panel h3 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+            color: white;
+        }
+
+        .btn-icon {
+            padding: 12px;
+            min-width: 50px;
+        }
+
+        .timeline-container {
+            margin: 20px 0;
+        }
+
+        .timeline-label {
+            color: #2d3748;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+        }
+
+        .timeline-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .timeline-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .timeline-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .speed-selector {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .speed-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .speed-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .speed-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .info-display {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        .info-label {
+            font-weight: 600;
+        }
+
+        .info-value {
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .events-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .event-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f7fafc;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            animation: slideIn 0.3s;
+        }
+
+        .event-kill {
+            border-left-color: #e53e3e;
+        }
+
+        .event-plant {
+            border-left-color: #ed8936;
+        }
+
+        .event-defuse {
+            border-left-color: #38a169;
+        }
+
+        .event-time {
+            font-size: 0.85em;
+            color: #718096;
+            margin-bottom: 4px;
+        }
+
+        .event-desc {
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #e53e3e;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #2d3748;
+            font-size: 0.9em;
+        }
+
+        .legend-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid #2d3748;
+        }
+
+        .legend-icon.ct {
+            background: #3182ce;
+        }
+
+        .legend-icon.t {
+            background: #e53e3e;
+        }
+
+        .legend-icon.dead {
+            background: #718096;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 CS2 Round Player</h1>
+            <p>Visualização e análise de rounds em tempo real</p>
+        </div>
+
+        <div id="loading" class="loading">
+            <p>⏳ Carregando dados do round...</p>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="mainContent" class="main-content" style="display: none;">
+            <!-- Canvas do Minimapa -->
+            <div class="canvas-container">
+                <canvas id="minimapCanvas" width="1024" height="1024"></canvas>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-icon ct"></div>
+                        <span>CT (Vivo)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon t"></div>
+                        <span>T (Vivo)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon dead"></div>
+                        <span>Morto</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Info do Round -->
+                <div class="info-panel">
+                    <h3>📊 Informações do Round</h3>
+                    <div class="info-display">
+                        <div class="info-row">
+                            <span class="info-label">Round:</span>
+                            <span class="info-value" id="roundNumber">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Mapa:</span>
+                            <span class="info-value" id="mapName">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Vencedor:</span>
+                            <span class="info-value" id="roundWinner">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Tick Atual:</span>
+                            <span class="info-value" id="currentTick">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jogadores -->
+                <div class="info-panel">
+                    <h3>👥 Jogadores</h3>
+                    
+                    <div class="team-section">
+                        <div class="team-title team-ct">🛡️ Counter-Terrorists</div>
+                        <div class="player-list" id="ctPlayers"></div>
+                    </div>
+
+                    <div class="team-section">
+                        <div class="team-title team-t">💣 Terrorists</div>
+                        <div class="player-list" id="tPlayers"></div>
+                    </div>
+                </div>
+
+                <!-- Eventos -->
+                <div class="info-panel">
+                    <h3>📝 Eventos do Round</h3>
+                    <div class="events-list" id="eventsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controles -->
+        <div id="controls" class="controls-panel" style="display: none;">
+            <h3>⚙️ Controles de Reprodução</h3>
+            
+            <!-- Botões de Controle -->
+            <div class="control-row">
+                <button class="btn btn-secondary btn-icon" id="btnRestart" title="Reiniciar">
+                    ⏮️
+                </button>
+                <button class="btn btn-primary btn-icon" id="btnPlayPause" title="Play/Pause">
+                    ▶️
+                </button>
+                <button class="btn btn-secondary btn-icon" id="btnStop" title="Parar">
+                    ⏹️
+                </button>
+            </div>
+
+            <!-- Timeline -->
+            <div class="timeline-container">
+                <div class="timeline-label">
+                    <span>Timeline</span>
+                    <span id="timelineDisplay">0 / 0 ticks</span>
+                </div>
+                <input type="range" class="timeline-slider" id="timelineSlider" min="0" max="100" value="0">
+            </div>
+
+            <!-- Velocidade -->
+            <div>
+                <div class="timeline-label">
+                    <span>Velocidade de Reprodução</span>
+                </div>
+                <div class="speed-selector">
+                    <button class="speed-btn" data-speed="0.5">0.5×</button>
+                    <button class="speed-btn active" data-speed="1">1×</button>
+                    <button class="speed-btn" data-speed="2">2×</button>
+                    <button class="speed-btn" data-speed="4">4×</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="round-player.js"></script>
+</body>
+</html>
+
