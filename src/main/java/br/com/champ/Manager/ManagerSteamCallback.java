@@ -76,7 +76,7 @@ public class ManagerSteamCallback implements Serializable{
             System.err.println("Processando Steam ID: " + steamId64);
 
             // Busca informações do player na Steam
-            PlayerSteamVo playerVo = playerServico.getPlayerInfo(steamId64, "F10A919CE16995E066B463C9005AF4D3");
+            PlayerSteamVo playerVo = playerServico.getPlayerInfo(steamId64, "4A820496166ECD84144833F168D36F75");
 
             if (playerVo == null || playerVo.getSteamid() == null) {
                 System.err.println("Erro: não foi possível obter dados da Steam para ID: " + steamId64);

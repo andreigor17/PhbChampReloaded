@@ -29,7 +29,7 @@ import org.json.JSONObject;
 @Stateless
 public class SteamAPIServico {
 
-    private static final String API_KEY = "F10A919CE16995E066B463C9005AF4D3";
+    private static final String API_KEY = "4A820496166ECD84144833F168D36F75";
     private static final String API_BASE_URL = "https://api.steampowered.com";
 
     // Cache para armazenar resultados e evitar muitas chamadas à API
