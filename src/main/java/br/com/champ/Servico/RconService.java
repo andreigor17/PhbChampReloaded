@@ -19,7 +19,7 @@ public class RconService {
 
     private static final String RCON_PATH = "/opt/rcon-0.10.3-amd64_linux/rcon";
     private static final String RCON_ADDRESS = "0.0.0.0:27015";
-    private static final String RCON_PASSWORD = "fxiladmin";
+    private static final String RCON_PASSWORD = "irontech";
 
     /**
      * Executa um comando RCON e retorna a resposta
